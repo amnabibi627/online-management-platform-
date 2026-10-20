@@ -4,7 +4,7 @@ const SUPABASE_KEY = sb_publishable_Q_-tMvYWJGriBaASXZm7zQ__dXPpRMD
 const sb = window.supabase && typeof window.supabase.createClient === "function"
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
-const CLOUD_TABLE = "app_data";
+const CLOUD_TABLE = "platform_data";
 let cloudUser = null;
 let cloudBusy = false;
 let cloudTimer = null;

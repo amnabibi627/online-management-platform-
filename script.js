@@ -401,7 +401,6 @@ const ceoPanel = document.getElementById("ceoPanel");
 const ceoLoginForm = document.getElementById("ceoLoginForm");
 const ceoSignupExtra = document.getElementById("ceoSignupExtra");
 const ceoLoginSubmit = document.getElementById("ceoLoginSubmit");
-const ceoResetAccount = document.getElementById("ceoResetAccount");
 const ceoNameInput = document.getElementById("ceoName");
 const ceoMobileInput = document.getElementById("ceoMobile");
 const ceoCodeInput = document.getElementById("ceoCode");
@@ -474,7 +473,6 @@ const setCeoLoginMode = () => {
     : "Login with your registered mobile number and secret code.";
   ceoSignupExtra.hidden = !isNew;
   ceoLoginSubmit.textContent = isNew ? "Create Account" : "Login";
-  ceoResetAccount.hidden = isNew;
   ceoErrName.textContent = "";
   ceoErrMobile.textContent = "";
   ceoErrCode.textContent = "";
@@ -634,29 +632,6 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     showCeoPanel();
     showToast(`Logged in — welcome back, ${ceoUser.name}!`);
   }
-});
-
-ceoResetAccount.addEventListener("click", async () => {
-  const code = ceoCodeInput.value.trim();
-  if (code !== CEO_SECRET_CODE) {
-    ceoErrCode.textContent = "Wrong secret code — reset is CEO only.";
-    ceoCodeInput.classList.add("invalid");
-    showToast("Reset blocked — secret code required.", true);
-    return;
-  }
-  if (!confirm("Reset the CEO account? You will need to create it again.")) return;
-  if (sb && cloudUser) {
-    cloudUser = null;
-    cloudPending.clear();
-    try { await sb.auth.signOut(); } catch {}
-    cloudState(null, "Not signed in");
-  }
-  store.remove("ceoAccount");
-  store.set("ceoLoggedIn", false);
-  ceoUser = null;
-  setCeoSession(false);
-  setCeoLoginMode();
-  showToast("CEO account reset — create a new one.");
 });
 
 document.getElementById("ceoLogout").addEventListener("click", async () => {

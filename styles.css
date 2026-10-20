@@ -602,3 +602,95 @@ body.detail-open { overflow: hidden; }
   .detail-data-btn { font-size: 0.78rem; padding: 0.45rem 0.8rem; }
   .detail-header .brand.small { display: none; }
 }
+
+/* ---------- Mobile responsive polish ---------- */
+@media (max-width: 900px) {
+  .container { width: 92%; }
+
+  .header-inner { gap: 0.7rem; }
+  .brand-info .brand-accent { font-size: 0.68rem; }
+  .brand-name { font-size: 0.95rem; }
+
+  .hero { padding: 4.5rem 0 3.5rem; }
+  .hero-badge { font-size: 0.95rem; padding: 0.5rem 1.2rem; }
+
+  .section { padding: 4rem 0; }
+  .section-head { margin-bottom: 2.2rem; }
+
+  .promo-banner { padding: 2.2rem 1.8rem; }
+}
+
+@media (max-width: 600px) {
+  .container { width: 94%; }
+
+  .header-inner { padding: 0.75rem 0; }
+  .brand-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
+  .header-actions .btn { padding: 0.55rem 1rem; font-size: 0.85rem; }
+  .brand-info { display: none; }
+  .brand-profile { gap: 0; }
+
+  .hero { padding: 3.4rem 0 2.8rem; }
+  .hero-badge { font-size: 0.82rem; padding: 0.45rem 1rem; margin-bottom: 1rem; }
+  .hero-title { line-height: 1.15; margin-bottom: 1rem; }
+  .hero-subtitle { font-size: 0.98rem; margin-bottom: 1.7rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-actions .btn { width: 100%; }
+
+  .section { padding: 3.2rem 0; }
+  .section-title { font-size: 1.5rem; }
+  .section-subtitle { font-size: 0.95rem; }
+  .industries .section-title, .portals .section-title { white-space: normal; }
+
+  .industry-grid, .detail-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .industry-card { padding: 1.4rem 1.2rem; }
+  .industry-icon { width: 46px; height: 46px; font-size: 1.35rem; }
+
+  .portal-grid, .plan-grid, .owner-grid { grid-template-columns: 1fr; gap: 1.1rem; }
+  .portal-card { padding: 1.7rem 1.3rem; }
+  .plan-card { padding: 1.6rem 1.3rem; }
+
+  .promo-banner { padding: 1.8rem 1.3rem; text-align: center; }
+  .promo-banner .btn { width: 100%; }
+
+  .footer-inner { flex-direction: column; text-align: center; }
+
+  .detail-hero { padding: 2.4rem 0 1.8rem; }
+  .detail-hero p { font-size: 0.96rem; }
+  .detail-card { padding: 1.3rem 1.15rem; }
+
+  /* Modals fill the screen comfortably */
+  .owner-modal, .feature-modal { padding: 0.6rem; }
+  .owner-modal-box { padding: 1.6rem 1.2rem; border-radius: 18px; max-height: 94vh; }
+  .feature-panel { padding: 1.4rem 1.05rem; border-radius: 18px; max-height: 94vh; }
+
+  .ceo-stats { grid-template-columns: 1fr; }
+  .ceo-actions { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+
+  .detail-header { gap: 0.55rem; padding: 0.75rem 4%; }
+  .detail-back { font-size: 0.82rem; padding: 0.5rem 0.9rem; }
+  .detail-data-btn { order: 3; width: 100%; margin: 0.2rem 0 0; }
+
+  .feature-title { gap: 0.55rem; }
+  .feature-icon { width: 40px; height: 40px; font-size: 1.15rem; }
+  .feature-title h3 { font-size: 1.05rem; }
+
+  /* Keep sheets usable on small screens */
+  .f-table, .sheet-table { min-width: 440px; font-size: 0.85rem; }
+  .f-table th, .f-table td { padding: 0.5rem 0.45rem; }
+
+  .sheet-sec-head { padding: 0.55rem 0.8rem; }
+  .sheet-sec-head h4 { font-size: 0.88rem; }
+
+  .f-form-actions { flex-direction: column-reverse; }
+  .f-form-actions .btn { width: 100%; }
+
+  .toast { left: 4%; right: 4%; transform: translateY(140%); max-width: none; width: auto; }
+  .toast.show { transform: translateY(0); }
+}
+
+@media (max-width: 380px) {
+  .header-actions .btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
+  .hero-title { font-size: 1.85rem; }
+  .f-table, .sheet-table { min-width: 400px; }
+}

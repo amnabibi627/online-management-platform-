@@ -25,13 +25,18 @@
       <nav class="main-nav" id="mainNav">
         <a href="#top" class="nav-link active">Home Page</a>
         <a href="#industries" class="nav-link">Industries</a>
+        <a href="#portals" class="nav-link">Portals</a>
         <a href="#subscriptions" class="nav-link">Subscriptions</a>
         <a href="#promotions" class="nav-link">Promotions</a>
         <a href="#owner-details" class="nav-link">Owner Details</a>
       </nav>
 
       <div class="header-actions">
-        <button type="button" class="btn btn-primary" id="ceoBtn">Owner Account</button>
+        <div class="cloud-pill" id="cloudPill" title="Supabase Cloud Sync Status">
+          <span class="cloud-dot"></span>
+          <span id="cloudPillText">Local only</span>
+        </div>
+        <button type="button" class="btn btn-primary" id="ceoBtn">CEO Account</button>
         <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
           <span></span><span></span><span></span>
         </button>
@@ -906,6 +911,20 @@
       <h3 id="ownerModalTitle">Owner Sign Up</h3>
       <p class="modal-sub" id="ownerModalSub">Create your owner account and choose your business category.</p>
 
+      <!-- Active Owner View (when already signed in) -->
+      <div id="ownerActiveBox" hidden>
+        <div class="ceo-stats" style="margin-bottom:1rem;">
+          <div class="ceo-stat"><span>Owner</span><strong id="ownerActiveName">—</strong></div>
+          <div class="ceo-stat"><span>Mobile</span><strong id="ownerActiveMobile">—</strong></div>
+          <div class="ceo-stat"><span>Category</span><strong id="ownerActiveCategory">—</strong></div>
+        </div>
+        <div class="ceo-actions">
+          <button type="button" class="btn btn-primary" id="ownerGoCategory">Open Category</button>
+          <button type="button" class="btn btn-outline" id="ownerSwitchAccount">Switch Account</button>
+        </div>
+        <button type="button" class="btn btn-outline btn-block" id="ownerLogout" style="margin-top:0.5rem;">Logout</button>
+      </div>
+
       <form id="ownerForm" novalidate>
         <div id="signupFields">
           <div class="form-row">
@@ -958,6 +977,9 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" id="ownerSubmit">Create Owner Account</button>
+        <p class="admin-hint" style="margin-top:0.85rem;margin-bottom:0;text-align:center;">
+          <a href="#" id="ownerModeToggle" style="color:var(--pink);font-weight:600;text-decoration:none;">Already registered? Login here</a>
+        </p>
       </form>
     </div>
   </div>
@@ -970,7 +992,7 @@
 
       <!-- CEO Login Screen -->
       <div id="ceoLogin">
-        <h3 id="ceoLoginTitle">Owner Account Login</h3>
+        <h3 id="ceoLoginTitle">CEO Account Login</h3>
         <p class="modal-sub" id="ceoLoginSub">Login to the CEO master account of Online Management Site.</p>
 
         <form id="ceoLoginForm" novalidate>
@@ -1002,6 +1024,12 @@
       <div id="ceoPanel" hidden>
         <h3 id="ceoPanelName">Amna Bibi</h3>
         <p class="modal-sub">Founder &amp; CEO — Online Management Site</p>
+
+        <div class="ceo-stats">
+          <div class="ceo-stat"><span>Categories</span><strong id="ceoCatCount">8</strong></div>
+          <div class="ceo-stat"><span>Owners</span><strong id="ceoOwnerInfo">—</strong></div>
+          <div class="ceo-stat"><span>Access</span><strong id="ceoAccessInfo">Full (CEO)</strong></div>
+        </div>
 
         <div class="ceo-actions">
           <button class="btn btn-primary" id="ceoAdminPanel" type="button">🛡️ Super Admin Panel</button>

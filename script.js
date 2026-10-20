@@ -271,17 +271,47 @@ const setError = (f, msg) => {
   f.input.classList.toggle("invalid", !!msg);
 };
 
+const ownerActiveBox = document.getElementById("ownerActiveBox");
+const ownerActiveName = document.getElementById("ownerActiveName");
+const ownerActiveMobile = document.getElementById("ownerActiveMobile");
+const ownerActiveCategory = document.getElementById("ownerActiveCategory");
+const ownerModeToggle = document.getElementById("ownerModeToggle");
+const ownerLogout = document.getElementById("ownerLogout");
+const ownerGoCategory = document.getElementById("ownerGoCategory");
+const ownerSwitchAccount = document.getElementById("ownerSwitchAccount");
+
+let ownerModalMode = "signup"; // "signup" | "login" | "active"
+
 const openOwnerModal = (mode) => {
-  const isSignup = mode === "signup";
-  ownerModalTitle.textContent = isSignup ? "Owner Sign Up" : "Owner Login";
-  ownerModalSub.textContent = isSignup
-    ? "Create your owner account and choose your business category."
-    : "Enter your registered mobile number to log in.";
-  signupFields.hidden = !isSignup;
-  loginField.hidden = isSignup;
-  ownerSubmit.textContent = isSignup ? "Create Owner Account" : "Login";
+  ownerModalMode = mode || (owner ? "active" : "signup");
   Object.values(fields).forEach((f) => setError(f, ""));
-  ownerForm.reset();
+
+  if (ownerModalMode === "active" && owner) {
+    ownerModalTitle.textContent = "My Owner Account";
+    ownerModalSub.textContent = "You are currently signed in as an Owner.";
+    if (ownerActiveBox) ownerActiveBox.hidden = false;
+    ownerForm.hidden = true;
+    if (ownerActiveName) ownerActiveName.textContent = owner.name || "Owner";
+    if (ownerActiveMobile) ownerActiveMobile.textContent = owner.mobile || "—";
+    const allowed = ownerAllowedCats(owner);
+    if (ownerActiveCategory) ownerActiveCategory.textContent = allowed.map(labelFor).join(", ") || labelFor(owner.category) || "—";
+  } else {
+    const isSignup = ownerModalMode === "signup";
+    ownerModalTitle.textContent = isSignup ? "Owner Sign Up" : "Owner Login";
+    ownerModalSub.textContent = isSignup
+      ? "Create your owner account and choose your business category."
+      : "Enter your registered mobile number to log in.";
+    if (ownerActiveBox) ownerActiveBox.hidden = true;
+    ownerForm.hidden = false;
+    signupFields.hidden = !isSignup;
+    loginField.hidden = isSignup;
+    ownerSubmit.textContent = isSignup ? "Create Owner Account" : "Login";
+    if (ownerModeToggle) {
+      ownerModeToggle.textContent = isSignup ? "Already registered? Login here" : "Need a new account? Sign Up here";
+    }
+    ownerForm.reset();
+  }
+
   ownerModal.classList.add("open");
   ownerModal.setAttribute("aria-hidden", "false");
 };
@@ -292,7 +322,7 @@ const closeOwnerModal = () => {
 };
 
 const refreshOwnerButton = () => {
-  ownerBtn.textContent = owner ? "Owner Login" : "Owner Sign Up";
+  if (ownerBtn) ownerBtn.textContent = owner ? "Owner Account" : "Owner Sign Up";
 };
 
 const ownerAllowedCats = (o) =>
@@ -343,7 +373,39 @@ const validateSignup = () => {
   return { name, mobile, age: ageNum, city, category };
 };
 
-ownerBtn.addEventListener("click", () => openOwnerModal(owner ? "login" : "signup"));
+if (ownerModeToggle) {
+  ownerModeToggle.addEventListener("click", (e) => {
+    e.preventDefault();
+    openOwnerModal(ownerModalMode === "signup" ? "login" : "signup");
+  });
+}
+
+if (ownerSwitchAccount) {
+  ownerSwitchAccount.addEventListener("click", () => openOwnerModal("login"));
+}
+
+if (ownerGoCategory) {
+  ownerGoCategory.addEventListener("click", () => {
+    closeOwnerModal();
+    const cat = owner && (owner.category || (owner.categories && owner.categories[0]));
+    if (!cat) return;
+    const card = document.querySelector(`.industry-card[data-detail="${cat}"]`);
+    if (card) card.click();
+  });
+}
+
+if (ownerLogout) {
+  ownerLogout.addEventListener("click", () => {
+    store.remove("ownerAccount");
+    owner = null;
+    closeOwnerModal();
+    refreshOwnerButton();
+    applyAccess();
+    showToast("Logged out of owner account.");
+  });
+}
+
+if (ownerBtn) ownerBtn.addEventListener("click", () => openOwnerModal(owner ? "active" : "signup"));
 
 document.getElementById("ownerModalClose").addEventListener("click", closeOwnerModal);
 ownerModal.addEventListener("click", (e) => { if (e.target === ownerModal) closeOwnerModal(); });
@@ -354,16 +416,19 @@ document.addEventListener("keydown", (e) => {
 ownerForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  if (!owner) {
+  if (ownerModalMode === "signup") {
     const data = validateSignup();
     if (!data) { showToast("Signup failed — please fix the fields (valid mobile number required).", true); return; }
     owner = { ...data, categories: [data.category] };
     try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
     const ownersList = store.get("owners", []);
-    if (!ownersList.some((o) => o.mobile === owner.mobile)) {
+    const existingIdx = ownersList.findIndex((o) => o.mobile === owner.mobile);
+    if (existingIdx !== -1) {
+      ownersList[existingIdx] = { ...ownersList[existingIdx], ...owner };
+    } else {
       ownersList.push({ name: owner.name, mobile: owner.mobile, age: owner.age, city: owner.city, categories: [owner.category] });
-      store.set("owners", ownersList);
     }
+    store.set("owners", ownersList);
     closeOwnerModal();
     refreshOwnerButton();
     applyAccess();
@@ -371,10 +436,20 @@ ownerForm.addEventListener("submit", (e) => {
   } else {
     const mobile = normMobile(fields.loginMobile.input.value);
     if (!MOBILE_RE.test(mobile)) { setError(fields.loginMobile, "Enter a valid mobile number, e.g. 03123456789."); showToast("Login failed — invalid mobile number.", true); return; }
-    if (mobile !== owner.mobile) { setError(fields.loginMobile, "This number is not registered."); showToast("Login failed — number not registered.", true); return; }
+    const ownersList = store.get("owners", []);
+    const matched = ownersList.find((o) => o.mobile === mobile) || (owner && owner.mobile === mobile ? owner : null);
+    if (!matched) {
+      setError(fields.loginMobile, "This number is not registered. Please sign up.");
+      showToast("Login failed — number not registered.", true);
+      return;
+    }
     setError(fields.loginMobile, "");
+    owner = { ...matched, categories: ownerAllowedCats(matched) };
+    try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
     closeOwnerModal();
-    showToast(`Logged in — welcome back, ${owner.name}! Access: ${labelFor(owner.category)} only.`);
+    refreshOwnerButton();
+    applyAccess();
+    showToast(`Logged in — welcome back, ${owner.name}! Access: ${ownerAllowedCats(owner).map(labelFor).join(", ")}.`);
   }
 });
 
@@ -390,7 +465,9 @@ const store = {
   remove(key) { try { localStorage.removeItem(key); } catch {} cloudDrop(key); },
 };
 
-let ceoMode = localStorage.getItem("ceoMode") === "all";
+let ceoUser = store.get("ceoAccount", null);
+let ceoLoggedIn = !!ceoUser && store.get("ceoLoggedIn", false) === true;
+let ceoMode = (localStorage.getItem("ceoMode") === "all") || ceoLoggedIn;
 let removedKeys = store.get("removedKeys", []);
 let customCats = store.get("customCats", []);
 
@@ -417,8 +494,6 @@ const hashSecret = (s) => {
   return h.toString(36);
 };
 
-let ceoUser = store.get("ceoAccount", null);
-let ceoLoggedIn = !!ceoUser && store.get("ceoLoggedIn", false) === true;
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 
@@ -467,7 +542,7 @@ const updateCeoStats = () => {
 
 const setCeoLoginMode = () => {
   const isNew = !ceoUser;
-  document.getElementById("ceoLoginTitle").textContent = isNew ? "Create CEO Account" : "Owner Account Login";
+  document.getElementById("ceoLoginTitle").textContent = isNew ? "Create CEO Account" : "CEO Account Login";
   document.getElementById("ceoLoginSub").textContent = isNew
     ? "Registration is CEO-only — secret code required."
     : "Login with your registered mobile number and secret code.";
@@ -500,7 +575,13 @@ const openCeoModal = () => {
 
 const setCeoSession = (value) => {
   ceoLoggedIn = value;
-  try { localStorage.setItem("ceoLoggedIn", JSON.stringify(value)); } catch {}
+  ceoMode = value;
+  try {
+    localStorage.setItem("ceoLoggedIn", JSON.stringify(value));
+    localStorage.setItem("ceoMode", value ? "all" : "restricted");
+  } catch {}
+  applyAccess();
+  updateCeoStats();
 };
 
 ceoLoginForm.addEventListener("submit", async (e) => {
@@ -1382,7 +1463,21 @@ dataPanel.addEventListener("input", (e) => {
 
 const addSheetButton = (detail, catKey) => {
   if (!detail) return;
-  if (!detail.querySelector(".detail-admin-btn")) {
+  const header = detail.querySelector(".detail-header");
+  if (!header) return;
+  if (!header.querySelector(".detail-data-btn")) {
+    const dbtn = document.createElement("button");
+    dbtn.type = "button";
+    dbtn.className = "btn btn-outline detail-data-btn";
+    dbtn.textContent = "📑 All Data Sheet";
+    dbtn.title = "View all entries in Excel-style sheet";
+    dbtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      renderDataBrowser(catKey);
+    });
+    header.appendChild(dbtn);
+  }
+  if (!header.querySelector(".detail-admin-btn")) {
     const abtn = document.createElement("button");
     abtn.type = "button";
     abtn.className = "btn btn-primary detail-admin-btn";
@@ -1391,7 +1486,7 @@ const addSheetButton = (detail, catKey) => {
       e.stopPropagation();
       openCategoryAdmin(catKey);
     });
-    detail.querySelector(".detail-header").appendChild(abtn);
+    header.appendChild(abtn);
   }
 };
 

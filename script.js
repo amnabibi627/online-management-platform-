@@ -330,19 +330,11 @@ const ownerAllowedCats = (o) =>
 
 const applyAccess = () => {
   document.querySelectorAll(".industry-card").forEach((card) => {
+    card.querySelector(".card-remove")?.remove();
     if (ceoMode) {
       card.classList.remove("locked");
       card.classList.remove("allowed");
-      if (!card.querySelector(".card-remove")) {
-        const rm = document.createElement("button");
-        rm.type = "button";
-        rm.className = "card-remove";
-        rm.title = "Remove category";
-        rm.textContent = "✕";
-        card.appendChild(rm);
-      }
     } else {
-      card.querySelector(".card-remove")?.remove();
       const isAllowed = owner && ownerAllowedCats(owner).includes(card.dataset.detail);
       card.classList.toggle("locked", !!owner && !isAllowed);
       card.classList.toggle("allowed", !!isAllowed);

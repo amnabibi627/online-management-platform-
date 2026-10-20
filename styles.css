@@ -435,13 +435,7 @@ body.detail-open { overflow: hidden; }
 .ceo-note { font-size: 0.8rem; color: var(--muted); }
 
 /* CEO remove button on category cards */
-.card-remove {
-  position: absolute; top: 0.7rem; right: 0.7rem;
-  width: 26px; height: 26px; border-radius: 50%; border: 0;
-  background: #ffebee; color: #c62828; font-weight: 700; font-size: 0.9rem;
-  line-height: 1; cursor: pointer; z-index: 2;
-}
-.card-remove:hover { background: #c62828; color: #fff; }
+.card-remove { display: none !important; }
 
 /* Toast */
 .toast {

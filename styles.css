@@ -696,53 +696,78 @@ body.detail-open { overflow: hidden; }
 }
 
 /* ---------- Super Admin Panel ---------- */
-.admin-panel { width: min(980px, 100%); }
+.admin-panel { width: min(1040px, 100%); }
 
 .admin-tabs {
-  display: flex; gap: 0.4rem; flex-wrap: wrap;
-  border-bottom: 1px solid var(--border); margin-bottom: 1.2rem;
+  display: flex; gap: 0.25rem; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border); margin-bottom: 1.3rem;
 }
 .admin-tab {
   border: 0; background: none; cursor: pointer; font-family: inherit;
-  font-size: 0.88rem; font-weight: 600; color: var(--muted);
-  padding: 0.6rem 1rem; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  font-size: 0.86rem; font-weight: 600; color: var(--muted);
+  padding: 0.6rem 0.85rem; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  border-radius: 8px 8px 0 0; transition: color 0.15s, background 0.15s;
 }
-.admin-tab:hover { color: var(--pink-dark); }
+.admin-tab:hover { color: var(--pink-dark); background: #fff5fa; }
 .admin-tab.active { color: var(--pink); border-bottom-color: var(--pink); }
 
 .admin-stat-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.9rem; margin-bottom: 1.4rem;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.8rem; margin-bottom: 1.3rem;
 }
 .admin-stat {
-  background: #fff5fa; border: 1px solid var(--border); border-radius: 14px;
+  background: linear-gradient(160deg, #fff5fa, #fdeaf4);
+  border: 1px solid var(--border); border-radius: 14px;
   padding: 1rem 0.9rem; text-align: center;
 }
-.admin-stat .admin-stat-num { font-size: 1.6rem; font-weight: 800; color: var(--pink-dark); line-height: 1.1; }
-.admin-stat .admin-stat-lbl { font-size: 0.74rem; color: var(--muted); margin-top: 0.25rem; }
+.admin-stat .admin-stat-num { font-size: 1.7rem; font-weight: 800; color: var(--pink-dark); line-height: 1.05; }
+.admin-stat-grid .admin-stat-num { word-break: break-word; }
+.admin-stat .admin-stat-lbl { font-size: 0.73rem; color: var(--muted); margin-top: 0.3rem; font-weight: 600; letter-spacing: 0.02em; }
 
 .admin-section-title {
-  font-size: 0.95rem; font-weight: 700; margin: 1.2rem 0 0.7rem;
+  font-size: 0.95rem; font-weight: 700; margin: 1.4rem 0 0.7rem;
   display: flex; align-items: center; gap: 0.5rem;
 }
+.admin-hint { color: var(--muted); font-size: 0.85rem; margin: 0 0 1rem; line-height: 1.5; }
+.admin-note {
+  background: #fffaf0; border: 1px solid #f3e2c0; color: #9a6a1a;
+  border-radius: 10px; padding: 0.6rem 0.9rem; font-size: 0.82rem; margin-bottom: 1rem;
+}
 
+/* --- Owner cards --- */
 .admin-owner-card {
   border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.1rem;
   margin-bottom: 0.8rem; background: #fff; text-align: left;
+  transition: box-shadow 0.15s;
 }
+.admin-owner-card:hover { box-shadow: 0 6px 20px rgba(233, 30, 140, 0.08); }
 .admin-owner-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
-.admin-owner-name { font-weight: 700; font-size: 1rem; }
-.admin-owner-meta { color: var(--muted); font-size: 0.83rem; margin-top: 0.15rem; }
-.admin-owner-cat { font-size: 0.78rem; font-weight: 600; color: var(--pink-dark); }
+.admin-owner-id { display: flex; align-items: center; gap: 0.7rem; }
+.admin-owner-avatar {
+  width: 40px; height: 40px; border-radius: 50%; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--pink); color: #fff; font-weight: 800; font-size: 1.05rem;
+}
+.admin-owner-name { font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.admin-owner-meta { color: var(--muted); font-size: 0.82rem; margin-top: 0.15rem; }
+.admin-owner-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.admin-owner-count {
+  font-size: 0.74rem; font-weight: 700; color: var(--pink-dark);
+  background: #fff5fa; border: 1px solid var(--border); border-radius: 999px; padding: 0.25rem 0.65rem;
+}
+.admin-role-badge {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--pink-dark); background: #ffe3f1; border-radius: 999px; padding: 0.15rem 0.5rem;
+}
 
-.admin-cat-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem; }
+.admin-cat-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
 .admin-cat-chip {
   border: 1px solid var(--border); background: #fff; border-radius: 999px;
-  padding: 0.3rem 0.75rem; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  padding: 0.32rem 0.8rem; font-size: 0.78rem; font-weight: 600; cursor: pointer;
   color: var(--muted); font-family: inherit; transition: all 0.15s;
 }
 .admin-cat-chip.on { background: var(--pink); color: #fff; border-color: var(--pink); }
-.admin-cat-chip:hover { border-color: var(--pink-light); }
+.admin-cat-chip:hover { border-color: var(--pink-light); transform: translateY(-1px); }
 
 .admin-empty {
   text-align: center; color: var(--muted); font-size: 0.92rem;
@@ -750,27 +775,91 @@ body.detail-open { overflow: hidden; }
   border-radius: 14px; padding: 2rem 1.2rem;
 }
 
+/* --- Category rows --- */
 .admin-cat-row {
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   border: 1px solid var(--border); border-radius: 12px; padding: 0.7rem 0.95rem;
   margin-bottom: 0.5rem; background: #fff; flex-wrap: wrap;
 }
 .admin-cat-row-left { display: flex; align-items: center; gap: 0.65rem; }
-.admin-cat-row-icon { font-size: 1.2rem; }
-.admin-cat-row-name { font-weight: 600; font-size: 0.9rem; }
+.admin-cat-row-icon { font-size: 1.25rem; }
+.admin-cat-row-name { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
 .admin-cat-row-meta { color: var(--muted); font-size: 0.76rem; }
+.admin-cat-badge {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: #6a1b9a; background: #f3e5f5; border-radius: 999px; padding: 0.1rem 0.45rem;
+}
+.admin-locked-tag { font-size: 0.76rem; font-weight: 600; color: var(--muted); }
 
+/* --- Buttons --- */
+.admin-ghost-btn {
+  border: 1px solid var(--pink-light); background: #fff; cursor: pointer;
+  border-radius: 8px; padding: 0.4rem 0.85rem; font-family: inherit;
+  font-size: 0.78rem; font-weight: 600; color: var(--pink-dark); transition: all 0.15s;
+}
+.admin-ghost-btn:hover { background: var(--pink); color: #fff; border-color: var(--pink); }
 .admin-danger-btn {
-  border: 0; cursor: pointer; border-radius: 8px; padding: 0.4rem 0.8rem;
+  border: 0; cursor: pointer; border-radius: 8px; padding: 0.42rem 0.85rem;
   font-family: inherit; font-size: 0.78rem; font-weight: 600;
-  background: #ffebee; color: #c62828;
+  background: #ffebee; color: #c62828; transition: all 0.15s;
 }
 .admin-danger-btn:hover { background: #c62828; color: #fff; }
 
+/* --- Data filters --- */
+.admin-filter-bar { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+.admin-filter {
+  border: 1px solid var(--border); background: #fff; cursor: pointer; font-family: inherit;
+  border-radius: 999px; padding: 0.35rem 0.8rem; font-size: 0.78rem; font-weight: 600; color: var(--muted);
+  transition: all 0.15s;
+}
+.admin-filter:hover { border-color: var(--pink-light); color: var(--pink-dark); }
+.admin-filter.active { background: var(--pink); color: #fff; border-color: var(--pink); }
+
+/* --- Recent activity --- */
+.admin-recent { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.admin-recent-row {
+  display: grid; grid-template-columns: auto 1fr auto auto; gap: 0.7rem;
+  align-items: center; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border);
+  font-size: 0.83rem; background: #fff;
+}
+.admin-recent-row:last-child { border-bottom: 0; }
+.admin-recent-icon { font-size: 1.05rem; }
+.admin-recent-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-recent-cat { color: var(--pink-dark); font-weight: 600; font-size: 0.76rem; }
+.admin-recent-date { color: var(--muted); font-size: 0.74rem; }
+
+/* --- Reports --- */
+.admin-report-table td:first-child { white-space: nowrap; }
+.admin-bars { display: flex; flex-direction: column; gap: 0.5rem; }
+.admin-bar-row { display: grid; grid-template-columns: minmax(120px, 1.2fr) 4fr auto; gap: 0.7rem; align-items: center; }
+.admin-bar-lbl { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-bar-track { background: #f3e3ee; border-radius: 999px; height: 12px; overflow: hidden; }
+.admin-bar-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--pink-light), var(--pink)); border-radius: 999px; }
+.admin-bar-val { font-size: 0.78rem; font-weight: 700; color: var(--pink-dark); min-width: 1.6rem; text-align: right; }
+
+/* --- Settings --- */
+.admin-setting-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap;
+  border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 0.55rem; background: #fff;
+}
+.admin-setting-name { font-weight: 600; font-size: 0.9rem; }
+.admin-setting-sub { color: var(--muted); font-size: 0.78rem; margin-top: 0.15rem; }
+.admin-pill {
+  font-size: 0.72rem; font-weight: 700; border-radius: 999px; padding: 0.28rem 0.7rem;
+  background: #f0f0f0; color: #555;
+}
+.admin-pill.ok { background: #e6f7ec; color: #1b7a3d; }
+.admin-pill.off { background: #fdecec; color: #c62828; }
+
 @media (max-width: 600px) {
-  .admin-tab { font-size: 0.8rem; padding: 0.5rem 0.7rem; }
+  .admin-tab { font-size: 0.78rem; padding: 0.5rem 0.6rem; }
   .admin-stat-grid { grid-template-columns: 1fr 1fr; }
   .admin-owner-head { align-items: flex-start; }
+  .admin-owner-actions { width: 100%; justify-content: space-between; }
   .admin-cat-row { flex-direction: column; align-items: flex-start; }
-  .admin-cat-row .admin-danger-btn { width: 100%; }
+  .admin-cat-row .admin-ghost-btn { width: 100%; }
+  .admin-recent-row { grid-template-columns: auto 1fr; }
+  .admin-recent-cat, .admin-recent-date { grid-column: 2; }
+  .admin-bar-row { grid-template-columns: 1fr auto; }
+  .admin-bar-track { grid-column: 1 / -1; order: 3; }
 }

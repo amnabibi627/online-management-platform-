@@ -1,6 +1,6 @@
 // ===== Supabase cloud (login + data sync) =====
 const SUPABASE_URL = "https://lsoprwhjnurfqnsymhzf.supabase.co";
-const SUPABASE_KEY = "sb_publishable_Q_-tMvYWJGriBaASXZm7zQ__dXPpRMD";
+const SUPABASE_KEY = sb_publishable_Q_-tMvYWJGriBaASXZm7zQ__dXPpRMD
 const sb = window.supabase && typeof window.supabase.createClient === "function"
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;

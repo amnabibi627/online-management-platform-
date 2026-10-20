@@ -22,7 +22,7 @@ const cloudState = (cls, label) => {
 };
 
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && (
-  k === "ownerAccount" || k === "customCats" || k === "removedKeys" ||
+  k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
   k === "ceoMode" || k === "ceoAccount" || k.endsWith(":data"));
 
 const cloudPushRows = async (rows) => {
@@ -177,8 +177,8 @@ industryGrid.addEventListener("click", (e) => {
   const card = e.target.closest(".industry-card[data-detail]");
   if (!card) return;
 
-  if (!ceoMode && owner && card.dataset.detail !== owner.category) {
-    showToast(`Access denied — your owner account is for ${labelFor(owner.category)} only.`, true);
+  if (!ceoMode && owner && !ownerAllowedCats(owner).includes(card.dataset.detail)) {
+    showToast(`Access denied — your owner account does not have ${labelFor(card.dataset.detail)} access.`, true);
     return;
   }
 
@@ -295,6 +295,9 @@ const refreshOwnerButton = () => {
   ownerBtn.textContent = owner ? "Owner Login" : "Owner Sign Up";
 };
 
+const ownerAllowedCats = (o) =>
+  Array.isArray(o && o.categories) ? o.categories : (o && o.category ? [o.category] : []);
+
 const applyAccess = () => {
   document.querySelectorAll(".industry-card").forEach((card) => {
     if (ceoMode) {
@@ -310,7 +313,7 @@ const applyAccess = () => {
       }
     } else {
       card.querySelector(".card-remove")?.remove();
-      const isAllowed = owner && card.dataset.detail === owner.category;
+      const isAllowed = owner && ownerAllowedCats(owner).includes(card.dataset.detail);
       card.classList.toggle("locked", !!owner && !isAllowed);
       card.classList.toggle("allowed", !!isAllowed);
     }
@@ -350,8 +353,13 @@ ownerForm.addEventListener("submit", (e) => {
   if (!owner) {
     const data = validateSignup();
     if (!data) { showToast("Signup failed — please fix the fields (valid mobile number required).", true); return; }
-    owner = data;
+    owner = { ...data, categories: [data.category] };
     try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
+    const ownersList = store.get("owners", []);
+    if (!ownersList.some((o) => o.mobile === owner.mobile)) {
+      ownersList.push({ name: owner.name, mobile: owner.mobile, age: owner.age, city: owner.city, categories: [owner.category] });
+      store.set("owners", ownersList);
+    }
     closeOwnerModal();
     refreshOwnerButton();
     applyAccess();
@@ -450,8 +458,9 @@ const buildCustomCategory = (cat) => {
 };
 
 const updateCeoStats = () => {
+  const ownersCount = adminAllOwners().length + (owner && !adminAllOwners().some((o) => o.mobile === owner.mobile) ? 1 : 0);
   ceoCatCount.textContent = document.querySelectorAll(".industry-card").length;
-  ceoOwnerInfo.textContent = owner ? owner.name : "Not registered";
+  ceoOwnerInfo.textContent = ownersCount > 1 ? `${ownersCount} owners` : (owner ? owner.name : "Not registered");
   ceoAccessInfo.textContent = ceoMode ? "Full (CEO)" : owner ? "Owner restricted" : "Open";
 };
 
@@ -1151,8 +1160,8 @@ const closeFeaturePanel = () => {
 };
 
 const openFeaturePanel = (catKey, featureId, itemId, card) => {
-  if (!ceoMode && owner && catKey !== owner.category) {
-    showToast(`Access denied — your owner account is for ${labelFor(owner.category)} only.`, true);
+  if (!ceoMode && owner && !ownerAllowedCats(owner).includes(catKey)) {
+    showToast(`Access denied — your owner account does not have ${labelFor(catKey)} access.`, true);
     return;
   }
   featureCtx = { catKey, featureId, def: getFeatureDef(catKey, featureId, card) };
@@ -1509,6 +1518,243 @@ const initFeatureModules = () => {
   });
   BUILTIN_CATEGORIES.concat(customCats.map((c) => c.key)).forEach(readCollection);
 };
+
+// ===== Super Admin Panel (CEO only) =====
+const adminModal = document.getElementById("adminModal");
+const adminPanel = document.getElementById("adminPanel");
+let adminTab = "overview";
+
+const allCategoryKeys = () =>
+  [...document.querySelectorAll(".industry-card[data-detail]")].map((c) => c.dataset.detail);
+
+const catMeta = (key) => {
+  const card = document.querySelector(`.industry-card[data-detail="${CSS.escape(key)}"]`);
+  return {
+    key,
+    name: card ? card.querySelector("h3").textContent.trim() : key,
+    icon: card ? card.querySelector(".industry-icon").textContent.trim() : "📁"
+  };
+};
+
+const categoryUsage = (key) => {
+  const col = store.get(collectionKey(key), null);
+  let entries = 0, features = 0;
+  if (col && col.features && typeof col.features === "object") {
+    Object.values(col.features).forEach((arr) => {
+      if (Array.isArray(arr) && arr.length) { features++; entries += arr.length; }
+    });
+  }
+  return { entries, features };
+};
+
+const adminAllOwners = () => store.get("owners", []);
+
+const closeAdminPanel = () => {
+  adminModal.classList.remove("open");
+  adminModal.setAttribute("aria-hidden", "true");
+  adminPanel.innerHTML = "";
+};
+
+const openAdminPanel = () => {
+  if (!ceoLoggedIn || !ceoUser) { showToast("Super Admin access requires CEO login.", true); return; }
+  adminTab = "overview";
+  renderAdminPanel();
+  adminModal.classList.add("open");
+  adminModal.setAttribute("aria-hidden", "false");
+};
+
+const adminTabsHtml = () => {
+  const tabs = [
+    ["overview", "📊 Overview"],
+    ["data", "🗂️ All Business Data"],
+    ["owners", "👥 Owners & Access"],
+    ["categories", "🏷️ Categories"]
+  ];
+  return `<div class="admin-tabs">` + tabs.map(([id, label]) =>
+    `<button type="button" class="admin-tab${adminTab === id ? " active" : ""}" data-admin-tab="${id}">${label}</button>`
+  ).join("") + `</div>`;
+};
+
+const renderAdminOverview = () => {
+  const keys = allCategoryKeys();
+  let totalEntries = 0, totalFeatures = 0;
+  const perCat = keys.map((k) => { const u = categoryUsage(k); totalEntries += u.entries; totalFeatures += u.features; return { ...catMeta(k), ...u }; });
+  const owners = adminAllOwners();
+  const custom = customCats.length;
+
+  const cards = perCat.map((c) =>
+    `<div class="admin-cat-row">` +
+    `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${c.icon}</span>` +
+    `<div><div class="admin-cat-row-name">${escHtml(c.name)}</div>` +
+    `<div class="admin-cat-row-meta">${c.features} features used · ${c.entries} entries</div></div></div>` +
+    `<button type="button" class="admin-danger-btn" data-admin-view="${escHtml(c.key)}">View Data</button></div>`
+  ).join("");
+
+  return adminTabsHtml() +
+    `<div class="admin-stat-grid">` +
+    `<div class="admin-stat"><div class="admin-stat-num">${keys.length}</div><div class="admin-stat-lbl">Categories</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${totalEntries}</div><div class="admin-stat-lbl">Total Entries</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${totalFeatures}</div><div class="admin-stat-lbl">Active Features</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${owners.length}</div><div class="admin-stat-lbl">Owner Accounts</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${custom}</div><div class="admin-stat-lbl">Custom Categories</div></div>` +
+    `</div>` +
+    `<div class="admin-section-title">📁 Category-wise data</div>` +
+    (cards || `<div class="admin-empty">No categories available.</div>`);
+};
+
+const renderAdminData = () => {
+  const keys = allCategoryKeys();
+  const blocks = keys.map((key) => {
+    const meta = catMeta(key);
+    const col = store.get(collectionKey(key), null);
+    const featureIds = col && col.features ? Object.keys(col.features).filter((fid) => Array.isArray(col.features[fid]) && col.features[fid].length) : [];
+    if (!featureIds.length) return "";
+    const sections = featureIds.map((fid) => {
+      const def = getFeatureDef(key, fid, null);
+      const entries = col.features[fid];
+      const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
+      const rows = entries.map((it) => {
+        const tds = def.fields.map((f) => `<td>${escHtml(String(it[f.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+        return `<tr>${tds}</tr>`;
+      }).join("");
+      return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +
+        `<h4>${escHtml(def.name)}</h4><span class="data-cat-total">${entries.length}</span></div>` +
+        `<div class="f-table-wrap"><table class="f-table sheet-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+    }).join("");
+    return `<div class="admin-section-title">${meta.icon} ${escHtml(meta.name)}</div>` + sections;
+  }).join("");
+
+  return adminTabsHtml() +
+    `<div class="admin-section-title">🗂️ All business data (read-only admin view)</div>` +
+    (blocks || `<div class="admin-empty">No data saved yet in any category.</div>`);
+};
+
+const renderAdminOwners = () => {
+  const owners = adminAllOwners();
+  const legacyOwner = owner && !owners.some((o) => o.mobile === owner.mobile) ? owner : null;
+  const list = legacyOwner ? [legacyOwner, ...owners] : owners;
+  const keys = allCategoryKeys();
+
+  const cards = list.map((o, i) => {
+    const allowed = Array.isArray(o.categories) ? o.categories : (o.category ? [o.category] : []);
+    const chips = keys.map((k) => {
+      const meta = catMeta(k);
+      const on = allowed.includes(k);
+      return `<button type="button" class="admin-cat-chip${on ? " on" : ""}" data-owner-mobile="${escHtml(o.mobile)}" data-owner-cat="${escHtml(k)}">${meta.icon} ${escHtml(meta.name)}</button>`;
+    }).join("");
+    return `<div class="admin-owner-card">` +
+      `<div class="admin-owner-head"><div>` +
+      `<div class="admin-owner-name">${escHtml(o.name)}</div>` +
+      `<div class="admin-owner-meta">${escHtml(o.mobile)}${o.city ? " · " + escHtml(o.city) : ""}${o.age ? " · age " + escHtml(String(o.age)) : ""}</div>` +
+      `</div><button type="button" class="admin-danger-btn" data-owner-remove="${i}">Remove</button></div>` +
+      `<div class="admin-cat-list">${chips}</div></div>`;
+  }).join("");
+
+  return adminTabsHtml() +
+    `<div class="admin-section-title">👥 Owner accounts & category access</div>` +
+    `<p class="feature-sub" style="margin-bottom:1rem">Tap a category chip to grant or revoke that owner's access. Green = allowed.</p>` +
+    (cards || `<div class="admin-empty">No owner accounts registered yet.</div>`);
+};
+
+const renderAdminCategories = () => {
+  const keys = allCategoryKeys();
+  const rows = keys.map((k) => {
+    const meta = catMeta(k);
+    const isCustom = !!customCats.find((c) => c.key === k);
+    const u = categoryUsage(k);
+    return `<div class="admin-cat-row">` +
+      `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${meta.icon}</span>` +
+      `<div><div class="admin-cat-row-name">${escHtml(meta.name)} ${isCustom ? '<span class="admin-cat-row-meta">(custom)</span>' : ""}</div>` +
+      `<div class="admin-cat-row-meta">${u.entries} entries</div></div></div>` +
+      `<button type="button" class="admin-danger-btn" data-admin-remove-cat="${escHtml(k)}">Remove Category</button></div>`;
+  }).join("");
+  return adminTabsHtml() +
+    `<div class="admin-section-title">🏷️ Manage categories</div>` +
+    (rows || `<div class="admin-empty">No categories available.</div>`);
+};
+
+const renderAdminPanel = () => {
+  if (!adminPanel) return;
+  let body;
+  if (adminTab === "data") body = renderAdminData();
+  else if (adminTab === "owners") body = renderAdminOwners();
+  else if (adminTab === "categories") body = renderAdminCategories();
+  else body = renderAdminOverview();
+
+  adminPanel.innerHTML =
+    `<button type="button" class="modal-close" data-admin-close aria-label="Close">&times;</button>` +
+    `<div class="feature-head"><div class="feature-title"><span class="feature-icon">🛡️</span>` +
+    `<div><h3>Super Admin Panel</h3><p class="feature-sub">${escHtml(ceoUser ? ceoUser.name : "CEO")} · full control over every category & owner</p></div></div></div>` +
+    body;
+};
+
+const toggleOwnerCategory = (mobile, catKey) => {
+  let owners = adminAllOwners();
+  let idx = owners.findIndex((o) => o.mobile === mobile);
+  if (idx === -1 && owner && owner.mobile === mobile) {
+    owners = [{ ...owner, categories: owner.category ? [owner.category] : [] }, ...owners];
+    idx = 0;
+  }
+  if (idx === -1) return;
+  const o = owners[idx];
+  if (!Array.isArray(o.categories)) o.categories = o.category ? [o.category] : [];
+  if (o.categories.includes(catKey)) o.categories = o.categories.filter((c) => c !== catKey);
+  else o.categories.push(catKey);
+  store.set("owners", owners);
+  if (owner && owner.mobile === mobile) {
+    owner = { ...owner, categories: o.categories, category: o.categories[0] || "" };
+    try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
+    applyAccess();
+  }
+  renderAdminPanel();
+  showToast(`${catKey} access ${o.categories.includes(catKey) ? "granted" : "revoked"} for ${o.name}.`);
+};
+
+const removeOwnerByIndex = (i) => {
+  const list = adminAllOwners();
+  const legacyOwner = owner && !list.some((o) => o.mobile === owner.mobile) ? owner : null;
+  const full = legacyOwner ? [legacyOwner, ...list] : list;
+  const target = full[i];
+  if (!target) return;
+  if (!confirm(`Remove owner account "${target.name}" (${target.mobile})?`)) return;
+  const next = list.filter((o) => o.mobile !== target.mobile);
+  store.set("owners", next);
+  if (owner && owner.mobile === target.mobile) {
+    store.remove("ownerAccount");
+    owner = null;
+    refreshOwnerButton();
+  }
+  applyAccess();
+  updateCeoStats();
+  renderAdminPanel();
+  showToast(`Owner "${target.name}" removed.`);
+};
+
+const adminRemoveCategory = (key) => {
+  const card = document.querySelector(`.industry-card[data-detail="${CSS.escape(key)}"]`);
+  if (card) handleRemoveCard(card);
+  renderAdminPanel();
+};
+
+adminModal.addEventListener("click", (e) => {
+  if (e.target === adminModal || e.target.closest("[data-admin-close]")) { closeAdminPanel(); return; }
+  const tab = e.target.closest("[data-admin-tab]");
+  if (tab) { adminTab = tab.getAttribute("data-admin-tab"); renderAdminPanel(); return; }
+  const view = e.target.closest("[data-admin-view]");
+  if (view) { adminTab = "data"; renderAdminPanel(); return; }
+  const chip = e.target.closest("[data-owner-cat]");
+  if (chip) { toggleOwnerCategory(chip.getAttribute("data-owner-mobile"), chip.getAttribute("data-owner-cat")); return; }
+  const rmOwner = e.target.closest("[data-owner-remove]");
+  if (rmOwner) { removeOwnerByIndex(Number(rmOwner.getAttribute("data-owner-remove"))); return; }
+  const rmCat = e.target.closest("[data-admin-remove-cat]");
+  if (rmCat) { adminRemoveCategory(rmCat.getAttribute("data-admin-remove-cat")); }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && adminModal.classList.contains("open")) closeAdminPanel();
+});
+
+document.getElementById("ceoAdminPanel").addEventListener("click", openAdminPanel);
 
 // ===== Init: apply saved removals, rebuild custom categories =====
 removedKeys.forEach((key) => {

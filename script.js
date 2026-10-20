@@ -1102,7 +1102,7 @@ const renderFeatureList = () => {
   } else {
     const head = fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
     const rows = items.map((it) => {
-      const tds = fields.map((f) => `<td>${escHtml(String(it[f.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+      const tds = fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
       return `<tr>${tds}<td class="f-act-cell"><div class="f-actions">
         <button type="button" class="f-btn edit" data-f-edit="${escHtml(it.id)}">Edit</button>
         <button type="button" class="f-btn del" data-f-del="${escHtml(it.id)}">Delete</button>
@@ -1128,7 +1128,7 @@ const renderFeatureForm = (itemId) => {
   const isEdit = !!item;
 
   const inputs = def.fields.map((f) => {
-    const val = item ? item[f.key] ?? "" : "";
+    const val = item ? ((item[f.key] ?? (item.fields && item.fields[f.key])) ?? "") : "";
     let control;
     if (f.type === "select") {
       control = `<select name="${f.key}"${f.required ? " data-required" : ""}>
@@ -1218,7 +1218,7 @@ const deleteFeatureItem = (itemId) => {
   const items = getFeatureItems(catKey, def.id);
   const entry = items.find((i) => i.id === itemId);
   if (!entry) return;
-  const label = entry[def.fields[0].key] || "this entry";
+  const label = entry[def.fields[0].key] || (entry.fields && entry.fields[def.fields[0].key]) || "this entry";
   if (!confirm(`Delete "${label}"?`)) return;
   setFeatureItems(catKey, def.id, items.filter((i) => i.id !== itemId));
   updateFeatureBadges();
@@ -1265,7 +1265,7 @@ const exportSheetCsv = (catKey) => {
     lines.push([def.name].map(q).join(","));
     lines.push(def.fields.map((f) => q(f.label)).join(","));
     col.features[fid].forEach((it) => {
-      lines.push(def.fields.map((f) => q(it[f.key] ?? "")).join(","));
+      lines.push(def.fields.map((f) => q((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")).join(","));
     });
     lines.push("");
   });
@@ -1294,7 +1294,7 @@ const renderDataBrowser = (catKey) => {
     const entries = col.features[fid];
     const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
     const rows = entries.map((it) => {
-      const tds = def.fields.map((f) => `<td>${escHtml(String(it[f.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+      const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
       const hay = (def.name + " " + Object.values(it).join(" ")).toLowerCase();
       return `<tr data-sheet-row data-search="${escHtml(hay)}">${tds}<td class="f-act-cell"><div class="f-actions">` +
         `<button type="button" class="f-btn edit" data-s-edit="${escHtml(fid)}" data-s-id="${escHtml(it.id)}">Edit</button>` +
@@ -1351,7 +1351,7 @@ const deleteSheetItem = (fid, itemId) => {
   const items = getFeatureItems(sheetCatKey, fid);
   const entry = items.find((i) => i.id === itemId);
   if (!entry) return;
-  const label = entry[def.fields[0].key] || "this entry";
+  const label = entry[def.fields[0].key] || (entry.fields && entry.fields[def.fields[0].key]) || "this entry";
   if (!confirm(`Delete "${label}"?`)) return;
   setFeatureItems(sheetCatKey, fid, items.filter((i) => i.id !== itemId));
   updateFeatureBadges();
@@ -1535,8 +1535,15 @@ const renderAdminOverview = () => {
     const col = store.get(collectionKey(k), null);
     if (!col || !col.features) return;
     Object.keys(col.features).forEach((fid) => {
+      const def = getFeatureDef(k, fid, null);
       (col.features[fid] || []).forEach((it) => {
-        recent.push({ cat: catMeta(k), fid, name: (it && it.fields && (it.fields.name || it.fields.title || it.fields.customer)) || "(entry)", at: it && (it.updatedAt || it.createdAt) });
+        const f = it && it.fields && typeof it.fields === "object" ? { ...it, ...it.fields } : (it || {});
+        const labelKey = Object.keys(f).find((kk) =>
+          kk !== "id" && kk !== "createdAt" && kk !== "updatedAt" &&
+          /name|title|patient|customer|client|student|dish|item|product|medicine|service|course|doctor|supplier|attendant|stylist/i.test(kk)
+        );
+        const name = labelKey && f[labelKey] ? String(f[labelKey]) : (def ? def.name : "(entry)");
+        recent.push({ cat: catMeta(k), fid, name, at: it && (it.updatedAt || it.createdAt) });
       });
     });
   });
@@ -1582,7 +1589,7 @@ const renderAdminData = () => {
       const entries = col.features[fid];
       const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
       const rows = entries.map((it) => {
-        const tds = def.fields.map((f) => `<td>${escHtml(String(it[f.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+        const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
         return `<tr>${tds}</tr>`;
       }).join("");
       return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +
@@ -1798,9 +1805,9 @@ const ownerScopeKeys = () => {
   return all.filter((k) => allowed.includes(k));
 };
 
-const MONEY_KEYS = ["amount", "price", "fee", "total", "cost", "salary", "profit", "due", "paid", "advance", "rent", "bill", "charges", "rate", "revenue", "expense"];
-const STATUS_PAID = /paid|clear|complete|done|received|settled|success/i;
-const STATUS_PENDING = /pend|due|unpaid|partial|remaining|unclear|outstanding/i;
+const MONEY_KEYS = ["amount", "price", "fee", "total", "cost", "salary", "profit", "due", "paid", "advance", "rent", "bill", "charges", "rate", "revenue", "expense", "balance"];
+const STATUS_PAID = /paid|clear|complete|done|received|settled|success|cash|card|online/i;
+const STATUS_PENDING = /pend|due|unpaid|partial|remaining|unclear|outstanding|credit|overdue|defaulter/i;
 
 const toNum = (v) => {
   if (typeof v === "number") return isFinite(v) ? v : 0;
@@ -1816,15 +1823,19 @@ const featureLedger = (key, fid) => {
   let total = 0, pending = 0, paid = 0, count = 0;
   entries.forEach((it) => {
     count++;
-    Object.entries(it.fields || {}).forEach(([fk, fv]) => {
+    const f = it && it.fields && typeof it.fields === "object" ? { ...it, ...it.fields } : (it || {});
+    const skey = Object.keys(f).find((kk) => kk !== "id" && /status|payment|paid|mode|method/i.test(kk));
+    const sval = skey ? String(f[skey] ?? "") : "";
+    let entryTotal = 0;
+    Object.entries(f).forEach(([fk, fv]) => {
+      if (fk === "id" || fk === "createdAt" || fk === "updatedAt") return;
       if (!isMoneyKey(fk)) return;
-      const n = toNum(fv);
-      total += n;
-      const skey = Object.keys(it.fields).find((kk) => /status|payment|paid/i.test(kk));
-      const sval = skey ? String(it.fields[skey] ?? "") : "";
-      if (STATUS_PAID.test(sval)) paid += n;
-      else if (STATUS_PENDING.test(sval)) pending += n;
+      entryTotal += toNum(fv);
     });
+    total += entryTotal;
+    if (STATUS_PAID.test(sval)) paid += entryTotal;
+    else if (STATUS_PENDING.test(sval)) pending += entryTotal;
+    else paid += entryTotal;
   });
   return { total, pending, paid, count };
 };
@@ -1989,7 +2000,7 @@ const renderOwnerAdminData = () => {
       const entries = col.features[fid];
       const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
       const rows = entries.map((it) => {
-        const tds = def.fields.map((f) => `<td>${escHtml(String(it[f.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+        const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
         return `<tr>${tds}</tr>`;
       }).join("");
       return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +
@@ -2164,10 +2175,18 @@ const renderCatAdminTop = () => {
     Object.keys(col.features).forEach((fid) => {
       const def = getFeatureDef(catAdminKey, fid, null);
       (col.features[fid] || []).forEach((it) => {
+        const f = it && it.fields && typeof it.fields === "object" ? { ...it, ...it.fields } : (it || {});
         let val = 0;
-        Object.entries(it.fields || {}).forEach(([fk, fv]) => { if (isMoneyKey(fk)) val += toNum(fv); });
-        const labelKey = Object.keys(it.fields || {}).find((k) => /name|title|patient|customer|client|student|item|product|service/i.test(k));
-        items.push({ def, label: labelKey ? String(it.fields[labelKey]) : (def.name + " #" + String(it.id).slice(0, 4)), val, at: it.updatedAt || it.createdAt });
+        Object.entries(f).forEach(([fk, fv]) => {
+          if (fk === "id" || fk === "createdAt" || fk === "updatedAt") return;
+          if (isMoneyKey(fk)) val += toNum(fv);
+        });
+        const labelKey = Object.keys(f).find((k) =>
+          k !== "id" && k !== "createdAt" && k !== "updatedAt" &&
+          /name|title|patient|customer|client|student|dish|item|product|medicine|service|course|doctor|supplier|attendant|stylist/i.test(k)
+        );
+        const label = labelKey && f[labelKey] ? String(f[labelKey]) : (def.name + " #" + String(it.id || "").slice(0, 4));
+        items.push({ def, label, val, at: it.updatedAt || it.createdAt });
       });
     });
   }
@@ -2193,7 +2212,7 @@ const renderCatAdminData = () => {
     const entries = col.features[fid];
     const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
     const rows = entries.map((it) => {
-      const tds = def.fields.map((f) => `<td>${escHtml(String(it[f.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+      const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
       return `<tr>${tds}</tr>`;
     }).join("");
     return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +

@@ -792,6 +792,7 @@ body.detail-open { overflow: hidden; }
 .admin-locked-tag { font-size: 0.76rem; font-weight: 600; color: var(--muted); }
 
 /* --- Buttons --- */
+.admin-toolbar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.4rem 0 1rem; }
 .admin-ghost-btn {
   border: 1px solid var(--pink-light); background: #fff; cursor: pointer;
   border-radius: 8px; padding: 0.4rem 0.85rem; font-family: inherit;

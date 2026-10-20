@@ -396,10 +396,6 @@ let customCats = store.get("customCats", []);
 
 const ceoBtn = document.getElementById("ceoBtn");
 const ceoModal = document.getElementById("ceoModal");
-const ceoAddForm = document.getElementById("ceoAddForm");
-const ceoCatCount = document.getElementById("ceoCatCount");
-const ceoOwnerInfo = document.getElementById("ceoOwnerInfo");
-const ceoAccessInfo = document.getElementById("ceoAccessInfo");
 const ceoLogin = document.getElementById("ceoLogin");
 const ceoPanel = document.getElementById("ceoPanel");
 const ceoLoginForm = document.getElementById("ceoLoginForm");
@@ -462,10 +458,12 @@ const buildCustomCategory = (cat) => {
 };
 
 const updateCeoStats = () => {
+  const el = document.getElementById("ceoCatCount");
+  if (!el) return;
   const ownersCount = adminAllOwners().length + (owner && !adminAllOwners().some((o) => o.mobile === owner.mobile) ? 1 : 0);
-  ceoCatCount.textContent = document.querySelectorAll(".industry-card").length;
-  ceoOwnerInfo.textContent = ownersCount > 1 ? `${ownersCount} owners` : (owner ? owner.name : "Not registered");
-  ceoAccessInfo.textContent = ceoMode ? "Full (CEO)" : owner ? "Owner restricted" : "Open";
+  el.textContent = document.querySelectorAll(".industry-card").length;
+  document.getElementById("ceoOwnerInfo").textContent = ownersCount > 1 ? `${ownersCount} owners` : (owner ? owner.name : "Not registered");
+  document.getElementById("ceoAccessInfo").textContent = ceoMode ? "Full (CEO)" : owner ? "Owner restricted" : "Open";
 };
 
 const setCeoLoginMode = () => {
@@ -492,7 +490,6 @@ const showCeoPanel = () => {
   ceoLogin.hidden = true;
   ceoPanel.hidden = false;
   document.getElementById("ceoPanelName").textContent = ceoUser.name;
-  ceoAddForm.hidden = true;
   updateCeoStats();
 };
 
@@ -684,63 +681,6 @@ document.getElementById("ceoClose").addEventListener("click", closeCeoModal);
 ceoModal.addEventListener("click", (e) => { if (e.target === ceoModal) closeCeoModal(); });
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && ceoModal.classList.contains("open")) closeCeoModal();
-});
-
-document.getElementById("ceoUnlock").addEventListener("click", () => {
-  ceoMode = true;
-  try { localStorage.setItem("ceoMode", "all"); } catch {}
-  applyAccess();
-  updateCeoStats();
-  showToast("CEO access enabled — all categories unlocked.");
-});
-
-document.getElementById("ceoLock").addEventListener("click", () => {
-  ceoMode = false;
-  try { localStorage.removeItem("ceoMode"); } catch {}
-  applyAccess();
-  updateCeoStats();
-  showToast(owner ? `Owner restriction applied — ${labelFor(owner.category)} only.` : "Owner restriction saved — applies when an owner signs up.");
-});
-
-document.getElementById("ceoAddCat").addEventListener("click", () => {
-  ceoAddForm.hidden = !ceoAddForm.hidden;
-  document.getElementById("ccErrName").textContent = "";
-  document.getElementById("ccErrSub").textContent = "";
-});
-
-ceoAddForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const name = document.getElementById("ccName").value.trim();
-  const sub = document.getElementById("ccSub").value.trim();
-  const icon = document.getElementById("ccIcon").value.trim() || "📁";
-  let ok = true;
-  document.getElementById("ccErrName").textContent = "";
-  document.getElementById("ccErrSub").textContent = "";
-  if (name.length < 2) { document.getElementById("ccErrName").textContent = "Enter category name."; ok = false; }
-  if (sub.length < 5) { document.getElementById("ccErrSub").textContent = "Enter a short subtitle."; ok = false; }
-  if (!ok) return;
-
-  const cat = { key: `custom${Date.now()}`, name, sub, icon };
-  customCats.push(cat);
-  store.set("customCats", customCats);
-  buildCustomCategory(cat);
-  if (ceoMode) applyAccess();
-  updateFeatureBadges();
-  ceoAddForm.reset();
-  ceoAddForm.hidden = true;
-  updateCeoStats();
-  showToast(`Category "${name}" added.`);
-});
-
-document.getElementById("ceoResetOwner").addEventListener("click", () => {
-  if (!owner) { showToast("No owner account registered.", true); return; }
-  if (!confirm(`Remove owner account "${owner.name}"?`)) return;
-  store.remove("ownerAccount");
-  owner = null;
-  refreshOwnerButton();
-  applyAccess();
-  updateCeoStats();
-  showToast("Owner account removed — categories reset.");
 });
 
 function handleRemoveCard(card) {

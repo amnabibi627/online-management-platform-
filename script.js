@@ -1471,7 +1471,7 @@ const addSheetButton = (detail, catKey) => {
     const abtn = document.createElement("button");
     abtn.type = "button";
     abtn.className = "btn btn-primary detail-admin-btn";
-    abtn.textContent = "📊 Category Admin Panel";
+    abtn.textContent = `📊 ${labelFor(catKey)} Admin Panel`;
     abtn.addEventListener("click", (e) => {
       e.stopPropagation();
       openCategoryAdmin(catKey);

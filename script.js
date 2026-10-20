@@ -1466,17 +1466,7 @@ dataPanel.addEventListener("input", (e) => {
 });
 
 const addSheetButton = (detail, catKey) => {
-  if (!detail || detail.querySelector(".detail-data-btn")) return;
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "btn btn-outline detail-data-btn";
-  btn.textContent = "🗂️ All Data";
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    renderDataBrowser(catKey);
-  });
-  detail.querySelector(".detail-header").appendChild(btn);
-
+  if (!detail) return;
   if (!detail.querySelector(".detail-admin-btn")) {
     const abtn = document.createElement("button");
     abtn.type = "button";

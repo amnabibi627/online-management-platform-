@@ -561,6 +561,8 @@ body.detail-open { overflow: hidden; }
 /* ---------- My Data browser (per-category sheet view) ---------- */
 .detail-data-btn { cursor: pointer; font-size: 0.85rem; padding: 0.5rem 1rem; white-space: nowrap; }
 .detail-header .detail-data-btn { margin-left: auto; margin-right: auto; }
+.detail-admin-btn { cursor: pointer; font-size: 0.85rem; padding: 0.5rem 1rem; white-space: nowrap; }
+.detail-header .detail-admin-btn { margin-left: auto; margin-right: auto; }
 
 .data-head-actions { display: flex; gap: 0.55rem; flex-wrap: wrap; }
 .data-head-actions .btn { padding: 0.55rem 1.05rem; font-size: 0.85rem; }

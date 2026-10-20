@@ -197,7 +197,13 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .promotions { background: linear-gradient(180deg, #fff8ec, #fff1dd); border-top: 1px solid var(--border); }
 
-.owner-details { background: #eefaf5; border-top: 1px solid var(--border); }
+.owner-details {
+  background: linear-gradient(180deg, #fdf9fc, #fbeef6);
+  border-top: 1px solid var(--border);
+  padding: 3.5rem 0;
+}
+.owner-details .section-head { margin-bottom: 1.8rem; }
+.owner-details .owner-inner { max-width: 860px; }
 
 .section-head { text-align: center; max-width: 640px; margin: 0 auto 3rem; }
 .section-head.left { text-align: left; margin-left: 0; }

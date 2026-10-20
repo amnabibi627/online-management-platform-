@@ -2244,6 +2244,41 @@ document.addEventListener("keydown", (e) => {
 
 
 
+// ===== Owner profile photo (DP) upload =====
+const AVATAR_KEY = "ownerAvatar";
+const ownerAvatarEl = document.getElementById("ownerAvatar");
+const ownerAvatarInput = document.getElementById("ownerAvatarInput");
+
+const applyOwnerAvatar = () => {
+  if (!ownerAvatarEl) return;
+  const data = store.get(AVATAR_KEY, null);
+  if (data) {
+    ownerAvatarEl.style.backgroundImage = `url(${data})`;
+    ownerAvatarEl.classList.add("has-photo");
+  } else {
+    ownerAvatarEl.style.backgroundImage = "";
+    ownerAvatarEl.classList.remove("has-photo");
+  }
+};
+
+if (ownerAvatarEl && ownerAvatarInput) {
+  ownerAvatarEl.addEventListener("click", () => ownerAvatarInput.click());
+  ownerAvatarInput.addEventListener("change", () => {
+    const file = ownerAvatarInput.files && ownerAvatarInput.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { showToast("Please choose an image file.", true); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast("Image too large — please use under 2 MB.", true); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      store.set(AVATAR_KEY, reader.result);
+      applyOwnerAvatar();
+      showToast("Profile photo updated!");
+    };
+    reader.onerror = () => showToast("Could not read that image.", true);
+    reader.readAsDataURL(file);
+  });
+}
+
 // ===== Init: apply saved removals, rebuild custom categories =====
 // Core categories are permanent — strip any builtin keys out of removedKeys.
 const sanitizeRemovedKeys = () => {
@@ -2262,6 +2297,7 @@ const applyRemovedKeys = () => {
 
 applyRemovedKeys();
 customCats.forEach(buildCustomCategory);
+applyOwnerAvatar();
 
 refreshOwnerButton();
 applyAccess();

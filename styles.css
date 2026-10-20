@@ -200,7 +200,6 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .owner-details {
   background: linear-gradient(180deg, #fdf9fc, #fbeef6);
   border-top: 1px solid var(--border);
-  padding: 3.5rem 0;
 }
 .owner-details .section-head { margin-bottom: 1.8rem; }
 .owner-details .owner-inner { max-width: 860px; }
@@ -355,15 +354,6 @@ body.detail-open { overflow: hidden; }
   border: 0; cursor: pointer; position: relative;
 }
 .owner-profile-avatar.has-photo .owner-avatar-letter { display: none; }
-.owner-avatar-cam {
-  position: absolute; bottom: -2px; right: -2px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: #fff; border: 2px solid var(--pink);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.85rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-.owner-profile-avatar:hover .owner-avatar-cam { transform: scale(1.1); }
-.owner-avatar-cam { transition: transform 0.15s; }
 .owner-profile-body { flex: 1; min-width: 260px; }
 .owner-profile-name { font-size: 1.5rem; font-weight: 800; color: var(--pink-dark); margin-bottom: 0.15rem; }
 .owner-profile-role { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 0.8rem; }

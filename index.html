@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Management Software — All-in-One Smart Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ========== 1. HEADER & NAVIGATION ========== -->
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a href="#top" class="brand brand-profile">
+        <span class="brand-avatar">A</span>
+        <span class="brand-info">
+          <span class="brand-accent">CEO &amp; Founder</span>
+          <span class="brand-name">Amna Bibi</span>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="mainNav">
+        <a href="#top" class="nav-link active">Home Page</a>
+        <a href="#industries" class="nav-link">Industries</a>
+        <a href="#subscriptions" class="nav-link">Subscriptions</a>
+        <a href="#promotions" class="nav-link">Promotions</a>
+        <a href="#owner-details" class="nav-link">Owner Details</a>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="btn btn-primary" id="ceoBtn">Owner Account</button>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========== 2. HOME PAGE / HERO ========== -->
+    <section class="hero" id="home">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="hero-badge">Business Management Software</div>
+        <h1 class="hero-title">
+          <span class="hero-title-plain">Empower Your Business</span>
+          <span class="accent">All-in-One Business Platform</span>
+        </h1>
+        <p class="hero-subtitle">
+          Streamline your daily operations, manage staff workflows, and delight your
+          customers seamlessly from a <span class="accent">single, high-performance portal</span>
+          built for modern businesses.
+        </p>
+        <div class="hero-actions">
+          <a href="#portals" class="btn btn-primary btn-lg">Choose Your Account</a>
+          <a href="#subscriptions" class="btn btn-outline btn-lg">View Subscription Plans</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== 3. INDUSTRY CATEGORIES ========== -->
+    <section class="section industries" id="industries">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Explore Your <span class="accent">Industry Categories</span></h2>
+          <p class="section-subtitle">
+            We have built special tools for every industry and category.
+            Find your category and start today.
+          </p>
+        </div>
+
+        <div class="industry-grid">
+          <article class="industry-card" data-detail="clinic">
+            <div class="industry-icon">🩺</div>
+            <h3>Clinic</h3>
+            <p>Advanced Patient Records, Smart Appointments &amp; Billing</p>
+          </article>
+
+          <article class="industry-card" data-detail="academy">
+            <div class="industry-icon">🎓</div>
+            <h3>Academy</h3>
+            <p>Student Management, Course Tracking &amp; Fee Automation</p>
+          </article>
+
+          <article class="industry-card" data-detail="restaurant">
+            <div class="industry-icon">🍽️</div>
+            <h3>Restaurant</h3>
+            <p>Dynamic POS, Live Kitchen Orders &amp; Table Management</p>
+          </article>
+
+          <article class="industry-card" data-detail="generalstore">
+            <div class="industry-icon">🏪</div>
+            <h3>General Store</h3>
+            <p>Real-time Inventory, POS &amp; Supplier Tracking</p>
+          </article>
+
+          <article class="industry-card" data-detail="beautysalon">
+            <div class="industry-icon">💇</div>
+            <h3>Beauty Salon</h3>
+            <p>Professional Stylist Bookings, Client Logs &amp; Services</p>
+          </article>
+
+          <article class="industry-card" data-detail="petrolpump">
+            <div class="industry-icon">⛽</div>
+            <h3>Petrol Pump</h3>
+            <p>Fuel Dispenser Tracking, Shift Management &amp; Sales Reports</p>
+          </article>
+
+          <article class="industry-card" data-detail="medicalstore">
+            <div class="industry-icon">💊</div>
+            <h3>Medical Store</h3>
+            <p>Digital Prescriptions, Batch Stock &amp; Expiry Alerts</p>
+          </article>
+
+          <article class="industry-card" data-detail="laboratory">
+            <div class="industry-icon">🔬</div>
+            <h3>Laboratory</h3>
+            <p>Lab Tests, Sample Tracking &amp; Digital Report Management</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CLINIC CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="clinicDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back" id="clinicBack">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">🩺</div>
+          <h2>Clinic <span class="accent">Management</span></h2>
+          <p>Everything your clinic needs — patients, appointments, billing and reports in one place.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="clinic" data-feature="patient-records">
+            <div class="detail-card-icon">📁</div>
+            <h4>Patient Records</h4>
+            <p>Save medical history, allergies and past visits of every patient in one place.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="smart-appointments">
+            <div class="detail-card-icon">📅</div>
+            <h4>Smart Appointments</h4>
+            <p>Online booking, doctor calendar view and automatic visit reminders.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="opd-token-system">
+            <div class="detail-card-icon">🎫</div>
+            <h4>OPD Token System</h4>
+            <p>Digital queue tokens with live status so patients know their turn.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="digital-prescriptions">
+            <div class="detail-card-icon">📝</div>
+            <h4>Digital Prescriptions</h4>
+            <p>Write and print prescriptions in seconds with saved medicine templates.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="billing-and-payments">
+            <div class="detail-card-icon">💳</div>
+            <h4>Billing &amp; Payments</h4>
+            <p>Invoices, cash and card payments, dues tracking and receipts.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="lab-tests-and-reports">
+            <div class="detail-card-icon">🧪</div>
+            <h4>Lab Tests &amp; Reports</h4>
+            <p>Order lab tests and attach digital results directly to patient profiles.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="doctor-profiles">
+            <div class="detail-card-icon">🧑‍⚕️</div>
+            <h4>Doctor Profiles</h4>
+            <p>Multiple doctors with their schedules, timings and availability.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="staff-management">
+            <div class="detail-card-icon">🧑‍🔧</div>
+            <h4>Staff Management</h4>
+            <p>Receptionist and nurse shifts, duties and daily attendance.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="pharmacy-stock">
+            <div class="detail-card-icon">💊</div>
+            <h4>Pharmacy Stock</h4>
+            <p>Medicine inventory inside the clinic with low-stock and expiry alerts.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="revenue-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Revenue Reports</h4>
+            <p>Daily, monthly and doctor-wise earnings with profit summaries.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="expense-tracking">
+            <div class="detail-card-icon">💸</div>
+            <h4>Expense Tracking</h4>
+            <p>Record clinic expenses and see where the money goes each month.</p>
+          </div>
+          <div class="detail-card" data-category="clinic" data-feature="patient-reminders">
+            <div class="detail-card-icon">✉️</div>
+            <h4>Patient Reminders</h4>
+            <p>SMS and WhatsApp follow-ups for appointments and check-ups.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== ACADEMY CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="academyDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">🎓</div>
+          <h2>Academy <span class="accent">Management</span></h2>
+          <p>Run your academy smoothly — students, courses, attendance and fees in one place.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="academy" data-feature="student-profiles">
+            <div class="detail-card-icon">👨‍🎓</div>
+            <h4>Student Profiles</h4>
+            <p>Admission details, contacts and complete learning history of every student.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="course-management">
+            <div class="detail-card-icon">📚</div>
+            <h4>Course Management</h4>
+            <p>Create courses and batches with syllabus, duration and level.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="class-timetable">
+            <div class="detail-card-icon">🗓️</div>
+            <h4>Class Timetable</h4>
+            <p>Batch timings, teacher allocation and room schedule in one view.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="attendance">
+            <div class="detail-card-icon">✅</div>
+            <h4>Attendance</h4>
+            <p>Daily attendance with automatic alerts for absent students.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="fee-automation">
+            <div class="detail-card-icon">💰</div>
+            <h4>Fee Automation</h4>
+            <p>Auto fee invoices, due dates, receipts and late-fee reminders.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="fee-reports">
+            <div class="detail-card-icon">🧾</div>
+            <h4>Fee Reports</h4>
+            <p>Paid, pending and defaulters list with monthly fee summaries.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="exams-and-grades">
+            <div class="detail-card-icon">📝</div>
+            <h4>Exams &amp; Grades</h4>
+            <p>Result sheets, report cards and grade calculation for every class.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="assignments">
+            <div class="detail-card-icon">📄</div>
+            <h4>Assignments</h4>
+            <p>Give tasks, collect submissions and share marks online.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="teacher-profiles">
+            <div class="detail-card-icon">🧑‍🏫</div>
+            <h4>Teacher Profiles</h4>
+            <p>Faculty subjects, schedules, workload and attendance tracking.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="parent-updates">
+            <div class="detail-card-icon">👨‍👩‍👦</div>
+            <h4>Parent Updates</h4>
+            <p>Send progress, attendance and fee updates to parents instantly.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="course-material">
+            <div class="detail-card-icon">📖</div>
+            <h4>Course Material</h4>
+            <p>Share notes, videos and study material with students online.</p>
+          </div>
+          <div class="detail-card" data-category="academy" data-feature="income-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Income Reports</h4>
+            <p>Monthly fee income, expenses and profit of your academy.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== RESTAURANT CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="restaurantDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">🍽️</div>
+          <h2>Restaurant <span class="accent">Management</span></h2>
+          <p>POS, tables, kitchen and stock — everything your restaurant runs on, together.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="restaurant" data-feature="dynamic-pos">
+            <div class="detail-card-icon">🧾</div>
+            <h4>Dynamic POS</h4>
+            <p>Fast billing with split bills, discounts and quick item search.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="live-kitchen-orders">
+            <div class="detail-card-icon">👨‍🍳</div>
+            <h4>Live Kitchen Orders</h4>
+            <p>Orders appear instantly on the kitchen screen with status updates.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="table-management">
+            <div class="detail-card-icon">🪑</div>
+            <h4>Table Management</h4>
+            <p>Floor map with live table status — free, occupied and reserved.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="menu-management">
+            <div class="detail-card-icon">🍔</div>
+            <h4>Menu Management</h4>
+            <p>Add dishes, categories, prices, images and daily specials.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="order-types">
+            <div class="detail-card-icon">🛵</div>
+            <h4>Order Types</h4>
+            <p>Handle dine-in, takeaway and delivery from one screen.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="staff-and-waiters">
+            <div class="detail-card-icon">🧑‍🍳</div>
+            <h4>Staff &amp; Waiters</h4>
+            <p>Waiter assignments, shifts and table-wise order ownership.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="inventory-and-stock">
+            <div class="detail-card-icon">📦</div>
+            <h4>Inventory &amp; Stock</h4>
+            <p>Ingredient stock with low-stock alerts and waste tracking.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="purchases-and-suppliers">
+            <div class="detail-card-icon">🚚</div>
+            <h4>Purchases &amp; Suppliers</h4>
+            <p>Supplier orders, delivery records and purchase bills.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="discounts-and-promotions">
+            <div class="detail-card-icon">🏷️</div>
+            <h4>Discounts &amp; Promotions</h4>
+            <p>Combo offers, coupon codes and happy-hour pricing.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="payments-and-invoicing">
+            <div class="detail-card-icon">💳</div>
+            <h4>Payments &amp; Invoicing</h4>
+            <p>Cash, card and online payments with printed invoices.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="sales-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Sales Reports</h4>
+            <p>Hourly and monthly sales, best sellers and peak hours.</p>
+          </div>
+          <div class="detail-card" data-category="restaurant" data-feature="expense-tracking">
+            <div class="detail-card-icon">💸</div>
+            <h4>Expense Tracking</h4>
+            <p>Daily expenses, staff wages and profit calculation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GENERAL STORE CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="generalstoreDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">🏪</div>
+          <h2>General Store <span class="accent">Management</span></h2>
+          <p>Billing, stock and suppliers — complete control over your general store.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="generalstore" data-feature="dynamic-pos">
+            <div class="detail-card-icon">🧾</div>
+            <h4>Dynamic POS</h4>
+            <p>Fast counter billing with quick item search and repeat bills.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="barcode-scanning">
+            <div class="detail-card-icon">📱</div>
+            <h4>Barcode Scanning</h4>
+            <p>Scan products for instant checkout and stock updates.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="real-time-inventory">
+            <div class="detail-card-icon">📦</div>
+            <h4>Real-time Inventory</h4>
+            <p>Live stock levels for every item, updated on each sale.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="supplier-tracking">
+            <div class="detail-card-icon">🚚</div>
+            <h4>Supplier Tracking</h4>
+            <p>Supplier contacts, purchase history and pending payments.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="purchase-orders">
+            <div class="detail-card-icon">📝</div>
+            <h4>Purchase Orders</h4>
+            <p>Create and track purchase orders with delivery status.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="product-catalog">
+            <div class="detail-card-icon">🛒</div>
+            <h4>Product Catalog</h4>
+            <p>Items with categories, units, prices and barcodes.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="stock-alerts">
+            <div class="detail-card-icon">⚠️</div>
+            <h4>Stock Alerts</h4>
+            <p>Low-stock warnings so you never run out of fast-moving items.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="expiry-alerts">
+            <div class="detail-card-icon">🗓️</div>
+            <h4>Expiry Alerts</h4>
+            <p>Get notified before dairy, snacks and other items expire.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="customer-khata">
+            <div class="detail-card-icon">📒</div>
+            <h4>Customer Khata</h4>
+            <p>Credit accounts for regular customers with pending dues.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="sales-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Sales Reports</h4>
+            <p>Day-wise and monthly sales with best-selling items.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="expense-tracking">
+            <div class="detail-card-icon">💸</div>
+            <h4>Expense Tracking</h4>
+            <p>Shop rent, utilities and daily expenses in one place.</p>
+          </div>
+          <div class="detail-card" data-category="generalstore" data-feature="profit-and-loss">
+            <div class="detail-card-icon">💰</div>
+            <h4>Profit &amp; Loss</h4>
+            <p>Monthly profit and loss report for your whole store.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== BEAUTY SALON CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="beautysalonDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">💇</div>
+          <h2>Beauty Salon <span class="accent">Management</span></h2>
+          <p>Bookings, stylists and client history — your salon, organized beautifully.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="beautysalon" data-feature="online-bookings">
+            <div class="detail-card-icon">📅</div>
+            <h4>Online Bookings</h4>
+            <p>Clients book their slots online — no calls, no double booking.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="stylist-bookings">
+            <div class="detail-card-icon">🧑‍🎨</div>
+            <h4>Stylist Bookings</h4>
+            <p>Assign bookings to stylists based on availability and skill.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="appointment-calendar">
+            <div class="detail-card-icon">🗓️</div>
+            <h4>Appointment Calendar</h4>
+            <p>Day and week view of every appointment in one screen.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="service-menu">
+            <div class="detail-card-icon">✂️</div>
+            <h4>Service Menu</h4>
+            <p>Services with prices, duration and required products.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="client-logs">
+            <div class="detail-card-icon">📒</div>
+            <h4>Client Logs</h4>
+            <p>Visit history, preferences and notes for every client.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="staff-management">
+            <div class="detail-card-icon">🧑‍💼</div>
+            <h4>Staff Management</h4>
+            <p>Stylist shifts, roles, attendance and commissions.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="pos-and-billing">
+            <div class="detail-card-icon">🧾</div>
+            <h4>POS &amp; Billing</h4>
+            <p>Quick billing at counter with receipts and payment modes.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="packages-and-membership">
+            <div class="detail-card-icon">🎁</div>
+            <h4>Packages &amp; Membership</h4>
+            <p>Prepaid packages, monthly memberships and balance tracking.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="product-inventory">
+            <div class="detail-card-icon">🧴</div>
+            <h4>Product Inventory</h4>
+            <p>Salon products and consumables with low-stock alerts.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="offers-and-coupons">
+            <div class="detail-card-icon">🏷️</div>
+            <h4>Offers &amp; Coupons</h4>
+            <p>Seasonal offers, coupon codes and gift cards for clients.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="revenue-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Revenue Reports</h4>
+            <p>Stylist-wise earnings, service sales and daily income.</p>
+          </div>
+          <div class="detail-card" data-category="beautysalon" data-feature="expense-tracking">
+            <div class="detail-card-icon">💸</div>
+            <h4>Expense Tracking</h4>
+            <p>Salon rent, products and staff costs with profit view.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PETROL PUMP CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="petrolpumpDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">⛽</div>
+          <h2>Petrol Pump <span class="accent">Management</span></h2>
+          <p>Dispensers, shifts and daily sales — full control of your petrol pump.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="petrolpump" data-feature="dispenser-tracking">
+            <div class="detail-card-icon">⛽</div>
+            <h4>Dispenser Tracking</h4>
+            <p>Live status and readings of every dispenser and nozzle.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="shift-management">
+            <div class="detail-card-icon">🕒</div>
+            <h4>Shift Management</h4>
+            <p>Shift-wise cash, fuel readings and smooth staff handover.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="nozzle-readings">
+            <div class="detail-card-icon">⛽</div>
+            <h4>Nozzle Readings</h4>
+            <p>Opening and closing readings counted nozzle by nozzle.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="rate-management">
+            <div class="detail-card-icon">💲</div>
+            <h4>Rate Management</h4>
+            <p>Update petrol, diesel and CNG rates anytime with history.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="tank-inventory">
+            <div class="detail-card-icon">🛢️</div>
+            <h4>Tank Inventory</h4>
+            <p>Tank stock with dip readings and refill alerts.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="sales-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Sales Reports</h4>
+            <p>Daily and monthly fuel sales by type, nozzle and shift.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="cash-and-payments">
+            <div class="detail-card-icon">💳</div>
+            <h4>Cash &amp; Payments</h4>
+            <p>Cash, card and UPI reconciliation for every shift.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="credit-accounts">
+            <div class="detail-card-icon">🚛</div>
+            <h4>Credit Accounts</h4>
+            <p>Fleet and regular vehicle credit with pending dues.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="staff-and-attendants">
+            <div class="detail-card-icon">🧑‍🔧</div>
+            <h4>Staff &amp; Attendants</h4>
+            <p>Attendant shifts, attendance and performance logs.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="shop-and-lube-sales">
+            <div class="detail-card-icon">🛒</div>
+            <h4>Shop &amp; Lube Sales</h4>
+            <p>Engine oil, coolants and convenience store items.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="expense-tracking">
+            <div class="detail-card-icon">💸</div>
+            <h4>Expense Tracking</h4>
+            <p>Electricity, salaries and daily pump expenses.</p>
+          </div>
+          <div class="detail-card" data-category="petrolpump" data-feature="profit-and-loss">
+            <div class="detail-card-icon">💰</div>
+            <h4>Profit &amp; Loss</h4>
+            <p>Margin on every litre with monthly profit report.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== LABORATORY CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="laboratoryDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">🔬</div>
+          <h2>Laboratory <span class="accent">Management</span></h2>
+          <p>Tests, samples and digital reports — your lab, fully paperless.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="laboratory" data-feature="test-catalog">
+            <div class="detail-card-icon">📋</div>
+            <h4>Test Catalog</h4>
+            <p>All tests with prices, departments and normal ranges.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="sample-collection">
+            <div class="detail-card-icon">🧪</div>
+            <h4>Sample Collection</h4>
+            <p>Unique sample ID for every patient with barcode labels.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="sample-tracking">
+            <div class="detail-card-icon">📍</div>
+            <h4>Sample Tracking</h4>
+            <p>Live status — collected, processing, completed and verified.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="digital-reports">
+            <div class="detail-card-icon">📑</div>
+            <h4>Digital Reports</h4>
+            <p>Create reports with values, remarks and printable PDF format.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="report-delivery">
+            <div class="detail-card-icon">📤</div>
+            <h4>Report Delivery</h4>
+            <p>Send reports by SMS, email or WhatsApp instantly.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="patient-profiles">
+            <div class="detail-card-icon">🧑‍⚕️</div>
+            <h4>Patient Profiles</h4>
+            <p>Past reports and value comparison over time in one view.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="doctor-referrals">
+            <div class="detail-card-icon">🏥</div>
+            <h4>Doctor Referrals</h4>
+            <p>Referring doctors list with test history and payments.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="home-collection">
+            <div class="detail-card-icon">🏠</div>
+            <h4>Home Collection</h4>
+            <p>Schedule home sample pickups with route and staff assignment.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="billing-and-payments">
+            <div class="detail-card-icon">🧾</div>
+            <h4>Billing &amp; Payments</h4>
+            <p>Test invoices, packages, cash and online payments.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="lab-inventory">
+            <div class="detail-card-icon">📦</div>
+            <h4>Lab Inventory</h4>
+            <p>Reagents, kits and consumables with expiry alerts.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="staff-and-pathologists">
+            <div class="detail-card-icon">🧑‍🔬</div>
+            <h4>Staff &amp; Pathologists</h4>
+            <p>Technicians and pathologists with shifts and workload.</p>
+          </div>
+          <div class="detail-card" data-category="laboratory" data-feature="income-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Income Reports</h4>
+            <p>Test-wise income, pending payments and monthly summary.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MEDICAL STORE CATEGORY DETAIL ========== -->
+    <div class="category-detail" id="medicalstoreDetail" aria-hidden="true">
+      <div class="detail-header">
+        <button class="btn btn-outline detail-back">&larr; Back to Categories</button>
+        <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      </div>
+
+      <div class="container">
+        <div class="detail-hero">
+          <div class="detail-icon">💊</div>
+          <h2>Medical Store <span class="accent">Management</span></h2>
+          <p>Prescriptions, batch stock and expiry alerts — your pharmacy, fully digital.</p>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-card" data-category="medicalstore" data-feature="digital-prescriptions">
+            <div class="detail-card-icon">📝</div>
+            <h4>Digital Prescriptions</h4>
+            <p>Receive and save doctor prescriptions against every patient.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="medicine-catalog">
+            <div class="detail-card-icon">💊</div>
+            <h4>Medicine Catalog</h4>
+            <p>Medicines with brand, form, packing, price and maker company.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="batch-stock">
+            <div class="detail-card-icon">📦</div>
+            <h4>Batch Stock</h4>
+            <p>Batch numbers with manufacturing and expiry dates for every item.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="expiry-alerts">
+            <div class="detail-card-icon">⚠️</div>
+            <h4>Expiry Alerts</h4>
+            <p>Auto alerts before medicines expire so you can return them in time.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="fast-pos-billing">
+            <div class="detail-card-icon">🧾</div>
+            <h4>Fast POS Billing</h4>
+            <p>Counter billing in seconds with strip, pack and salt-wise search.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="barcode-scanning">
+            <div class="detail-card-icon">📱</div>
+            <h4>Barcode Scanning</h4>
+            <p>Scan packs for instant billing and stock updates.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="purchase-and-suppliers">
+            <div class="detail-card-icon">🚚</div>
+            <h4>Purchase &amp; Suppliers</h4>
+            <p>Supplier orders, bills, returns and payment records.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="stock-alerts">
+            <div class="detail-card-icon">🔔</div>
+            <h4>Stock Alerts</h4>
+            <p>Low-stock and fast-moving medicine reorder warnings.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="customer-khata">
+            <div class="detail-card-icon">📒</div>
+            <h4>Customer Khata</h4>
+            <p>Credit accounts for regular customers with pending dues.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="sales-reports">
+            <div class="detail-card-icon">📊</div>
+            <h4>Sales Reports</h4>
+            <p>Medicine-wise sales, daily totals and top-selling drugs.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="expense-tracking">
+            <div class="detail-card-icon">💸</div>
+            <h4>Expense Tracking</h4>
+            <p>Shop expenses, salaries and daily running costs.</p>
+          </div>
+          <div class="detail-card" data-category="medicalstore" data-feature="profit-and-loss">
+            <div class="detail-card-icon">💰</div>
+            <h4>Profit &amp; Loss</h4>
+            <p>Margin per medicine with monthly profit summary.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 4. PORTALS SECTION ========== -->
+    <section class="section portals" id="portals">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Three Portals, <span class="accent">One Unified Platform</span></h2>
+          <p class="section-subtitle">
+            Designed specifically to empower business owners, streamline staff duties,
+            and provide an exceptional experience for customers.
+          </p>
+        </div>
+
+        <div class="portal-grid">
+          <article class="portal-card" data-portal="owner">
+            <div class="portal-icon">👑</div>
+            <h3>Owner Account</h3>
+            <p>
+              Complete administrative control, financial reports, analytics, and
+              high-level management tools.
+            </p>
+            <button class="btn btn-primary portal-btn" data-action="toggle">Owner Sign Up</button>
+          </article>
+
+          <article class="portal-card featured" data-portal="staff">
+            <div class="portal-icon">🧑‍💼</div>
+            <h3>Staff Account</h3>
+            <p>
+              Operational interface for employees and staff members to manage daily
+              tasks and workflows.
+            </p>
+            <button class="btn btn-primary portal-btn" data-action="toggle">Staff Sign Up</button>
+          </article>
+
+          <article class="portal-card" data-portal="customer">
+            <div class="portal-icon">🛍️</div>
+            <h3>Customer Account</h3>
+            <p>
+              User-friendly portal for end-users and customers to place orders, book
+              services, and track history.
+            </p>
+            <button class="btn btn-primary portal-btn" data-action="toggle">Customer Sign Up</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== SUBSCRIPTIONS ========== -->
+    <section class="section subscriptions" id="subscriptions">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Simple <span class="accent">Subscriptions</span></h2>
+          <p class="section-subtitle">Flexible plans that grow with your business — no hidden fees, cancel anytime.</p>
+        </div>
+        <div class="plan-grid">
+          <article class="plan-card">
+            <h3>Starter</h3>
+            <div class="price">Free</div>
+            <ul>
+              <li>1 Owner account</li>
+              <li>Up to 3 staff seats</li>
+              <li>Core industry modules</li>
+              <li>Email support</li>
+            </ul>
+            <a href="#portals" class="btn btn-outline">Get Started</a>
+          </article>
+          <article class="plan-card popular">
+            <div class="pop-tag">Most Popular</div>
+            <h3>Growth</h3>
+            <div class="price">$29<span>/mo</span></div>
+            <ul>
+              <li>Unlimited staff seats</li>
+              <li>Advanced analytics &amp; reports</li>
+              <li>Customer portal access</li>
+              <li>Priority support</li>
+            </ul>
+            <a href="#portals" class="btn btn-primary">Choose Growth</a>
+          </article>
+          <article class="plan-card">
+            <h3>Enterprise</h3>
+            <div class="price">$79<span>/mo</span></div>
+            <ul>
+              <li>Multi-branch management</li>
+              <li>Custom workflows &amp; API</li>
+              <li>Dedicated account manager</li>
+              <li>24/7 phone support</li>
+            </ul>
+            <a href="#portals" class="btn btn-outline">Contact Sales</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PROMOTIONS ========== -->
+    <section class="section promotions" id="promotions">
+      <div class="container promo-banner">
+        <div>
+          <h2>Launch Offer — <span class="accent">50% Off</span> Your First 3 Months</h2>
+          <p>Use code <strong class="accent">LAUNCH50</strong> at checkout. Valid for all new Growth &amp; Enterprise subscriptions.</p>
+        </div>
+        <a href="#portals" class="btn btn-primary btn-lg">Claim Offer</a>
+      </div>
+    </section>
+
+    <!-- ========== OWNER DETAILS ========== -->
+    <section class="section owner-details" id="owner-details">
+      <div class="container owner-inner">
+        <div class="section-head left">
+          <h2 class="section-title"><span class="accent">Owner</span> Details</h2>
+          <p class="section-subtitle">
+            Full transparency on ownership, support, and the people behind the platform.
+          </p>
+        </div>
+        <div class="owner-grid">
+          <div class="owner-card">
+            <h4>Founder &amp; CEO</h4>
+            <p>Leading product vision and customer success for thousands of businesses worldwide.</p>
+          </div>
+          <div class="owner-card">
+            <h4>Head of Engineering</h4>
+            <p>Architecting a secure, scalable platform that powers every portal in real time.</p>
+          </div>
+          <div class="owner-card">
+            <h4>Customer Success Team</h4>
+            <p>Onboarding, training, and 24/7 assistance so you never run your business alone.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="brand small">Business Management <span class="brand-accent">Software</span></span>
+      <p>© 2026 All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ========== OWNER ACCOUNT MODAL ========== -->
+  <div class="owner-modal" id="ownerModal" aria-hidden="true">
+    <div class="owner-modal-box">
+      <button class="modal-close" id="ownerModalClose" aria-label="Close">&times;</button>
+      <div class="modal-icon">👑</div>
+      <h3 id="ownerModalTitle">Owner Sign Up</h3>
+      <p class="modal-sub" id="ownerModalSub">Create your owner account and choose your business category.</p>
+
+      <form id="ownerForm" novalidate>
+        <div id="signupFields">
+          <div class="form-row">
+            <div class="field">
+              <label for="ofName">Full Name</label>
+              <input type="text" id="ofName" placeholder="e.g. Amna Bibi" autocomplete="name" />
+              <span class="field-error" id="errName"></span>
+            </div>
+            <div class="field">
+              <label for="ofAge">Age</label>
+              <input type="number" id="ofAge" placeholder="e.g. 32" min="18" max="100" />
+              <span class="field-error" id="errAge"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="ofMobile">Mobile Number</label>
+              <input type="tel" id="ofMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" />
+              <span class="field-error" id="errMobile"></span>
+            </div>
+            <div class="field">
+              <label for="ofCity">City</label>
+              <input type="text" id="ofCity" placeholder="e.g. Lahore" autocomplete="address-level2" />
+              <span class="field-error" id="errCity"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="ofCategory">Select Your Category</label>
+            <select id="ofCategory">
+              <option value="">— Choose a category —</option>
+              <option value="clinic">Clinic</option>
+              <option value="academy">Academy</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="generalstore">General Store</option>
+              <option value="beautysalon">Beauty Salon</option>
+              <option value="petrolpump">Petrol Pump</option>
+              <option value="medicalstore">Medical Store</option>
+              <option value="laboratory">Laboratory</option>
+            </select>
+            <span class="field-error" id="errCategory"></span>
+          </div>
+        </div>
+
+        <div class="field" id="loginField" hidden>
+          <label for="ofLoginMobile">Registered Mobile Number</label>
+          <input type="tel" id="ofLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" />
+          <span class="field-error" id="errLoginMobile"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="ownerSubmit">Create Owner Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== CEO MASTER ACCOUNT MODAL ========== -->
+  <div class="owner-modal" id="ceoModal" aria-hidden="true">
+    <div class="owner-modal-box">
+      <button class="modal-close" id="ceoClose" aria-label="Close">&times;</button>
+      <div class="modal-icon">👑</div>
+
+      <!-- CEO Login Screen -->
+      <div id="ceoLogin">
+        <h3 id="ceoLoginTitle">Owner Account Login</h3>
+        <p class="modal-sub" id="ceoLoginSub">Login to the CEO master account of Business Management Software.</p>
+
+        <form id="ceoLoginForm" novalidate>
+          <div id="ceoSignupExtra" hidden>
+            <div class="field">
+              <label for="ceoName">Full Name</label>
+              <input type="text" id="ceoName" placeholder="e.g. Amna Bibi" />
+              <span class="field-error" id="ceoErrName"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="ceoMobile">Mobile Number</label>
+            <input type="tel" id="ceoMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" />
+            <span class="field-error" id="ceoErrMobile"></span>
+          </div>
+
+          <div class="field">
+            <label for="ceoCode">Secret Code</label>
+            <input type="password" id="ceoCode" placeholder="Enter secret code" maxlength="20" autocomplete="off" />
+            <span class="field-error" id="ceoErrCode"></span>
+          </div>
+
+          <button class="btn btn-primary btn-block" type="submit" id="ceoLoginSubmit">Login</button>
+          <button class="btn btn-outline btn-block" type="button" id="ceoResetAccount" hidden>Reset &amp; Create New CEO Account</button>
+        </form>
+      </div>
+
+      <!-- CEO Panel (after login) -->
+      <div id="ceoPanel" hidden>
+        <h3 id="ceoPanelName">Amna Bibi</h3>
+        <p class="modal-sub">CEO &amp; Founder — master account for Business Management Software</p>
+
+        <div class="ceo-stats">
+          <div class="ceo-stat"><span>Categories</span><strong id="ceoCatCount">8</strong></div>
+          <div class="ceo-stat"><span>Owner Account</span><strong id="ceoOwnerInfo">Not registered</strong></div>
+          <div class="ceo-stat"><span>Access</span><strong id="ceoAccessInfo">Open</strong></div>
+        </div>
+
+        <div class="ceo-actions">
+          <button class="btn btn-primary" id="ceoUnlock" type="button">Unlock All Access</button>
+          <button class="btn btn-outline" id="ceoLock" type="button">Apply Owner Restriction</button>
+          <button class="btn btn-primary" id="ceoAddCat" type="button">Add Category</button>
+          <button class="btn btn-outline" id="ceoResetOwner" type="button">Remove Owner Account</button>
+        </div>
+
+        <form id="ceoAddForm" hidden>
+          <div class="field">
+            <label for="ccName">Category Name</label>
+            <input type="text" id="ccName" placeholder="e.g. Gym" />
+            <span class="field-error" id="ccErrName"></span>
+          </div>
+          <div class="field">
+            <label for="ccSub">Subtitle</label>
+            <input type="text" id="ccSub" placeholder="e.g. Members, Trainers &amp; Fee Tracking" />
+            <span class="field-error" id="ccErrSub"></span>
+          </div>
+          <div class="field">
+            <label for="ccIcon">Icon (emoji, optional)</label>
+            <input type="text" id="ccIcon" placeholder="e.g. 🏋️" maxlength="4" />
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Save Category</button>
+        </form>
+
+        <button class="btn btn-outline btn-block" id="ceoLogout" type="button">Logout</button>
+        <p class="ceo-note">Full access — view, add and remove any category, anywhere.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FEATURE PANEL (per detail-card CRUD) ========== -->
+  <div class="feature-modal" id="featureModal" aria-hidden="true">
+    <div class="feature-panel" id="featurePanel" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- ========== MY DATA (saved records browser) ========== -->
+  <div class="feature-modal" id="dataModal" aria-hidden="true">
+    <div class="feature-panel" id="dataPanel" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+</body>
+</html>

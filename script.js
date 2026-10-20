@@ -441,7 +441,7 @@ const buildCustomCategory = (cat) => {
   detail.innerHTML =
     `<div class="detail-header">` +
     `<button class="btn btn-outline detail-back">&larr; Back to Categories</button>` +
-    `<span class="brand small">Business Management <span class="brand-accent">Software</span></span></div>` +
+    `<span class="brand small">Online Management <span class="brand-accent">Site</span></span></div>` +
     `<div class="container"><div class="detail-hero"><div class="detail-icon">${safeIcon(cat.icon)}</div>` +
     `<h2>${escHtml(cat.name)}</h2><p>${escHtml(cat.sub)}</p></div>` +
     `<div class="detail-grid">${cardsHtml}</div></div>`;

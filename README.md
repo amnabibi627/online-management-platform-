@@ -14,6 +14,26 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 - **Entry count badges** on every feature card
 - **Per-category "All Data" sheet** — Excel-like view of every saved entry with search,
   row-level edit/delete and CSV export
+- **Owner profile** — header + profile photo (DP) upload, bio, contact links
+  (Facebook, Instagram, TikTok, WhatsApp, Email) and an embedded portfolio viewer
+- **Ratings & comments** — any visitor can rate 1–5 stars and leave a comment;
+  average score and star distribution shown live
+- **Guides & updates** — tag filters (Guide, Update), read more/less and
+  paginated posts (2 per page)
+- **Business registration** — a "Register Your Business" card opens a compact
+  modal form with three paid plans (15 days / PKR 2,500, 30 days / PKR 5,000,
+  1 year / PKR 60,000) picked inside the form. All details are required, plus
+  optional website and social links (Facebook, Instagram, TikTok). After
+  submitting, the owner's WhatsApp opens with the business and plan pre-filled
+  so the customer can send the payment
+- **Business Ads panel** (CEO only) — review every registration, confirm the
+  payment, then activate the ad. Expiry is set from the plan automatically
+  (15 days / 30 days / 1 year), with extend, stop and delete actions. Expired
+  ads drop out of the live list on their own
+- **Running Business Ads** — a public section that lists every activated ad in
+  Fiverr gig style (thumbnail, seller row, title, meta, links, "Starts from
+  PKR X" price and a green Contact button that opens WhatsApp). Ads show up
+  only while they are live
 - **Supabase sync** — data and auth synced to the cloud; works offline too (localStorage)
 
 ## Files
@@ -22,6 +42,7 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 |------|---------|
 | `index.html` | Page structure, category sections, modals |
 | `script.js`  | All app logic (auth, CRUD, sync) |
+| `liveads.js` | Renders the public "Running Business Ads" cards |
 | `styles.css` | Styling |
 
 ## Running

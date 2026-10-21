@@ -23,7 +23,9 @@ const cloudState = (cls, label) => {
 
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && (
   k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
-  k === "ceoMode" || k === "ceoAccount" || k.endsWith(":data"));
+  k === "ceoMode" || k === "ceoAccount" || k === "siteReviews" || k === "siteArticles" ||
+  k === "siteArticlesRemoved" || k === "businessRegistrations" || k === "selectedBizPlan" ||
+  k.endsWith(":data"));
 
 const cloudPushRows = async (rows) => {
   if (!sb || !cloudUser || !rows.length) return;
@@ -574,6 +576,7 @@ const setCeoSession = (value) => {
   } catch {}
   applyAccess();
   updateCeoStats();
+  renderArticles();
 };
 
 ceoLoginForm.addEventListener("submit", async (e) => {
@@ -2354,26 +2357,22 @@ document.addEventListener("keydown", (e) => {
 const AVATAR_KEY = "ownerAvatar";
 const ownerAvatarEl = document.getElementById("ownerAvatar");
 const ownerAvatarInput = document.getElementById("ownerAvatarInput");
+const headerAvatarEl = document.getElementById("headerAvatar");
+const headerAvatarInput = document.getElementById("headerAvatarInput");
 
-const applyOwnerAvatar = () => {
-  if (!ownerAvatarEl) return;
-  const data = store.get(AVATAR_KEY, null);
-  if (data) {
-    ownerAvatarEl.style.backgroundImage = `url(${data})`;
-    ownerAvatarEl.classList.add("has-photo");
-  } else {
-    ownerAvatarEl.style.backgroundImage = "";
-    ownerAvatarEl.classList.remove("has-photo");
-  }
-};
-
-if (ownerAvatarEl && ownerAvatarInput) {
-  ownerAvatarEl.addEventListener("click", () => ownerAvatarInput.click());
-  ownerAvatarInput.addEventListener("change", () => {
-    const file = ownerAvatarInput.files && ownerAvatarInput.files[0];
+// Shared upload wiring: click → file picker → validate → save → refresh every avatar
+const initAvatarUpload = (el, input) => {
+  if (!el || !input) return;
+  const open = () => input.click();
+  el.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); open(); });
+  el.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+  });
+  input.addEventListener("change", () => {
+    const file = input.files && input.files[0];
     if (!file) return;
-    if (!/^image\//.test(file.type)) { showToast("Please choose an image file.", true); return; }
-    if (file.size > 2 * 1024 * 1024) { showToast("Image too large — please use under 2 MB.", true); return; }
+    if (!/^image\//.test(file.type)) { showToast("Please choose an image file.", true); input.value = ""; return; }
+    if (file.size > 2 * 1024 * 1024) { showToast("Image too large — please use under 2 MB.", true); input.value = ""; return; }
     const reader = new FileReader();
     reader.onload = () => {
       store.set(AVATAR_KEY, reader.result);
@@ -2382,8 +2381,1091 @@ if (ownerAvatarEl && ownerAvatarInput) {
     };
     reader.onerror = () => showToast("Could not read that image.", true);
     reader.readAsDataURL(file);
+    input.value = "";
+  });
+};
+
+const applyOwnerAvatar = () => {
+  const data = store.get(AVATAR_KEY, null);
+  const css = data ? `url(${data})` : "";
+  if (ownerAvatarEl) {
+    ownerAvatarEl.style.backgroundImage = css;
+    ownerAvatarEl.classList.toggle("has-photo", !!data);
+  }
+  if (headerAvatarEl) {
+    headerAvatarEl.style.backgroundImage = css;
+    headerAvatarEl.classList.toggle("has-photo", !!data);
+  }
+};
+
+initAvatarUpload(headerAvatarEl, headerAvatarInput);
+initAvatarUpload(ownerAvatarEl, ownerAvatarInput);
+
+// ===== Contact Owner: reveal social icons =====
+const contactOwnerToggle = document.getElementById("contactOwnerToggle");
+const ownerSocials = document.getElementById("ownerSocials");
+
+if (contactOwnerToggle && ownerSocials) {
+  contactOwnerToggle.addEventListener("click", () => {
+    const open = ownerSocials.hidden;
+    ownerSocials.hidden = !open;
+    contactOwnerToggle.setAttribute("aria-expanded", String(open));
+    contactOwnerToggle.classList.toggle("btn-primary", !open);
+    contactOwnerToggle.classList.toggle("btn-outline", open);
+    contactOwnerToggle.textContent = open ? "Hide Contacts" : "Contact Owner";
+    if (open) {
+      ownerSocials.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      showToast("Connect with Amna Bibi on social media!");
+    }
   });
 }
+
+// ===== View Portfolio: show the portfolio inside the page (with new-tab fallback) =====
+const portfolioToggle = document.getElementById("portfolioToggle");
+const ownerPortfolio = document.getElementById("ownerPortfolio");
+const portfolioFrame = document.getElementById("portfolioFrame");
+const portfolioLoader = document.getElementById("portfolioLoader");
+const portfolioClose = document.getElementById("portfolioClose");
+const PORTFOLIO_URL = portfolioFrame ? portfolioFrame.dataset.src : "";
+
+if (portfolioToggle && ownerPortfolio && portfolioFrame) {
+  const setEmpty = (open) => {
+    portfolioFrame.src = open ? PORTFOLIO_URL : "about:blank";
+  };
+
+  portfolioFrame.addEventListener("load", () => {
+    if (portfolioLoader) portfolioLoader.hidden = true;
+  });
+
+  portfolioToggle.addEventListener("click", () => {
+    const open = ownerPortfolio.hidden;
+    ownerPortfolio.hidden = !open;
+    portfolioToggle.setAttribute("aria-expanded", String(open));
+    portfolioToggle.classList.toggle("btn-outline", !open);
+    portfolioToggle.classList.toggle("btn-primary", open);
+    portfolioToggle.textContent = open ? "Hide Portfolio" : "View Portfolio";
+    setEmpty(open);
+    if (open) {
+      if (portfolioLoader) portfolioLoader.hidden = false;
+      // Some hosts block embedding — fall back to opening in a new tab.
+      setTimeout(() => {
+        let blocked = false;
+        try { blocked = !portfolioFrame.contentWindow; } catch { blocked = true; }
+        if (blocked && portfolioLoader) {
+          portfolioLoader.textContent = "This portfolio can't be embedded here — use “Open in new tab”.";
+        }
+      }, 2500);
+      ownerPortfolio.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      showToast("Loading Amna Bibi's portfolio…");
+    }
+  });
+
+  if (portfolioClose) {
+    portfolioClose.addEventListener("click", () => {
+      ownerPortfolio.hidden = true;
+      portfolioFrame.src = "about:blank";
+      portfolioToggle.setAttribute("aria-expanded", "false");
+      portfolioToggle.classList.remove("btn-primary");
+      portfolioToggle.classList.add("btn-outline");
+      portfolioToggle.textContent = "View Portfolio";
+    });
+  }
+}
+
+// ===== Ratings & Comments =====
+const REVIEWS_KEY = "siteReviews";
+const reviewForm = document.getElementById("reviewForm");
+const reviewList = document.getElementById("reviewList");
+const starPicker = document.getElementById("starPicker");
+const starValue = document.getElementById("starValue");
+const reviewsAvgEl = document.getElementById("reviewsAvg");
+const reviewsAvgStars = document.getElementById("reviewsAvgStars");
+const reviewsCountEl = document.getElementById("reviewsCount");
+const reviewsBars = document.getElementById("reviewsBars");
+const revNameInput = document.getElementById("revName");
+const revTextInput = document.getElementById("revText");
+const revNameErr = document.getElementById("revNameErr");
+const revRatingErr = document.getElementById("revRatingErr");
+
+let pickedRating = 0;
+
+const getReviews = () => {
+  const list = store.get(REVIEWS_KEY, []);
+  return Array.isArray(list) ? list : [];
+};
+
+const starString = (n) => "★".repeat(n) + "☆".repeat(5 - n);
+
+const paintStars = (value) => {
+  if (!starPicker) return;
+  starPicker.querySelectorAll(".star").forEach((s) => {
+    s.classList.toggle("on", Number(s.dataset.value) <= value);
+  });
+  if (starValue) {
+    starValue.textContent = value ? `${value} of 5` : "Select stars";
+    starValue.style.color = value ? "#f5a623" : "";
+  }
+};
+
+const renderReviews = () => {
+  if (!reviewList) return;
+  const list = getReviews();
+  const total = list.length;
+  const sum = list.reduce((n, r) => n + (Number(r.rating) || 0), 0);
+  const avg = total ? sum / total : 0;
+
+  if (reviewsAvgEl) reviewsAvgEl.textContent = avg.toFixed(1);
+  if (reviewsAvgStars) reviewsAvgStars.textContent = starString(Math.round(avg));
+  if (reviewsCountEl) reviewsCountEl.textContent = total ? `${total} review${total === 1 ? "" : "s"}` : "No reviews yet";
+
+  // Distribution bars (5 → 1)
+  if (reviewsBars) {
+    reviewsBars.innerHTML = [5, 4, 3, 2, 1].map((n) => {
+      const count = list.filter((r) => Number(r.rating) === n).length;
+      const pct = total ? Math.round((count / total) * 100) : 0;
+      return `<div class="rv-bar-row"><span class="rv-bar-lbl">${n} ★</span>` +
+        `<span class="rv-bar-track"><span class="rv-bar-fill" style="width:${pct}%"></span></span>` +
+        `<span class="rv-bar-val">${count}</span></div>`;
+    }).join("");
+  }
+
+  if (!total) {
+    reviewList.innerHTML = "";
+    return;
+  }
+
+  const sorted = [...list].sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+  reviewList.innerHTML = sorted.map((r) => {
+    const initial = escHtml(String(r.name || "?").trim().charAt(0).toUpperCase());
+    return `<div class="review-item" data-review-id="${escHtml(r.id)}">` +
+      `<div class="review-item-head">` +
+      `<span class="review-avatar">${initial}</span>` +
+      `<span class="review-name">${escHtml(r.name)}</span>` +
+      `<span class="review-stars" title="${Number(r.rating) || 0} of 5">${starString(Number(r.rating) || 0)}</span>` +
+      `<span class="review-date">${fmtReviewDate(r.at)}</span>` +
+      `</div>` +
+      (r.text ? `<p class="review-comment">${escHtml(r.text)}</p>` : "") +
+      `<button type="button" class="review-del" data-review-del="${escHtml(r.id)}" title="Delete review" aria-label="Delete review">&times;</button>` +
+      `</div>`;
+  }).join("");
+};
+
+const fmtReviewDate = (v) => {
+  const d = v ? new Date(v) : null;
+  if (!d || isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+};
+
+if (starPicker) {
+  starPicker.addEventListener("click", (e) => {
+    const btn = e.target.closest(".star");
+    if (!btn) return;
+    pickedRating = Number(btn.dataset.value) || 0;
+    paintStars(pickedRating);
+    if (revRatingErr) revRatingErr.textContent = "";
+  });
+  starPicker.addEventListener("mouseover", (e) => {
+    const btn = e.target.closest(".star");
+    if (btn) paintStars(Number(btn.dataset.value) || 0);
+  });
+  starPicker.addEventListener("mouseleave", () => paintStars(pickedRating));
+}
+
+if (reviewForm) {
+  reviewForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = String(revNameInput.value || "").trim();
+    const text = String(revTextInput.value || "").trim();
+    let ok = true;
+
+    if (name.length < 2) {
+      if (revNameErr) revNameErr.textContent = "Please enter your name (min 2 letters).";
+      revNameInput.classList.add("invalid");
+      ok = false;
+    } else {
+      if (revNameErr) revNameErr.textContent = "";
+      revNameInput.classList.remove("invalid");
+    }
+
+    if (!pickedRating) {
+      if (revRatingErr) revRatingErr.textContent = "Please tap a star to rate.";
+      ok = false;
+    } else if (revRatingErr) revRatingErr.textContent = "";
+
+    if (!ok) { showToast("Please add your name and rating.", true); return; }
+
+    const list = getReviews();
+    list.push({
+      id: newEntryId(),
+      name, text,
+      rating: pickedRating,
+      at: new Date().toISOString()
+    });
+    store.set(REVIEWS_KEY, list);
+
+    reviewForm.reset();
+    pickedRating = 0;
+    paintStars(0);
+    renderReviews();
+    showToast("Thanks! Your review has been posted. ⭐");
+  });
+
+  reviewForm.addEventListener("input", (e) => {
+    if (e.target === revNameInput) {
+      revNameInput.classList.remove("invalid");
+      if (revNameErr) revNameErr.textContent = "";
+    }
+  });
+}
+
+if (reviewList) {
+  reviewList.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-review-del]");
+    if (!btn) return;
+    const id = btn.getAttribute("data-review-del");
+    const list = getReviews();
+    const item = list.find((r) => r.id === id);
+    if (!item) return;
+    if (!confirm(`Delete review by "${item.name}"?`)) return;
+    store.set(REVIEWS_KEY, list.filter((r) => r.id !== id));
+    renderReviews();
+    showToast("Review deleted.");
+  });
+}
+
+renderReviews();
+
+// ===== Articles & Updates =====
+const ARTICLES_KEY = "siteArticles";
+const ARTICLES_PER_PAGE = 2;
+
+const articlesGrid = document.getElementById("articlesGrid");
+const articlesFilter = document.getElementById("articlesFilter");
+const articlesEmpty = document.getElementById("articlesEmpty");
+const articlesPager = document.getElementById("articlesPager");
+
+let activeArtFilter = "all";
+let artPage = 1;
+const expandedArticles = new Set();
+
+const DEFAULT_ARTICLES = [
+  {
+    id: "seed-7",
+    tag: "Guide",
+    title: "The Right Way to Track Daily Sales and Expenses",
+    body: "Accurate daily tracking is the foundation of a healthy business. Most owners lose profit not because sales are low, but because small expenses go unrecorded.\n\nFollow this simple routine:\n\n1. Record every sale at the moment it happens, not at the end of the day.\n2. Note each expense immediately, including small items like tea, fuel and stationery.\n3. At closing time, compare total sales against total expenses.\n4. Review the difference weekly to spot patterns.\n\nWithin one month you will clearly see which days, products and staff members perform best. That insight alone often raises profit by 10 to 20 percent.\n\nTip: keep one person responsible for daily entry. Shared responsibility usually means no responsibility.",
+    at: "2026-09-15T09:00:00.000Z"
+  },
+  {
+    id: "seed-8",
+    tag: "Update",
+    title: "Smarter Reports: Understand Your Business at a Glance",
+    body: "Our reporting engine has been rebuilt for clarity and speed.\n\nWhat is new:\n\n• Daily, weekly and monthly summaries generated automatically.\n• Profit and loss shown side by side for instant comparison.\n• Top selling items and slow moving stock highlighted in every report.\n• One click CSV export for your accountant or tax filing.\n\nAll reports now load in under one second, even with thousands of saved records. No setup required. Simply open your dashboard and the numbers are already waiting.\n\nWe built this so you can make decisions from facts, not guesses.",
+    at: "2026-09-13T09:00:00.000Z"
+  },
+  {
+    id: "seed-9",
+    tag: "Guide",
+    title: "How to Manage Staff Shifts Without Confusion",
+    body: "Staff scheduling becomes simple when the rules are clear and written down.\n\nStart with these three steps:\n\n1. Fix a weekly pattern. The same people on the same days build a reliable routine.\n2. Record every shift swap in writing, with both names and the date.\n3. Check attendance against the schedule at the end of each week.\n\nWhen you keep this in one place, salary calculations take minutes instead of hours. Disputes about missed days also disappear, because the record speaks for itself.\n\nGood scheduling is not about trust. It is about clarity.",
+    at: "2026-09-11T09:00:00.000Z"
+  },
+  {
+    id: "seed-10",
+    tag: "Update",
+    title: "Faster Search, Instant Results Across All Records",
+    body: "Finding a record used to mean scrolling. Now it means typing.\n\nOur search has been upgraded:\n\n• Instant filtering as you type, no button to press.\n• Matches names, numbers, dates and notes in a single search.\n• Works across every category and every feature module.\n• Results stay accurate even with tens of thousands of entries.\n\nThis matters most on busy days. When a customer is waiting at the counter, two seconds saved on every lookup adds up to a smoother, calmer business.\n\nSearch is available everywhere in the dashboard, right where you need it.",
+    at: "2026-09-08T09:00:00.000Z"
+  },
+  {
+    id: "seed-11",
+    tag: "Guide",
+    title: "Avoid Stock Shortages Before They Cost You Sales",
+    body: "Running out of a fast selling item is one of the most expensive mistakes in retail. The customer does not wait. They buy elsewhere, and they often do not come back.\n\nA simple system prevents this:\n\n1. Write a minimum stock level for each product, based on how fast it sells.\n2. Check your stock list every morning before opening.\n3. Note the supplier's delivery time for each item.\n4. Order when stock reaches the minimum, not when it reaches zero.\n\nThe goal is not to hold more stock. The goal is to hold the right stock at the right time. That balance protects both your cash and your sales.",
+    at: "2026-09-04T09:00:00.000Z"
+  },
+  {
+    id: "seed-12",
+    tag: "Update",
+    title: "Backup and Restore: Your Records Are Now Safer",
+    body: "Data loss should never be a business risk. We have added a full backup and restore system.\n\nWhat you can now do:\n\n• Create a complete backup of all your records in one click.\n• Restore any backup to the same device or a new one.\n• Keep working offline, with changes saved and synced later.\n• See a clear status whenever your data has been secured.\n\nBackups run on the cloud and on your device at the same time. If one fails, the other still protects you.\n\nYour records are your business. We treat them that way.",
+    at: "2026-09-01T09:00:00.000Z"
+  }
+];
+
+const ARTICLE_REMOVED_KEY = "siteArticlesRemoved";
+
+// Tips and News categories were removed — migrate any saved article using them.
+const TAG_MIGRATION = { Tips: "Guide", News: "Update" };
+
+const migrateArticleTags = (list) => {
+  let changed = false;
+  const out = list.map((a) => {
+    const next = TAG_MIGRATION[a.tag];
+    if (next) {
+      changed = true;
+      return Object.assign({}, a, { tag: next });
+    }
+    return a;
+  });
+  if (changed) store.set(ARTICLES_KEY, out);
+  return out;
+};
+
+const loadArticles = () => {
+  const removed = store.get(ARTICLE_REMOVED_KEY, []);
+  const removedSet = new Set(Array.isArray(removed) ? removed : []);
+  let list = store.get(ARTICLES_KEY, null);
+
+  if (!Array.isArray(list)) {
+    const seeded = DEFAULT_ARTICLES.filter((a) => !removedSet.has(a.id));
+    store.set(ARTICLES_KEY, seeded);
+    return [...seeded];
+  }
+
+  list = migrateArticleTags(list);
+
+  // Drop retired built-in posts that no longer exist in DEFAULT_ARTICLES.
+  const activeSeedIds = new Set(DEFAULT_ARTICLES.map((a) => a.id));
+  const pruned = list.filter((a) => {
+    if (!String(a.id).startsWith("seed-")) return true; // keep CEO-published posts
+    return activeSeedIds.has(a.id) && !removedSet.has(a.id);
+  });
+  if (pruned.length !== list.length) {
+    list = pruned;
+    store.set(ARTICLES_KEY, list);
+  }
+
+  // Merge any missing built-in articles (so new seed posts always appear),
+  // except the ones deliberately deleted.
+  const have = new Set(list.map((a) => a.id));
+  const missing = DEFAULT_ARTICLES.filter((a) => !have.has(a.id) && !removedSet.has(a.id));
+  if (missing.length) {
+    const merged = list.concat(missing);
+    store.set(ARTICLES_KEY, merged);
+    return merged;
+  }
+  return list;
+};
+
+const fmtArticleDate = (v) => {
+  const d = v ? new Date(v) : null;
+  if (!d || isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+};
+
+const articleClip = (text, limit) => {
+  const clean = String(text || "").trim();
+  if (clean.length <= limit) return clean;
+  return clean.slice(0, limit).replace(/\s+\S*$/, "") + "…";
+};
+
+const renderArticles = () => {
+  if (!articlesGrid) return;
+  const all = loadArticles();
+
+  const filtered = (activeArtFilter === "all"
+    ? all
+    : all.filter((a) => (a.tag || "Guide") === activeArtFilter))
+    .slice()
+    .sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+
+  const pages = Math.max(1, Math.ceil(filtered.length / ARTICLES_PER_PAGE));
+  if (artPage > pages) artPage = pages;
+  if (artPage < 1) artPage = 1;
+
+  const start = (artPage - 1) * ARTICLES_PER_PAGE;
+  const slice = filtered.slice(start, start + ARTICLES_PER_PAGE);
+
+  articlesGrid.innerHTML = slice.map((a) => {
+    const open = expandedArticles.has(a.id);
+    const body = open ? String(a.body || "") : articleClip(a.body, 170);
+    const canExpand = String(a.body || "").length > 170;
+    return `<article class="article-card" data-article-id="${escHtml(a.id)}">` +
+      `<div class="article-top">` +
+      `<span class="article-tag" data-tag="${escHtml(a.tag || "Guide")}">${escHtml(a.tag || "Guide")}</span>` +
+      `<span class="article-date">${fmtArticleDate(a.at)}</span>` +
+      `</div>` +
+      `<h3 class="article-title">${escHtml(a.title)}</h3>` +
+      `<p class="article-body">${escHtml(body)}</p>` +
+      `<div class="article-actions">` +
+      (canExpand ? `<button type="button" class="article-link" data-article-toggle="${escHtml(a.id)}">${open ? "Show less" : "Read more"}</button>` : "") +
+      `</div>` +
+      `</article>`;
+  }).join("");
+
+  if (articlesEmpty) articlesEmpty.hidden = filtered.length > 0;
+
+  if (articlesPager) {
+    if (pages <= 1) {
+      articlesPager.innerHTML = "";
+    } else {
+      let html = `<button type="button" class="page-nav" data-art-page="${artPage - 1}"${artPage === 1 ? " disabled" : ""} aria-label="Previous page">&lsaquo;</button>`;
+      for (let i = 1; i <= pages; i++) {
+        html += `<button type="button" class="page-dot${i === artPage ? " active" : ""}" data-art-page="${i}" aria-label="Page ${i}">${i}</button>`;
+      }
+      html += `<button type="button" class="page-nav" data-art-page="${artPage + 1}"${artPage === pages ? " disabled" : ""} aria-label="Next page">&rsaquo;</button>`;
+      articlesPager.innerHTML = html;
+    }
+  }
+};
+
+if (articlesFilter) {
+  articlesFilter.addEventListener("click", (e) => {
+    const btn = e.target.closest(".art-filter");
+    if (!btn) return;
+    activeArtFilter = btn.dataset.filter || "all";
+    artPage = 1;
+    articlesFilter.querySelectorAll(".art-filter").forEach((b) => b.classList.toggle("active", b === btn));
+    renderArticles();
+  });
+}
+
+if (articlesGrid) {
+  articlesGrid.addEventListener("click", (e) => {
+    const toggle = e.target.closest("[data-article-toggle]");
+    if (!toggle) return;
+    const id = toggle.getAttribute("data-article-toggle");
+    if (expandedArticles.has(id)) expandedArticles.delete(id);
+    else expandedArticles.add(id);
+    renderArticles();
+  });
+}
+
+if (articlesPager) {
+  articlesPager.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-art-page]");
+    if (!btn || btn.disabled) return;
+    const next = Number(btn.dataset.artPage);
+    if (!Number.isFinite(next) || next < 1 || next === artPage) return;
+    artPage = next;
+    renderArticles();
+    document.getElementById("articles")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+renderArticles();
+
+// ===== Business Registration =====
+const REG_KEY = "businessRegistrations";
+const REG_PLAN_KEY = "selectedBizPlan";
+
+const regForm = document.getElementById("regForm");
+const planGrid = document.getElementById("planGrid");
+const regPlanSummary = document.getElementById("regPlanSummary");
+const regListWrap = document.getElementById("regListWrap");
+const regList = document.getElementById("regList");
+const regPhotoPreview = document.getElementById("regPhotoPreview");
+const regVideoPreview = document.getElementById("regVideoPreview");
+const regPhotosInput = document.getElementById("regPhotos");
+const regVideosInput = document.getElementById("regVideos");
+const regTerms = document.getElementById("regTerms");
+const regTermsErr = document.getElementById("regTermsErr");
+const regModal = document.getElementById("regModal");
+const openRegFormBtn = document.getElementById("openRegForm");
+const regModalClose = document.getElementById("regModalClose");
+
+const PLAN_INFO = {
+  "15days": { label: "15 Days", price: 2500 },
+  "30days": { label: "30 Days", price: 5000 },
+  "1year": { label: "1 Year", price: 60000 }
+};
+
+const MOBILE_LOOKUP_RE = /^03\d{9}$/;
+const normalizeMobile = (v) => String(v || "").replace(/[^\d]/g, "");
+
+const rupees = (n) => Number(n || 0).toLocaleString("en-PK");
+
+const getRegistrations = () => {
+  const list = store.get(REG_KEY, []);
+  return Array.isArray(list) ? list : [];
+};
+
+const getSelectedPlan = () => {
+  const key = store.get(REG_PLAN_KEY, null);
+  return key && PLAN_INFO[key] ? key : null;
+};
+
+const renderPlanSummary = () => {
+  if (!regPlanSummary) return;
+  const key = getSelectedPlan();
+  if (!key) {
+    regPlanSummary.innerHTML = `<span class="reg-plan-none">No plan selected yet. Pick one above.</span>`;
+    return;
+  }
+  const p = PLAN_INFO[key];
+  regPlanSummary.innerHTML =
+    `<div class="reg-plan-item"><span>Plan</span><strong>${escHtml(p.label)}</strong></div>` +
+    `<div class="reg-plan-item"><span>Amount</span><strong>PKR ${rupees(p.price)}</strong></div>` +
+    `<div class="reg-plan-item"><span>Ad runs for</span><strong>${escHtml(p.label)}</strong></div>`;
+};
+
+const markPlanSelected = (key) => {
+  if (!planGrid) return;
+  planGrid.querySelectorAll(".plan-mini").forEach((card) => {
+    const on = card.dataset.plan === key;
+    card.classList.toggle("selected", on);
+    card.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+};
+
+const selectPlan = (key, { silence = false } = {}) => {
+  if (!PLAN_INFO[key]) return;
+  store.set(REG_PLAN_KEY, key);
+  markPlanSelected(key);
+  renderPlanSummary();
+  const err = document.getElementById("regPlanErr");
+  if (err) err.textContent = "";
+  if (!silence) showToast(`${PLAN_INFO[key].label} plan selected - PKR ${rupees(PLAN_INFO[key].price)}`);
+};
+
+if (planGrid) {
+  planGrid.addEventListener("click", (e) => {
+    const card = e.target.closest(".plan-mini");
+    if (!card) return;
+    selectPlan(card.dataset.plan);
+  });
+}
+
+// --- Media pickers (preview only, nothing is uploaded from the browser) ---
+const clearPreview = (el) => { if (el) el.innerHTML = ""; };
+
+const renderMediaPreview = (files, container, kind) => {
+  if (!container) return;
+  clearPreview(container);
+  if (!files || !files.length) {
+    container.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+    return;
+  }
+  [...files].slice(0, 8).forEach((file) => {
+    const wrap = document.createElement("div");
+    wrap.className = "media-thumb";
+    const url = URL.createObjectURL(file);
+    if (kind === "video") {
+      const v = document.createElement("video");
+      v.src = url; v.muted = true; v.playsInline = true;
+      v.addEventListener("loadeddata", () => URL.revokeObjectURL(url), { once: true });
+      wrap.appendChild(v);
+      const tag = document.createElement("span");
+      tag.className = "media-kind";
+      tag.textContent = "Video";
+      wrap.appendChild(tag);
+    } else {
+      const img = document.createElement("img");
+      img.src = url; img.alt = "Selected photo";
+      img.addEventListener("load", () => URL.revokeObjectURL(url), { once: true });
+      wrap.appendChild(img);
+    }
+    container.appendChild(wrap);
+  });
+  if (files.length > 8) {
+    const more = document.createElement("span");
+    more.className = "media-empty";
+    more.textContent = `+${files.length - 8} more`;
+    container.appendChild(more);
+  }
+};
+
+regPhotosInput?.addEventListener("change", () => renderMediaPreview(regPhotosInput.files, regPhotoPreview, "photo"));
+regVideosInput?.addEventListener("change", () => renderMediaPreview(regVideosInput.files, regVideoPreview, "video"));
+
+clearPreview(regPhotoPreview);
+clearPreview(regVideoPreview);
+if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+
+// --- Validation helpers ---
+const setRegError = (inputEl, errEl, message) => {
+  if (errEl) errEl.textContent = message || "";
+  if (inputEl) inputEl.classList.toggle("invalid", !!message);
+  return !message;
+};
+
+// Optional field: only checked when the user types something.
+const URL_FIELDS = [
+  ["regWebsite", "regWebsiteErr", "website"],
+  ["regFacebook", "regFacebookErr", "Facebook"],
+  ["regInstagram", "regInstagramErr", "Instagram"],
+  ["regTiktok", "regTiktokErr", "TikTok"]
+];
+
+const isLikelyLink = (v) => /^(https?:\/\/)?[\w-]+(\.[\w-]+)+([\w.,@?^=%&:/~+#-]*)?$/.test(v.trim());
+
+const validateRegForm = () => {
+  const get = (id) => document.getElementById(id);
+  let ok = true;
+
+  const bizName = get("regBizName").value.trim();
+  ok = setRegError(get("regBizName"), get("regBizNameErr"), bizName.length < 3 ? "Please write your business name (min 3 letters)." : "") && ok;
+
+  const ownerName = get("regOwnerName").value.trim();
+  ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 3 ? "Please write the owner name (min 3 letters)." : "") && ok;
+
+  const mobile = normalizeMobile(get("regMobile").value);
+  ok = setRegError(get("regMobile"), get("regMobileErr"), MOBILE_LOOKUP_RE.test(mobile) ? "" : "Please enter a valid mobile number, e.g. 03123456789.") && ok;
+
+  const wa = normalizeMobile(get("regWhatsapp").value);
+  ok = setRegError(get("regWhatsapp"), get("regWhatsappErr"), MOBILE_LOOKUP_RE.test(wa) ? "" : "Please enter a valid WhatsApp number, e.g. 03123456789.") && ok;
+
+  const category = get("regCategory").value;
+  ok = setRegError(get("regCategory"), get("regCategoryErr"), category ? "" : "Please select your business category.") && ok;
+
+  const city = get("regCity").value.trim();
+  ok = setRegError(get("regCity"), get("regCityErr"), city.length < 2 ? "Please write your city." : "") && ok;
+
+  const address = get("regAddress").value.trim();
+  ok = setRegError(get("regAddress"), get("regAddressErr"), address.length < 5 ? "Please write the full address." : "") && ok;
+
+  const about = get("regAbout").value.trim();
+  ok = setRegError(get("regAbout"), get("regAboutErr"), about.length < 10 ? "Please write a short description (min 10 letters)." : "") && ok;
+
+  const timing = get("regTiming").value.trim();
+  ok = setRegError(get("regTiming"), get("regTimingErr"), timing.length < 3 ? "Please write your opening hours." : "") && ok;
+
+  // Social links are optional, but if filled they must look like a real link.
+  URL_FIELDS.forEach(([id, errId, label]) => {
+    const el = get(id);
+    const raw = el.value.trim();
+    const bad = raw && !isLikelyLink(raw);
+    ok = setRegError(el, get(errId), bad ? `Please enter a valid ${label} link.` : "") && ok;
+  });
+
+  if (regTermsErr) regTermsErr.textContent = regTerms && !regTerms.checked ? "Please confirm the details and the payment steps." : "";
+  if (regTerms && !regTerms.checked) ok = false;
+
+  return ok;
+};
+
+// --- Submit ---
+if (regForm) {
+  regForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    if (!validateRegForm()) {
+      showToast("Please fill the highlighted fields.", true);
+      regForm.querySelector(".invalid")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    const planKey = getSelectedPlan();
+    const planErr = document.getElementById("regPlanErr");
+    if (!planKey) {
+      if (planErr) planErr.textContent = "Please choose a plan above.";
+      showToast("Please choose a plan first, then submit.", true);
+      document.getElementById("planGrid")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (planErr) planErr.textContent = "";
+
+    const get = (id) => document.getElementById(id).value.trim();
+    const plan = PLAN_INFO[planKey];
+    const entry = {
+      id: newEntryId(),
+      business: get("regBizName"),
+      owner: get("regOwnerName"),
+      mobile: normalizeMobile(get("regMobile")),
+      whatsapp: normalizeMobile(get("regWhatsapp")),
+      category: get("regCategory"),
+      city: get("regCity"),
+      address: get("regAddress"),
+      about: get("regAbout"),
+      timing: get("regTiming"),
+      website: get("regWebsite"),
+      facebook: get("regFacebook"),
+      instagram: get("regInstagram"),
+      tiktok: get("regTiktok"),
+      photoCount: regPhotosInput?.files?.length || 0,
+      videoCount: regVideosInput?.files?.length || 0,
+      plan: planKey,
+      planLabel: plan.label,
+      amount: plan.price,
+      at: new Date().toISOString(),
+      status: "pending"
+    };
+
+    const list = getRegistrations();
+    list.push(entry);
+    store.set(REG_KEY, list);
+
+    regForm.reset();
+    clearPreview(regPhotoPreview);
+    clearPreview(regVideoPreview);
+    if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+    if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+    store.set(REG_PLAN_KEY, null);
+    markPlanSelected(null);
+    renderPlanSummary();
+    renderRegistrations();
+    resetRegErrors();
+
+    showToast("Registration submitted! Now contact the owner on WhatsApp to send the payment.");
+    closeRegModal();
+    regListWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Straight to the owner's WhatsApp with the business and plan pre-filled.
+    const waText = encodeURIComponent(
+      `Assalam o Alaikum! I submitted my business registration on Online Management Site.\n` +
+      `Business: ${entry.business}\nOwner: ${entry.owner}\nPlan: ${entry.planLabel} (PKR ${rupees(entry.amount)})\n` +
+      `Please send me the payment details so my ad can run.`
+    );
+    setTimeout(() => {
+      window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
+    }, 700);
+  });
+
+  regForm.addEventListener("input", (e) => {
+    const t = e.target;
+    if (t && t.classList.contains("invalid")) {
+      t.classList.remove("invalid");
+      const err = document.getElementById(`${t.id}Err`);
+      if (err) err.textContent = "";
+    }
+    if (t === regTerms && regTermsErr) regTermsErr.textContent = "";
+  });
+
+  document.getElementById("regReset")?.addEventListener("click", () => {
+    clearPreview(regPhotoPreview);
+    clearPreview(regVideoPreview);
+    if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+    if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+    store.set(REG_PLAN_KEY, null);
+    markPlanSelected(null);
+    renderPlanSummary();
+    resetRegErrors();
+    showToast("Form cleared.");
+  });
+}
+
+const resetRegErrors = () => {
+  regForm?.querySelectorAll(".field-error").forEach((el) => { el.textContent = ""; });
+  regForm?.querySelectorAll(".invalid").forEach((el) => el.classList.remove("invalid"));
+};
+
+// --- Registration modal open / close ---
+const openRegModal = () => {
+  if (!regModal) return;
+  regModal.classList.add("open");
+  regModal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+};
+
+const closeRegModal = () => {
+  if (!regModal) return;
+  regModal.classList.remove("open");
+  regModal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+};
+
+openRegFormBtn?.addEventListener("click", openRegModal);
+regModalClose?.addEventListener("click", closeRegModal);
+regModal?.addEventListener("click", (e) => {
+  if (e.target === regModal) closeRegModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && regModal?.classList.contains("open")) closeRegModal();
+});
+
+// --- Submitted registrations list ---
+const fmtRegDate = (v) => {
+  const d = v ? new Date(v) : null;
+  if (!d || isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
+};
+
+const renderRegistrations = () => {
+  if (!regList || !regListWrap) return;
+  const list = getRegistrations().slice().sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+
+  if (!list.length) {
+    regListWrap.hidden = true;
+    regList.innerHTML = "";
+    return;
+  }
+
+  regListWrap.hidden = false;
+  regList.innerHTML = list.map((r) => {
+    const status = adStatusOf(r);
+    const label = AD_STATUS_LABEL[status] || "Awaiting payment";
+    const expiry = status === "live" && r.expiresAt ? `<br /><strong>Ad expires:</strong> ${fmtRegDate(r.expiresAt)}` : "";
+    return `<div class="reg-item" data-reg-id="${escHtml(r.id)}">` +
+      `<div class="reg-item-head">` +
+      `<span class="reg-item-name">${escHtml(r.business)}</span>` +
+      `<span class="reg-item-plan">${escHtml(r.planLabel || "Plan")}</span>` +
+      `<span class="reg-item-status s-${status}">${label}</span>` +
+      `<button type="button" class="reg-item-del" data-reg-del="${escHtml(r.id)}">Remove</button>` +
+      `</div>` +
+      `<div class="reg-item-meta">` +
+      `<strong>Owner:</strong> ${escHtml(r.owner)} &nbsp;•&nbsp; ` +
+      `<strong>Mobile:</strong> ${escHtml(r.mobile)} &nbsp;•&nbsp; ` +
+      `<strong>Category:</strong> ${escHtml(r.category)}<br />` +
+      `<strong>City:</strong> ${escHtml(r.city)} &nbsp;•&nbsp; ` +
+      `<strong>Amount:</strong> PKR ${rupees(r.amount)} &nbsp;•&nbsp; ` +
+      `<strong>Submitted:</strong> ${fmtRegDate(r.at)}` +
+      expiry +
+      (r.photoCount || r.videoCount ? `<br /><strong>Media:</strong> ${r.photoCount || 0} photo(s), ${r.videoCount || 0} video(s) selected` : "") +
+      `</div>` +
+      `</div>`;
+  }).join("");
+};
+
+if (regList) {
+  regList.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-reg-del]");
+    if (!btn) return;
+    const id = btn.getAttribute("data-reg-del");
+    const list = getRegistrations();
+    const item = list.find((r) => r.id === id);
+    if (!item) return;
+    if (!confirm(`Remove the registration for "${item.business}"?`)) return;
+    store.set(REG_KEY, list.filter((r) => r.id !== id));
+    renderRegistrations();
+    showToast("Registration removed.");
+  });
+}
+
+markPlanSelected(getSelectedPlan());
+renderPlanSummary();
+
+// ===== Business Ads (CEO panel) =====
+// Ad lifecycle: pending -> paid -> live -> expired (or stopped early).
+// Payment and activation are both controlled by the CEO after the money is received.
+const PLAN_DAYS = { "15days": 15, "30days": 30, "1year": 365 };
+
+const bizAdsModal = document.getElementById("bizAdsModal");
+const bizAdsPanel = document.getElementById("bizAdsPanel");
+let bizAdsFilter = "all";
+
+const adStatusOf = (ad) => {
+  if (ad.status === "live" && ad.expiresAt && new Date(ad.expiresAt).getTime() <= Date.now()) {
+    return "expired";
+  }
+  return ad.status || "pending";
+};
+
+// Expiry sweep: anything past its expiry date is marked expired and dropped from live listings.
+const sweepExpiredAds = () => {
+  const list = getRegistrations();
+  let changed = false;
+  list.forEach((ad) => {
+    if (ad.status === "live" && ad.expiresAt && new Date(ad.expiresAt).getTime() <= Date.now()) {
+      ad.status = "expired";
+      changed = true;
+    }
+  });
+  if (changed) store.set(REG_KEY, list);
+  return changed;
+};
+
+const AD_STATUS_LABEL = {
+  pending: "Awaiting payment",
+  paid: "Payment received",
+  live: "Ad Live",
+  expired: "Expired",
+  stopped: "Stopped"
+};
+
+const addPlanDuration = (from, planKey) => {
+  const days = PLAN_DAYS[planKey] || 30;
+  const d = new Date(from);
+  d.setDate(d.getDate() + days);
+  return d.toISOString();
+};
+
+const bizAdRowHtml = (ad) => {
+  const status = adStatusOf(ad);
+  const active = status === "live";
+  const expiredTxt = ad.expiresAt ? fmtRegDate(ad.expiresAt) : "";
+
+  // Links may be typed without https://, so normalise before using them as href.
+  const safeLink = (v) => {
+    const s = String(v || "").trim();
+    if (!s) return "";
+    return /^https?:\/\//i.test(s) ? s : `https://${s}`;
+  };
+
+  const actionButtons = [];
+  if (status === "pending") {
+    actionButtons.push(`<button type="button" class="biz-ad-btn ok" data-ad-action="paid" data-ad-id="${escHtml(ad.id)}">Payment Received</button>`);
+  }
+  if (status === "pending" || status === "paid") {
+    actionButtons.push(`<button type="button" class="biz-ad-btn go" data-ad-action="live" data-ad-id="${escHtml(ad.id)}">Activate Ad</button>`);
+  }
+  if (active) {
+    actionButtons.push(`<button type="button" class="biz-ad-btn" data-ad-action="extend" data-ad-id="${escHtml(ad.id)}">Extend</button>`);
+    actionButtons.push(`<button type="button" class="biz-ad-btn stop" data-ad-action="stop" data-ad-id="${escHtml(ad.id)}">Stop Ad</button>`);
+  }
+  if (status === "expired" || status === "stopped") {
+    actionButtons.push(`<button type="button" class="biz-ad-btn go" data-ad-action="live" data-ad-id="${escHtml(ad.id)}">Re-activate</button>`);
+  }
+  actionButtons.push(`<button type="button" class="biz-ad-btn del" data-ad-action="delete" data-ad-id="${escHtml(ad.id)}">Delete</button>`);
+
+  return `<article class="biz-ad" data-ad-id="${escHtml(ad.id)}">` +
+    `<div class="biz-ad-head">` +
+      `<span class="biz-ad-name">${escHtml(ad.business)}</span>` +
+      `<span class="biz-ad-plan">${escHtml(ad.planLabel || "Plan")}</span>` +
+      `<span class="biz-ad-status s-${status}">${AD_STATUS_LABEL[status]}</span>` +
+      `<span class="biz-ad-amount">PKR ${rupees(ad.amount)}</span>` +
+    `</div>` +
+    `<div class="biz-ad-grid">` +
+      `<div><span>Owner</span><strong>${escHtml(ad.owner)}</strong></div>` +
+      `<div><span>Mobile</span><strong>${escHtml(ad.mobile)}</strong></div>` +
+      `<div><span>WhatsApp</span><strong>${escHtml(ad.whatsapp || ad.mobile)}</strong></div>` +
+      `<div><span>Category</span><strong>${escHtml(ad.category)}</strong></div>` +
+      `<div><span>City</span><strong>${escHtml(ad.city)}</strong></div>` +
+      `<div><span>Submitted</span><strong>${fmtRegDate(ad.at) || "-"}</strong></div>` +
+      `<div><span>Media</span><strong>${ad.photoCount || 0} photo(s), ${ad.videoCount || 0} video(s)</strong></div>` +
+      (active || expiredTxt ? `<div><span>Expires on</span><strong>${expiredTxt || "-"}</strong></div>` : "") +
+    `</div>` +
+    (ad.about ? `<p class="biz-ad-about">${escHtml(ad.about)}</p>` : "") +
+    (ad.address || ad.website || ad.facebook || ad.instagram || ad.tiktok
+      ? `<div class="biz-ad-links">` +
+          (ad.address ? `<span class="biz-ad-link plain">📍 ${escHtml(ad.address)}</span>` : "") +
+          (ad.website ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.website))}" target="_blank" rel="noopener">🌐 Website</a>` : "") +
+          (ad.facebook ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.facebook))}" target="_blank" rel="noopener">Facebook</a>` : "") +
+          (ad.instagram ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.instagram))}" target="_blank" rel="noopener">Instagram</a>` : "") +
+          (ad.tiktok ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.tiktok))}" target="_blank" rel="noopener">TikTok</a>` : "") +
+        `</div>`
+      : "") +
+    `<div class="biz-ad-actions">${actionButtons.join("")}</div>` +
+  `</article>`;
+};
+
+const renderBizAdsPanel = () => {
+  if (!bizAdsPanel) return;
+  sweepExpiredAds();
+
+  const all = getRegistrations().slice().sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+  const counts = { pending: 0, paid: 0, live: 0, expired: 0, stopped: 0 };
+  all.forEach((a) => { counts[adStatusOf(a)] = (counts[adStatusOf(a)] || 0) + 1; });
+
+  const filters = [
+    ["all", `All (${all.length})`],
+    ["pending", `Awaiting (${counts.pending})`],
+    ["paid", `Paid (${counts.paid})`],
+    ["live", `Live (${counts.live})`],
+    ["expired", `Expired (${counts.expired + counts.stopped})`]
+  ];
+
+  const rows = bizAdsFilter === "all"
+    ? all
+    : all.filter((a) => {
+        const s = adStatusOf(a);
+        if (bizAdsFilter === "expired") return s === "expired" || s === "stopped";
+        return s === bizAdsFilter;
+      });
+
+  const totalPaid = all.filter((a) => ["paid", "live", "expired", "stopped"].includes(adStatusOf(a)))
+    .reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
+
+  bizAdsPanel.innerHTML =
+    `<button class="admin-close" type="button" data-biz-ads-close aria-label="Close">×</button>` +
+    `<h3 class="admin-title">📢 Business Ads</h3>` +
+    `<p class="modal-sub">Confirm the payment first, then activate the ad. Expiry is set automatically from the plan.</p>` +
+
+    `<div class="admin-stat-grid">` +
+      `<div class="admin-stat"><div class="admin-stat-num">${all.length}</div><div class="admin-stat-lbl">Total Requests</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">${counts.pending}</div><div class="admin-stat-lbl">Awaiting Payment</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">${counts.live}</div><div class="admin-stat-lbl">Live Ads</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">PKR ${rupees(totalPaid)}</div><div class="admin-stat-lbl">Payment Received</div></div>` +
+    `</div>` +
+
+    `<div class="biz-ad-filters">` +
+      filters.map(([id, label]) =>
+        `<button type="button" class="biz-ad-filter${bizAdsFilter === id ? " active" : ""}" data-ad-filter="${id}">${label}</button>`
+      ).join("") +
+    `</div>` +
+
+    (rows.length
+      ? `<div class="biz-ad-list">${rows.map(bizAdRowHtml).join("")}</div>`
+      : `<p class="admin-empty">No ads in this list yet.</p>`);
+};
+
+const openBizAdsPanel = () => {
+  if (!ceoLoggedIn || !ceoUser) { showToast("Business Ads requires CEO login.", true); return; }
+  bizAdsFilter = "all";
+  renderBizAdsPanel();
+  bizAdsModal.classList.add("open");
+  bizAdsModal.setAttribute("aria-hidden", "false");
+};
+
+const closeBizAdsPanel = () => {
+  if (!bizAdsModal) return;
+  bizAdsModal.classList.remove("open");
+  bizAdsModal.setAttribute("aria-hidden", "true");
+  bizAdsPanel.innerHTML = "";
+};
+
+const setAdStatus = (id, status, message) => {
+  const list = getRegistrations();
+  const ad = list.find((r) => r.id === id);
+  if (!ad) return;
+  ad.status = status;
+  if (status === "live") {
+    ad.startedAt = new Date().toISOString();
+    ad.expiresAt = addPlanDuration(Date.now(), ad.plan);
+  }
+  if (status === "paid") {
+    ad.paidAt = new Date().toISOString();
+  }
+  store.set(REG_KEY, list);
+  renderRegistrations();
+  renderBizAdsPanel();
+  if (message) showToast(message);
+};
+
+document.getElementById("ceoBizAdsPanel")?.addEventListener("click", openBizAdsPanel);
+
+bizAdsModal?.addEventListener("click", (e) => {
+  if (e.target === bizAdsModal || e.target.closest("[data-biz-ads-close]")) { closeBizAdsPanel(); return; }
+
+  const filterBtn = e.target.closest("[data-ad-filter]");
+  if (filterBtn) { bizAdsFilter = filterBtn.dataset.adFilter; renderBizAdsPanel(); return; }
+
+  const actionBtn = e.target.closest("[data-ad-action]");
+  if (!actionBtn) return;
+
+  const id = actionBtn.dataset.adId;
+  const action = actionBtn.dataset.adAction;
+  const ad = getRegistrations().find((r) => r.id === id);
+  if (!ad) return;
+
+  if (action === "paid") {
+    setAdStatus(id, "paid", `Payment marked received for ${ad.business}.`);
+  } else if (action === "live") {
+    setAdStatus(id, "live", `${ad.business} ad is live for ${PLAN_DAYS[ad.plan] || 30} days.`);
+  } else if (action === "extend") {
+    const list = getRegistrations();
+    const item = list.find((r) => r.id === id);
+    const base = item.expiresAt && new Date(item.expiresAt).getTime() > Date.now() ? item.expiresAt : Date.now();
+    item.expiresAt = addPlanDuration(base, item.plan);
+    store.set(REG_KEY, list);
+    renderRegistrations();
+    renderBizAdsPanel();
+    showToast(`${ad.business} ad extended to ${fmtRegDate(item.expiresAt)}.`);
+  } else if (action === "stop") {
+    const list = getRegistrations();
+    const item = list.find((r) => r.id === id);
+    item.status = "stopped";
+    item.expiresAt = new Date().toISOString();
+    store.set(REG_KEY, list);
+    renderRegistrations();
+    renderBizAdsPanel();
+    showToast(`${ad.business} ad stopped.`);
+  } else if (action === "delete") {
+    if (!confirm(`Delete the registration for "${ad.business}"?`)) return;
+    store.set(REG_KEY, getRegistrations().filter((r) => r.id !== id));
+    renderRegistrations();
+    renderBizAdsPanel();
+    showToast("Ad deleted.");
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && bizAdsModal?.classList.contains("open")) closeBizAdsPanel();
+});
+
+sweepExpiredAds();
+renderRegistrations();
 
 // ===== Init: apply saved removals, rebuild custom categories =====
 // Core categories are permanent — strip any builtin keys out of removedKeys.
@@ -2409,6 +3491,7 @@ refreshOwnerButton();
 applyAccess();
 initFeatureModules();
 updateFeatureBadges();
+renderArticles();
 
 // ===== Cloud: restore session, pull saved data, refresh UI =====
 (async () => {
@@ -2426,6 +3509,7 @@ updateFeatureBadges();
       initFeatureModules();
       updateFeatureBadges();
       updateCeoStats();
+      renderArticles();
       if (ceoLoggedIn && ceoUser) showCeoPanel();
       showToast(`Cloud data synced — welcome back, ${ceoUser.name}!`);
     }

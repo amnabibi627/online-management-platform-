@@ -15,7 +15,8 @@
   <header class="site-header" id="top">
     <div class="container header-inner">
       <a href="#top" class="brand brand-profile">
-        <span class="brand-avatar">A</span>
+        <span class="brand-avatar" id="headerAvatar" role="button" tabindex="0" title="Click to add your profile photo (DP)" aria-label="Add or change your profile photo">A</span>
+        <input type="file" id="headerAvatarInput" accept="image/*" hidden />
         <span class="brand-info">
           <span class="brand-accent">Founder &amp; CEO</span>
           <span class="brand-name">Amna Bibi</span>
@@ -24,18 +25,17 @@
 
       <nav class="main-nav" id="mainNav">
         <a href="#top" class="nav-link active">Home Page</a>
+        <a href="#business-registration" class="nav-link">Register</a>
+        <a href="#live-business-ads" class="nav-link">Business Ads</a>
         <a href="#industries" class="nav-link">Industries</a>
         <a href="#portals" class="nav-link">Portals</a>
         <a href="#subscriptions" class="nav-link">Subscriptions</a>
         <a href="#promotions" class="nav-link">Promotions</a>
+        <a href="#articles" class="nav-link">Guides</a>
         <a href="#owner-details" class="nav-link">Owner Details</a>
       </nav>
 
       <div class="header-actions">
-        <div class="cloud-pill" id="cloudPill" title="Supabase Cloud Sync Status">
-          <span class="cloud-dot"></span>
-          <span id="cloudPillText">Local only</span>
-        </div>
         <button type="button" class="btn btn-primary" id="ceoBtn">CEO Account</button>
         <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
           <span></span><span></span><span></span>
@@ -51,13 +51,13 @@
       <div class="container hero-inner">
         <div class="hero-badge">Online Management Site</div>
         <h1 class="hero-title">
-          <span class="hero-title-plain">Empower Your Business</span>
-          <span class="accent">All-in-One Business Platform</span>
+          <span class="hero-title-plain">Run Your Entire Business</span>
+          <span class="accent">From One Simple Portal</span>
         </h1>
         <p class="hero-subtitle">
-          Streamline your daily operations, manage staff workflows, and delight your
-          customers seamlessly from a <span class="accent">single, high-performance portal</span>
-          built for modern businesses.
+          An All-in-one site for clinics, academies, restaurants, general stores, beauty salons, petrol<br />
+          pumps, medical stores and laboratories, with easy portals for Owners, Staff and Customers to<br />
+          manage daily work, bookings and reports in one place.
         </p>
         <div class="hero-actions">
           <a href="#portals" class="btn btn-primary btn-lg">Choose Your Account</a>
@@ -66,14 +66,247 @@
       </div>
     </section>
 
+    <!-- ========== BUSINESS REGISTRATION ========== -->
+    <section class="section biz-reg" id="business-registration">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Register Your <span class="accent">Business</span></h2>
+          <p class="section-subtitle">Put your business in front of real customers on this website.</p>
+        </div>
+
+        <!-- Register card -->
+        <div class="reg-cta-card">
+          <div class="reg-cta-glow" aria-hidden="true"></div>
+          <div class="reg-cta-body">
+            <span class="reg-cta-badge">Open for all businesses</span>
+            <h3 class="reg-cta-title">Your Business Ad, Live on This Website</h3>
+            <p class="reg-cta-text">
+              Register your business once and your ad goes live for the plan you choose.
+              Adds your shop name, address, contact numbers, photos, videos and social links
+              in one place.
+            </p>
+            <ul class="reg-cta-list">
+              <li>Ad live from 15 days up to 1 full year</li>
+              <li>Your address and contact shown to customers</li>
+              <li>Photos, videos and social links attached</li>
+            </ul>
+            <div class="reg-cta-plans">
+              <span class="reg-cta-plan"><strong>2,500</strong> PKR / 15 Days</span>
+              <span class="reg-cta-plan popular"><strong>5,000</strong> PKR / 30 Days</span>
+              <span class="reg-cta-plan"><strong>60,000</strong> PKR / 1 Year</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-lg reg-cta-btn" id="openRegForm">Register Now</button>
+          </div>
+        </div>
+
+        <!-- Submitted registrations (visible to the owner of this browser) -->
+        <div class="reg-list-wrap" id="regListWrap" hidden>
+          <h3 class="reg-list-title">Your Submitted Registrations</h3>
+          <div class="reg-list" id="regList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== LIVE BUSINESS ADS ========== -->
+    <section class="section live-ads" id="live-business-ads">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Running <span class="accent">Business Ads</span></h2>
+          <p class="section-subtitle">Browse live business ads from across Pakistan.</p>
+        </div>
+
+        <div class="fiverr-ads-grid" id="liveAdsGrid"></div>
+        <p class="live-ads-empty" id="liveAdsEmpty" hidden>No running ads yet.</p>
+      </div>
+    </section>
+
+    <!-- ========== BUSINESS REGISTRATION FORM (modal) ========== -->
+    <div class="reg-modal" id="regModal" aria-hidden="true">
+      <div class="reg-modal-box" role="dialog" aria-modal="true" aria-labelledby="regModalTitle">
+        <button class="reg-modal-close" type="button" id="regModalClose" aria-label="Close">&times;</button>
+
+        <div class="reg-modal-head">
+          <h3 class="reg-form-title-modal" id="regModalTitle">Register Your Business</h3>
+          <p class="reg-modal-sub">Pick a plan, fill the details and submit. All fields are required except social links.</p>
+        </div>
+
+        <form class="reg-form" id="regForm" novalidate>
+          <!-- Plans -->
+          <h3 class="reg-form-title">Choose Your Plan</h3>
+          <div class="plan-mini-grid" id="planGrid">
+            <button type="button" class="plan-mini" data-plan="15days" data-price="2500" data-label="15 Days">
+              <span class="plan-mini-name">15 Days</span>
+              <span class="plan-mini-price"><strong>2,500</strong> PKR</span>
+              <span class="plan-mini-note">Short run</span>
+            </button>
+            <button type="button" class="plan-mini featured" data-plan="30days" data-price="5000" data-label="30 Days">
+              <span class="plan-mini-ribbon">Popular</span>
+              <span class="plan-mini-name">30 Days</span>
+              <span class="plan-mini-price"><strong>5,000</strong> PKR</span>
+              <span class="plan-mini-note">Best for regular ads</span>
+            </button>
+            <button type="button" class="plan-mini" data-plan="1year" data-price="60000" data-label="1 Year">
+              <span class="plan-mini-name">1 Year</span>
+              <span class="plan-mini-price"><strong>60,000</strong> PKR</span>
+              <span class="plan-mini-note">Best value</span>
+            </button>
+          </div>
+          <span class="field-error" id="regPlanErr"></span>
+
+          <!-- Business info -->
+          <h3 class="reg-form-title">Business Details</h3>
+
+          <div class="reg-grid">
+            <div class="field">
+              <label for="regBizName">Business Name</label>
+              <input type="text" id="regBizName" name="regBizName" placeholder="Write your business name here." maxlength="60" />
+              <span class="field-error" id="regBizNameErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regOwnerName">Owner Name</label>
+              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Write the owner name here." maxlength="50" />
+              <span class="field-error" id="regOwnerNameErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regMobile">Mobile Number</label>
+              <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 03123456789" maxlength="15" />
+              <span class="field-error" id="regMobileErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regWhatsapp">WhatsApp Number</label>
+              <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="e.g. 03123456789" maxlength="15" />
+              <span class="field-error" id="regWhatsappErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regCategory">Business Category</label>
+              <select id="regCategory" name="regCategory">
+                <option value="">Select a category</option>
+                <option value="Clinic">Clinic</option>
+                <option value="Academy">Academy</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="General Store">General Store</option>
+                <option value="Beauty Salon">Beauty Salon</option>
+                <option value="Petrol Pump">Petrol Pump</option>
+                <option value="Medical Store">Medical Store</option>
+                <option value="Laboratory">Laboratory</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="field-error" id="regCategoryErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regCity">City</label>
+              <input type="text" id="regCity" name="regCity" placeholder="Write your city here." maxlength="40" />
+              <span class="field-error" id="regCityErr"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="regAddress">Full Address</label>
+            <input type="text" id="regAddress" name="regAddress" placeholder="Shop number, street, area." maxlength="120" />
+            <span class="field-error" id="regAddressErr"></span>
+          </div>
+
+          <div class="field">
+            <label for="regAbout">About Your Business</label>
+            <textarea id="regAbout" name="regAbout" rows="2" placeholder="Write a short description of your business." maxlength="300"></textarea>
+            <span class="field-error" id="regAboutErr"></span>
+          </div>
+
+          <div class="field">
+            <label for="regTiming">Opening Hours</label>
+            <input type="text" id="regTiming" name="regTiming" placeholder="e.g. 9:00 AM to 10:00 PM" maxlength="60" />
+            <span class="field-error" id="regTimingErr"></span>
+          </div>
+
+          <!-- Social + media -->
+          <h3 class="reg-form-title">Social Links &amp; Media <span class="reg-optional">Optional</span></h3>
+
+          <div class="reg-grid">
+            <div class="field">
+              <label for="regWebsite">Business Website</label>
+              <input type="text" id="regWebsite" name="regWebsite" placeholder="Paste your website link here." maxlength="200" />
+              <span class="field-error" id="regWebsiteErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regFacebook">Facebook Page</label>
+              <input type="text" id="regFacebook" name="regFacebook" placeholder="Paste your Facebook link here." maxlength="200" />
+              <span class="field-error" id="regFacebookErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regInstagram">Instagram Profile</label>
+              <input type="text" id="regInstagram" name="regInstagram" placeholder="Paste your Instagram link here." maxlength="200" />
+              <span class="field-error" id="regInstagramErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regTiktok">TikTok Profile</label>
+              <input type="text" id="regTiktok" name="regTiktok" placeholder="Paste your TikTok link here." maxlength="200" />
+              <span class="field-error" id="regTiktokErr"></span>
+            </div>
+          </div>
+
+          <div class="reg-media">
+            <div class="media-box">
+              <label class="media-label" for="regPhotos">Profile Photos</label>
+              <input type="file" id="regPhotos" name="regPhotos" accept="image/*" multiple />
+              <div class="media-preview" id="regPhotoPreview"></div>
+            </div>
+            <div class="media-box">
+              <label class="media-label" for="regVideos">Business Videos</label>
+              <input type="file" id="regVideos" name="regVideos" accept="video/*" multiple />
+              <div class="media-preview" id="regVideoPreview"></div>
+            </div>
+          </div>
+          <p class="reg-media-note" id="regMediaNote">Photos and videos are sent on WhatsApp after submitting.</p>
+
+          <!-- Payment -->
+          <h3 class="reg-form-title">Payment</h3>
+          <div class="reg-plan-summary" id="regPlanSummary">
+            <span class="reg-plan-none">No plan selected yet.</span>
+          </div>
+
+          <div class="pay-contact">
+            <div class="pay-contact-info">
+              <span class="pay-contact-label">For ad run, send payment by contacting the owner</span>
+              <a class="pay-contact-number" href="https://wa.me/923042954627" target="_blank" rel="noopener">0304 295 4627</a>
+              <span class="pay-contact-sub">Above the number it says: For ad run, send payment by contacting the owner.</span>
+            </div>
+            <a class="btn btn-primary pay-contact-btn" href="https://wa.me/923042954627" target="_blank" rel="noopener">Contact Owner</a>
+          </div>
+
+          <div class="reg-before-submit">
+            <p>Submit the form first. After that, contact the owner to send payment for your ad. When you send payment to the owner, your ad will become active and run.</p>
+          </div>
+
+          <label class="reg-terms">
+            <input type="checkbox" id="regTerms" name="regTerms" />
+            <span>I confirm the details are correct and I will contact the owner to send the payment for ad run.</span>
+          </label>
+          <span class="field-error" id="regTermsErr"></span>
+
+          <div class="reg-actions">
+            <button type="submit" class="btn btn-primary btn-lg">Submit Registration</button>
+            <button type="reset" class="btn btn-outline btn-lg" id="regReset">Clear Form</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- ========== 3. INDUSTRY CATEGORIES ========== -->
     <section class="section industries" id="industries">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Explore Your <span class="accent">Industry Categories</span></h2>
+          <h2 class="section-title">Choose Your <span class="accent">Business Category</span></h2>
           <p class="section-subtitle">
-            We have built special tools for every industry and category.
-            Find your category and start today.
+            Every category comes with its own ready-made tools. Pick yours and get started
+            in a single click.
           </p>
         </div>
 
@@ -765,10 +998,10 @@
     <section class="section portals" id="portals">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Three Portals, <span class="accent">One Unified Platform</span></h2>
+          <h2 class="section-title">Three Portals, <span class="accent">One Simple System</span></h2>
           <p class="section-subtitle">
-            Designed specifically to empower business owners, streamline staff duties,
-            and provide an exceptional experience for customers.
+            Owners manage the business, staff handle the daily work, and customers stay
+            connected. Everything runs from one place.
           </p>
         </div>
 
@@ -777,8 +1010,8 @@
             <div class="portal-icon">👑</div>
             <h3>Owner Account</h3>
             <p>
-              Complete administrative control, financial reports, analytics, and
-              high-level management tools.
+              See your sales, expenses and staff performance.
+              All from one dashboard.
             </p>
             <button class="btn btn-primary portal-btn" data-action="toggle">Owner Sign Up</button>
           </article>
@@ -787,8 +1020,8 @@
             <div class="portal-icon">🧑‍💼</div>
             <h3>Staff Account</h3>
             <p>
-              Operational interface for employees and staff members to manage daily
-              tasks and workflows.
+              Mark attendance, update tasks and manage bookings. Everything your
+              daily work needs.
             </p>
             <button class="btn btn-primary portal-btn" data-action="toggle">Staff Sign Up</button>
           </article>
@@ -797,8 +1030,8 @@
             <div class="portal-icon">🛍️</div>
             <h3>Customer Account</h3>
             <p>
-              User-friendly portal for end-users and customers to place orders, book
-              services, and track history.
+              Book an appointment, place an order or check your past records.
+              Quickly and easily.
             </p>
             <button class="btn btn-primary portal-btn" data-action="toggle">Customer Sign Up</button>
           </article>
@@ -863,11 +1096,36 @@
       </div>
     </section>
 
+    <!-- ========== GUIDE & UPDATES ========== -->
+    <section class="section articles" id="articles">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Guides &amp; <span class="accent">Updates</span></h2>
+          <p class="section-subtitle">Practical guides and the latest updates, written to help you run your business better.</p>
+        </div>
+
+        <div class="articles-filter" id="articlesFilter">
+          <button type="button" class="art-filter active" data-filter="all">All</button>
+          <button type="button" class="art-filter" data-filter="Guide">Guide</button>
+          <button type="button" class="art-filter" data-filter="Update">Updates</button>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid"></div>
+        <div class="articles-empty" id="articlesEmpty" hidden>No posts in this category yet.</div>
+
+        <div class="articles-pager" id="articlesPager"></div>
+      </div>
+    </section>
+
     <!-- ========== OWNER DETAILS ========== -->
     <section class="section owner-details" id="owner-details">
       <div class="container owner-inner">
         <div class="section-head left">
           <h2 class="section-title"><span class="accent">Owner</span> Details</h2>
+          <p class="section-subtitle">
+            Meet the person behind the platform, and get in touch for any help
+            or questions.
+          </p>
         </div>
 
         <div class="owner-profile">
@@ -877,27 +1135,99 @@
           <input type="file" id="ownerAvatarInput" accept="image/*" hidden />
           <div class="owner-profile-body">
             <h3 class="owner-profile-name">Amna Bibi</h3>
-            <p class="owner-profile-role">Founder &amp; CEO — Online Management Site</p>
+            <p class="owner-profile-role">Founder &amp; CEO of Online Management Site</p>
             <p class="owner-profile-bio">
-              I am Amna Bibi, a Digital Tech Expert and Information Technology student, building
-              Online Management Site to help businesses run smarter. I mix technical skill with
-              creative design to deliver clean, professional and efficient solutions — from
-              management systems and graphic design to video editing and IT support. I love turning
-              real-world business problems into simple digital tools that just work.
+              I am Amna Bibi, a Digital Tech Expert and IT student. I built Online Management Site
+              to help businesses run smarter. My goal is simple: take real business problems and
+              turn them into easy digital tools that save time and just work.
             </p>
-            <div class="owner-profile-skills">
-              <span>Graphic Design</span>
-              <span>Video Editing</span>
-              <span>IT Support</span>
-              <span>Web Development</span>
-              <span>Digital Marketing</span>
-              <span>Freelancing</span>
-            </div>
             <div class="owner-profile-actions">
-              <a href="mailto:amnabibi7293@gmail.com" class="btn btn-primary">✉️ Contact Owner</a>
-              <a href="https://amna-bi-bi.vercel.app/" target="_blank" rel="noopener" class="btn btn-outline">🌐 View Portfolio</a>
+              <button type="button" class="btn btn-primary btn-lg" id="contactOwnerToggle" aria-expanded="false" aria-controls="ownerSocials">Contact Owner</button>
+              <button type="button" class="btn btn-outline btn-lg" id="portfolioToggle" aria-expanded="false" aria-controls="ownerPortfolio">View Portfolio</button>
+            </div>
+            <div class="owner-socials" id="ownerSocials" hidden>
+              <a href="https://www.facebook.com/profile.php?id=61592411609927" target="_blank" rel="noopener" class="social-icon" title="Facebook" aria-label="Facebook">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.412c0-3.026 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.971H15.83c-1.491 0-1.956.93-1.956 1.886v2.265h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="social-icon" title="Instagram" aria-label="Instagram">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C8.74 0 8.333.014 7.053.072 5.775.131 4.902.333 4.137.63c-.79.306-1.459.717-2.126 1.384S.936 3.347.63 4.137C.333 4.902.131 5.775.072 7.053.014 8.333 0 8.74 0 12s.014 3.667.072 4.947c.059 1.278.261 2.151.558 2.916.306.79.717 1.459 1.384 2.126s1.336 1.078 2.126 1.384c.765.297 1.638.499 2.916.558C8.333 23.986 8.74 24 12 24s3.667-.014 4.947-.072c1.278-.059 2.151-.261 2.916-.558.79-.306 1.459-.717 2.126-1.384s1.078-1.336 1.384-2.126c.297-.765.499-1.638.558-2.916.058-1.28.072-1.687.072-4.947s-.014-3.667-.072-4.947c-.059-1.278-.261-2.151-.558-2.916-.306-.79-.717-1.459-1.384-2.126S20.653.936 19.863.63c-.765-.297-1.638-.499-2.916-.558C15.667.014 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.899.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405a1.441 1.441 0 01-2.88 0 1.44 1.44 0 012.88 0z"/></svg>
+              </a>
+              <a href="https://www.tiktok.com/@words_of_amna?is_from_webapp=1&amp;sender_device=pc" target="_blank" rel="noopener" class="social-icon" title="TikTok" aria-label="TikTok">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+              </a>
+              <a href="https://whatsapp.com/channel/0029Vb8mJWG3LdQcHXtk7Y3c" target="_blank" rel="noopener" class="social-icon" title="WhatsApp" aria-label="WhatsApp">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+              </a>
+              <a href="mailto:amnabibi7293@gmail.com" class="social-icon" title="Email" aria-label="Email">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z"/><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z"/></svg>
+              </a>
+            </div>
+
+            <!-- Portfolio preview (opens inside the app) -->
+            <div class="portfolio-panel" id="ownerPortfolio" hidden>
+              <div class="portfolio-head">
+                <span class="portfolio-title">🌐 Amna Bibi — Portfolio</span>
+                <div class="portfolio-head-actions">
+                  <a href="https://amna-bi-bi.vercel.app/" target="_blank" rel="noopener" class="portfolio-link">Open in new tab ↗</a>
+                  <button type="button" class="portfolio-close" id="portfolioClose" aria-label="Close portfolio">&times;</button>
+                </div>
+              </div>
+              <div class="portfolio-frame-wrap">
+                <iframe id="portfolioFrame" title="Amna Bibi Portfolio" loading="lazy"
+                        src="about:blank" data-src="https://amna-bi-bi.vercel.app/"
+                        referrerpolicy="no-referrer"></iframe>
+                <div class="portfolio-loader" id="portfolioLoader">Loading portfolio…</div>
+              </div>
             </div>
           </div>
+        </div>
+
+        <!-- ===== Ratings & Comments (visitors can review) ===== -->
+        <div class="reviews" id="reviews">
+          <div class="reviews-head">
+            <h3 class="reviews-title">Ratings &amp; Comments</h3>
+            <p class="reviews-sub">Share your experience with Online Management Site. Your feedback helps us improve.</p>
+          </div>
+
+          <div class="reviews-summary" id="reviewsSummary">
+            <div class="reviews-score">
+              <div class="reviews-avg" id="reviewsAvg">0.0</div>
+              <div class="reviews-stars-static" id="reviewsAvgStars" aria-hidden="true">☆☆☆☆☆</div>
+              <div class="reviews-count" id="reviewsCount">No reviews yet</div>
+            </div>
+            <div class="reviews-bars" id="reviewsBars"></div>
+          </div>
+
+          <form class="review-form" id="reviewForm" novalidate>
+            <div class="review-form-row">
+              <div class="field">
+                <label for="revName">Your Name</label>
+                <input type="text" id="revName" name="revName" placeholder="Write your name here." maxlength="40" />
+                <span class="field-error" id="revNameErr"></span>
+              </div>
+              <div class="field">
+                <label>Your Rating</label>
+                <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Choose a rating">
+                  <button type="button" class="star" data-value="1" aria-label="1 star">★</button>
+                  <button type="button" class="star" data-value="2" aria-label="2 stars">★</button>
+                  <button type="button" class="star" data-value="3" aria-label="3 stars">★</button>
+                  <button type="button" class="star" data-value="4" aria-label="4 stars">★</button>
+                  <button type="button" class="star" data-value="5" aria-label="5 stars">★</button>
+                  <span class="star-value" id="starValue">Select stars</span>
+                </div>
+                <span class="field-error" id="revRatingErr"></span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="revText">Your Comment</label>
+              <textarea id="revText" name="revText" rows="3" placeholder="Write your comment here." maxlength="500"></textarea>
+            </div>
+            <div class="review-form-actions">
+              <button type="submit" class="btn btn-primary">Post Review</button>
+            </div>
+          </form>
+
+          <div class="review-list" id="reviewList"></div>
         </div>
       </div>
     </section>
@@ -1023,7 +1353,7 @@
       <!-- CEO Panel (after login) -->
       <div id="ceoPanel" hidden>
         <h3 id="ceoPanelName">Amna Bibi</h3>
-        <p class="modal-sub">Founder &amp; CEO — Online Management Site</p>
+        <p class="modal-sub">Founder &amp; CEO of Online Management Site</p>
 
         <div class="ceo-stats">
           <div class="ceo-stat"><span>Categories</span><strong id="ceoCatCount">8</strong></div>
@@ -1034,6 +1364,7 @@
         <div class="ceo-actions">
           <button class="btn btn-primary" id="ceoAdminPanel" type="button">🛡️ Super Admin Panel</button>
           <button class="btn btn-primary" id="ceoOwnerAdminPanel" type="button">🔐 Business Admin Panel</button>
+          <button class="btn btn-primary" id="ceoBizAdsPanel" type="button">📢 Business Ads</button>
         </div>
 
         <button class="btn btn-outline btn-block" id="ceoLogout" type="button">Logout</button>
@@ -1066,9 +1397,15 @@
     <div class="feature-panel admin-panel" id="catAdminPanel" role="dialog" aria-modal="true"></div>
   </div>
 
+  <!-- ========== BUSINESS ADS PANEL (CEO only) ========== -->
+  <div class="feature-modal" id="bizAdsModal" aria-hidden="true">
+    <div class="feature-panel admin-panel" id="bizAdsPanel" role="dialog" aria-modal="true"></div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
+  <script src="liveads.js"></script>
 </body>
 </html>

@@ -1309,12 +1309,24 @@
             </select>
             <span class="field-error" id="errCategory"></span>
           </div>
+
+          <div class="field">
+            <label for="ofPass">Password</label>
+            <input type="password" id="ofPass" placeholder="Choose a password (min 6 characters)" maxlength="64" autocomplete="new-password" />
+            <span class="field-error" id="errPass"></span>
+          </div>
         </div>
 
         <div class="field" id="loginField" hidden>
           <label for="ofLoginMobile">Registered Mobile Number</label>
-          <input type="tel" id="ofLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" />
+          <input type="tel" id="ofLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="username" />
           <span class="field-error" id="errLoginMobile"></span>
+        </div>
+
+        <div class="field" id="loginPassField" hidden>
+          <label for="ofLoginPass">Password</label>
+          <input type="password" id="ofLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
+          <span class="field-error" id="errLoginPass"></span>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" id="ownerSubmit">Create Owner Account</button>
@@ -1352,13 +1364,16 @@
           </div>
 
           <div class="field">
-            <label for="ceoCode">Secret Code</label>
-            <input type="password" id="ceoCode" placeholder="Enter secret code" maxlength="20" autocomplete="off" />
+            <label for="ceoCode">Password</label>
+            <input type="password" id="ceoCode" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
             <span class="field-error" id="ceoErrCode"></span>
           </div>
 
           <button class="btn btn-primary btn-block" type="submit" id="ceoLoginSubmit">Login</button>
         </form>
+
+        <!-- One-time activation steps (shown after the account is created) -->
+        <div id="ceoSetupHint" class="ceo-setup-hint" hidden></div>
       </div>
 
       <!-- CEO Panel (after login) -->

@@ -69,7 +69,7 @@ const renderLiveAds = () => {
             '<span class="fiverr-gig-price-amount">PKR ' + esc(price) + '</span>' +
             '<span class="fiverr-gig-price-plan">' + esc(planLabel) + '</span>' +
           '</div>' +
-          '<a class="fiverr-gig-contact" href="' + wa + '" target="_blank" rel="noopener">Contact</a>' +
+          '<a class="fiverr-gig-contact" href="' + wa + '" target="_blank" rel="noopener noreferrer">Contact</a>' +
         '</div>' +
       '</div>' +
     '</article>';

@@ -1842,6 +1842,34 @@ body.detail-open { overflow: hidden; }
   font-weight: 600;
   transition: background 0.15s ease;
 }
+
+.ceo-setup-hint {
+  margin-top: 1rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(199, 26, 107, 0.08);
+  border: 1px solid rgba(199, 26, 107, 0.25);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ceo-setup-hint p {
+  margin: 0.5rem 0 0.6rem;
+  color: var(--muted);
+}
+
+.ceo-setup-sql {
+  display: block;
+  margin: 0.6rem 0;
+  padding: 0.7rem 0.8rem;
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 .fiverr-gig-contact:hover {
   background: #19a463;
 }

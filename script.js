@@ -5,12 +5,72 @@ const sb = window.supabase && typeof window.supabase.createClient === "function"
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;
 const CLOUD_TABLE = "app_data";
+const ADMIN_TABLE = "admins";
 let cloudUser = null;
 let cloudBusy = false;
 let cloudTimer = null;
 let cloudPending = new Map();
 
 const cloudEmail = (mobile) => `${mobile}@bms.app`;
+
+// ===== Security: server-side CEO check =====
+// The "admins" table has RLS that only lets a signed-in user read their
+// OWN row. So this answer comes from the database, not from the browser,
+// and cannot be faked by editing localStorage or the page source.
+const isCloudAdmin = async () => {
+  if (!sb || !cloudUser) return false;
+  try {
+    const { data, error } = await sb
+      .from(ADMIN_TABLE)
+      .select("role")
+      .eq("user_id", cloudUser.id)
+      .maybeSingle();
+    if (error) {
+      console.warn("Admin check failed:", error.message);
+      return false;
+    }
+    return !!data;
+  } catch {
+    return false;
+  }
+};
+
+// ===== Security: login throttling (brute force guard) =====
+const ATTEMPT_WINDOW = 60 * 1000;
+const ATTEMPT_MAX = 5;
+
+const attemptState = (key) => {
+  try {
+    const raw = JSON.parse(localStorage.getItem("oms_attempts_" + key)) || { count: 0, first: Date.now() };
+    if (Date.now() - raw.first > ATTEMPT_WINDOW) return { count: 0, first: Date.now() };
+    return raw;
+  } catch {
+    return { count: 0, first: Date.now() };
+  }
+};
+
+const attemptsLeft = (key) => {
+  const s = attemptState(key);
+  return Math.max(0, ATTEMPT_MAX - s.count);
+};
+
+const logAttempt = (key) => {
+  const s = attemptState(key);
+  s.count += 1;
+  s.first = Date.now();
+  try { localStorage.setItem("oms_attempts_" + key, JSON.stringify(s)); } catch {}
+  return s.count;
+};
+
+const clearAttempts = (key) => {
+  try { localStorage.removeItem("oms_attempts_" + key); } catch {}
+};
+
+const rateMsg = (key) => {
+  const left = attemptsLeft(key);
+  if (left > 0) return null;
+  return "Too many failed tries. Wait 1 minute, then try again.";
+};
 
 const cloudState = (cls, label) => {
   const pill = document.getElementById("cloudPill");
@@ -21,9 +81,9 @@ const cloudState = (cls, label) => {
   if (t) t.textContent = label;
 };
 
-const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && (
+const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && !k.startsWith("oms_attempts_") && (
   k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
-  k === "ceoMode" || k === "ceoAccount" || k === "siteReviews" || k === "siteArticles" ||
+  k === "siteReviews" || k === "siteArticles" ||
   k === "siteArticlesRemoved" || k === "businessRegistrations" || k === "selectedBizPlan" ||
   k.endsWith(":data"));
 
@@ -108,11 +168,21 @@ const cloudRestore = async () => {
     const ok = await cloudPull();
     cloudBusy = false;
     if (!ok) { cloudState("error", "Offline"); return false; }
-    const meta = cloudUser.user_metadata || {};
-    ceoUser = store.get("ceoAccount", null) ||
-      (meta.name ? { name: meta.name, mobile: meta.mobile || "", codeHash: "" } : null);
-    if (ceoUser) { store.set("ceoAccount", ceoUser); setCeoSession(true); }
-    return !!ceoUser;
+    // SECURITY: a signed-in session alone does NOT mean CEO.
+    // The database decides, via the admins table (RLS limited to own row).
+    const admin = await isCloudAdmin();
+    if (admin) {
+      const meta = cloudUser.user_metadata || {};
+      const stored = store.get("ceoAccount", null);
+      ceoUser = stored || { name: meta.name || "CEO", mobile: meta.mobile || "", email: cloudUser.email || "", codeHash: "" };
+      ceoUser.email = cloudUser.email || ceoUser.email || "";
+      store.set("ceoAccount", ceoUser);
+      setCeoSession(true);
+    } else if (ceoLoggedIn) {
+      // Signed in, but not an admin: drop CEO rights.
+      setCeoSession(false);
+    }
+    return admin;
   } catch (e) {
     cloudBusy = false;
     cloudState("error", "Offline");
@@ -260,7 +330,9 @@ const fields = {
   age: { input: document.getElementById("ofAge"), err: document.getElementById("errAge") },
   city: { input: document.getElementById("ofCity"), err: document.getElementById("errCity") },
   category: { input: document.getElementById("ofCategory"), err: document.getElementById("errCategory") },
+  pass: { input: document.getElementById("ofPass"), err: document.getElementById("errPass") },
   loginMobile: { input: document.getElementById("ofLoginMobile"), err: document.getElementById("errLoginMobile") },
+  loginPass: { input: document.getElementById("ofLoginPass"), err: document.getElementById("errLoginPass") },
 };
 
 const loadOwner = () => {
@@ -293,6 +365,8 @@ const openOwnerModal = (mode) => {
     ownerModalSub.textContent = "You are currently signed in as an Owner.";
     if (ownerActiveBox) ownerActiveBox.hidden = false;
     ownerForm.hidden = true;
+    const loginPassField = document.getElementById("loginPassField");
+    if (loginPassField) loginPassField.hidden = true;
     if (ownerActiveName) ownerActiveName.textContent = owner.name || "Owner";
     if (ownerActiveMobile) ownerActiveMobile.textContent = owner.mobile || "—";
     const allowed = ownerAllowedCats(owner);
@@ -302,11 +376,13 @@ const openOwnerModal = (mode) => {
     ownerModalTitle.textContent = isSignup ? "Owner Sign Up" : "Owner Login";
     ownerModalSub.textContent = isSignup
       ? "Create your owner account and choose your business category."
-      : "Enter your registered mobile number to log in.";
+      : "Enter your registered mobile number and password to log in.";
     if (ownerActiveBox) ownerActiveBox.hidden = true;
     ownerForm.hidden = false;
     signupFields.hidden = !isSignup;
     loginField.hidden = isSignup;
+    const loginPassFieldEl = document.getElementById("loginPassField");
+    if (loginPassFieldEl) loginPassFieldEl.hidden = isSignup;
     ownerSubmit.textContent = isSignup ? "Create Owner Account" : "Login";
     if (ownerModeToggle) {
       ownerModeToggle.textContent = isSignup ? "Already registered? Login here" : "Need a new account? Sign Up here";
@@ -355,6 +431,7 @@ const validateSignup = () => {
   const age = fields.age.input.value.trim();
   const city = fields.city.input.value.trim();
   const category = fields.category.input.value;
+  const pass = fields.pass.input.value;
 
   if (name.length < 3) { setError(fields.name, "Enter your full name (min 3 letters)."); ok = false; } else setError(fields.name, "");
   if (!MOBILE_RE.test(mobile)) { setError(fields.mobile, "Enter a valid number, e.g. 03123456789 or +923123456789."); ok = false; } else setError(fields.mobile, "");
@@ -362,9 +439,10 @@ const validateSignup = () => {
   if (!age || !Number.isInteger(ageNum) || ageNum < 18 || ageNum > 100) { setError(fields.age, "Age must be between 18 and 100."); ok = false; } else setError(fields.age, "");
   if (city.length < 2) { setError(fields.city, "Enter your city."); ok = false; } else setError(fields.city, "");
   if (!category) { setError(fields.category, "Select one category — you will only get access to it."); ok = false; } else setError(fields.category, "");
+  if (pass.length < 6) { setError(fields.pass, "Choose a password (min 6 characters)."); ok = false; } else setError(fields.pass, "");
 
   if (!ok) return null;
-  return { name, mobile, age: ageNum, city, category };
+  return { name, mobile, age: ageNum, city, category, pass };
 };
 
 if (ownerModeToggle) {
@@ -407,20 +485,22 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && ownerModal.classList.contains("open")) closeOwnerModal();
 });
 
-ownerForm.addEventListener("submit", (e) => {
+ownerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   if (ownerModalMode === "signup") {
-    const data = validateSignup();
+    const data = await validateSignup();
     if (!data) { showToast("Signup failed — please fix the fields (valid mobile number required).", true); return; }
-    owner = { ...data, categories: [data.category] };
+    const passHash = await sha256Hex(data.pass);
+    delete data.pass;
+    owner = { ...data, categories: [data.category], passHash };
     try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
     const ownersList = store.get("owners", []);
     const existingIdx = ownersList.findIndex((o) => o.mobile === owner.mobile);
     if (existingIdx !== -1) {
       ownersList[existingIdx] = { ...ownersList[existingIdx], ...owner };
     } else {
-      ownersList.push({ name: owner.name, mobile: owner.mobile, age: owner.age, city: owner.city, categories: [owner.category] });
+      ownersList.push({ name: owner.name, mobile: owner.mobile, age: owner.age, city: owner.city, categories: [owner.category], passHash: owner.passHash });
     }
     store.set("owners", ownersList);
     closeOwnerModal();
@@ -429,15 +509,34 @@ ownerForm.addEventListener("submit", (e) => {
     showToast(`Welcome, ${owner.name}! Access: ${labelFor(owner.category)} only.`);
   } else {
     const mobile = normMobile(fields.loginMobile.input.value);
+    const pass = fields.loginPass.input.value;
     if (!MOBILE_RE.test(mobile)) { setError(fields.loginMobile, "Enter a valid mobile number, e.g. 03123456789."); showToast("Login failed — invalid mobile number.", true); return; }
+    if (!pass) { setError(fields.loginPass, "Enter your password."); showToast("Login failed — password required.", true); return; }
+    const blocked = rateMsg("owner");
+    if (blocked) { setError(fields.loginPass, blocked); showToast(blocked, true); return; }
     const ownersList = store.get("owners", []);
     const matched = ownersList.find((o) => o.mobile === mobile) || (owner && owner.mobile === mobile ? owner : null);
     if (!matched) {
+      logAttempt("owner");
       setError(fields.loginMobile, "This number is not registered. Please sign up.");
       showToast("Login failed — number not registered.", true);
       return;
     }
+    // SECURITY: a mobile number alone is not enough, the password must match too.
+    if (!matched.passHash) {
+      setError(fields.loginPass, "This account has no password yet. Please sign up again with the same number to set one.");
+      showToast("Please sign up again with the same number to set your password.", true);
+      return;
+    }
+    if (!(await hashMatches(pass, matched.passHash))) {
+      logAttempt("owner");
+      setError(fields.loginPass, "Wrong password.");
+      showToast("Login failed — wrong password.", true);
+      return;
+    }
+    clearAttempts("owner");
     setError(fields.loginMobile, "");
+    setError(fields.loginPass, "");
     owner = { ...matched, categories: ownerAllowedCats(matched) };
     try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
     closeOwnerModal();
@@ -479,13 +578,30 @@ const ceoErrName = document.getElementById("ceoErrName");
 const ceoErrMobile = document.getElementById("ceoErrMobile");
 const ceoErrCode = document.getElementById("ceoErrCode");
 
-// Sirf CEO (Amna Bibi) is code se account register kar sakti hain — code yahan badal sakti hain
-const CEO_SECRET_CODE = "AMNA2026";
-
-const hashSecret = (s) => {
+// ===== Security: password hashing =====
+// SHA-256 via WebCrypto (needs https or localhost).
+// Older accounts keep the legacy djb2 hash, so both are accepted on login.
+const legacyHash = (s) => {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
   return h.toString(36);
+};
+
+const sha256Hex = async (s) => {
+  try {
+    if (window.crypto && window.crypto.subtle && window.crypto.subtle.digest) {
+      const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode("oms::" + s));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch {}
+  return "fb$" + legacyHash(s);
+};
+
+// Checks a plain password against a stored hash (new SHA-256 or legacy).
+const hashMatches = async (plain, stored) => {
+  if (!stored) return false;
+  if (stored.startsWith("fb$")) return stored === "fb$" + legacyHash(plain);
+  return stored === (await sha256Hex(plain));
 };
 
 
@@ -538,8 +654,8 @@ const setCeoLoginMode = () => {
   const isNew = !ceoUser;
   document.getElementById("ceoLoginTitle").textContent = isNew ? "Create CEO Account" : "CEO Account Login";
   document.getElementById("ceoLoginSub").textContent = isNew
-    ? "Registration is CEO-only — secret code required."
-    : "Login with your registered mobile number and secret code.";
+    ? "One-time setup. Pick a strong password — nobody else can guess it."
+    : "Login with your registered mobile number and password.";
   ceoSignupExtra.hidden = !isNew;
   ceoLoginSubmit.textContent = isNew ? "Create Account" : "Login";
   ceoErrName.textContent = "";
@@ -551,11 +667,30 @@ const setCeoLoginMode = () => {
   ceoLoginForm.reset();
   ceoLogin.hidden = false;
   ceoPanel.hidden = true;
+  const hint = document.getElementById("ceoSetupHint");
+  if (hint) hint.hidden = true;
+};
+
+// SECURITY: shows the one-time steps that activate the CEO account in the
+// database. Without the admins row the account is just a normal user.
+const showCeoSetupHint = (email) => {
+  const hint = document.getElementById("ceoSetupHint");
+  if (!hint) return;
+  hint.hidden = false;
+  hint.innerHTML =
+    `<strong>One last step — activate CEO access</strong>` +
+    `<p>Your account is created. Now open Supabase &rarr; <b>SQL Editor</b> &rarr; New query &rarr; paste this and Run:</p>` +
+    `<code class="ceo-setup-sql">insert into public.admins (user_id, email, role)<br />` +
+    `select id, email, 'ceo' from auth.users where email = '${escHtml(email)}'<br />` +
+    `on conflict (user_id) do nothing;</code>` +
+    `<p>Then close this box and log in. Full steps are in <b>SETUP.md</b>.</p>`;
 };
 
 const showCeoPanel = () => {
   ceoLogin.hidden = true;
   ceoPanel.hidden = false;
+  const hint = document.getElementById("ceoSetupHint");
+  if (hint) hint.hidden = true;
   document.getElementById("ceoPanelName").textContent = ceoUser.name;
   updateCeoStats();
 };
@@ -583,6 +718,7 @@ ceoLoginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   if (!ceoUser) {
+    // ---------- CREATE the CEO account (first time only) ----------
     const name = ceoNameInput.value.trim();
     const mobile = normMobile(ceoMobileInput.value);
     const code = ceoCodeInput.value.trim();
@@ -591,9 +727,9 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     else { ceoErrName.textContent = ""; ceoNameInput.classList.remove("invalid"); }
     if (!MOBILE_RE.test(mobile)) { ceoErrMobile.textContent = "Enter a valid number, e.g. 03123456789."; ceoMobileInput.classList.add("invalid"); ok = false; }
     else { ceoErrMobile.textContent = ""; ceoMobileInput.classList.remove("invalid"); }
-    if (code !== CEO_SECRET_CODE) { ceoErrCode.textContent = "Wrong secret code — only the CEO can register."; ceoCodeInput.classList.add("invalid"); ok = false; }
+    if (code.length < 8) { ceoErrCode.textContent = "Choose a strong password (min 8 characters)."; ceoCodeInput.classList.add("invalid"); ok = false; }
     else { ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid"); }
-    if (!ok) { showToast("Registration blocked — secret code required.", true); return; }
+    if (!ok) { showToast("Fix the highlighted fields and try again.", true); return; }
 
     if (sb) {
       cloudState("syncing", "Creating…");
@@ -604,8 +740,8 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       });
       if (error) {
         cloudState("error", "Error");
-        if (/already registered/i.test(error.message || "")) {
-          showToast("Account already exists — Login with mobile + code.", true);
+        if (/already registered|already been registered/i.test(error.message || "")) {
+          showToast("Account already exists — Login with mobile + password.", true);
           setCeoLoginMode();
         } else {
           showToast(authErrMsg(error), true);
@@ -619,23 +755,37 @@ ceoLoginForm.addEventListener("submit", async (e) => {
         return;
       }
       cloudUser = data.user;
-      ceoUser = { name, mobile, codeHash: hashSecret(code) };
+      // SECURITY: creating the account is not enough. The database must
+      // list this user in the "admins" table (see supabase/setup.sql).
+      const admin = await isCloudAdmin();
+      ceoUser = { name, mobile, email: cloudEmail(mobile), codeHash: await sha256Hex(code) };
       store.set("ceoAccount", ceoUser);
-      setCeoSession(true);
-      showCeoPanel();
-      showToast(`CEO account created & connected to cloud — welcome, ${name}!`);
-      cloudBusy = false;
-      await cloudPushAll();
-      cloudState("connected", "Synced ✓");
+      if (admin) {
+        setCeoSession(true);
+        showCeoPanel();
+        showToast(`CEO account ready — welcome, ${name}!`);
+        cloudBusy = false;
+        await cloudPushAll();
+        cloudState("connected", "Synced ✓");
+      } else {
+        // Not an admin yet: show the one-time activation steps.
+        try { await sb.auth.signOut(); } catch {}
+        cloudUser = null;
+        cloudState(null, "Not signed in");
+        showCeoSetupHint(cloudEmail(mobile));
+        showToast("Account created! One step left: activate CEO access (see the box below).");
+      }
       return;
     }
 
-    ceoUser = { name, mobile, codeHash: hashSecret(code) };
+    // ---------- Offline (no Supabase) local CEO account ----------
+    ceoUser = { name, mobile, email: "", codeHash: await sha256Hex(code) };
     store.set("ceoAccount", ceoUser);
     setCeoSession(true);
     showCeoPanel();
-    showToast(`CEO account created (local) — welcome, ${name}!`);
+    showToast(`CEO account created (local only) — welcome, ${name}!`);
   } else {
+    // ---------- LOGIN ----------
     const mobile = normMobile(ceoMobileInput.value);
     const code = ceoCodeInput.value.trim();
     if (!MOBILE_RE.test(mobile)) {
@@ -645,9 +795,16 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       return;
     }
     if (!code) {
-      ceoErrCode.textContent = "Enter your secret code.";
+      ceoErrCode.textContent = "Enter your password.";
       ceoCodeInput.classList.add("invalid");
-      showToast("Login failed — secret code required.", true);
+      showToast("Login failed — password required.", true);
+      return;
+    }
+    const blocked = rateMsg("ceo");
+    if (blocked) {
+      ceoErrCode.textContent = blocked;
+      ceoCodeInput.classList.add("invalid");
+      showToast(blocked, true);
       return;
     }
 
@@ -659,21 +816,37 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       });
       if (error) {
         cloudState("error", "Error");
+        logAttempt("ceo");
         if (/invalid login credentials/i.test(error.message || "") && ceoUser && mobile !== ceoUser.mobile) {
           ceoErrMobile.textContent = "This number is not registered in cloud.";
           ceoMobileInput.classList.add("invalid");
         } else if (/invalid login credentials/i.test(error.message || "")) {
-          ceoErrCode.textContent = "Wrong secret code.";
+          ceoErrCode.textContent = "Wrong password.";
           ceoCodeInput.classList.add("invalid");
         }
         showToast(authErrMsg(error), true);
         return;
       }
+      // SECURITY: valid password is not enough. The database decides.
+      const admin = await isCloudAdmin();
+      if (!admin) {
+        try { await sb.auth.signOut(); } catch {}
+        cloudUser = null;
+        cloudState("error", "Not CEO");
+        ceoErrCode.textContent = "This account is not registered as the CEO account.";
+        ceoCodeInput.classList.add("invalid");
+        showToast("Access denied — this account is not the CEO account.", true);
+        logAttempt("ceo");
+        return;
+      }
+      clearAttempts("ceo");
       cloudUser = data.user;
       ceoErrMobile.textContent = ""; ceoMobileInput.classList.remove("invalid");
       ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid");
       const meta = data.user.user_metadata || {};
-      if (meta.name && (!ceoUser || !ceoUser.name)) ceoUser = { name: meta.name, mobile: meta.mobile || mobile, codeHash: hashSecret(code) };
+      if (!ceoUser) ceoUser = { name: meta.name || "CEO", mobile: meta.mobile || mobile, email: cloudUser.email || "", codeHash: "" };
+      ceoUser.email = cloudUser.email || ceoUser.email || "";
+      if (!ceoUser.codeHash) ceoUser.codeHash = await sha256Hex(code);
       store.set("ceoAccount", ceoUser);
       setCeoSession(true);
       cloudBusy = true;
@@ -684,24 +857,24 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       return;
     }
 
+    // ---------- Offline login ----------
     if (mobile !== ceoUser.mobile) {
       ceoErrMobile.textContent = "This number is not registered.";
       ceoMobileInput.classList.add("invalid");
       showToast("Login failed — number not registered.", true);
       return;
     }
-    // code match: purana hash ya current script wala code (jis se aap ne code badla ho)
-    const codeOk = (ceoUser.codeHash && hashSecret(code) === ceoUser.codeHash) || code === CEO_SECRET_CODE;
+    const blockedLocal = rateMsg("ceo");
+    if (blockedLocal) { ceoErrCode.textContent = blockedLocal; showToast(blockedLocal, true); return; }
+    const codeOk = await hashMatches(code, ceoUser.codeHash);
     if (!codeOk) {
-      ceoErrCode.textContent = "Wrong secret code.";
+      logAttempt("ceo");
+      ceoErrCode.textContent = "Wrong password.";
       ceoCodeInput.classList.add("invalid");
-      showToast("Login failed — wrong secret code.", true);
+      showToast("Login failed — wrong password.", true);
       return;
     }
-    if (!ceoUser.codeHash || hashSecret(code) !== ceoUser.codeHash) {
-      ceoUser.codeHash = hashSecret(code);
-      store.set("ceoAccount", ceoUser);
-    }
+    clearAttempts("ceo");
     ceoErrCode.textContent = "";
     ceoCodeInput.classList.remove("invalid");
     setCeoSession(true);
@@ -3277,11 +3450,19 @@ const bizAdRowHtml = (ad) => {
   const expiredTxt = ad.expiresAt ? fmtRegDate(ad.expiresAt) : "";
 
   // Links may be typed without https://, so normalise before using them as href.
+  // SECURITY: only allow http/https to block javascript:/data: schemes.
   const safeLink = (v) => {
-    const s = String(v || "").trim();
-    if (!s) return "";
-    return /^https?:\/\//i.test(s) ? s : `https://${s}`;
+    try {
+      const s = String(v || "").trim();
+      if (!s) return "";
+      if (/^(javascript|data|vbscript):/i.test(s)) return "";
+      const abs = /^https?:\/\//i.test(s) ? s : `https://${s}`;
+      const u = new URL(abs);
+      if (u.protocol === "http:" || u.protocol === "https:") return u.href;
+    } catch {}
+    return "";
   };
+  const safeUrl = (u) => safeLink(u);
 
   const actionButtons = [];
   if (status === "pending") {
@@ -3320,10 +3501,10 @@ const bizAdRowHtml = (ad) => {
     (ad.address || ad.website || ad.facebook || ad.instagram || ad.tiktok
       ? `<div class="biz-ad-links">` +
           (ad.address ? `<span class="biz-ad-link plain">📍 ${escHtml(ad.address)}</span>` : "") +
-          (ad.website ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.website))}" target="_blank" rel="noopener">🌐 Website</a>` : "") +
-          (ad.facebook ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.facebook))}" target="_blank" rel="noopener">Facebook</a>` : "") +
-          (ad.instagram ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.instagram))}" target="_blank" rel="noopener">Instagram</a>` : "") +
-          (ad.tiktok ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.tiktok))}" target="_blank" rel="noopener">TikTok</a>` : "") +
+          (ad.website ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.website))}" target="_blank" rel="noopener noreferrer">🌐 Website</a>` : "") +
+          (ad.facebook ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.facebook))}" target="_blank" rel="noopener noreferrer">Facebook</a>` : "") +
+          (ad.instagram ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.instagram))}" target="_blank" rel="noopener noreferrer">Instagram</a>` : "") +
+          (ad.tiktok ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.tiktok))}" target="_blank" rel="noopener noreferrer">TikTok</a>` : "") +
         `</div>`
       : "") +
     `<div class="biz-ad-actions">${actionButtons.join("")}</div>` +

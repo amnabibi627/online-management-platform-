@@ -83,16 +83,19 @@ name `www`, target `onlinemanagement.site`, proxy **Proxied**.
 
 ## 3. After every code change
 
-`script.js`, `styles.css` and `liveads.js` are cached for one hour. Bump the
-version query string in `index.html` so browsers pick up the change right away:
+`script.js`, `styles.css` and `liveads.js` are served with
+`max-age=0, must-revalidate`, so the browser always checks the server first.
+Even so, bump the version query string in `index.html` so every visitor gets the
+new file instantly, with no chance of a stale cached copy:
 
 ```html
-<link rel="stylesheet" href="styles.css?v=20260422b" />
-<script src="script.js?v=20260422b"></script>
+<link rel="stylesheet" href="styles.css?v=20260422e" />
+<script src="script.js?v=20260422e"></script>
 ```
 
 Then commit and push. Cloudflare Pages deploys automatically (usually 1 to 3
-minutes).
+minutes). If the live site still shows the old version, do a hard refresh
+(`Ctrl + Shift + R`) once.
 
 ---
 

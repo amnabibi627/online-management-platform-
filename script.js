@@ -3148,49 +3148,49 @@ const DEFAULT_ARTICLES = [
     id: "seed-7",
     tag: "Guide",
     title: "The Right Way to Track Daily Sales and Expenses",
-    body: "Accurate daily tracking is the foundation of a healthy business. Most owners lose profit not because sales are low, but because small expenses go unrecorded.\n\nFollow this simple routine:\n\n1. Record every sale at the moment it happens, not at the end of the day.\n2. Note each expense immediately, including small items like tea, fuel and stationery.\n3. At closing time, compare total sales against total expenses.\n4. Review the difference weekly to spot patterns.\n\nWithin one month you will clearly see which days, products and staff members perform best. That insight alone often raises profit by 10 to 20 percent.\n\nTip: keep one person responsible for daily entry. Shared responsibility usually means no responsibility.",
+    body: "Accurate daily tracking is the foundation of a healthy business. Most owners lose profit not because sales are low, but because small expenses go unrecorded.\nFollow this simple routine:\n1. Record every sale the moment it happens, not at the end of the day.\n2. Note each expense immediately, including small items like tea, fuel and stationery.\n3. At closing time, compare total sales against total expenses.\n4. Review the difference weekly to spot patterns.\nWithin one month you will clearly see which days, products and staff members perform best. That insight alone often raises profit by 10 to 20 percent.\nTip: keep one person responsible for daily entry. Shared responsibility usually means no responsibility.",
     at: "2026-09-15T09:00:00.000Z"
   },
   {
     id: "seed-8",
     tag: "Update",
     title: "Online Management Site Is Live, Sign Up Free and Start Today",
-    body: "Online Management Site is now live and open for everyone.\n\nYou can create your free account in under a minute and start working right away:\n\n• One account for your whole business, on phone, tablet or computer.\n• Choose your category: clinic, academy, restaurant, general store, beauty salon, petrol pump, medical store or laboratory.\n• Twelve working modules in every category, covering bookings, staff, stock, billing and daily reports.\n• Everything saves on your device and syncs to the cloud on its own.\n• Works offline too. If the internet drops, your work keeps going and syncs later.\n\nHow to start:\n\n1. Click User Sign Up at the top of the page.\n2. Fill in your name, mobile number, email and city.\n3. Pick your business category and you are ready to go.\n\nThere is nothing to install and no setup fee. After signing up you can post a rating and a comment, so other owners can see how you are using the site.\n\nWelcome aboard.",
+    body: "Online Management Site is now live and open for everyone.\nWhat you get with one free account:\n• Phone, tablet and computer, all from the same login.\n• Eight categories: clinic, academy, restaurant, general store, beauty salon, petrol pump, medical store and laboratory.\n• Twelve working modules in every category, covering bookings, staff, stock, billing and daily reports.\n• Everything saves on your device and syncs to the cloud on its own.\n• Works offline too, so a dropped connection never stops your work.\nHow to start:\n1. Click User Sign Up at the top of the page.\n2. Fill in your name, mobile number, email and city.\n3. Pick your business category and you are ready to go.\nThere is nothing to install and no setup fee. After signing up you can post a rating and a comment, so other owners can see how you are using the site.\nWelcome aboard.",
     at: "2026-10-22T09:00:00.000Z"
   },
   {
     id: "seed-9",
     tag: "Guide",
     title: "How to Manage Staff Shifts Without Confusion",
-    body: "Staff scheduling becomes simple when the rules are clear and written down.\n\nStart with these three steps:\n\n1. Fix a weekly pattern. The same people on the same days build a reliable routine.\n2. Record every shift swap in writing, with both names and the date.\n3. Check attendance against the schedule at the end of each week.\n\nWhen you keep this in one place, salary calculations take minutes instead of hours. Disputes about missed days also disappear, because the record speaks for itself.\n\nGood scheduling is not about trust. It is about clarity.",
+    body: "Staff scheduling becomes simple when the rules are clear and written down.\nStart with these three steps:\n1. Fix a weekly pattern. The same people on the same days build a reliable routine.\n2. Record every shift swap in writing, with both names and the date.\n3. Check attendance against the schedule at the end of each week.\nWhen you keep this in one place, salary calculations take minutes instead of hours. Disputes about missed days also disappear, because the record speaks for itself.\nGood scheduling is not about trust. It is about clarity.",
     at: "2026-09-11T09:00:00.000Z"
   },
   {
     id: "seed-10",
     tag: "Update",
     title: "Faster Search, Instant Results Across All Records",
-    body: "Finding a record used to mean scrolling. Now it means typing.\n\nOur search has been upgraded:\n\n• Instant filtering as you type, no button to press.\n• Matches names, numbers, dates and notes in a single search.\n• Works across every category and every feature module.\n• Results stay accurate even with tens of thousands of entries.\n\nThis matters most on busy days. When a customer is waiting at the counter, two seconds saved on every lookup adds up to a smoother, calmer business.\n\nSearch is available everywhere in the dashboard, right where you need it.",
+    body: "Finding a record used to mean scrolling. Now it means typing.\nOur search has been upgraded:\n• Instant filtering as you type, no button to press.\n• Matches names, numbers, dates and notes in a single search.\n• Works across every category and every feature module.\n• Results stay accurate even with tens of thousands of entries.\nThis matters most on busy days. When a customer is waiting at the counter, two seconds saved on every lookup adds up to a smoother, calmer business.\nSearch is available everywhere in the dashboard, right where you need it.",
     at: "2026-09-08T09:00:00.000Z"
   },
   {
     id: "seed-11",
     tag: "Guide",
     title: "Avoid Stock Shortages Before They Cost You Sales",
-    body: "Running out of a fast selling item is one of the most expensive mistakes in retail. The customer does not wait. They buy elsewhere, and they often do not come back.\n\nA simple system prevents this:\n\n1. Write a minimum stock level for each product, based on how fast it sells.\n2. Check your stock list every morning before opening.\n3. Note the supplier's delivery time for each item.\n4. Order when stock reaches the minimum, not when it reaches zero.\n\nThe goal is not to hold more stock. The goal is to hold the right stock at the right time. That balance protects both your cash and your sales.",
+    body: "Running out of a fast selling item is one of the most expensive mistakes in retail. The customer does not wait. They buy elsewhere, and they often do not come back.\nA simple system prevents this:\n1. Write a minimum stock level for each product, based on how fast it sells.\n2. Check your stock list every morning before opening.\n3. Note the supplier's delivery time for each item.\n4. Order when stock reaches the minimum, not when it reaches zero.\nThe goal is not to hold more stock. The goal is to hold the right stock at the right time. That balance protects both your cash and your sales.",
     at: "2026-09-04T09:00:00.000Z"
   },
   {
     id: "seed-12",
     tag: "Update",
     title: "Backup and Restore: Your Records Are Now Safer",
-    body: "Data loss should never be a business risk. We have added a full backup and restore system.\n\nWhat you can now do:\n\n• Create a complete backup of all your records in one click.\n• Restore any backup to the same device or a new one.\n• Keep working offline, with changes saved and synced later.\n• See a clear status whenever your data has been secured.\n\nBackups run on the cloud and on your device at the same time. If one fails, the other still protects you.\n\nYour records are your business. We treat them that way.",
+    body: "Data loss should never be a business risk. We have added a full backup and restore system.\nWhat you can now do:\n• Create a complete backup of all your records in one click.\n• Restore any backup to the same device or a new one.\n• Keep working offline, with changes saved and synced later.\n• See a clear status whenever your data has been secured.\nBackups run on the cloud and on your device at the same time. If one fails, the other still protects you.\nYour records are your business. We treat them that way.",
     at: "2026-09-01T09:00:00.000Z"
   },
   {
     id: "seed-13",
     tag: "Update",
     title: "Cloud Billing Is Replacing the Paper Counter Register",
-    body: "The old counter register is quietly disappearing, and it is worth knowing why before you switch.\n\nWhat is changing in the market:\n\n• Bills are generated and sent on the phone in seconds, instead of being written in a book by hand.\n• Stock, staff and sales figures update themselves the moment a bill is made.\n• The closing report for the day appears on its own, so there is nothing to calculate at night.\n• Payment status shows live, so you know what is cleared and what is still pending.\n• Records stay safe in the cloud and can be checked from any device you own.\n\nWhat this means for a small business:\n\n1. Less time spent counting cash and correcting mistakes in the register.\n2. Fewer wrong numbers, because the figures come from the sale itself.\n3. Better decisions, because you see today's sales instead of yesterday's guess.\n\nShopkeepers, clinics and restaurants that moved to cloud billing usually notice the difference in the first week. The month end work that used to take a whole evening now takes a few minutes.\n\nIf you are still closing the day with a paper register, this is the shift worth making now.",
+    body: "The paper counter register is quietly disappearing, and it is worth knowing why.\nWhat is changing:\n• Bills are generated and sent on the phone in seconds, not written by hand.\n• Stock, staff and sales update themselves the moment a bill is made.\n• The closing report appears on its own, so nothing is calculated at night.\n• Payment status shows live, so you know what is cleared and what is pending.\n• Records stay safe in the cloud and open on any device you own.\nWhat this means for a small business:\n1. Less time counting cash and correcting the register.\n2. Fewer wrong numbers, because the figures come from the sale itself.\n3. Better decisions, because you see today's sales instead of yesterday's guess.\nShopkeepers, clinics and restaurants that moved to cloud billing usually notice the difference in the first week. The month end work that used to take an evening now takes minutes.\nIf you are still closing the day with a paper register, this is the shift worth making now.",
     at: "2026-10-20T09:00:00.000Z"
   }
 ];
@@ -3201,7 +3201,7 @@ const ARTICLE_REMOVED_KEY = "siteArticlesRemoved";
 // Saved copies of built-in posts are refreshed to the new text on the next load,
 // so everyone (old and new visitors) sees the same posts.
 const ARTICLE_SEED_VERSION_KEY = "siteArticlesSeedVersion";
-const ARTICLE_SEED_VERSION = "2026-10-22-a";
+const ARTICLE_SEED_VERSION = "2026-10-22-b";
 
 // Tips and News categories were removed — migrate any saved article using them.
 const TAG_MIGRATION = { Tips: "Guide", News: "Update" };
@@ -3312,8 +3312,8 @@ const renderArticles = () => {
 
   articlesGrid.innerHTML = slice.map((a) => {
     const open = expandedArticles.has(a.id);
-    const body = open ? String(a.body || "") : articleClip(a.body, 170);
-    const canExpand = String(a.body || "").length > 170;
+    const body = open ? String(a.body || "") : articleClip(a.body, 300);
+    const canExpand = String(a.body || "").length > 300;
     return `<article class="article-card" data-article-id="${escHtml(a.id)}">` +
       `<div class="article-top">` +
       `<span class="article-tag" data-tag="${escHtml(a.tag || "Guide")}">${escHtml(a.tag || "Guide")}</span>` +

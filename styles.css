@@ -628,8 +628,8 @@ body.detail-open { overflow: hidden; }
 
 .article-title { font-size: 1.12rem; font-weight: 800; color: var(--ink); margin-bottom: 0.6rem; line-height: 1.35; }
 .article-body {
-  color: var(--muted); font-size: 0.93rem; line-height: 1.7;
-  white-space: pre-wrap; flex: 1;
+  color: var(--muted); font-size: 0.93rem; line-height: 1.55;
+  white-space: pre-line; flex: 1;
 }
 .article-actions { display: flex; gap: 0.9rem; margin-top: 1rem; align-items: center; }
 .article-link {

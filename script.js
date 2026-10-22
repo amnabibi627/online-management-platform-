@@ -2877,7 +2877,10 @@ if (portfolioToggle && ownerPortfolio && portfolioFrame) {
 
   portfolioFrame.addEventListener("load", () => {
     frameReady = true;
-    if (portfolioLoader) portfolioLoader.hidden = true;
+    if (portfolioLoader) {
+      portfolioLoader.hidden = true;
+      portfolioLoader.innerHTML = "";
+    }
   });
 
   portfolioToggle.addEventListener("click", () => {
@@ -2907,7 +2910,7 @@ if (portfolioToggle && ownerPortfolio && portfolioFrame) {
         link.textContent = "Open in new tab ↗";
         msg.appendChild(link);
         portfolioLoader.appendChild(msg);
-      }, 6000);
+      }, 12000);
       ownerPortfolio.scrollIntoView({ behavior: "smooth", block: "nearest" });
       showToast("Loading Amna Bibi's portfolio…");
     }

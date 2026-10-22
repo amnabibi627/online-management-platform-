@@ -1,28 +1,32 @@
 :root {
-  /* ---- Ultra Clean Corporate ---- */
-  --pink: #1a56db;        /* primary blue   */
-  --pink-dark: #1849c6;   /* primary hover  */
-  --pink-light: #1a56db;
+  /* ---- Professional Corporate Theme ---- */
+  --pink: #1d4ed8;          /* primary blue (deeper, richer) */
+  --pink-dark: #1e40af;     /* primary hover (darker navy-blue) */
+  --pink-light: #3b82f6;    /* lighter accent blue */
 
-  /* ---- Surfaces ---- */
-  --bg: #fbfbfd;
+  /* ---- Surfaces (all white / near-white) ---- */
+  --bg: #ffffff;
   --card: #ffffff;
-  --border: #edeef2;
+  --border: #e5e7eb;
 
   /* ---- Text ---- */
-  --ink: #111827;
-  --muted: #4b5563;
+  --ink: #0f172a;
+  --muted: #475569;
 
   /* ---- Status ---- */
-  --navy: #0b1026;
-  --slate: #0b1026;
+  --navy: #0f172a;
+  --slate: #0f172a;
   --success: #16a34a;
-  --warning: #f59e0b;
+  --warning: #d97706;
   --danger: #dc2626;
 
+  /* ---- Header ---- */
+  --header-bg: #0f172a;        /* rich dark navy */
+  --header-accent: #1d4ed8;    /* blue stripe / avatar bg */
+
   --radius: 10px;
-  --shadow: 0 1px 2px rgba(16, 24, 40, 0.02);
-  --shadow-lg: 0 1px 3px rgba(16, 24, 40, 0.04), 0 20px 40px -12px rgba(16, 24, 40, 0.08);
+  --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 4px 6px rgba(15, 23, 42, 0.05), 0 20px 40px -12px rgba(15, 23, 42, 0.10);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,7 +39,7 @@ section[id], #reviews { scroll-margin-top: 90px; }
 body {
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   color: var(--ink);
-  background: var(--bg);
+  background: #ffffff;
   line-height: 1.6;
 }
 
@@ -48,9 +52,9 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 /* ---------- Header ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
-  background: #0b1026;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: none;
+  background: var(--header-bg);
+  border-bottom: 3px solid var(--header-accent);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.18);
 }
 
 .header-inner {
@@ -65,7 +69,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .brand-avatar {
   width: 40px; height: 40px; border-radius: 50%;
-  background: #1a56db;
+  background: var(--header-accent);
   color: #ffffff; font-family: "Inter", sans-serif; font-weight: 700; font-size: 1rem;
   display: grid; place-items: center; flex-shrink: 0;
   position: relative; overflow: hidden;
@@ -201,14 +205,14 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero {
   position: relative; overflow: hidden; padding: 6rem 0 4.5rem; text-align: center;
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background: #ffffff;
 }
 
 .hero-glow {
   position: absolute; inset: -30% -10% auto; height: 720px;
   background:
-    radial-gradient(560px 320px at 28% 30%, rgba(37, 99, 235, 0.18), transparent 70%),
-    radial-gradient(520px 300px at 76% 20%, rgba(20, 184, 166, 0.16), transparent 70%);
+    radial-gradient(560px 320px at 28% 30%, rgba(29, 78, 216, 0.12), transparent 70%),
+    radial-gradient(520px 300px at 76% 20%, rgba(59, 130, 246, 0.10), transparent 70%);
   pointer-events: none;
 }
 
@@ -328,7 +332,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 /* ---------- Category Detail (Clinic) ---------- */
 .category-detail {
   position: fixed; inset: 0; z-index: 100; overflow-y: auto;
-  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+  background: #ffffff;
   transform: translateY(100%); visibility: hidden;
   transition: transform 0.4s ease, visibility 0.4s;
 }
@@ -370,7 +374,7 @@ body.detail-open { overflow: hidden; }
 .detail-card p { color: var(--muted); font-size: 0.92rem; }
 
 /* ---------- Portals ---------- */
-.portals { background: linear-gradient(180deg, #f8fafc, #dbeafe); }
+.portals { background: #ffffff; }
 
 .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.6rem; }
 
@@ -847,64 +851,67 @@ body.detail-open { overflow: hidden; }
 }
 
 
-/* ---------- Ultra Clean Overrides ---------- */
+/* ---------- Professional Theme Overrides ---------- */
 .site-header {
-  background: #0b1026 !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  box-shadow: none !important;
+  background: var(--header-bg) !important;
+  border-bottom: 3px solid var(--header-accent) !important;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.18) !important;
 }
 body {
-  background: #fbfbfd !important;
-  color: #111827 !important;
+  background: #ffffff !important;
+  color: var(--ink) !important;
 }
 .main-nav {
   background: transparent !important;
   border: 0 !important;
 }
 .nav-link {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.72) !important;
 }
 .nav-link:hover {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 .nav-link.active {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.09) !important;
+  background: rgba(29, 78, 216, 0.35) !important;
+  border-radius: 8px !important;
 }
 .btn-primary {
-  background: #1a56db !important;
+  background: var(--pink) !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 8px !important;
-  box-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.22) !important;
 }
 .btn-primary:hover {
-  background: #1849c6 !important;
+  background: var(--pink-dark) !important;
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3) !important;
 }
 .site-header .btn-outline {
   color: #ffffff !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
   background: transparent !important;
 }
 .site-header .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 .section,
 .biz-ads,
 .reviews-section,
 .owner-details,
-.industries {
+.industries,
+.portals {
   background: #ffffff !important;
-  border-top: 1px solid #edeef2 !important;
+  border-top: 1px solid var(--border) !important;
 }
 .hero {
-  background: #fbfbfd !important;
-  border-bottom: 1px solid #edeef2 !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--border) !important;
 }
 .site-footer {
   background: #ffffff !important;
-  border-top: 1px solid #edeef2 !important;
+  border-top: 1px solid var(--border) !important;
 }
 
 /* ---------- Feature panels (per detail-card CRUD) ---------- */

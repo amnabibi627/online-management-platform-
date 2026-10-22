@@ -417,23 +417,30 @@ body.detail-open { overflow: hidden; }
 
 /* ---------- Owner Details ---------- */
 .owner-profile {
-  display: block;
+  display: flex; gap: 1.6rem; align-items: flex-start; flex-wrap: wrap;
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 1.8rem; margin-bottom: 1.6rem; text-align: left;
   box-shadow: 0 10px 30px rgba(233, 30, 140, 0.06);
+  position: relative;
 }
-/* Top row of the card: photo, name and the corner button */
-.owner-profile-top {
-  display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap;
+/* CEO button pinned to the top right corner of the card */
+.owner-profile-corner {
+  position: absolute;
+  top: 1.3rem;
+  right: 1.3rem;
 }
-.owner-profile-head { flex: 1; min-width: 210px; }
-.owner-profile-corner { margin-left: auto; align-self: flex-start; }
 .owner-profile-corner .btn {
   padding: 0.55rem 1.15rem;
   font-size: 0.86rem;
   white-space: nowrap;
 }
-.owner-profile-body { margin-top: 1.3rem; }
+
+/* On small screens the corner button drops under the card instead of floating */
+@media (max-width: 700px) {
+  .owner-profile { padding: 1.4rem; }
+  .owner-profile-corner { position: static; width: 100%; }
+  .owner-profile-corner .btn { width: 100%; }
+}
 .owner-profile-avatar {
   width: 92px; height: 92px; flex: 0 0 auto; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -444,8 +451,9 @@ body.detail-open { overflow: hidden; }
   border: 0; cursor: pointer; position: relative;
 }
 .owner-profile-avatar.has-photo .owner-avatar-letter { display: none; }
+.owner-profile-body { flex: 1; min-width: 260px; }
 .owner-profile-name { font-size: 1.5rem; font-weight: 800; color: var(--pink-dark); margin-bottom: 0.15rem; }
-.owner-profile-role { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 0; }
+.owner-profile-role { font-size: 0.9rem; font-weight: 600; color: var(--ink); margin-bottom: 0.8rem; }
 .owner-profile-bio { color: var(--muted); font-size: 0.95rem; line-height: 1.65; margin-bottom: 1rem; }
 .owner-profile-skills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.2rem; }
 .owner-profile-skills span {
@@ -1005,13 +1013,6 @@ body.detail-open { overflow: hidden; }
   .section-title { font-size: 1.5rem; }
   .section-subtitle { font-size: 0.95rem; }
   .industries .section-title, .portals .section-title { white-space: normal; }
-
-  .owner-profile { padding: 1.4rem; }
-  .owner-profile-top { gap: 0.9rem; }
-  .owner-profile-head { min-width: 0; }
-  .owner-profile-corner { margin-left: 0; width: 100%; }
-  .owner-profile-corner .btn { width: 100%; }
-
   .industry-grid, .detail-grid { grid-template-columns: 1fr; gap: 1rem; }
   .industry-card { padding: 1.4rem 1.2rem; }
   .industry-icon { width: 46px; height: 46px; font-size: 1.35rem; }

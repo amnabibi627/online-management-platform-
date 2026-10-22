@@ -1197,7 +1197,6 @@ body.detail-open { overflow: hidden; }
 .biz-reg { background: linear-gradient(180deg, #fffafd 0%, #ffffff 100%); }
 
 /* --- Business Ads: register + running ads in one section --- */
-.biz-ads { background: linear-gradient(180deg, #fffafd 0%, #ffffff 55%, #fffafd 100%); }
 .ads-combo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);

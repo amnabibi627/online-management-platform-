@@ -458,6 +458,15 @@ const uFields = {
 
 let userModalMode = "signup"; // "signup" | "login" | "active"
 
+// Show / hide password
+const setUserPassVisibility = (show, isLogin = false) => {
+  const ids = isLogin ? ["ufLoginPass"] : ["ufPass", "ufPass2"];
+  ids.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.type = show ? "text" : "password";
+  });
+};
+
 const setUserError = (f, msg) => {
   if (!f || !f.err) return;
   f.err.textContent = msg || "";
@@ -483,7 +492,7 @@ const openUserModal = (mode) => {
     const isSignup = userModalMode === "signup";
     userModalTitle.textContent = isSignup ? "Create Your Account" : "Welcome Back";
     userModalSub.textContent = isSignup
-      ? "Sign up to post reviews and comment on this website."
+      ? "Fill the form below to sign up. It takes less than a minute."
       : "Enter your registered mobile number and password to log in.";
     if (userActiveBox) userActiveBox.hidden = true;
     userForm.hidden = false;
@@ -496,6 +505,8 @@ const openUserModal = (mode) => {
         : "Need a new account? Sign Up here";
     }
     userForm.reset();
+    setUserPassVisibility(false);
+    setUserPassVisibility(false, true);
   }
 
   userModal.classList.add("open");
@@ -513,6 +524,15 @@ if (userModeToggle) {
     e.preventDefault();
     openUserModal(userModalMode === "signup" ? "login" : "signup");
   });
+}
+
+const userShowPass = document.getElementById("ufShowPass");
+if (userShowPass) {
+  userShowPass.addEventListener("change", () => setUserPassVisibility(userShowPass.checked));
+}
+const userShowPassLogin = document.getElementById("ufShowPassLogin");
+if (userShowPassLogin) {
+  userShowPassLogin.addEventListener("change", () => setUserPassVisibility(userShowPassLogin.checked, true));
 }
 
 if (userLogout) {

@@ -1148,84 +1148,123 @@
 
   <!-- ========== USER SIGN UP / LOGIN MODAL ========== -->
   <div class="owner-modal" id="userModal" aria-hidden="true">
-    <div class="owner-modal-box">
+    <div class="owner-modal-box user-modal-box">
       <button class="modal-close" id="userModalClose" aria-label="Close">&times;</button>
-      <div class="modal-icon">👤</div>
-      <h3 id="userModalTitle">Create Your Account</h3>
-      <p class="modal-sub" id="userModalSub">Sign up to post reviews and comment on this website.</p>
 
-      <!-- Signed in view -->
-      <div id="userActiveBox" hidden>
-        <div class="ceo-stats" style="margin-bottom:1rem;">
-          <div class="ceo-stat"><span>Name</span><strong id="userActiveName">—</strong></div>
-          <div class="ceo-stat"><span>Mobile</span><strong id="userActiveMobile">—</strong></div>
-          <div class="ceo-stat"><span>City</span><strong id="userActiveCity">—</strong></div>
+      <!-- Left brand panel -->
+      <aside class="user-side">
+        <div class="user-side-logo">
+          <span class="user-side-mark">OM</span>
+          <span>Online Management</span>
         </div>
-        <button type="button" class="btn btn-outline btn-block" id="userLogout">Logout</button>
-      </div>
-
-      <form id="userForm" novalidate>
-        <!-- Sign up fields -->
-        <div id="userSignupFields">
-          <div class="form-row">
-            <div class="field">
-              <label for="ufName">Full Name</label>
-              <input type="text" id="ufName" placeholder="e.g. Ali Khan" autocomplete="name" maxlength="60" />
-              <span class="field-error" id="ufNameErr"></span>
-            </div>
-            <div class="field">
-              <label for="ufMobile">Mobile Number</label>
-              <input type="tel" id="ufMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
-              <span class="field-error" id="ufMobileErr"></span>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="field">
-              <label for="ufEmail">Email Address</label>
-              <input type="email" id="ufEmail" placeholder="e.g. ali@example.com" autocomplete="email" maxlength="80" />
-              <span class="field-error" id="ufEmailErr"></span>
-            </div>
-            <div class="field">
-              <label for="ufCity">City</label>
-              <input type="text" id="ufCity" placeholder="e.g. Lahore" autocomplete="address-level2" maxlength="40" />
-              <span class="field-error" id="ufCityErr"></span>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="field">
-              <label for="ufPass">Password</label>
-              <input type="password" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
-              <span class="field-error" id="ufPassErr"></span>
-            </div>
-            <div class="field">
-              <label for="ufPass2">Confirm Password</label>
-              <input type="password" id="ufPass2" placeholder="Type it again" maxlength="64" autocomplete="new-password" />
-              <span class="field-error" id="ufPass2Err"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Login fields -->
-        <div id="userLoginFields" hidden>
-          <div class="field">
-            <label for="ufLoginMobile">Registered Mobile Number</label>
-            <input type="tel" id="ufLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="username" />
-            <span class="field-error" id="ufLoginMobileErr"></span>
-          </div>
-          <div class="field">
-            <label for="ufLoginPass">Password</label>
-            <input type="password" id="ufLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
-            <span class="field-error" id="ufLoginPassErr"></span>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" id="userSubmit">Create Account</button>
-        <p class="admin-hint" style="margin-top:0.9rem;margin-bottom:0;text-align:center;">
-          <a href="#" id="userModeToggle" style="color:var(--pink);font-weight:600;text-decoration:none;">Already have an account? Login here</a>
+        <h2 class="user-side-title">Join our growing community</h2>
+        <p class="user-side-text">
+          Create one free account. Post ratings, write comments and help other
+          business owners pick the right software.
         </p>
-      </form>
+        <ul class="user-benefits">
+          <li><span aria-hidden="true">✓</span> Post star ratings and reviews</li>
+          <li><span aria-hidden="true">✓</span> Write comments and feedback</li>
+          <li><span aria-hidden="true">✓</span> Manage and edit your own posts</li>
+          <li><span aria-hidden="true">✓</span> Free forever, no card needed</li>
+        </ul>
+        <div class="user-side-note">Your details stay private. We never share them.</div>
+      </aside>
+
+      <!-- Right form panel -->
+      <div class="user-main">
+        <div class="modal-icon">👤</div>
+        <h3 id="userModalTitle">Create Your Account</h3>
+        <p class="modal-sub" id="userModalSub">Fill the form below to sign up. It takes less than a minute.</p>
+
+        <!-- Signed in view -->
+        <div id="userActiveBox" hidden>
+          <div class="ceo-stats" style="margin-bottom:1rem;">
+            <div class="ceo-stat"><span>Name</span><strong id="userActiveName">—</strong></div>
+            <div class="ceo-stat"><span>Mobile</span><strong id="userActiveMobile">—</strong></div>
+            <div class="ceo-stat"><span>City</span><strong id="userActiveCity">—</strong></div>
+          </div>
+          <button type="button" class="btn btn-outline btn-block" id="userLogout">Logout</button>
+        </div>
+
+        <form id="userForm" novalidate>
+          <!-- Sign up fields -->
+          <div id="userSignupFields">
+            <div class="form-row">
+              <div class="field">
+                <label for="ufName">Full Name <em>*</em></label>
+                <input type="text" id="ufName" placeholder="e.g. Ali Khan" autocomplete="name" maxlength="60" />
+                <span class="field-error" id="ufNameErr"></span>
+              </div>
+              <div class="field">
+                <label for="ufMobile">Mobile Number <em>*</em></label>
+                <input type="tel" id="ufMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+                <span class="field-error" id="ufMobileErr"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="ufEmail">Email Address <em>*</em></label>
+                <input type="email" id="ufEmail" placeholder="e.g. ali@example.com" autocomplete="email" maxlength="80" />
+                <span class="field-error" id="ufEmailErr"></span>
+              </div>
+              <div class="field">
+                <label for="ufCity">City <em>*</em></label>
+                <input type="text" id="ufCity" placeholder="e.g. Lahore" autocomplete="address-level2" maxlength="40" />
+                <span class="field-error" id="ufCityErr"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="ufPass">Password <em>*</em></label>
+                <input type="password" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
+                <span class="field-error" id="ufPassErr"></span>
+              </div>
+              <div class="field">
+                <label for="ufPass2">Confirm Password <em>*</em></label>
+                <input type="password" id="ufPass2" placeholder="Type it again" maxlength="64" autocomplete="new-password" />
+                <span class="field-error" id="ufPass2Err"></span>
+              </div>
+            </div>
+
+            <label class="user-check" for="ufShowPass">
+              <input type="checkbox" id="ufShowPass" />
+              <span>Show password</span>
+            </label>
+          </div>
+
+          <!-- Login fields -->
+          <div id="userLoginFields" hidden>
+            <div class="field">
+              <label for="ufLoginMobile">Registered Mobile Number <em>*</em></label>
+              <input type="tel" id="ufLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="username" />
+              <span class="field-error" id="ufLoginMobileErr"></span>
+            </div>
+            <div class="field">
+              <label for="ufLoginPass">Password <em>*</em></label>
+              <input type="password" id="ufLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
+              <span class="field-error" id="ufLoginPassErr"></span>
+            </div>
+
+            <label class="user-check" for="ufShowPassLogin">
+              <input type="checkbox" id="ufShowPassLogin" />
+              <span>Show password</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="userSubmit">Create Account</button>
+
+          <p class="user-terms">
+            By creating an account you agree to the Terms of Use and Privacy Policy.
+          </p>
+
+          <p class="user-switch">
+            <a href="#" id="userModeToggle">Already have an account? Login here</a>
+          </p>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -1416,8 +1455,8 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="anti-copy.js"></script>
-  <script src="script.js"></script>
-  <script src="liveads.js"></script>
+  <script src="anti-copy.js?v=20260422b"></script>
+  <script src="script.js?v=20260422b"></script>
+  <script src="liveads.js?v=20260422b"></script>
 </body>
 </html>

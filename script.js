@@ -3161,7 +3161,7 @@ const paintStars = (value) => {
   });
   if (starValue) {
     starValue.textContent = value ? `${value} of 5` : "Select stars";
-    starValue.style.color = value ? "#f5a623" : "";
+    starValue.style.color = value ? "#f59e0b" : "";
   }
 };
 

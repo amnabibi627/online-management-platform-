@@ -15,7 +15,11 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 - **Per-category "All Data" sheet** — Excel-like view of every saved entry with search,
   row-level edit/delete and CSV export
 - **Owner profile** — header + profile photo (DP) upload, bio, contact links
-  (Facebook, Instagram, TikTok, WhatsApp, Email) and an embedded portfolio viewer
+  (Facebook, Instagram, TikTok, WhatsApp, Email) and an embedded portfolio viewer.
+  The photo is resized to 512 px and stored in three places (localStorage,
+  IndexedDB and the cloud), so it can no longer disappear on its own. When the
+  CEO is signed in it is also published to `site_profile`, which is the copy
+  every visitor sees
 - **User accounts** — a real "User Sign Up" page in the header (separate from the
   Owner Account button). Users fill in full name, mobile, email, city, password
   and confirm password, then sign in to post ratings and comments. Clicking the
@@ -23,8 +27,6 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 - **Ratings & comments** — only signed-in users can post a 1–5 star rating and a
   comment; average score and star distribution shown live. A user can delete only
   their own review, the CEO can delete any review
-- **Guides & updates** — tag filters (Guide, Update), read more/less and
-  paginated posts (2 per page)
 - **Business registration** — a "Register Your Business" card opens a compact
   modal form with three paid plans (15 days / PKR 2,500, 30 days / PKR 5,000,
   1 year / PKR 60,000) picked inside the form. All details are required, plus
@@ -52,7 +54,7 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 | `anti-copy.js` | Blocks right click, copy, cut, drag, save, select and devtools shortcuts |
 | `_headers` | Cloudflare Pages security headers (CSP, HSTS, frame options) |
 | `CNAME` | Custom domain `onlinemanagement.site` |
-| `supabase/setup.sql` | CEO `admins` table + row level security policies |
+| `supabase/setup.sql` | CEO `admins` table, public `site_profile` table + row level security policies |
 | `SETUP.md` | Step by step deployment and security setup guide |
 
 ## Running
@@ -104,4 +106,4 @@ Email confirmation must be disabled (Authentication → Email → Confirm email 
 because accounts are keyed by mobile number.
 
 Run [`supabase/setup.sql`](supabase/setup.sql) once to create the CEO `admins`
-table and lock down `app_data`.
+table, the public `site_profile` table and lock down `app_data`.

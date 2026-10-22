@@ -93,6 +93,7 @@ const RETIRED_ARTICLE_KEYS = ["siteArticles", "siteArticlesRemoved", "siteArticl
 // and any one of them can bring it back.
 const AVATAR_KEY = "ownerAvatar";
 const AVATAR_TABLE = "site_profile";
+const AVATAR_TABLE_FLAG = "oms_avatarTableMissing";
 const AVATAR_EDGE = 512; // longest side of the stored photo
 const avatarSrc = (v) => (!v ? "" : (typeof v === "string" ? v : v.v || ""));
 const avatarTime = (v) => (!v || typeof v === "string" ? 0 : Number(v.t) || 0);
@@ -2960,22 +2961,34 @@ const publishOwnerAvatar = async (record) => {
       { onConflict: "id" }
     );
     if (error) console.warn("Photo publish failed:", error.message);
+    else {
+      avatarTableOk = true;
+      try { localStorage.removeItem(AVATAR_TABLE_FLAG); } catch {}
+    }
   } catch (e) {
     console.warn("Photo publish failed:", e);
   }
 };
 
 let avatarTableOk = null; // null = not checked yet, false = table not there
+
 const fetchOwnerAvatar = async () => {
-  if (!sb || avatarTableOk === false) return null;
+  if (!sb) return null;
+  if (avatarTableOk === false) return null;
+  if (avatarTableOk === null && localStorage.getItem(AVATAR_TABLE_FLAG)) { avatarTableOk = false; return null; }
   try {
     const { data, error } = await sb
       .from(AVATAR_TABLE)
       .select("photo,saved_at")
       .eq("id", "owner")
       .maybeSingle();
-    if (error) { avatarTableOk = false; return null; }
+    if (error) {
+      avatarTableOk = false;
+      try { localStorage.setItem(AVATAR_TABLE_FLAG, "1"); } catch {}
+      return null;
+    }
     avatarTableOk = true;
+    try { localStorage.removeItem(AVATAR_TABLE_FLAG); } catch {}
     if (!data || !data.photo) return null;
     return { v: data.photo, t: Number(data.saved_at) || 0 };
   } catch {

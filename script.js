@@ -168,6 +168,13 @@ const cloudRestore = async () => {
     const ok = await cloudPull();
     cloudBusy = false;
     if (!ok) { cloudState("error", "Offline"); return false; }
+    // The cloud may still hold an older copy of the built-in posts.
+    // Bring it up to date and push the corrected list back.
+    if (typeof refreshSeedArticles === "function") {
+      const pulled = store.get(ARTICLES_KEY, null);
+      if (Array.isArray(pulled)) refreshSeedArticles(pulled);
+    }
+    if (typeof renderArticles === "function") renderArticles();
     // SECURITY: a signed-in session alone does NOT mean CEO.
     // The database decides, via the admins table (RLS limited to own row).
     const admin = await isCloudAdmin();
@@ -3147,9 +3154,9 @@ const DEFAULT_ARTICLES = [
   {
     id: "seed-8",
     tag: "Update",
-    title: "Smarter Reports: Understand Your Business at a Glance",
-    body: "Our reporting engine has been rebuilt for clarity and speed.\n\nWhat is new:\n\n• Daily, weekly and monthly summaries generated automatically.\n• Profit and loss shown side by side for instant comparison.\n• Top selling items and slow moving stock highlighted in every report.\n• One click CSV export for your accountant or tax filing.\n\nAll reports now load in under one second, even with thousands of saved records. No setup required. Simply open your dashboard and the numbers are already waiting.\n\nWe built this so you can make decisions from facts, not guesses.",
-    at: "2026-09-13T09:00:00.000Z"
+    title: "Online Management Site Is Live, Sign Up Free and Start Today",
+    body: "Online Management Site is now live and open for everyone.\n\nYou can create your free account in under a minute and start working right away:\n\n• One account for your whole business, on phone, tablet or computer.\n• Choose your category: clinic, academy, restaurant, general store, beauty salon, petrol pump, medical store or laboratory.\n• Twelve working modules in every category, covering bookings, staff, stock, billing and daily reports.\n• Everything saves on your device and syncs to the cloud on its own.\n• Works offline too. If the internet drops, your work keeps going and syncs later.\n\nHow to start:\n\n1. Click User Sign Up at the top of the page.\n2. Fill in your name, mobile number, email and city.\n3. Pick your business category and you are ready to go.\n\nThere is nothing to install and no setup fee. After signing up you can post a rating and a comment, so other owners can see how you are using the site.\n\nWelcome aboard.",
+    at: "2026-10-22T09:00:00.000Z"
   },
   {
     id: "seed-9",
@@ -3178,10 +3185,23 @@ const DEFAULT_ARTICLES = [
     title: "Backup and Restore: Your Records Are Now Safer",
     body: "Data loss should never be a business risk. We have added a full backup and restore system.\n\nWhat you can now do:\n\n• Create a complete backup of all your records in one click.\n• Restore any backup to the same device or a new one.\n• Keep working offline, with changes saved and synced later.\n• See a clear status whenever your data has been secured.\n\nBackups run on the cloud and on your device at the same time. If one fails, the other still protects you.\n\nYour records are your business. We treat them that way.",
     at: "2026-09-01T09:00:00.000Z"
+  },
+  {
+    id: "seed-13",
+    tag: "Update",
+    title: "Cloud Billing Is Replacing the Paper Counter Register",
+    body: "The old counter register is quietly disappearing, and it is worth knowing why before you switch.\n\nWhat is changing in the market:\n\n• Bills are generated and sent on the phone in seconds, instead of being written in a book by hand.\n• Stock, staff and sales figures update themselves the moment a bill is made.\n• The closing report for the day appears on its own, so there is nothing to calculate at night.\n• Payment status shows live, so you know what is cleared and what is still pending.\n• Records stay safe in the cloud and can be checked from any device you own.\n\nWhat this means for a small business:\n\n1. Less time spent counting cash and correcting mistakes in the register.\n2. Fewer wrong numbers, because the figures come from the sale itself.\n3. Better decisions, because you see today's sales instead of yesterday's guess.\n\nShopkeepers, clinics and restaurants that moved to cloud billing usually notice the difference in the first week. The month end work that used to take a whole evening now takes a few minutes.\n\nIf you are still closing the day with a paper register, this is the shift worth making now.",
+    at: "2026-10-20T09:00:00.000Z"
   }
 ];
 
 const ARTICLE_REMOVED_KEY = "siteArticlesRemoved";
+
+// Bump this whenever a built-in article's text changes.
+// Saved copies of built-in posts are refreshed to the new text on the next load,
+// so everyone (old and new visitors) sees the same posts.
+const ARTICLE_SEED_VERSION_KEY = "siteArticlesSeedVersion";
+const ARTICLE_SEED_VERSION = "2026-10-22-a";
 
 // Tips and News categories were removed — migrate any saved article using them.
 const TAG_MIGRATION = { Tips: "Guide", News: "Update" };
@@ -3200,18 +3220,43 @@ const migrateArticleTags = (list) => {
   return out;
 };
 
+// Refresh saved copies of built-in posts when their text was changed in a
+// newer release. Returns the refreshed list.
+const refreshSeedArticles = (list) => {
+  if (!Array.isArray(list)) return list;
+  const seeds = new Map(DEFAULT_ARTICLES.map((a) => [a.id, a]));
+  let refreshed = false;
+  const out = list.map((a) => {
+    const seed = seeds.get(a.id);
+    if (!seed) return a;
+    if (a.title === seed.title && a.body === seed.body && a.tag === seed.tag && a.at === seed.at) return a;
+    refreshed = true;
+    return { ...a, title: seed.title, body: seed.body, tag: seed.tag, at: seed.at };
+  });
+  if (refreshed) store.set(ARTICLES_KEY, out);
+  return out;
+};
+
 const loadArticles = () => {
   const removed = store.get(ARTICLE_REMOVED_KEY, []);
   const removedSet = new Set(Array.isArray(removed) ? removed : []);
   let list = store.get(ARTICLES_KEY, null);
+  const seedVersion = store.get(ARTICLE_SEED_VERSION_KEY, "");
 
   if (!Array.isArray(list)) {
     const seeded = DEFAULT_ARTICLES.filter((a) => !removedSet.has(a.id));
     store.set(ARTICLES_KEY, seeded);
+    store.set(ARTICLE_SEED_VERSION_KEY, ARTICLE_SEED_VERSION);
     return [...seeded];
   }
 
   list = migrateArticleTags(list);
+
+  // Refresh built-in posts when their text was changed in a newer release.
+  if (seedVersion !== ARTICLE_SEED_VERSION) {
+    list = refreshSeedArticles(list);
+    store.set(ARTICLE_SEED_VERSION_KEY, ARTICLE_SEED_VERSION);
+  }
 
   // Drop retired built-in posts that no longer exist in DEFAULT_ARTICLES.
   const activeSeedIds = new Set(DEFAULT_ARTICLES.map((a) => a.id));

@@ -81,10 +81,15 @@ const cloudState = (cls, label) => {
   if (t) t.textContent = label;
 };
 
+// ===== Cleanup: the Guides & Updates section was removed =====
+// Keys used by the old built-in posts. They are dropped from localStorage
+// and from the cloud sync table so no stale data is left behind.
+const RETIRED_ARTICLE_KEYS = ["siteArticles", "siteArticlesRemoved", "siteArticlesSeedVersion"];
+
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && !k.startsWith("oms_attempts_") && (
   k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
-  k === "siteReviews" || k === "siteArticles" || k === "siteUsers" ||
-  k === "siteArticlesRemoved" || k === "businessRegistrations" || k === "selectedBizPlan" ||
+  k === "siteReviews" || k === "siteUsers" ||
+  k === "businessRegistrations" || k === "selectedBizPlan" ||
   k.endsWith(":data"));
 
 const cloudPushRows = async (rows) => {
@@ -137,10 +142,16 @@ const cloudPull = async () => {
   }
   (data || []).forEach((row) => {
     try {
+      if (RETIRED_ARTICLE_KEYS.includes(row.key)) { localStorage.removeItem(row.key); return; }
       if (row.value === null || row.value === undefined) localStorage.removeItem(row.key);
       else localStorage.setItem(row.key, JSON.stringify(row.value));
     } catch {}
   });
+  // Remove cloud rows for the retired Guides & Updates posts.
+  try {
+    const old = (data || []).filter((r) => RETIRED_ARTICLE_KEYS.includes(r.key)).map((r) => r.key);
+    if (old.length) await sb.from(CLOUD_TABLE).delete().eq("user_id", cloudUser.id).in("key", old);
+  } catch {}
   cloudState("connected", "Synced ✓");
   return true;
 };
@@ -168,13 +179,6 @@ const cloudRestore = async () => {
     const ok = await cloudPull();
     cloudBusy = false;
     if (!ok) { cloudState("error", "Offline"); return false; }
-    // The cloud may still hold an older copy of the built-in posts.
-    // Bring it up to date and push the corrected list back.
-    if (typeof refreshSeedArticles === "function") {
-      const pulled = store.get(ARTICLES_KEY, null);
-      if (Array.isArray(pulled)) refreshSeedArticles(pulled);
-    }
-    if (typeof renderArticles === "function") renderArticles();
     // SECURITY: a signed-in session alone does NOT mean CEO.
     // The database decides, via the admins table (RLS limited to own row).
     const admin = await isCloudAdmin();
@@ -960,7 +964,6 @@ const setCeoSession = (value) => {
   } catch {}
   applyAccess();
   updateCeoStats();
-  renderArticles();
 };
 
 ceoLoginForm.addEventListener("submit", async (e) => {
@@ -3136,255 +3139,6 @@ if (reviewList) {
 
 renderReviews();
 
-// ===== Articles & Updates =====
-const ARTICLES_KEY = "siteArticles";
-const ARTICLES_PER_PAGE = 2;
-
-const articlesGrid = document.getElementById("articlesGrid");
-const articlesFilter = document.getElementById("articlesFilter");
-const articlesEmpty = document.getElementById("articlesEmpty");
-const articlesPager = document.getElementById("articlesPager");
-
-let activeArtFilter = "all";
-let artPage = 1;
-const expandedArticles = new Set();
-
-const DEFAULT_ARTICLES = [
-  {
-    id: "seed-7",
-    tag: "Guide",
-    title: "The Right Way to Track Daily Sales and Expenses",
-    body: "Accurate daily tracking is the foundation of a healthy business. Most owners lose profit not because sales are low, but because small expenses go unrecorded.\nFollow this simple routine:\n1. Record every sale the moment it happens, not at the end of the day.\n2. Note each expense immediately, including small items like tea, fuel and stationery.\n3. At closing time, compare total sales against total expenses.\n4. Review the difference weekly to spot patterns.\nWithin one month you will clearly see which days, products and staff members perform best. That insight alone often raises profit by 10 to 20 percent.\nTip: keep one person responsible for daily entry. Shared responsibility usually means no responsibility.",
-    at: "2026-09-15T09:00:00.000Z"
-  },
-  {
-    id: "seed-8",
-    tag: "Update",
-    title: "Online Management Site Is Live, Sign Up Free and Start Today",
-    body: "Online Management Site is now live and open for everyone.\nWhat you get with one free account:\n• Phone, tablet and computer, all from the same login.\n• Eight categories: clinic, academy, restaurant, general store, beauty salon, petrol pump, medical store and laboratory.\n• Twelve working modules in every category, covering bookings, staff, stock, billing and daily reports.\n• Everything saves on your device and syncs to the cloud on its own.\n• Works offline too, so a dropped connection never stops your work.\nHow to start:\n1. Click User Sign Up at the top of the page.\n2. Fill in your name, mobile number, email and city.\n3. Pick your business category and you are ready to go.\nThere is nothing to install and no setup fee. After signing up you can post a rating and a comment, so other owners can see how you are using the site.\nWelcome aboard.",
-    at: "2026-10-22T09:00:00.000Z"
-  },
-  {
-    id: "seed-9",
-    tag: "Guide",
-    title: "How to Manage Staff Shifts Without Confusion",
-    body: "Staff scheduling becomes simple when the rules are clear and written down.\nStart with these three steps:\n1. Fix a weekly pattern. The same people on the same days build a reliable routine.\n2. Record every shift swap in writing, with both names and the date.\n3. Check attendance against the schedule at the end of each week.\nWhen you keep this in one place, salary calculations take minutes instead of hours. Disputes about missed days also disappear, because the record speaks for itself.\nGood scheduling is not about trust. It is about clarity.",
-    at: "2026-09-11T09:00:00.000Z"
-  },
-  {
-    id: "seed-10",
-    tag: "Update",
-    title: "Faster Search, Instant Results Across All Records",
-    body: "Finding a record used to mean scrolling. Now it means typing.\nOur search has been upgraded:\n• Instant filtering as you type, no button to press.\n• Matches names, numbers, dates and notes in a single search.\n• Works across every category and every feature module.\n• Results stay accurate even with tens of thousands of entries.\nThis matters most on busy days. When a customer is waiting at the counter, two seconds saved on every lookup adds up to a smoother, calmer business.\nSearch is available everywhere in the dashboard, right where you need it.",
-    at: "2026-09-08T09:00:00.000Z"
-  },
-  {
-    id: "seed-11",
-    tag: "Guide",
-    title: "Avoid Stock Shortages Before They Cost You Sales",
-    body: "Running out of a fast selling item is one of the most expensive mistakes in retail. The customer does not wait. They buy elsewhere, and they often do not come back.\nA simple system prevents this:\n1. Write a minimum stock level for each product, based on how fast it sells.\n2. Check your stock list every morning before opening.\n3. Note the supplier's delivery time for each item.\n4. Order when stock reaches the minimum, not when it reaches zero.\nThe goal is not to hold more stock. The goal is to hold the right stock at the right time. That balance protects both your cash and your sales.",
-    at: "2026-09-04T09:00:00.000Z"
-  },
-  {
-    id: "seed-12",
-    tag: "Update",
-    title: "Backup and Restore: Your Records Are Now Safer",
-    body: "Data loss should never be a business risk. We have added a full backup and restore system.\nWhat you can now do:\n• Create a complete backup of all your records in one click.\n• Restore any backup to the same device or a new one.\n• Keep working offline, with changes saved and synced later.\n• See a clear status whenever your data has been secured.\nBackups run on the cloud and on your device at the same time. If one fails, the other still protects you.\nYour records are your business. We treat them that way.",
-    at: "2026-09-01T09:00:00.000Z"
-  },
-  {
-    id: "seed-13",
-    tag: "Update",
-    title: "Cloud Billing Is Replacing the Paper Counter Register",
-    body: "The paper counter register is quietly disappearing, and it is worth knowing why.\nWhat is changing:\n• Bills are generated and sent on the phone in seconds, not written by hand.\n• Stock, staff and sales update themselves the moment a bill is made.\n• The closing report appears on its own, so nothing is calculated at night.\n• Payment status shows live, so you know what is cleared and what is pending.\n• Records stay safe in the cloud and open on any device you own.\nWhat this means for a small business:\n1. Less time counting cash and correcting the register.\n2. Fewer wrong numbers, because the figures come from the sale itself.\n3. Better decisions, because you see today's sales instead of yesterday's guess.\nShopkeepers, clinics and restaurants that moved to cloud billing usually notice the difference in the first week. The month end work that used to take an evening now takes minutes.\nIf you are still closing the day with a paper register, this is the shift worth making now.",
-    at: "2026-10-20T09:00:00.000Z"
-  }
-];
-
-const ARTICLE_REMOVED_KEY = "siteArticlesRemoved";
-
-// Bump this whenever a built-in article's text changes.
-// Saved copies of built-in posts are refreshed to the new text on the next load,
-// so everyone (old and new visitors) sees the same posts.
-const ARTICLE_SEED_VERSION_KEY = "siteArticlesSeedVersion";
-const ARTICLE_SEED_VERSION = "2026-10-22-b";
-
-// Tips and News categories were removed — migrate any saved article using them.
-const TAG_MIGRATION = { Tips: "Guide", News: "Update" };
-
-const migrateArticleTags = (list) => {
-  let changed = false;
-  const out = list.map((a) => {
-    const next = TAG_MIGRATION[a.tag];
-    if (next) {
-      changed = true;
-      return Object.assign({}, a, { tag: next });
-    }
-    return a;
-  });
-  if (changed) store.set(ARTICLES_KEY, out);
-  return out;
-};
-
-// Refresh saved copies of built-in posts when their text was changed in a
-// newer release. Returns the refreshed list.
-const refreshSeedArticles = (list) => {
-  if (!Array.isArray(list)) return list;
-  const seeds = new Map(DEFAULT_ARTICLES.map((a) => [a.id, a]));
-  let refreshed = false;
-  const out = list.map((a) => {
-    const seed = seeds.get(a.id);
-    if (!seed) return a;
-    if (a.title === seed.title && a.body === seed.body && a.tag === seed.tag && a.at === seed.at) return a;
-    refreshed = true;
-    return { ...a, title: seed.title, body: seed.body, tag: seed.tag, at: seed.at };
-  });
-  if (refreshed) store.set(ARTICLES_KEY, out);
-  return out;
-};
-
-const loadArticles = () => {
-  const removed = store.get(ARTICLE_REMOVED_KEY, []);
-  const removedSet = new Set(Array.isArray(removed) ? removed : []);
-  let list = store.get(ARTICLES_KEY, null);
-  const seedVersion = store.get(ARTICLE_SEED_VERSION_KEY, "");
-
-  if (!Array.isArray(list)) {
-    const seeded = DEFAULT_ARTICLES.filter((a) => !removedSet.has(a.id));
-    store.set(ARTICLES_KEY, seeded);
-    store.set(ARTICLE_SEED_VERSION_KEY, ARTICLE_SEED_VERSION);
-    return [...seeded];
-  }
-
-  list = migrateArticleTags(list);
-
-  // Refresh built-in posts when their text was changed in a newer release.
-  if (seedVersion !== ARTICLE_SEED_VERSION) {
-    list = refreshSeedArticles(list);
-    store.set(ARTICLE_SEED_VERSION_KEY, ARTICLE_SEED_VERSION);
-  }
-
-  // Drop retired built-in posts that no longer exist in DEFAULT_ARTICLES.
-  const activeSeedIds = new Set(DEFAULT_ARTICLES.map((a) => a.id));
-  const pruned = list.filter((a) => {
-    if (!String(a.id).startsWith("seed-")) return true; // keep CEO-published posts
-    return activeSeedIds.has(a.id) && !removedSet.has(a.id);
-  });
-  if (pruned.length !== list.length) {
-    list = pruned;
-    store.set(ARTICLES_KEY, list);
-  }
-
-  // Merge any missing built-in articles (so new seed posts always appear),
-  // except the ones deliberately deleted.
-  const have = new Set(list.map((a) => a.id));
-  const missing = DEFAULT_ARTICLES.filter((a) => !have.has(a.id) && !removedSet.has(a.id));
-  if (missing.length) {
-    const merged = list.concat(missing);
-    store.set(ARTICLES_KEY, merged);
-    return merged;
-  }
-  return list;
-};
-
-const fmtArticleDate = (v) => {
-  const d = v ? new Date(v) : null;
-  if (!d || isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
-};
-
-const articleClip = (text, limit) => {
-  const clean = String(text || "").trim();
-  if (clean.length <= limit) return clean;
-  return clean.slice(0, limit).replace(/\s+\S*$/, "") + "…";
-};
-
-const renderArticles = () => {
-  if (!articlesGrid) return;
-  const all = loadArticles();
-
-  const filtered = (activeArtFilter === "all"
-    ? all
-    : all.filter((a) => (a.tag || "Guide") === activeArtFilter))
-    .slice()
-    .sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
-
-  const pages = Math.max(1, Math.ceil(filtered.length / ARTICLES_PER_PAGE));
-  if (artPage > pages) artPage = pages;
-  if (artPage < 1) artPage = 1;
-
-  const start = (artPage - 1) * ARTICLES_PER_PAGE;
-  const slice = filtered.slice(start, start + ARTICLES_PER_PAGE);
-
-  articlesGrid.innerHTML = slice.map((a) => {
-    const open = expandedArticles.has(a.id);
-    const body = open ? String(a.body || "") : articleClip(a.body, 300);
-    const canExpand = String(a.body || "").length > 300;
-    return `<article class="article-card" data-article-id="${escHtml(a.id)}">` +
-      `<div class="article-top">` +
-      `<span class="article-tag" data-tag="${escHtml(a.tag || "Guide")}">${escHtml(a.tag || "Guide")}</span>` +
-      `<span class="article-date">${fmtArticleDate(a.at)}</span>` +
-      `</div>` +
-      `<h3 class="article-title">${escHtml(a.title)}</h3>` +
-      `<p class="article-body">${escHtml(body)}</p>` +
-      `<div class="article-actions">` +
-      (canExpand ? `<button type="button" class="article-link" data-article-toggle="${escHtml(a.id)}">${open ? "Show less" : "Read more"}</button>` : "") +
-      `</div>` +
-      `</article>`;
-  }).join("");
-
-  if (articlesEmpty) articlesEmpty.hidden = filtered.length > 0;
-
-  if (articlesPager) {
-    if (pages <= 1) {
-      articlesPager.innerHTML = "";
-    } else {
-      let html = `<button type="button" class="page-nav" data-art-page="${artPage - 1}"${artPage === 1 ? " disabled" : ""} aria-label="Previous page">&lsaquo;</button>`;
-      for (let i = 1; i <= pages; i++) {
-        html += `<button type="button" class="page-dot${i === artPage ? " active" : ""}" data-art-page="${i}" aria-label="Page ${i}">${i}</button>`;
-      }
-      html += `<button type="button" class="page-nav" data-art-page="${artPage + 1}"${artPage === pages ? " disabled" : ""} aria-label="Next page">&rsaquo;</button>`;
-      articlesPager.innerHTML = html;
-    }
-  }
-};
-
-if (articlesFilter) {
-  articlesFilter.addEventListener("click", (e) => {
-    const btn = e.target.closest(".art-filter");
-    if (!btn) return;
-    activeArtFilter = btn.dataset.filter || "all";
-    artPage = 1;
-    articlesFilter.querySelectorAll(".art-filter").forEach((b) => b.classList.toggle("active", b === btn));
-    renderArticles();
-  });
-}
-
-if (articlesGrid) {
-  articlesGrid.addEventListener("click", (e) => {
-    const toggle = e.target.closest("[data-article-toggle]");
-    if (!toggle) return;
-    const id = toggle.getAttribute("data-article-toggle");
-    if (expandedArticles.has(id)) expandedArticles.delete(id);
-    else expandedArticles.add(id);
-    renderArticles();
-  });
-}
-
-if (articlesPager) {
-  articlesPager.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-art-page]");
-    if (!btn || btn.disabled) return;
-    const next = Number(btn.dataset.artPage);
-    if (!Number.isFinite(next) || next < 1 || next === artPage) return;
-    artPage = next;
-    renderArticles();
-    document.getElementById("articles")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-}
-
-renderArticles();
-
 // ===== Business Registration =====
 const REG_KEY = "businessRegistrations";
 const REG_PLAN_KEY = "selectedBizPlan";
@@ -4034,11 +3788,16 @@ applyRemovedKeys();
 customCats.forEach(buildCustomCategory);
 applyOwnerAvatar();
 
+// Drop any saved copies of the old built-in posts.
+const cleanupRetiredArticles = () => {
+  RETIRED_ARTICLE_KEYS.forEach((k) => { try { localStorage.removeItem(k); } catch {} });
+};
+cleanupRetiredArticles();
+
 refreshOwnerButton();
 applyAccess();
 initFeatureModules();
 updateFeatureBadges();
-renderArticles();
 
 // ===== Cloud: restore session, pull saved data, refresh UI =====
 (async () => {
@@ -4056,7 +3815,6 @@ renderArticles();
       initFeatureModules();
       updateFeatureBadges();
       updateCeoStats();
-      renderArticles();
       if (ceoLoggedIn && ceoUser) showCeoPanel();
       showToast(`Cloud data synced — welcome back, ${ceoUser.name}!`);
     }

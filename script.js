@@ -2958,6 +2958,7 @@ const renderReviews = () => {
     if (reviewAuthCta) reviewAuthCta.style.display = "none";
   } else if (revNameInput) {
     revNameInput.readOnly = false;
+    if (reviewAuthCta) reviewAuthCta.style.display = "block";
   }
   const list = getReviews();
   const total = list.length;

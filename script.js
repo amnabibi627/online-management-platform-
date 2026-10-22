@@ -220,14 +220,15 @@ mainNav.querySelectorAll(".nav-link").forEach((link) => {
 });
 
 // Active nav link on scroll
-const sections = [...document.querySelectorAll("section[id]")];
+const sections = [...document.querySelectorAll("section[id], #reviews")];
 const navLinks = [...mainNav.querySelectorAll(".nav-link")];
 
 const setActiveLink = () => {
-  const scrollPos = window.scrollY + 120;
+  const scrollPos = window.scrollY + 140;
   let current = "home";
   sections.forEach((section) => {
-    if (scrollPos >= section.offsetTop) current = section.id;
+    const top = section.getBoundingClientRect().top + window.scrollY;
+    if (scrollPos >= top) current = section.id;
   });
   navLinks.forEach((link) => {
     const href = link.getAttribute("href").replace("#", "");

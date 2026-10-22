@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260422h" />
+  <link rel="stylesheet" href="styles.css?v=20260422i" />
 </head>
 <body>
 
@@ -75,36 +75,48 @@
       </div>
     </section>
 
-    <!-- ========== BUSINESS REGISTRATION ========== -->
-    <section class="section biz-reg" id="business-registration">
+    <!-- ========== BUSINESS ADS (REGISTER + RUNNING ADS) ========== -->
+    <section class="section biz-ads" id="business-registration">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Register Your <span class="accent">Business</span></h2>
-          <p class="section-subtitle">Put your business in front of real customers on this website.</p>
+          <h2 class="section-title">Business <span class="accent">Ads</span></h2>
+          <p class="section-subtitle">Register your business on this website, then see every live ad running here.</p>
         </div>
 
-        <!-- Register card -->
-        <div class="reg-cta-card">
-          <div class="reg-cta-glow" aria-hidden="true"></div>
-          <div class="reg-cta-body">
-            <span class="reg-cta-badge">Open for all businesses</span>
-            <h3 class="reg-cta-title">Your Business Ad, Live on This Website</h3>
-            <p class="reg-cta-text">
-              Register your business once and your ad goes live for the plan you choose.
-              Adds your shop name, address, contact numbers, photos, videos and social links
-              in one place.
-            </p>
-            <ul class="reg-cta-list">
-              <li>Ad live from 15 days up to 1 full year</li>
-              <li>Your address and contact shown to customers</li>
-              <li>Photos, videos and social links attached</li>
-            </ul>
-            <div class="reg-cta-plans">
-              <span class="reg-cta-plan"><strong>2,500</strong> PKR / 15 Days</span>
-              <span class="reg-cta-plan popular"><strong>5,000</strong> PKR / 30 Days</span>
-              <span class="reg-cta-plan"><strong>60,000</strong> PKR / 1 Year</span>
+        <div class="ads-combo">
+          <!-- Left: register your business -->
+          <div class="ads-combo-reg">
+            <div class="reg-cta-card">
+              <div class="reg-cta-glow" aria-hidden="true"></div>
+              <div class="reg-cta-body">
+                <span class="reg-cta-badge">Open for all businesses</span>
+                <h3 class="reg-cta-title">Your Business Ad, Live on This Website</h3>
+                <p class="reg-cta-text">
+                  Register your business once and your ad goes live for the plan you choose.
+                  Adds your shop name, address, contact numbers, photos, videos and social links
+                  in one place.
+                </p>
+                <ul class="reg-cta-list">
+                  <li>Ad live from 15 days up to 1 full year</li>
+                  <li>Your address and contact shown to customers</li>
+                  <li>Photos, videos and social links attached</li>
+                </ul>
+                <div class="reg-cta-plans">
+                  <span class="reg-cta-plan"><strong>2,500</strong> PKR / 15 Days</span>
+                  <span class="reg-cta-plan popular"><strong>5,000</strong> PKR / 30 Days</span>
+                  <span class="reg-cta-plan"><strong>60,000</strong> PKR / 1 Year</span>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg reg-cta-btn" id="openRegForm">Register Now</button>
+              </div>
             </div>
-            <button type="button" class="btn btn-primary btn-lg reg-cta-btn" id="openRegForm">Register Now</button>
+          </div>
+
+          <!-- Right: running business ads -->
+          <div class="ads-combo-live" id="live-business-ads">
+            <h3 class="ads-combo-title">Running <span class="accent">Business Ads</span></h3>
+            <p class="ads-combo-sub">Live ads from businesses across Pakistan.</p>
+            <div class="fiverr-ads-grid" id="liveAdsGrid"></div>
+            <p class="live-ads-empty" id="liveAdsEmpty" hidden>No running ads yet.</p>
           </div>
         </div>
 
@@ -113,19 +125,6 @@
           <h3 class="reg-list-title">Your Submitted Registrations</h3>
           <div class="reg-list" id="regList"></div>
         </div>
-      </div>
-    </section>
-
-    <!-- ========== LIVE BUSINESS ADS ========== -->
-    <section class="section live-ads" id="live-business-ads">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">Running <span class="accent">Business Ads</span></h2>
-          <p class="section-subtitle">Browse live business ads from across Pakistan.</p>
-        </div>
-
-        <div class="fiverr-ads-grid" id="liveAdsGrid"></div>
-        <p class="live-ads-empty" id="liveAdsEmpty" hidden>No running ads yet.</p>
       </div>
     </section>
 
@@ -1453,8 +1452,8 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="anti-copy.js?v=20260422h"></script>
-  <script src="script.js?v=20260422h"></script>
-  <script src="liveads.js?v=20260422h"></script>
+  <script src="anti-copy.js?v=20260422i"></script>
+  <script src="script.js?v=20260422i"></script>
+  <script src="liveads.js?v=20260422i"></script>
 </body>
 </html>

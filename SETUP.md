@@ -25,6 +25,8 @@ Accounts are keyed by mobile number, so the app signs in with
 This creates:
 
 - `public.admins` — the CEO table (with RLS, so a user can only read their own row)
+- `public.site_profile` — the owner photo shown to every visitor (anyone can read
+  it, only an admin can write it)
 - locks down `public.app_data` (only the owner of a row can read or write it, and
   the anonymous role cannot insert anything)
 
@@ -116,7 +118,26 @@ payment is received.
 
 ---
 
-## 5. Housekeeping
+## 5. Owner photo (DP)
+
+The photo in the header circle is kept in three places, so it cannot disappear
+on its own:
+
+- `localStorage` — fast, on the device that picked it
+- IndexedDB `oms_media` — survives a cleared cache or a full `localStorage`
+- Supabase `app_data` row `ownerAvatar` — follows the owner to other devices
+
+When the CEO is signed in, the photo is also written to `public.site_profile`.
+That is the copy every visitor sees, so run the SQL from section 1.2 to create
+the table.
+
+Pick the photo from the header circle or from the Owner Details section. It is
+resized to 512 px and saved as a small JPEG, so it always fits and never slows
+the page down.
+
+---
+
+## 6. Housekeeping
 
 Things that still need a manual action once:
 
@@ -128,7 +149,7 @@ Things that still need a manual action once:
 
 ---
 
-## 6. Known limits
+## 7. Known limits
 
 - Anyone can still take a **screenshot** or **screen record**. Anti copy stops
   casual copying only.

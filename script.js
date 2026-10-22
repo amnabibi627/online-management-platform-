@@ -86,9 +86,20 @@ const cloudState = (cls, label) => {
 // and from the cloud sync table so no stale data is left behind.
 const RETIRED_ARTICLE_KEYS = ["siteArticles", "siteArticlesRemoved", "siteArticlesSeedVersion"];
 
+// ===== Owner profile photo (DP) =====
+// The photo used to live in localStorage only, so it could vanish on its own
+// (cleared site data, a full localStorage, another browser, another device).
+// It is kept in three places now - localStorage, IndexedDB and the cloud -
+// and any one of them can bring it back.
+const AVATAR_KEY = "ownerAvatar";
+const AVATAR_TABLE = "site_profile";
+const AVATAR_EDGE = 512; // longest side of the stored photo
+const avatarSrc = (v) => (!v ? "" : (typeof v === "string" ? v : v.v || ""));
+const avatarTime = (v) => (!v || typeof v === "string" ? 0 : Number(v.t) || 0);
+
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && !k.startsWith("oms_attempts_") && (
   k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
-  k === "siteReviews" || k === "siteUsers" ||
+  k === "siteReviews" || k === "siteUsers" || k === "ownerAvatar" ||
   k === "businessRegistrations" || k === "selectedBizPlan" ||
   k.endsWith(":data"));
 
@@ -143,6 +154,24 @@ const cloudPull = async () => {
   (data || []).forEach((row) => {
     try {
       if (RETIRED_ARTICLE_KEYS.includes(row.key)) { localStorage.removeItem(row.key); return; }
+      if (row.key === AVATAR_KEY) {
+        // The photo can be newer on one side than the other. Keep the newer
+        // copy and push it back up, so a photo is never reverted to an old one.
+        const local = store.get(AVATAR_KEY, null);
+        const localT = avatarTime(local);
+        const cloudT = avatarTime(row.value);
+        if (avatarSrc(local) && localT >= cloudT) {
+          if (localT > cloudT) {
+            sb.from(CLOUD_TABLE).upsert(
+              { user_id: cloudUser.id, key: AVATAR_KEY, value: local, updated_at: new Date().toISOString() },
+              { onConflict: "user_id,key" }
+            ).then(() => {}, () => {});
+          }
+          return;
+        }
+        localStorage.setItem(row.key, JSON.stringify(row.value));
+        return;
+      }
       if (row.value === null || row.value === undefined) localStorage.removeItem(row.key);
       else localStorage.setItem(row.key, JSON.stringify(row.value));
     } catch {}
@@ -1104,8 +1133,9 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       cloudBusy = true;
       const ok = await cloudPull();
       cloudBusy = false;
+      restoreOwnerAvatar().then((rec) => { if (rec) publishOwnerAvatar(rec); });
       showCeoPanel();
-      showToast(ok ? `Logged in — cloud data synced. Welcome back, ${ceoUser.name}!` : `Logged in — welcome back, ${ceoUser.name}!`);
+      showToast(ok ? `Logged in - cloud data synced. Welcome back, ${ceoUser.name}!` : `Logged in - welcome back, ${ceoUser.name}!`);
       return;
     }
 
@@ -2810,13 +2840,170 @@ document.addEventListener("keydown", (e) => {
 
 
 // ===== Owner profile photo (DP) upload =====
-const AVATAR_KEY = "ownerAvatar";
+// Three copies of the photo are kept: localStorage (fast), IndexedDB (survives
+// a wiped localStorage) and the cloud (follows the owner to other devices).
+const AVATAR_DB = "oms_media";
+const AVATAR_SHOP = "files";
+
 const ownerAvatarEl = document.getElementById("ownerAvatar");
 const ownerAvatarInput = document.getElementById("ownerAvatarInput");
 const headerAvatarEl = document.getElementById("headerAvatar");
 const headerAvatarInput = document.getElementById("headerAvatarInput");
 
-// Shared upload wiring: click → file picker → validate → save → refresh every avatar
+// --- IndexedDB backup, survives a cleared or full localStorage ---
+const avatarDB = () => new Promise((resolve, reject) => {
+  if (!window.indexedDB) { reject(new Error("IndexedDB not available")); return; }
+  const req = indexedDB.open(AVATAR_DB, 1);
+  req.onupgradeneeded = () => { try { req.result.createObjectStore(AVATAR_SHOP); } catch {} };
+  req.onsuccess = () => resolve(req.result);
+  req.onerror = () => reject(req.error);
+});
+
+const avatarDBPut = async (record) => {
+  try {
+    const db = await avatarDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(AVATAR_SHOP, "readwrite");
+      tx.objectStore(AVATAR_SHOP).put(record, AVATAR_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error);
+    });
+    db.close();
+  } catch (e) {
+    console.warn("Photo backup failed:", e);
+  }
+};
+
+const avatarDBGet = async () => {
+  try {
+    const db = await avatarDB();
+    const record = await new Promise((resolve, reject) => {
+      const tx = db.transaction(AVATAR_SHOP, "readonly");
+      const req = tx.objectStore(AVATAR_SHOP).get(AVATAR_KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
+    });
+    db.close();
+    return record;
+  } catch {
+    return null;
+  }
+};
+
+// --- Shrink the picked photo ---
+// A 2 MB phone photo becomes a ~50 KB JPEG, so it always fits in localStorage
+// and goes up to the cloud without any trouble.
+const shrinkPhoto = (file) => new Promise((resolve) => {
+  const reader = new FileReader();
+  reader.onerror = () => resolve(null);
+  reader.onload = () => {
+    const img = new Image();
+    img.onerror = () => resolve(null);
+    img.onload = () => {
+      const long = Math.max(img.width, img.height) || 1;
+      const scale = Math.min(1, AVATAR_EDGE / long);
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, w, h);
+      ctx.drawImage(img, 0, 0, w, h);
+      let out = "";
+      try { out = cv.toDataURL("image/jpeg", 0.86); } catch {}
+      if (!out) { try { out = cv.toDataURL("image/png"); } catch {} }
+      resolve(out || null);
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// --- Show the photo in every avatar spot ---
+const applyOwnerAvatar = (value) => {
+  const src = avatarSrc(value !== undefined ? value : store.get(AVATAR_KEY, null));
+  const css = src ? `url("${src}")` : "";
+  if (ownerAvatarEl) {
+    ownerAvatarEl.style.backgroundImage = css;
+    ownerAvatarEl.classList.toggle("has-photo", !!src);
+  }
+  if (headerAvatarEl) {
+    headerAvatarEl.style.backgroundImage = css;
+    headerAvatarEl.classList.toggle("has-photo", !!src);
+  }
+};
+
+// --- Save the photo everywhere at once ---
+const saveOwnerAvatar = async (src) => {
+  const record = { v: src, t: Date.now() };
+  try {
+    localStorage.setItem(AVATAR_KEY, JSON.stringify(record));
+  } catch (e) {
+    console.warn("Photo save failed:", e);
+    showToast("Photo could not be saved, browser storage is full.", true);
+    return null;
+  }
+  await avatarDBPut(record);
+  cloudPut(AVATAR_KEY, record);
+  applyOwnerAvatar(record);
+  return record;
+};
+
+// --- The site wide copy, every visitor sees the owner photo ---
+const publishOwnerAvatar = async (record) => {
+  if (!sb || !cloudUser || !ceoLoggedIn) return;
+  try {
+    const { error } = await sb.from(AVATAR_TABLE).upsert(
+      { id: "owner", photo: record.v, saved_at: record.t, updated_at: new Date().toISOString() },
+      { onConflict: "id" }
+    );
+    if (error) console.warn("Photo publish failed:", error.message);
+  } catch (e) {
+    console.warn("Photo publish failed:", e);
+  }
+};
+
+let avatarTableOk = null; // null = not checked yet, false = table not there
+const fetchOwnerAvatar = async () => {
+  if (!sb || avatarTableOk === false) return null;
+  try {
+    const { data, error } = await sb
+      .from(AVATAR_TABLE)
+      .select("photo,saved_at")
+      .eq("id", "owner")
+      .maybeSingle();
+    if (error) { avatarTableOk = false; return null; }
+    avatarTableOk = true;
+    if (!data || !data.photo) return null;
+    return { v: data.photo, t: Number(data.saved_at) || 0 };
+  } catch {
+    avatarTableOk = false;
+    return null;
+  }
+};
+
+// --- Bring the photo back if it went missing on its own ---
+const restoreOwnerAvatar = async () => {
+  const local = store.get(AVATAR_KEY, null);
+  const legacy = typeof local === "string" ? local : "";
+  const backup = await avatarDBGet();
+  const published = await fetchOwnerAvatar();
+  const candidates = [];
+  if (legacy) candidates.push({ v: legacy, t: Date.now() });
+  else if (local && avatarSrc(local)) candidates.push(local);
+  if (backup && avatarSrc(backup)) candidates.push(backup);
+  if (published && avatarSrc(published)) candidates.push(published);
+  const best = candidates.sort((a, b) => avatarTime(b) - avatarTime(a))[0] || null;
+  if (!best) { applyOwnerAvatar(null); return null; }
+  try { localStorage.setItem(AVATAR_KEY, JSON.stringify(best)); } catch {}
+  await avatarDBPut(best);
+  applyOwnerAvatar(best);
+  return best;
+};
+
+// Shared upload wiring: click → file picker → shrink → save → refresh every avatar
 const initAvatarUpload = (el, input) => {
   if (!el || !input) return;
   const open = () => input.click();
@@ -2824,34 +3011,20 @@ const initAvatarUpload = (el, input) => {
   el.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
   });
-  input.addEventListener("change", () => {
+  input.addEventListener("change", async () => {
     const file = input.files && input.files[0];
-    if (!file) return;
-    if (!/^image\//.test(file.type)) { showToast("Please choose an image file.", true); input.value = ""; return; }
-    if (file.size > 2 * 1024 * 1024) { showToast("Image too large — please use under 2 MB.", true); input.value = ""; return; }
-    const reader = new FileReader();
-    reader.onload = () => {
-      store.set(AVATAR_KEY, reader.result);
-      applyOwnerAvatar();
-      showToast("Profile photo updated!");
-    };
-    reader.onerror = () => showToast("Could not read that image.", true);
-    reader.readAsDataURL(file);
     input.value = "";
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { showToast("Please choose an image file.", true); return; }
+    if (file.size > 10 * 1024 * 1024) { showToast("Image too large, please pick a smaller photo.", true); return; }
+    showToast("Saving photo...");
+    const src = await shrinkPhoto(file);
+    if (!src) { showToast("Could not read that image.", true); return; }
+    const record = await saveOwnerAvatar(src);
+    if (!record) return;
+    showToast("Profile photo updated!");
+    publishOwnerAvatar(record);
   });
-};
-
-const applyOwnerAvatar = () => {
-  const data = store.get(AVATAR_KEY, null);
-  const css = data ? `url(${data})` : "";
-  if (ownerAvatarEl) {
-    ownerAvatarEl.style.backgroundImage = css;
-    ownerAvatarEl.classList.toggle("has-photo", !!data);
-  }
-  if (headerAvatarEl) {
-    headerAvatarEl.style.backgroundImage = css;
-    headerAvatarEl.classList.toggle("has-photo", !!data);
-  }
 };
 
 initAvatarUpload(headerAvatarEl, headerAvatarInput);
@@ -3786,7 +3959,7 @@ const applyRemovedKeys = () => {
 
 applyRemovedKeys();
 customCats.forEach(buildCustomCategory);
-applyOwnerAvatar();
+restoreOwnerAvatar();
 
 // Drop any saved copies of the old built-in posts.
 const cleanupRetiredArticles = () => {
@@ -3815,6 +3988,7 @@ updateFeatureBadges();
       initFeatureModules();
       updateFeatureBadges();
       updateCeoStats();
+      restoreOwnerAvatar();
       if (ceoLoggedIn && ceoUser) showCeoPanel();
       showToast(`Cloud data synced — welcome back, ${ceoUser.name}!`);
     }

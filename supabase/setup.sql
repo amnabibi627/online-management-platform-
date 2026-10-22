@@ -51,7 +51,30 @@ create policy "app_data_own_all" on public.app_data
 drop policy if exists "app_data_anon_all" on public.app_data;
 
 -- ------------------------------------------------------------
--- 3. Make your own account the CEO
+-- 3. Public site profile (the owner's photo shown to everyone)
+--    Anyone may read it, only an admin may write it.
+-- ------------------------------------------------------------
+create table if not exists public.site_profile (
+  id         text primary key,
+  photo      text not null,
+  saved_at   bigint not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.site_profile enable row level security;
+
+drop policy if exists "site_profile_read_all" on public.site_profile;
+create policy "site_profile_read_all" on public.site_profile
+  for select to public using (true);
+
+drop policy if exists "site_profile_write_admin" on public.site_profile;
+create policy "site_profile_write_admin" on public.site_profile
+  for all to authenticated
+  using (exists (select 1 from public.admins a where a.user_id = auth.uid()))
+  with check (exists (select 1 from public.admins a where a.user_id = auth.uid()));
+
+-- ------------------------------------------------------------
+-- 4. Make your own account the CEO
 --    Put YOUR email below (this is the email you used in the
 --    app: your mobile number + @bms.app, e.g. 03042954627@bms.app)
 -- ------------------------------------------------------------
@@ -64,7 +87,7 @@ on conflict (user_id) do nothing;
 -- select user_id, email, role from public.admins;
 
 -- ------------------------------------------------------------
--- 4. Extra hardening
+-- 5. Extra hardening
 -- ------------------------------------------------------------
 -- Block anon sign-ups (run only if you do NOT want random visitors
 -- to create accounts). Owners/CEO still sign in with their account.

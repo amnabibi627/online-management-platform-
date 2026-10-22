@@ -2869,11 +2869,14 @@ const portfolioClose = document.getElementById("portfolioClose");
 const PORTFOLIO_URL = portfolioFrame ? portfolioFrame.dataset.src : "";
 
 if (portfolioToggle && ownerPortfolio && portfolioFrame) {
+  let frameReady = false;
   const setEmpty = (open) => {
+    frameReady = false;
     portfolioFrame.src = open ? PORTFOLIO_URL : "about:blank";
   };
 
   portfolioFrame.addEventListener("load", () => {
+    frameReady = true;
     if (portfolioLoader) portfolioLoader.hidden = true;
   });
 
@@ -2886,15 +2889,25 @@ if (portfolioToggle && ownerPortfolio && portfolioFrame) {
     portfolioToggle.textContent = open ? "Hide Portfolio" : "View Portfolio";
     setEmpty(open);
     if (open) {
-      if (portfolioLoader) portfolioLoader.hidden = false;
-      // Some hosts block embedding — fall back to opening in a new tab.
+      if (portfolioLoader) {
+        portfolioLoader.hidden = false;
+        portfolioLoader.textContent = "Loading portfolio…";
+      }
+      // Some hosts block embedding (CSP / X-Frame-Options) — fall back to opening in a new tab.
       setTimeout(() => {
-        let blocked = false;
-        try { blocked = !portfolioFrame.contentWindow; } catch { blocked = true; }
-        if (blocked && portfolioLoader) {
-          portfolioLoader.textContent = "This portfolio can't be embedded here — use “Open in new tab”.";
-        }
-      }, 2500);
+        if (frameReady || !portfolioLoader) return;
+        portfolioLoader.textContent = "";
+        const msg = document.createElement("span");
+        msg.textContent = "This portfolio can't be shown here. ";
+        const link = document.createElement("a");
+        link.href = PORTFOLIO_URL;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.className = "portfolio-link";
+        link.textContent = "Open in new tab ↗";
+        msg.appendChild(link);
+        portfolioLoader.appendChild(msg);
+      }, 6000);
       ownerPortfolio.scrollIntoView({ behavior: "smooth", block: "nearest" });
       showToast("Loading Amna Bibi's portfolio…");
     }
@@ -2926,8 +2939,6 @@ const revNameInput = document.getElementById("revName");
 const revTextInput = document.getElementById("revText");
 const revNameErr = document.getElementById("revNameErr");
 const revRatingErr = document.getElementById("revRatingErr");
-const reviewAuthCta = document.getElementById("reviewAuthCta");
-const reviewNeedSignupBtn = document.getElementById("reviewNeedSignupBtn");
 
 let pickedRating = 0;
 
@@ -2951,15 +2962,6 @@ const paintStars = (value) => {
 
 const renderReviews = () => {
   if (!reviewList) return;
-  // Auto-fill the name when a user is signed in, hide the signup prompt.
-  if (currentUser && currentUser.name && revNameInput) {
-    revNameInput.value = currentUser.name;
-    revNameInput.readOnly = true;
-    if (reviewAuthCta) reviewAuthCta.style.display = "none";
-  } else if (revNameInput) {
-    revNameInput.readOnly = false;
-    if (reviewAuthCta) reviewAuthCta.style.display = "block";
-  }
   const list = getReviews();
   const total = list.length;
   const sum = list.reduce((n, r) => n + (Number(r.rating) || 0), 0);
@@ -2986,12 +2988,11 @@ const renderReviews = () => {
   }
 
   const isCEO = !!(ceoMode && ceoUser);
-  const myMobile = currentUser ? currentUser.mobile : "";
 
   const sorted = [...list].sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
   reviewList.innerHTML = sorted.map((r) => {
     const initial = escHtml(String(r.name || "?").trim().charAt(0).toUpperCase());
-    const canDelete = isCEO || (myMobile && r.mobile === myMobile);
+    const canDelete = isCEO;
     return `<div class="review-item" data-review-id="${escHtml(r.id)}">` +
       `<div class="review-item-head">` +
       `<span class="review-avatar">${initial}</span>` +
@@ -3026,22 +3027,7 @@ if (starPicker) {
   starPicker.addEventListener("mouseleave", () => paintStars(pickedRating));
 }
 
-if (reviewNeedSignupBtn) {
-  reviewNeedSignupBtn.addEventListener("click", () => {
-    if (typeof openUserModal === "function") {
-      openUserModal(currentUser ? "active" : "signup");
-    }
-  });
-}
-
 if (revNameInput) {
-  revNameInput.addEventListener("input", () => {
-    if (owner && owner.name) {
-      if (reviewAuthCta) reviewAuthCta.style.display = "none";
-      return;
-    }
-    if (reviewAuthCta) reviewAuthCta.style.display = "none";
-  });
   revNameInput.addEventListener("focus", () => {
     if (currentUser && currentUser.name) return;
     if (typeof openUserModal === "function") {
@@ -3067,7 +3053,7 @@ if (reviewForm) {
       if (typeof openUserModal === "function") openUserModal("signup");
       return;
     }
-    const name = String(currentUser.name || revNameInput.value || "").trim();
+    const name = String(revNameInput.value || "").trim();
     const text = String(revTextInput.value || "").trim();
     let ok = true;
 
@@ -3098,8 +3084,6 @@ if (reviewForm) {
     store.set(REVIEWS_KEY, list);
 
     reviewForm.reset();
-    if (revNameInput && currentUser) revNameInput.value = currentUser.name || "";
-    if (reviewAuthCta) reviewAuthCta.style.display = "none";
     pickedRating = 0;
     paintStars(0);
     renderReviews();
@@ -3122,10 +3106,9 @@ if (reviewList) {
     const list = getReviews();
     const item = list.find((r) => r.id === id);
     if (!item) return;
-    const isOwnerOfReview = !!(currentUser && item.mobile && item.mobile === currentUser.mobile);
     const isCEO = !!(ceoMode && ceoUser);
-    if (!isOwnerOfReview && !isCEO) {
-      showToast("You can only delete your own review.", true);
+    if (!isCEO) {
+      showToast("Only the CEO can delete a review.", true);
       return;
     }
     if (!confirm(`Delete review by "${item.name}"?`)) return;

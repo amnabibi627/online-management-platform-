@@ -478,8 +478,10 @@ body.detail-open { overflow: hidden; }
 .portfolio-loader[hidden] { display: none; }
 
 @media (max-width: 700px) {
-  .portfolio-frame-wrap iframe { height: 480px; }
+  .portfolio-frame-wrap iframe { height: 70vh; min-height: 420px; }
   .portfolio-head { padding: 0.6rem 0.7rem; }
+  .portfolio-head-actions { width: 100%; justify-content: space-between; }
+  .portfolio-loader { font-size: 0.85rem; padding: 0 1rem; text-align: center; }
 }
 
 /* ========== Ratings & Comments ========== */
@@ -526,7 +528,7 @@ body.detail-open { overflow: hidden; }
   width: 100%; font-family: inherit; font-size: 0.92rem; color: var(--ink);
   padding: 0.65rem 0.9rem; border: 1.5px solid var(--border); border-radius: 10px;
   background: #fff; outline: none; transition: border-color 0.18s, box-shadow 0.18s;
-  resize: vertical;
+  resize: none;
 }
 .review-form input[type="text"]:focus,
 .review-form textarea:focus { border-color: var(--pink); box-shadow: 0 0 0 3px rgba(233, 30, 140, 0.1); }

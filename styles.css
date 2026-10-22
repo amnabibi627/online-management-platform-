@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   /* ---- Professional Corporate Theme ---- */
   --pink: #2563eb;           /* primary blue */
   --pink-dark: #1d4ed8;      /* primary hover */
@@ -80,7 +80,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .brand-avatar.has-photo { color: transparent; }
 .header-avatar-hint,
 .brand-avatar::after {
-  content: "Ã°Å¸â€œÂ·";
+  content: "ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â·";
   position: absolute; inset: auto 0 0 0;
   height: 15px; font-size: 0.55rem;
   display: grid; place-items: center;
@@ -423,7 +423,7 @@ body.detail-open { overflow: hidden; }
 
 .plan-card ul { list-style: none; margin-bottom: 1.6rem; flex: 1; }
 .plan-card li { padding: 0.45rem 0 0.45rem 1.5rem; position: relative; color: var(--muted); font-size: 0.95rem; }
-.plan-card li::before { content: "Ã¢Å“â€œ"; position: absolute; left: 0; color: var(--pink); font-weight: 700; }
+.plan-card li::before { content: "ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“"; position: absolute; left: 0; color: var(--pink); font-weight: 700; }
 
 /* ---------- Promotions ---------- */
 .promo-banner {
@@ -796,7 +796,7 @@ body.detail-open { overflow: hidden; }
 .industry-card { position: relative; }
 .industry-card.locked { opacity: 0.55; filter: grayscale(0.5); }
 .industry-card.locked::after {
-  content: "Ã°Å¸â€â€™"; position: absolute; top: 0.9rem; right: 1rem; font-size: 1.05rem;
+  content: "ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ¢â‚¬â„¢"; position: absolute; top: 0.9rem; right: 1rem; font-size: 1.05rem;
 }
 .industry-card.allowed { border-color: var(--pink); }
 
@@ -1320,7 +1320,7 @@ body {
 }
 
 /* ========== Business Registration ========== */
-.biz-reg { background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%); }
+.biz-reg { background: #ffffff; }
 
 /* --- Business Ads: register + running ads in one section --- */
 .ads-combo {
@@ -1396,7 +1396,7 @@ body {
   font-size: 0.88rem; color: var(--muted); line-height: 1.5;
 }
 .reg-cta-list li::before {
-  content: "Ã¢Å“â€œ"; position: absolute; left: 0; top: 0;
+  content: "ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“"; position: absolute; left: 0; top: 0;
   color: var(--pink); font-weight: 800;
 }
 .reg-cta-plans {
@@ -1548,7 +1548,7 @@ body {
 .pay-contact {
   display: flex; align-items: center; justify-content: space-between; gap: 1.2rem;
   flex-wrap: wrap; margin-top: 1rem;
-  background: linear-gradient(135deg, #ffffff, #ffffff);
+  background: #ffffff;
   border: 1.5px solid var(--pink); border-radius: 16px;
   padding: 1.3rem 1.4rem;
   box-shadow: 0 10px 26px rgba(37, 99, 235, 0.11);
@@ -1722,7 +1722,7 @@ body {
 }
 
 /* ========== LIVE BUSINESS ADS (Fiverr style) ========== */
-.live-ads { background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%); }
+.live-ads { background: #ffffff; }
 .fiverr-ads-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1746,7 +1746,7 @@ body {
 }
 .fiverr-cover {
   height: 110px;
-  background: radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 70%), linear-gradient(135deg, #ffffff, #ffffff);
+  background: radial-gradient(circle at top, rgba(37, 99, 235, 0.22), transparent 70%), linear-gradient(135deg, #e0eaff, #f0f4ff);
   position: relative;
 }
 .fiverr-logo {
@@ -1881,7 +1881,7 @@ body {
 }
 .fiverr-gig-thumb {
   height: 180px;
-  background: #ffffff;
+  background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 50%, #eef2ff 100%);
   position: relative;
 }
 .fiverr-gig-thumb-inner {
@@ -2086,6 +2086,7 @@ button img,
     grid-template-columns: 1fr;
   }
 }
+
 
 
 

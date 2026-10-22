@@ -847,6 +847,66 @@ body.detail-open { overflow: hidden; }
 }
 
 
+/* ---------- Ultra Clean Overrides ---------- */
+.site-header {
+  background: #0b1026 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+body {
+  background: #fbfbfd !important;
+  color: #111827 !important;
+}
+.main-nav {
+  background: transparent !important;
+  border: 0 !important;
+}
+.nav-link {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+.nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.nav-link.active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+}
+.btn-primary {
+  background: #1a56db !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.btn-primary:hover {
+  background: #1849c6 !important;
+}
+.site-header .btn-outline {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: transparent !important;
+}
+.site-header .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.section,
+.biz-ads,
+.reviews-section,
+.owner-details,
+.industries {
+  background: #ffffff !important;
+  border-top: 1px solid #edeef2 !important;
+}
+.hero {
+  background: #fbfbfd !important;
+  border-bottom: 1px solid #edeef2 !important;
+}
+.site-footer {
+  background: #ffffff !important;
+  border-top: 1px solid #edeef2 !important;
+}
+
 /* ---------- Feature panels (per detail-card CRUD) ---------- */
 .detail-card { cursor: pointer; }
 

@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260422k" />
+  <link rel="stylesheet" href="styles.css?v=20260422l" />
 </head>
 <body>
 
@@ -73,238 +73,6 @@
         </div>
       </div>
     </section>
-
-    <!-- ========== BUSINESS ADS (REGISTER + RUNNING ADS) ========== -->
-    <section class="section biz-ads" id="business-registration">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">Business <span class="accent">Ads</span></h2>
-          <p class="section-subtitle">Register your business on this website, then see every live ad running here.</p>
-        </div>
-
-        <div class="ads-combo">
-          <!-- Left: register your business -->
-          <div class="ads-combo-reg">
-            <div class="reg-cta-card">
-              <div class="reg-cta-glow" aria-hidden="true"></div>
-              <div class="reg-cta-body">
-                <span class="reg-cta-badge">Open for all businesses</span>
-                <h3 class="reg-cta-title">Your Business Ad, Live on This Website</h3>
-                <p class="reg-cta-text">
-                  Register your business once and your ad goes live for the plan you choose.
-                  Adds your shop name, address, contact numbers, photos, videos and social links
-                  in one place.
-                </p>
-                <ul class="reg-cta-list">
-                  <li>Ad live from 15 days up to 1 full year</li>
-                  <li>Your address and contact shown to customers</li>
-                  <li>Photos, videos and social links attached</li>
-                </ul>
-                <div class="reg-cta-plans">
-                  <span class="reg-cta-plan"><strong>2,500</strong> PKR / 15 Days</span>
-                  <span class="reg-cta-plan popular"><strong>5,000</strong> PKR / 30 Days</span>
-                  <span class="reg-cta-plan"><strong>60,000</strong> PKR / 1 Year</span>
-                </div>
-                <button type="button" class="btn btn-primary btn-lg reg-cta-btn" id="openRegForm">Register Now</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: running business ads -->
-          <div class="ads-combo-live" id="live-business-ads">
-            <h3 class="ads-combo-title">Running <span class="accent">Business Ads</span></h3>
-            <p class="ads-combo-sub">Live ads from businesses across Pakistan.</p>
-            <div class="fiverr-ads-grid" id="liveAdsGrid"></div>
-            <p class="live-ads-empty" id="liveAdsEmpty" hidden>No running ads yet.</p>
-          </div>
-        </div>
-
-        <!-- Submitted registrations (visible to the owner of this browser) -->
-        <div class="reg-list-wrap" id="regListWrap" hidden>
-          <h3 class="reg-list-title">Your Submitted Registrations</h3>
-          <div class="reg-list" id="regList"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========== BUSINESS REGISTRATION FORM (modal) ========== -->
-    <div class="reg-modal" id="regModal" aria-hidden="true">
-      <div class="reg-modal-box" role="dialog" aria-modal="true" aria-labelledby="regModalTitle">
-        <button class="reg-modal-close" type="button" id="regModalClose" aria-label="Close">&times;</button>
-
-        <div class="reg-modal-head">
-          <h3 class="reg-form-title-modal" id="regModalTitle">Register Your Business</h3>
-          <p class="reg-modal-sub">Pick a plan, fill the details and submit. All fields are required except social links.</p>
-        </div>
-
-        <form class="reg-form" id="regForm" novalidate>
-          <!-- Plans -->
-          <h3 class="reg-form-title">Choose Your Plan</h3>
-          <div class="plan-mini-grid" id="planGrid">
-            <button type="button" class="plan-mini" data-plan="15days" data-price="2500" data-label="15 Days">
-              <span class="plan-mini-name">15 Days</span>
-              <span class="plan-mini-price"><strong>2,500</strong> PKR</span>
-              <span class="plan-mini-note">Short run</span>
-            </button>
-            <button type="button" class="plan-mini featured" data-plan="30days" data-price="5000" data-label="30 Days">
-              <span class="plan-mini-ribbon">Popular</span>
-              <span class="plan-mini-name">30 Days</span>
-              <span class="plan-mini-price"><strong>5,000</strong> PKR</span>
-              <span class="plan-mini-note">Best for regular ads</span>
-            </button>
-            <button type="button" class="plan-mini" data-plan="1year" data-price="60000" data-label="1 Year">
-              <span class="plan-mini-name">1 Year</span>
-              <span class="plan-mini-price"><strong>60,000</strong> PKR</span>
-              <span class="plan-mini-note">Best value</span>
-            </button>
-          </div>
-          <span class="field-error" id="regPlanErr"></span>
-
-          <!-- Business info -->
-          <h3 class="reg-form-title">Business Details</h3>
-
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regBizName">Business Name</label>
-              <input type="text" id="regBizName" name="regBizName" placeholder="Write your business name here." maxlength="60" />
-              <span class="field-error" id="regBizNameErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regOwnerName">Owner Name</label>
-              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Write the owner name here." maxlength="50" />
-              <span class="field-error" id="regOwnerNameErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regMobile">Mobile Number</label>
-              <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 03123456789" maxlength="15" />
-              <span class="field-error" id="regMobileErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regWhatsapp">WhatsApp Number</label>
-              <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="e.g. 03123456789" maxlength="15" />
-              <span class="field-error" id="regWhatsappErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regCategory">Business Category</label>
-              <select id="regCategory" name="regCategory">
-                <option value="">Select a category</option>
-                <option value="Clinic">Clinic</option>
-                <option value="Academy">Academy</option>
-                <option value="Restaurant">Restaurant</option>
-                <option value="General Store">General Store</option>
-                <option value="Beauty Salon">Beauty Salon</option>
-                <option value="Petrol Pump">Petrol Pump</option>
-                <option value="Medical Store">Medical Store</option>
-                <option value="Laboratory">Laboratory</option>
-                <option value="Other">Other</option>
-              </select>
-              <span class="field-error" id="regCategoryErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regCity">City</label>
-              <input type="text" id="regCity" name="regCity" placeholder="Write your city here." maxlength="40" />
-              <span class="field-error" id="regCityErr"></span>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="regAddress">Full Address</label>
-            <input type="text" id="regAddress" name="regAddress" placeholder="Shop number, street, area." maxlength="120" />
-            <span class="field-error" id="regAddressErr"></span>
-          </div>
-
-          <div class="field">
-            <label for="regAbout">About Your Business</label>
-            <textarea id="regAbout" name="regAbout" rows="2" placeholder="Write a short description of your business." maxlength="300"></textarea>
-            <span class="field-error" id="regAboutErr"></span>
-          </div>
-
-          <div class="field">
-            <label for="regTiming">Opening Hours</label>
-            <input type="text" id="regTiming" name="regTiming" placeholder="e.g. 9:00 AM to 10:00 PM" maxlength="60" />
-            <span class="field-error" id="regTimingErr"></span>
-          </div>
-
-          <!-- Social + media -->
-          <h3 class="reg-form-title">Social Links &amp; Media <span class="reg-optional">Optional</span></h3>
-
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regWebsite">Business Website</label>
-              <input type="text" id="regWebsite" name="regWebsite" placeholder="Paste your website link here." maxlength="200" />
-              <span class="field-error" id="regWebsiteErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regFacebook">Facebook Page</label>
-              <input type="text" id="regFacebook" name="regFacebook" placeholder="Paste your Facebook link here." maxlength="200" />
-              <span class="field-error" id="regFacebookErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regInstagram">Instagram Profile</label>
-              <input type="text" id="regInstagram" name="regInstagram" placeholder="Paste your Instagram link here." maxlength="200" />
-              <span class="field-error" id="regInstagramErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regTiktok">TikTok Profile</label>
-              <input type="text" id="regTiktok" name="regTiktok" placeholder="Paste your TikTok link here." maxlength="200" />
-              <span class="field-error" id="regTiktokErr"></span>
-            </div>
-          </div>
-
-          <div class="reg-media">
-            <div class="media-box">
-              <label class="media-label" for="regPhotos">Profile Photos</label>
-              <input type="file" id="regPhotos" name="regPhotos" accept="image/*" multiple />
-              <div class="media-preview" id="regPhotoPreview"></div>
-            </div>
-            <div class="media-box">
-              <label class="media-label" for="regVideos">Business Videos</label>
-              <input type="file" id="regVideos" name="regVideos" accept="video/*" multiple />
-              <div class="media-preview" id="regVideoPreview"></div>
-            </div>
-          </div>
-          <p class="reg-media-note" id="regMediaNote">Photos and videos are sent on WhatsApp after submitting.</p>
-
-          <!-- Payment -->
-          <h3 class="reg-form-title">Payment</h3>
-          <div class="reg-plan-summary" id="regPlanSummary">
-            <span class="reg-plan-none">No plan selected yet.</span>
-          </div>
-
-          <div class="pay-contact">
-            <div class="pay-contact-info">
-              <span class="pay-contact-label">For ad run, send payment by contacting the owner</span>
-              <a class="pay-contact-number" href="https://wa.me/923042954627" target="_blank" rel="noopener">0304 295 4627</a>
-              <span class="pay-contact-sub">Above the number it says: For ad run, send payment by contacting the owner.</span>
-            </div>
-            <a class="btn btn-primary pay-contact-btn" href="https://wa.me/923042954627" target="_blank" rel="noopener">Contact Owner</a>
-          </div>
-
-          <div class="reg-before-submit">
-            <p>Submit the form first. After that, contact the owner to send payment for your ad. When you send payment to the owner, your ad will become active and run.</p>
-          </div>
-
-          <label class="reg-terms">
-            <input type="checkbox" id="regTerms" name="regTerms" />
-            <span>I confirm the details are correct and I will contact the owner to send the payment for ad run.</span>
-          </label>
-          <span class="field-error" id="regTermsErr"></span>
-
-          <div class="reg-actions">
-            <button type="submit" class="btn btn-primary btn-lg">Submit Registration</button>
-            <button type="reset" class="btn btn-outline btn-lg" id="regReset">Clear Form</button>
-          </div>
-        </form>
-      </div>
-    </div>
 
     <!-- ========== 3. INDUSTRY CATEGORIES ========== -->
     <section class="section industries" id="industries">
@@ -1003,26 +771,237 @@
 
 
 
-    <!-- ========== GUIDE & UPDATES ========== -->
-    <section class="section articles" id="articles">
+    <!-- ========== BUSINESS ADS (REGISTER + RUNNING ADS) ========== -->
+    <section class="section biz-ads" id="business-registration">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Guides &amp; <span class="accent">Updates</span></h2>
-          <p class="section-subtitle">Practical guides and the latest updates, written to help you run your business better.</p>
+          <h2 class="section-title">Business <span class="accent">Ads</span></h2>
+          <p class="section-subtitle">Register your business on this website, then see every live ad running here.</p>
         </div>
 
-        <div class="articles-filter" id="articlesFilter">
-          <button type="button" class="art-filter active" data-filter="all">All</button>
-          <button type="button" class="art-filter" data-filter="Guide">Guide</button>
-          <button type="button" class="art-filter" data-filter="Update">Updates</button>
+        <div class="ads-combo">
+          <!-- Left: register your business -->
+          <div class="ads-combo-reg">
+            <div class="reg-cta-card">
+              <div class="reg-cta-glow" aria-hidden="true"></div>
+              <div class="reg-cta-body">
+                <span class="reg-cta-badge">Open for all businesses</span>
+                <h3 class="reg-cta-title">Your Business Ad, Live on This Website</h3>
+                <p class="reg-cta-text">
+                  Register your business once and your ad goes live for the plan you choose.
+                  Adds your shop name, address, contact numbers, photos, videos and social links
+                  in one place.
+                </p>
+                <ul class="reg-cta-list">
+                  <li>Ad live from 15 days up to 1 full year</li>
+                  <li>Your address and contact shown to customers</li>
+                  <li>Photos, videos and social links attached</li>
+                </ul>
+                <div class="reg-cta-plans">
+                  <span class="reg-cta-plan"><strong>2,500</strong> PKR / 15 Days</span>
+                  <span class="reg-cta-plan popular"><strong>5,000</strong> PKR / 30 Days</span>
+                  <span class="reg-cta-plan"><strong>60,000</strong> PKR / 1 Year</span>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg reg-cta-btn" id="openRegForm">Register Now</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: running business ads -->
+          <div class="ads-combo-live" id="live-business-ads">
+            <h3 class="ads-combo-title">Running <span class="accent">Business Ads</span></h3>
+            <p class="ads-combo-sub">Live ads from businesses across Pakistan.</p>
+            <div class="fiverr-ads-grid" id="liveAdsGrid"></div>
+            <p class="live-ads-empty" id="liveAdsEmpty" hidden>No running ads yet.</p>
+          </div>
         </div>
 
-        <div class="articles-grid" id="articlesGrid"></div>
-        <div class="articles-empty" id="articlesEmpty" hidden>No posts in this category yet.</div>
-
-        <div class="articles-pager" id="articlesPager"></div>
+        <!-- Submitted registrations (visible to the owner of this browser) -->
+        <div class="reg-list-wrap" id="regListWrap" hidden>
+          <h3 class="reg-list-title">Your Submitted Registrations</h3>
+          <div class="reg-list" id="regList"></div>
+        </div>
       </div>
     </section>
+
+    <!-- ========== BUSINESS REGISTRATION FORM (modal) ========== -->
+    <div class="reg-modal" id="regModal" aria-hidden="true">
+      <div class="reg-modal-box" role="dialog" aria-modal="true" aria-labelledby="regModalTitle">
+        <button class="reg-modal-close" type="button" id="regModalClose" aria-label="Close">&times;</button>
+
+        <div class="reg-modal-head">
+          <h3 class="reg-form-title-modal" id="regModalTitle">Register Your Business</h3>
+          <p class="reg-modal-sub">Pick a plan, fill the details and submit. All fields are required except social links.</p>
+        </div>
+
+        <form class="reg-form" id="regForm" novalidate>
+          <!-- Plans -->
+          <h3 class="reg-form-title">Choose Your Plan</h3>
+          <div class="plan-mini-grid" id="planGrid">
+            <button type="button" class="plan-mini" data-plan="15days" data-price="2500" data-label="15 Days">
+              <span class="plan-mini-name">15 Days</span>
+              <span class="plan-mini-price"><strong>2,500</strong> PKR</span>
+              <span class="plan-mini-note">Short run</span>
+            </button>
+            <button type="button" class="plan-mini featured" data-plan="30days" data-price="5000" data-label="30 Days">
+              <span class="plan-mini-ribbon">Popular</span>
+              <span class="plan-mini-name">30 Days</span>
+              <span class="plan-mini-price"><strong>5,000</strong> PKR</span>
+              <span class="plan-mini-note">Best for regular ads</span>
+            </button>
+            <button type="button" class="plan-mini" data-plan="1year" data-price="60000" data-label="1 Year">
+              <span class="plan-mini-name">1 Year</span>
+              <span class="plan-mini-price"><strong>60,000</strong> PKR</span>
+              <span class="plan-mini-note">Best value</span>
+            </button>
+          </div>
+          <span class="field-error" id="regPlanErr"></span>
+
+          <!-- Business info -->
+          <h3 class="reg-form-title">Business Details</h3>
+
+          <div class="reg-grid">
+            <div class="field">
+              <label for="regBizName">Business Name</label>
+              <input type="text" id="regBizName" name="regBizName" placeholder="Write your business name here." maxlength="60" />
+              <span class="field-error" id="regBizNameErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regOwnerName">Owner Name</label>
+              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Write the owner name here." maxlength="50" />
+              <span class="field-error" id="regOwnerNameErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regMobile">Mobile Number</label>
+              <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 03123456789" maxlength="15" />
+              <span class="field-error" id="regMobileErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regWhatsapp">WhatsApp Number</label>
+              <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="e.g. 03123456789" maxlength="15" />
+              <span class="field-error" id="regWhatsappErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regCategory">Business Category</label>
+              <select id="regCategory" name="regCategory">
+                <option value="">Select a category</option>
+                <option value="Clinic">Clinic</option>
+                <option value="Academy">Academy</option>
+                <option value="Restaurant">Restaurant</option>
+                <option value="General Store">General Store</option>
+                <option value="Beauty Salon">Beauty Salon</option>
+                <option value="Petrol Pump">Petrol Pump</option>
+                <option value="Medical Store">Medical Store</option>
+                <option value="Laboratory">Laboratory</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="field-error" id="regCategoryErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regCity">City</label>
+              <input type="text" id="regCity" name="regCity" placeholder="Write your city here." maxlength="40" />
+              <span class="field-error" id="regCityErr"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="regAddress">Full Address</label>
+            <input type="text" id="regAddress" name="regAddress" placeholder="Shop number, street, area." maxlength="120" />
+            <span class="field-error" id="regAddressErr"></span>
+          </div>
+
+          <div class="field">
+            <label for="regAbout">About Your Business</label>
+            <textarea id="regAbout" name="regAbout" rows="2" placeholder="Write a short description of your business." maxlength="300"></textarea>
+            <span class="field-error" id="regAboutErr"></span>
+          </div>
+
+          <div class="field">
+            <label for="regTiming">Opening Hours</label>
+            <input type="text" id="regTiming" name="regTiming" placeholder="e.g. 9:00 AM to 10:00 PM" maxlength="60" />
+            <span class="field-error" id="regTimingErr"></span>
+          </div>
+
+          <!-- Social + media -->
+          <h3 class="reg-form-title">Social Links &amp; Media <span class="reg-optional">Optional</span></h3>
+
+          <div class="reg-grid">
+            <div class="field">
+              <label for="regWebsite">Business Website</label>
+              <input type="text" id="regWebsite" name="regWebsite" placeholder="Paste your website link here." maxlength="200" />
+              <span class="field-error" id="regWebsiteErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regFacebook">Facebook Page</label>
+              <input type="text" id="regFacebook" name="regFacebook" placeholder="Paste your Facebook link here." maxlength="200" />
+              <span class="field-error" id="regFacebookErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regInstagram">Instagram Profile</label>
+              <input type="text" id="regInstagram" name="regInstagram" placeholder="Paste your Instagram link here." maxlength="200" />
+              <span class="field-error" id="regInstagramErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regTiktok">TikTok Profile</label>
+              <input type="text" id="regTiktok" name="regTiktok" placeholder="Paste your TikTok link here." maxlength="200" />
+              <span class="field-error" id="regTiktokErr"></span>
+            </div>
+          </div>
+
+          <div class="reg-media">
+            <div class="media-box">
+              <label class="media-label" for="regPhotos">Profile Photos</label>
+              <input type="file" id="regPhotos" name="regPhotos" accept="image/*" multiple />
+              <div class="media-preview" id="regPhotoPreview"></div>
+            </div>
+            <div class="media-box">
+              <label class="media-label" for="regVideos">Business Videos</label>
+              <input type="file" id="regVideos" name="regVideos" accept="video/*" multiple />
+              <div class="media-preview" id="regVideoPreview"></div>
+            </div>
+          </div>
+          <p class="reg-media-note" id="regMediaNote">Photos and videos are sent on WhatsApp after submitting.</p>
+
+          <!-- Payment -->
+          <h3 class="reg-form-title">Payment</h3>
+          <div class="reg-plan-summary" id="regPlanSummary">
+            <span class="reg-plan-none">No plan selected yet.</span>
+          </div>
+
+          <div class="pay-contact">
+            <div class="pay-contact-info">
+              <span class="pay-contact-label">For ad run, send payment by contacting the owner</span>
+              <a class="pay-contact-number" href="https://wa.me/923042954627" target="_blank" rel="noopener">0304 295 4627</a>
+              <span class="pay-contact-sub">Above the number it says: For ad run, send payment by contacting the owner.</span>
+            </div>
+            <a class="btn btn-primary pay-contact-btn" href="https://wa.me/923042954627" target="_blank" rel="noopener">Contact Owner</a>
+          </div>
+
+          <div class="reg-before-submit">
+            <p>Submit the form first. After that, contact the owner to send payment for your ad. When you send payment to the owner, your ad will become active and run.</p>
+          </div>
+
+          <label class="reg-terms">
+            <input type="checkbox" id="regTerms" name="regTerms" />
+            <span>I confirm the details are correct and I will contact the owner to send the payment for ad run.</span>
+          </label>
+          <span class="field-error" id="regTermsErr"></span>
+
+          <div class="reg-actions">
+            <button type="submit" class="btn btn-primary btn-lg">Submit Registration</button>
+            <button type="reset" class="btn btn-outline btn-lg" id="regReset">Clear Form</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- ========== OWNER DETAILS ========== -->
     <section class="section owner-details" id="owner-details">
@@ -1138,6 +1117,27 @@
         </div>
       </div>
     </section>
+    <!-- ========== GUIDE & UPDATES ========== -->
+    <section class="section articles" id="articles">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">Guides &amp; <span class="accent">Updates</span></h2>
+          <p class="section-subtitle">Practical guides and the latest updates, written to help you run your business better.</p>
+        </div>
+
+        <div class="articles-filter" id="articlesFilter">
+          <button type="button" class="art-filter active" data-filter="all">All</button>
+          <button type="button" class="art-filter" data-filter="Guide">Guide</button>
+          <button type="button" class="art-filter" data-filter="Update">Updates</button>
+        </div>
+
+        <div class="articles-grid" id="articlesGrid"></div>
+        <div class="articles-empty" id="articlesEmpty" hidden>No posts in this category yet.</div>
+
+        <div class="articles-pager" id="articlesPager"></div>
+      </div>
+    </section>
+
   </main>
 
   <!-- ========== USER SIGN UP / LOGIN MODAL ========== -->
@@ -1451,8 +1451,8 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="anti-copy.js?v=20260422k"></script>
-  <script src="script.js?v=20260422k"></script>
-  <script src="liveads.js?v=20260422k"></script>
+  <script src="anti-copy.js?v=20260422l"></script>
+  <script src="script.js?v=20260422l"></script>
+  <script src="liveads.js?v=20260422l"></script>
 </body>
 </html>

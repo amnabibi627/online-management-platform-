@@ -313,7 +313,13 @@ body.detail-open { overflow: hidden; }
 /* ---------- Portals ---------- */
 .portals { background: linear-gradient(180deg, #fff0f7, #ffe6f2); }
 
-.portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.6rem; }
+.portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.6rem; }
+
+@media (min-width: 1200px) {
+  .portal-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 
 .portal-card {
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);

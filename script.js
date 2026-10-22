@@ -83,7 +83,7 @@ const cloudState = (cls, label) => {
 
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && !k.startsWith("oms_attempts_") && (
   k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
-  k === "siteReviews" || k === "siteArticles" ||
+  k === "siteReviews" || k === "siteArticles" || k === "siteUsers" ||
   k === "siteArticlesRemoved" || k === "businessRegistrations" || k === "selectedBizPlan" ||
   k.endsWith(":data"));
 
@@ -298,6 +298,16 @@ const registered = new Set();
 
 document.querySelectorAll(".portal-card:not([data-portal='owner'])").forEach((card) => {
   const portal = card.dataset.portal;
+  if (portal === "ceo") {
+    const button = card.querySelector(".portal-btn");
+    if (button) {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (typeof openCeoModal === "function") openCeoModal();
+      });
+    }
+    return;
+  }
   const label = portal.charAt(0).toUpperCase() + portal.slice(1);
   const button = card.querySelector(".portal-btn");
 
@@ -339,6 +349,30 @@ const loadOwner = () => {
   try { return JSON.parse(localStorage.getItem("ownerAccount")); } catch { return null; }
 };
 let owner = loadOwner();
+
+// ===== User accounts (for reviews & comments) =====
+const USERS_KEY = "siteUsers";
+const USER_SESSION_KEY = "siteUserSession";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
+const loadUser = () => {
+  try { return JSON.parse(localStorage.getItem(USER_SESSION_KEY)); } catch { return null; }
+};
+let currentUser = loadUser();
+
+const getUsers = () => {
+  const list = store.get(USERS_KEY, []);
+  return Array.isArray(list) ? list : [];
+};
+
+const saveUserSession = (u) => {
+  currentUser = u;
+  try {
+    if (u) localStorage.setItem(USER_SESSION_KEY, JSON.stringify(u));
+    else localStorage.removeItem(USER_SESSION_KEY);
+  } catch {}
+};
+
 
 const setError = (f, msg) => {
   f.err.textContent = msg || "";
@@ -398,6 +432,186 @@ const closeOwnerModal = () => {
   ownerModal.classList.remove("open");
   ownerModal.setAttribute("aria-hidden", "true");
 };
+
+// ===== User Sign Up / Login modal =====
+const userModal = document.getElementById("userModal");
+const userForm = document.getElementById("userForm");
+const userSignupFields = document.getElementById("userSignupFields");
+const userLoginFields = document.getElementById("userLoginFields");
+const userActiveBox = document.getElementById("userActiveBox");
+const userModalTitle = document.getElementById("userModalTitle");
+const userModalSub = document.getElementById("userModalSub");
+const userSubmit = document.getElementById("userSubmit");
+const userModeToggle = document.getElementById("userModeToggle");
+const userLogout = document.getElementById("userLogout");
+
+const uFields = {
+  name: { input: document.getElementById("ufName"), err: document.getElementById("ufNameErr") },
+  mobile: { input: document.getElementById("ufMobile"), err: document.getElementById("ufMobileErr") },
+  email: { input: document.getElementById("ufEmail"), err: document.getElementById("ufEmailErr") },
+  city: { input: document.getElementById("ufCity"), err: document.getElementById("ufCityErr") },
+  pass: { input: document.getElementById("ufPass"), err: document.getElementById("ufPassErr") },
+  pass2: { input: document.getElementById("ufPass2"), err: document.getElementById("ufPass2Err") },
+  loginMobile: { input: document.getElementById("ufLoginMobile"), err: document.getElementById("ufLoginMobileErr") },
+  loginPass: { input: document.getElementById("ufLoginPass"), err: document.getElementById("ufLoginPassErr") },
+};
+
+let userModalMode = "signup"; // "signup" | "login" | "active"
+
+const setUserError = (f, msg) => {
+  if (!f || !f.err) return;
+  f.err.textContent = msg || "";
+  if (f.input) f.input.classList.toggle("invalid", !!msg);
+};
+
+const openUserModal = (mode) => {
+  userModalMode = mode || (currentUser ? "active" : "signup");
+  Object.values(uFields).forEach((f) => setUserError(f, ""));
+
+  if (userModalMode === "active" && currentUser) {
+    userModalTitle.textContent = "Your Account";
+    userModalSub.textContent = "You are signed in. Thanks for being part of Online Management Site.";
+    if (userActiveBox) userActiveBox.hidden = false;
+    userForm.hidden = true;
+    const nm = document.getElementById("userActiveName");
+    const mb = document.getElementById("userActiveMobile");
+    const ct = document.getElementById("userActiveCity");
+    if (nm) nm.textContent = currentUser.name || "User";
+    if (mb) mb.textContent = currentUser.mobile || "—";
+    if (ct) ct.textContent = currentUser.city || "—";
+  } else {
+    const isSignup = userModalMode === "signup";
+    userModalTitle.textContent = isSignup ? "Create Your Account" : "Welcome Back";
+    userModalSub.textContent = isSignup
+      ? "Sign up to post reviews and comment on this website."
+      : "Enter your registered mobile number and password to log in.";
+    if (userActiveBox) userActiveBox.hidden = true;
+    userForm.hidden = false;
+    userSignupFields.hidden = !isSignup;
+    userLoginFields.hidden = isSignup;
+    userSubmit.textContent = isSignup ? "Create Account" : "Login";
+    if (userModeToggle) {
+      userModeToggle.textContent = isSignup
+        ? "Already have an account? Login here"
+        : "Need a new account? Sign Up here";
+    }
+    userForm.reset();
+  }
+
+  userModal.classList.add("open");
+  userModal.setAttribute("aria-hidden", "false");
+  if (typeof renderReviews === "function") renderReviews();
+};
+
+const closeUserModal = () => {
+  userModal.classList.remove("open");
+  userModal.setAttribute("aria-hidden", "true");
+};
+
+if (userModeToggle) {
+  userModeToggle.addEventListener("click", (e) => {
+    e.preventDefault();
+    openUserModal(userModalMode === "signup" ? "login" : "signup");
+  });
+}
+
+if (userLogout) {
+  userLogout.addEventListener("click", () => {
+    saveUserSession(null);
+    closeUserModal();
+    showToast("Logged out.");
+    if (typeof renderReviews === "function") renderReviews();
+  });
+}
+
+document.getElementById("userModalClose").addEventListener("click", closeUserModal);
+userModal.addEventListener("click", (e) => { if (e.target === userModal) closeUserModal(); });
+
+if (userForm) {
+  userForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (userModalMode === "signup") {
+      const name = String(uFields.name.input.value || "").trim();
+      const mobile = normMobile(uFields.mobile.input.value);
+      const email = String(uFields.email.input.value || "").trim().toLowerCase();
+      const city = String(uFields.city.input.value || "").trim();
+      const pass = String(uFields.pass.input.value || "");
+      const pass2 = String(uFields.pass2.input.value || "");
+      let ok = true;
+
+      if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
+      else setUserError(uFields.name, "");
+      if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid number, e.g. 03123456789."); ok = false; }
+      else setUserError(uFields.mobile, "");
+      if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address."); ok = false; }
+      else setUserError(uFields.email, "");
+      if (city.length < 2) { setUserError(uFields.city, "Enter your city."); ok = false; }
+      else setUserError(uFields.city, "");
+      if (pass.length < 8) { setUserError(uFields.pass, "Password must be at least 8 characters."); ok = false; }
+      else setUserError(uFields.pass, "");
+      if (pass !== pass2) { setUserError(uFields.pass2, "Both passwords must match."); ok = false; }
+      else setUserError(uFields.pass2, "");
+
+      if (!ok) { showToast("Please fix the highlighted fields.", true); return; }
+
+      const users = getUsers();
+      if (users.some((u) => u.mobile === mobile)) {
+        setUserError(uFields.mobile, "This number is already registered. Please login.");
+        showToast("This number is already registered. Please login.", true);
+        return;
+      }
+      if (users.some((u) => u.email === email)) {
+        setUserError(uFields.email, "This email is already registered. Please login.");
+        showToast("This email is already registered. Please login.", true);
+        return;
+      }
+
+      const blocked = rateMsg("user");
+      if (blocked) { showToast(blocked, true); return; }
+
+      const passHash = await sha256Hex(pass);
+      const rec = { name, mobile, email, city, passHash, at: new Date().toISOString() };
+      users.push(rec);
+      store.set(USERS_KEY, users);
+      saveUserSession({ name, mobile, email, city });
+      clearAttempts("user");
+      closeUserModal();
+      showToast(`Account created successfully. Welcome, ${name}!`);
+      if (typeof renderReviews === "function") renderReviews();
+      return;
+    }
+
+    // ---------- Login ----------
+    const mobile = normMobile(uFields.loginMobile.input.value);
+    const pass = String(uFields.loginPass.input.value || "");
+    if (!MOBILE_RE.test(mobile)) { setUserError(uFields.loginMobile, "Enter a valid number, e.g. 03123456789."); showToast("Login failed — invalid mobile number.", true); return; }
+    if (!pass) { setUserError(uFields.loginPass, "Enter your password."); showToast("Login failed — password required.", true); return; }
+    const blocked = rateMsg("user");
+    if (blocked) { setUserError(uFields.loginPass, blocked); showToast(blocked, true); return; }
+
+    const matched = getUsers().find((u) => u.mobile === mobile);
+    if (!matched) {
+      logAttempt("user");
+      setUserError(uFields.loginMobile, "This number is not registered. Please sign up.");
+      showToast("Login failed — number not registered.", true);
+      return;
+    }
+    if (!(await hashMatches(pass, matched.passHash))) {
+      logAttempt("user");
+      setUserError(uFields.loginPass, "Wrong password.");
+      showToast("Login failed — wrong password.", true);
+      return;
+    }
+    clearAttempts("user");
+    setUserError(uFields.loginMobile, "");
+    setUserError(uFields.loginPass, "");
+    saveUserSession({ name: matched.name, mobile: matched.mobile, email: matched.email, city: matched.city });
+    closeUserModal();
+    showToast(`Logged in successfully. Welcome back, ${matched.name}!`);
+    if (typeof renderReviews === "function") renderReviews();
+  });
+}
 
 const refreshOwnerButton = () => {
   if (ownerBtn) ownerBtn.textContent = owner ? "Owner Account" : "Owner Sign Up";
@@ -565,6 +779,8 @@ let removedKeys = store.get("removedKeys", []);
 let customCats = store.get("customCats", []);
 
 const ceoBtn = document.getElementById("ceoBtn");
+const ceoSignupBtn = document.getElementById("ceoSignupBtn");
+const userSignupHeaderBtn = document.getElementById("userSignupHeaderBtn");
 const ceoModal = document.getElementById("ceoModal");
 const ceoLogin = document.getElementById("ceoLogin");
 const ceoPanel = document.getElementById("ceoPanel");
@@ -901,6 +1117,37 @@ const closeCeoModal = () => {
 };
 
 ceoBtn.addEventListener("click", openCeoModal);
+if (userSignupHeaderBtn) {
+  userSignupHeaderBtn.addEventListener("click", () => {
+    if (typeof openUserModal === "function") {
+      openUserModal(currentUser ? "active" : "signup");
+    }
+  });
+}
+if (ceoSignupBtn) {
+  ceoSignupBtn.addEventListener("click", () => {
+    if (typeof openCeoModal === "function") {
+      openCeoModal();
+      setTimeout(() => {
+        if (typeof setCeoLoginMode === "function" && ceoLogin && !ceoUser) {
+          setCeoLoginMode();
+          ceoLogin.hidden = false;
+          ceoPanel.hidden = true;
+        }
+      }, 60);
+    }
+  });
+}
+
+const heroChooseCategoryBtn = document.getElementById("heroChooseCategoryBtn");
+if (heroChooseCategoryBtn) {
+  heroChooseCategoryBtn.addEventListener("click", () => {
+    const industries = document.getElementById("industries");
+    if (industries) {
+      industries.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+}
 document.getElementById("ceoClose").addEventListener("click", closeCeoModal);
 ceoModal.addEventListener("click", (e) => { if (e.target === ceoModal) closeCeoModal(); });
 document.addEventListener("keydown", (e) => {
@@ -2659,6 +2906,8 @@ const revNameInput = document.getElementById("revName");
 const revTextInput = document.getElementById("revText");
 const revNameErr = document.getElementById("revNameErr");
 const revRatingErr = document.getElementById("revRatingErr");
+const reviewAuthCta = document.getElementById("reviewAuthCta");
+const reviewNeedSignupBtn = document.getElementById("reviewNeedSignupBtn");
 
 let pickedRating = 0;
 
@@ -2682,6 +2931,14 @@ const paintStars = (value) => {
 
 const renderReviews = () => {
   if (!reviewList) return;
+  // Auto-fill the name when a user is signed in, hide the signup prompt.
+  if (currentUser && currentUser.name && revNameInput) {
+    revNameInput.value = currentUser.name;
+    revNameInput.readOnly = true;
+    if (reviewAuthCta) reviewAuthCta.style.display = "none";
+  } else if (revNameInput) {
+    revNameInput.readOnly = false;
+  }
   const list = getReviews();
   const total = list.length;
   const sum = list.reduce((n, r) => n + (Number(r.rating) || 0), 0);
@@ -2707,9 +2964,13 @@ const renderReviews = () => {
     return;
   }
 
+  const isCEO = !!(ceoMode && ceoUser);
+  const myMobile = currentUser ? currentUser.mobile : "";
+
   const sorted = [...list].sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
   reviewList.innerHTML = sorted.map((r) => {
     const initial = escHtml(String(r.name || "?").trim().charAt(0).toUpperCase());
+    const canDelete = isCEO || (myMobile && r.mobile === myMobile);
     return `<div class="review-item" data-review-id="${escHtml(r.id)}">` +
       `<div class="review-item-head">` +
       `<span class="review-avatar">${initial}</span>` +
@@ -2718,7 +2979,7 @@ const renderReviews = () => {
       `<span class="review-date">${fmtReviewDate(r.at)}</span>` +
       `</div>` +
       (r.text ? `<p class="review-comment">${escHtml(r.text)}</p>` : "") +
-      `<button type="button" class="review-del" data-review-del="${escHtml(r.id)}" title="Delete review" aria-label="Delete review">&times;</button>` +
+      (canDelete ? `<button type="button" class="review-del" data-review-del="${escHtml(r.id)}" title="Delete review" aria-label="Delete review">&times;</button>` : "") +
       `</div>`;
   }).join("");
 };
@@ -2744,10 +3005,48 @@ if (starPicker) {
   starPicker.addEventListener("mouseleave", () => paintStars(pickedRating));
 }
 
+if (reviewNeedSignupBtn) {
+  reviewNeedSignupBtn.addEventListener("click", () => {
+    if (typeof openUserModal === "function") {
+      openUserModal(currentUser ? "active" : "signup");
+    }
+  });
+}
+
+if (revNameInput) {
+  revNameInput.addEventListener("input", () => {
+    if (owner && owner.name) {
+      if (reviewAuthCta) reviewAuthCta.style.display = "none";
+      return;
+    }
+    if (reviewAuthCta) reviewAuthCta.style.display = "none";
+  });
+  revNameInput.addEventListener("focus", () => {
+    if (currentUser && currentUser.name) return;
+    if (typeof openUserModal === "function") {
+      openUserModal("signup");
+      revNameInput.blur();
+      return;
+    }
+  });
+  revNameInput.addEventListener("click", () => {
+    if (currentUser && currentUser.name) return;
+    if (typeof openUserModal === "function") {
+      openUserModal("signup");
+      revNameInput.blur();
+    }
+  });
+}
+
 if (reviewForm) {
   reviewForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const name = String(revNameInput.value || "").trim();
+    if (!currentUser || !currentUser.name) {
+      showToast("Please sign up or login first to post a review.", true);
+      if (typeof openUserModal === "function") openUserModal("signup");
+      return;
+    }
+    const name = String(currentUser.name || revNameInput.value || "").trim();
     const text = String(revTextInput.value || "").trim();
     let ok = true;
 
@@ -2772,11 +3071,14 @@ if (reviewForm) {
       id: newEntryId(),
       name, text,
       rating: pickedRating,
-      at: new Date().toISOString()
+      at: new Date().toISOString(),
+      mobile: currentUser.mobile || ""
     });
     store.set(REVIEWS_KEY, list);
 
     reviewForm.reset();
+    if (revNameInput && currentUser) revNameInput.value = currentUser.name || "";
+    if (reviewAuthCta) reviewAuthCta.style.display = "none";
     pickedRating = 0;
     paintStars(0);
     renderReviews();
@@ -2799,6 +3101,12 @@ if (reviewList) {
     const list = getReviews();
     const item = list.find((r) => r.id === id);
     if (!item) return;
+    const isOwnerOfReview = !!(currentUser && item.mobile && item.mobile === currentUser.mobile);
+    const isCEO = !!(ceoMode && ceoUser);
+    if (!isOwnerOfReview && !isCEO) {
+      showToast("You can only delete your own review.", true);
+      return;
+    }
     if (!confirm(`Delete review by "${item.name}"?`)) return;
     store.set(REVIEWS_KEY, list.filter((r) => r.id !== id));
     renderReviews();

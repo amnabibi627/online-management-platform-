@@ -44,6 +44,7 @@
       </nav>
 
       <div class="header-actions">
+        <button type="button" class="btn btn-outline" id="userSignupHeaderBtn">User Sign Up</button>
         <button type="button" class="btn btn-primary" id="ceoBtn">CEO Account</button>
         <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
           <span></span><span></span><span></span>
@@ -68,7 +69,8 @@
           manage daily work, bookings and reports in one place.
         </p>
         <div class="hero-actions">
-          <a href="#portals" class="btn btn-primary btn-lg">Choose Your Account</a>
+          <button type="button" class="btn btn-primary btn-lg" id="heroChooseCategoryBtn">Choose Your Category</button>
+          <a href="#business-registration" class="btn btn-outline btn-lg">Register Your Business</a>
         </div>
       </div>
     </section>
@@ -1001,50 +1003,7 @@
       </div>
     </div>
 
-    <!-- ========== 4. PORTALS SECTION ========== -->
-    <section class="section portals" id="portals">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">Three Portals, <span class="accent">One Simple System</span></h2>
-          <p class="section-subtitle">
-            Owners manage the business, staff handle the daily work, and customers stay
-            connected. Everything runs from one place.
-          </p>
-        </div>
 
-        <div class="portal-grid">
-          <article class="portal-card" data-portal="owner">
-            <div class="portal-icon">👑</div>
-            <h3>Owner Account</h3>
-            <p>
-              See your sales, expenses and staff performance.
-              All from one dashboard.
-            </p>
-            <button class="btn btn-primary portal-btn" data-action="toggle">Owner Sign Up</button>
-          </article>
-
-          <article class="portal-card featured" data-portal="staff">
-            <div class="portal-icon">🧑‍💼</div>
-            <h3>Staff Account</h3>
-            <p>
-              Mark attendance, update tasks and manage bookings. Everything your
-              daily work needs.
-            </p>
-            <button class="btn btn-primary portal-btn" data-action="toggle">Staff Sign Up</button>
-          </article>
-
-          <article class="portal-card" data-portal="customer">
-            <div class="portal-icon">🛍️</div>
-            <h3>Customer Account</h3>
-            <p>
-              Book an appointment, place an order or check your past records.
-              Quickly and easily.
-            </p>
-            <button class="btn btn-primary portal-btn" data-action="toggle">Customer Sign Up</button>
-          </article>
-        </div>
-      </div>
-    </section>
 
     <!-- ========== GUIDE & UPDATES ========== -->
     <section class="section articles" id="articles">
@@ -1152,8 +1111,12 @@
             <div class="review-form-row">
               <div class="field">
                 <label for="revName">Your Name</label>
-                <input type="text" id="revName" name="revName" placeholder="Write your name here." maxlength="40" />
+                <input type="text" id="revName" name="revName" placeholder="Write your name here." maxlength="40" autocomplete="name" />
                 <span class="field-error" id="revNameErr"></span>
+                <div class="review-auth-cta" id="reviewAuthCta" style="display:none;margin-top:0.5rem;">
+                  <button type="button" class="btn btn-outline btn-sm" id="reviewNeedSignupBtn">Sign up to post review</button>
+                </div>
+                <p class="review-hint" style="margin:0.35rem 0 0;font-size:0.78rem;color:var(--muted);">You need an account to post a rating &amp; comment. Sign up or login from the top button.</p>
               </div>
               <div class="field">
                 <label>Your Rating</label>
@@ -1182,6 +1145,89 @@
       </div>
     </section>
   </main>
+
+  <!-- ========== USER SIGN UP / LOGIN MODAL ========== -->
+  <div class="owner-modal" id="userModal" aria-hidden="true">
+    <div class="owner-modal-box">
+      <button class="modal-close" id="userModalClose" aria-label="Close">&times;</button>
+      <div class="modal-icon">👤</div>
+      <h3 id="userModalTitle">Create Your Account</h3>
+      <p class="modal-sub" id="userModalSub">Sign up to post reviews and comment on this website.</p>
+
+      <!-- Signed in view -->
+      <div id="userActiveBox" hidden>
+        <div class="ceo-stats" style="margin-bottom:1rem;">
+          <div class="ceo-stat"><span>Name</span><strong id="userActiveName">—</strong></div>
+          <div class="ceo-stat"><span>Mobile</span><strong id="userActiveMobile">—</strong></div>
+          <div class="ceo-stat"><span>City</span><strong id="userActiveCity">—</strong></div>
+        </div>
+        <button type="button" class="btn btn-outline btn-block" id="userLogout">Logout</button>
+      </div>
+
+      <form id="userForm" novalidate>
+        <!-- Sign up fields -->
+        <div id="userSignupFields">
+          <div class="form-row">
+            <div class="field">
+              <label for="ufName">Full Name</label>
+              <input type="text" id="ufName" placeholder="e.g. Ali Khan" autocomplete="name" maxlength="60" />
+              <span class="field-error" id="ufNameErr"></span>
+            </div>
+            <div class="field">
+              <label for="ufMobile">Mobile Number</label>
+              <input type="tel" id="ufMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+              <span class="field-error" id="ufMobileErr"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="ufEmail">Email Address</label>
+              <input type="email" id="ufEmail" placeholder="e.g. ali@example.com" autocomplete="email" maxlength="80" />
+              <span class="field-error" id="ufEmailErr"></span>
+            </div>
+            <div class="field">
+              <label for="ufCity">City</label>
+              <input type="text" id="ufCity" placeholder="e.g. Lahore" autocomplete="address-level2" maxlength="40" />
+              <span class="field-error" id="ufCityErr"></span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="ufPass">Password</label>
+              <input type="password" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
+              <span class="field-error" id="ufPassErr"></span>
+            </div>
+            <div class="field">
+              <label for="ufPass2">Confirm Password</label>
+              <input type="password" id="ufPass2" placeholder="Type it again" maxlength="64" autocomplete="new-password" />
+              <span class="field-error" id="ufPass2Err"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login fields -->
+        <div id="userLoginFields" hidden>
+          <div class="field">
+            <label for="ufLoginMobile">Registered Mobile Number</label>
+            <input type="tel" id="ufLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="username" />
+            <span class="field-error" id="ufLoginMobileErr"></span>
+          </div>
+          <div class="field">
+            <label for="ufLoginPass">Password</label>
+            <input type="password" id="ufLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
+            <span class="field-error" id="ufLoginPassErr"></span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="userSubmit">Create Account</button>
+        <p class="admin-hint" style="margin-top:0.9rem;margin-bottom:0;text-align:center;">
+          <a href="#" id="userModeToggle" style="color:var(--pink);font-weight:600;text-decoration:none;">Already have an account? Login here</a>
+        </p>
+      </form>
+    </div>
+  </div>
 
   <!-- ========== OWNER ACCOUNT MODAL ========== -->
   <div class="owner-modal" id="ownerModal" aria-hidden="true">

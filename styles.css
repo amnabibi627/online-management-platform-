@@ -427,7 +427,7 @@ body.detail-open { overflow: hidden; }
   display: flex; align-items: center; gap: 1.4rem; flex-wrap: wrap;
 }
 .owner-profile-head { flex: 1; min-width: 210px; }
-.owner-profile-corner { margin-left: auto; }
+.owner-profile-corner { margin-left: auto; align-self: flex-start; }
 .owner-profile-corner .btn {
   padding: 0.55rem 1.15rem;
   font-size: 0.86rem;

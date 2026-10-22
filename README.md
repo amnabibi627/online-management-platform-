@@ -16,8 +16,13 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
   row-level edit/delete and CSV export
 - **Owner profile** — header + profile photo (DP) upload, bio, contact links
   (Facebook, Instagram, TikTok, WhatsApp, Email) and an embedded portfolio viewer
-- **Ratings & comments** — any visitor can rate 1–5 stars and leave a comment;
-  average score and star distribution shown live
+- **User accounts** — a real "User Sign Up" page in the header (separate from the
+  Owner Account button). Users fill in full name, mobile, email, city, password
+  and confirm password, then sign in to post ratings and comments. Clicking the
+  "Your Name" box in the reviews section opens the same signup page
+- **Ratings & comments** — only signed-in users can post a 1–5 star rating and a
+  comment; average score and star distribution shown live. A user can delete only
+  their own review, the CEO can delete any review
 - **Guides & updates** — tag filters (Guide, Update), read more/less and
   paginated posts (2 per page)
 - **Business registration** — a "Register Your Business" card opens a compact
@@ -41,9 +46,14 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 | File | Purpose |
 |------|---------|
 | `index.html` | Page structure, category sections, modals |
-| `script.js`  | All app logic (auth, CRUD, sync) |
+| `script.js`  | All app logic (auth, CRUD, sync, reviews, ads) |
 | `liveads.js` | Renders the public "Running Business Ads" cards |
 | `styles.css` | Styling |
+| `anti-copy.js` | Blocks right click, copy, cut, drag, save, select and devtools shortcuts |
+| `_headers` | Cloudflare Pages security headers (CSP, HSTS, frame options) |
+| `CNAME` | Custom domain `onlinemanagement.site` |
+| `supabase/setup.sql` | CEO `admins` table + row level security policies |
+| `SETUP.md` | Step by step deployment and security setup guide |
 
 ## Running
 
@@ -53,9 +63,28 @@ The app loads Supabase from a CDN. Where Supabase is unreachable (network-level
 blocking), everything still works locally in `localStorage` and syncs automatically
 once the connection is restored.
 
+## Security
+
+- **No secret codes in the code.** CEO rights come from the server side `admins`
+  table only. A signed in session by itself never unlocks the CEO panel.
+- **Passwords are hashed** with SHA-256 (WebCrypto) before they are stored. The
+  browser only ever keeps a hash, never the plain password.
+- **Login throttling.** 5 failed attempts in 60 seconds locks the form for that
+  role (CEO, Owner, User) with a clear message.
+- **Row level security** on every Supabase table. A user can only read and write
+  their own rows, and nobody can insert rows as an anonymous visitor.
+- **CSP and other headers** are set through `_headers` (script source allow list,
+  no inline scripts, no framing, no object embedding, HSTS).
+- **Link safety.** `javascript:` and `data:` URLs are blocked and every external
+  link gets `rel="noopener noreferrer"`.
+- **Anti copy** (`anti-copy.js`) stops casual copying of text, images and source.
+  This is deterrence only — nobody can stop a screenshot or a screen recording.
+
+Full instructions are in [SETUP.md](SETUP.md).
+
 ## Supabase setup
 
-The client uses a public project URL and publishable key (safe for client-side use).
+The client uses a public project URL and publishable key (safe for client side use).
 Database schema:
 
 ```sql
@@ -73,3 +102,6 @@ create policy "own data" on public.app_data
 
 Email confirmation must be disabled (Authentication → Email → Confirm email OFF)
 because accounts are keyed by mobile number.
+
+Run [`supabase/setup.sql`](supabase/setup.sql) once to create the CEO `admins`
+table and lock down `app_data`.

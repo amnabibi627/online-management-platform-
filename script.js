@@ -230,10 +230,15 @@ const setActiveLink = () => {
     const top = section.getBoundingClientRect().top + window.scrollY;
     if (scrollPos >= top) current = section.id;
   });
+  let matched = false;
   navLinks.forEach((link) => {
     const href = link.getAttribute("href").replace("#", "");
-    link.classList.toggle("active", href === current || (current === "home" && href === "top"));
+    const on = href === current || (current === "home" && href === "top");
+    if (on) matched = true;
+    link.classList.toggle("active", on);
   });
+  // Sections that are not in the nav (Guides) keep the last nav link highlighted.
+  if (!matched && navLinks.length) navLinks[navLinks.length - 1].classList.add("active");
 };
 
 window.addEventListener("scroll", setActiveLink, { passive: true });

@@ -296,6 +296,11 @@ industryGrid.addEventListener("click", (e) => {
   const card = e.target.closest(".industry-card[data-detail]");
   if (!card) return;
 
+  if (card.dataset.page) {
+    window.location.href = card.dataset.page;
+    return;
+  }
+
   if (!ceoMode && owner && !ownerAllowedCats(owner).includes(card.dataset.detail)) {
     showToast(`Access denied — your owner account does not have ${labelFor(card.dataset.detail)} access.`, true);
     return;
@@ -307,6 +312,13 @@ industryGrid.addEventListener("click", (e) => {
   detail.setAttribute("aria-hidden", "false");
   document.body.classList.add("detail-open");
   detail.scrollTop = 0;
+});
+
+industryGrid.addEventListener("keydown", (e) => {
+  const card = e.target.closest(".industry-card[data-page]");
+  if (!card || (e.key !== "Enter" && e.key !== " ")) return;
+  e.preventDefault();
+  window.location.href = card.dataset.page;
 });
 
 document.addEventListener("click", (e) => {

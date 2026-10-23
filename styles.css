@@ -381,6 +381,10 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
 }
+.industry-card[role="link"]:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
+}
 .industry-card::before {
   content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
   background: linear-gradient(90deg, var(--pink), var(--cyan));
@@ -408,6 +412,13 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .industry-card h3 { font-size: 1.16rem; letter-spacing: -0.01em; margin-bottom: 0.45rem; }
 .industry-card p { color: var(--muted); font-size: 0.93rem; line-height: 1.6; }
+.industry-card-cta {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  margin-top: 0.95rem; color: #2b3dda;
+  font-size: 0.8rem; font-weight: 700;
+}
+.industry-card-cta span { color: var(--pink); transition: transform 0.18s ease; }
+.industry-card:hover .industry-card-cta span { transform: translateX(4px); }
 
 /* ---------- Category Detail (Clinic) ---------- */
 .category-detail {

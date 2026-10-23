@@ -60,7 +60,7 @@
 .cat-eyebrow {
   display: inline-block;
   font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: #ffad42;
+  text-transform: uppercase; color: #ff8f04;
   margin-bottom: 0.95rem;
 }
 
@@ -70,7 +70,7 @@
   margin-bottom: 1rem;
 }
 .cat-hero h1 .accent {
-  background: linear-gradient(100deg, #ff8f04 0%, #ffad42 58%, #ffd18a 100%);
+  background: linear-gradient(100deg, #ff8f04 0%, #ff6b00 58%, #ffa500 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
@@ -150,7 +150,7 @@
 /* ---------- Feature grid ---------- */
 .cat-features {
   background:
-    radial-gradient(700px 260px at 50% 0%, rgba(37, 99, 235, 0.06), transparent 70%),
+    radial-gradient(700px 260px at 50% 0%, rgba(43, 61, 218, 0.06), transparent 70%),
     var(--bg);
   border-top: 1px solid var(--border);
   padding: 5.5rem 0;
@@ -219,7 +219,7 @@
   text-transform: uppercase; color: var(--pink);
   margin-bottom: 1rem;
 }
-.cat-plan.popular .cat-plan-tag { color: #7dd3fc; }
+.cat-plan.popular .cat-plan-tag { color: #ff8f04; }
 .cat-plan-price {
   font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1;
 }
@@ -252,9 +252,9 @@
 
 .cat-plan .btn { margin-top: auto; width: 100%; text-align: center; }
 .cat-plan.popular .btn-primary {
-  background: #ffffff; color: #1d4ed8; box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.7);
+  background: #ffffff; color: #2b3dda; box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.7);
 }
-.cat-plan.popular .btn-primary:hover { background: #f1f5fb; color: #1d4ed8; }
+.cat-plan.popular .btn-primary:hover { background: #f1f5fb; color: #2b3dda; }
 
 /* ---------- Related categories ---------- */
 .cat-related {

@@ -1142,7 +1142,7 @@ body.detail-open { overflow: hidden; }
   .brand-name { font-size: 0.95rem; }
 
   .hero { padding: 4.5rem 0 3.5rem; }
-  .hero-badge { font-size: 0.95rem; padding: 0.5rem 1.2rem; }
+  .hero-badge { font-size: 0.72rem; padding: 0.45rem 1rem; letter-spacing: 0.08em; }
 
   .section { padding: 4.5rem 0; }
   .section-head { margin-bottom: 2.2rem; }
@@ -1160,7 +1160,7 @@ body.detail-open { overflow: hidden; }
   .brand-profile { gap: 0; }
 
   .hero { padding: 3.4rem 0 2.8rem; }
-  .hero-badge { font-size: 0.82rem; padding: 0.45rem 1rem; margin-bottom: 1rem; }
+  .hero-badge { font-size: 0.66rem; padding: 0.4rem 0.9rem; margin-bottom: 1rem; }
   .hero-title { line-height: 1.15; margin-bottom: 1rem; }
   .hero-subtitle { font-size: 0.98rem; margin-bottom: 1.7rem; }
   .hero-actions { flex-direction: column; }

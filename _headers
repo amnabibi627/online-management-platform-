@@ -33,9 +33,6 @@
 /liveads.js
   Cache-Control: public, max-age=0, must-revalidate
 
-/anti-copy.js
-  Cache-Control: public, max-age=0, must-revalidate
-
 /ui.js
   Cache-Control: public, max-age=0, must-revalidate
 

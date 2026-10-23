@@ -6,8 +6,43 @@ let cloudUser = null;
 let cloudBusy = false;
 let cloudTimer = null;
 let cloudPending = new Map();
+const LEGACY_LOCAL_AUTH_KEYS = ["ownerAccount", "owners", "siteUsers", "siteReviews"];
 
 const cloudEmail = (mobile) => `${mobile}@bms.app`;
+
+const removeLegacyPasswordHashes = () => {
+  ["ownerAccount", "owners", "siteUsers", "ceoAccount"].forEach((key) => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(key));
+      if (key === "ceoAccount" && stored && typeof stored === "object" &&
+          (Object.prototype.hasOwnProperty.call(stored, "passHash") ||
+           Object.prototype.hasOwnProperty.call(stored, "codeHash"))) {
+        localStorage.removeItem(key);
+        return;
+      }
+      if (Array.isArray(stored)) {
+        localStorage.setItem(key, JSON.stringify(stored.map((profile) => {
+          if (!profile || typeof profile !== "object" || Array.isArray(profile)) return profile;
+          const { passHash, codeHash, ...safeProfile } = profile;
+          return safeProfile;
+        })));
+      } else if (stored && typeof stored === "object") {
+        delete stored.passHash;
+        delete stored.codeHash;
+        localStorage.setItem(key, JSON.stringify(stored));
+      }
+    } catch (error) {
+      console.warn(`Could not remove legacy credential data from ${key}:`, error);
+    }
+  });
+  try {
+    localStorage.removeItem("siteUserSession");
+  } catch (error) {
+    console.warn("Could not clear the legacy browser-only user session:", error);
+  }
+};
+
+removeLegacyPasswordHashes();
 
 // ===== Security: server-side CEO check =====
 // The "admins" table has RLS that only lets a signed-in user read their
@@ -25,7 +60,7 @@ const isCloudAdmin = async () => {
       console.warn("Admin check failed:", error.message);
       return false;
     }
-    return !!data;
+    return data?.role === "ceo";
   } catch {
     return false;
   }
@@ -95,8 +130,7 @@ const avatarSrc = (v) => (!v ? "" : (typeof v === "string" ? v : v.v || ""));
 const avatarTime = (v) => (!v || typeof v === "string" ? 0 : Number(v.t) || 0);
 
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && !k.startsWith("oms_attempts_") && (
-  k === "ownerAccount" || k === "owners" || k === "customCats" || k === "removedKeys" ||
-  k === "siteReviews" || k === "siteUsers" || k === "ownerAvatar" ||
+  k === "customCats" || k === "removedKeys" || k === "ownerAvatar" ||
   k === "businessRegistrations" || k === "selectedBizPlan" ||
   k.endsWith(":data"));
 
@@ -150,6 +184,7 @@ const cloudPull = async () => {
   }
   (data || []).forEach((row) => {
     try {
+      if (LEGACY_LOCAL_AUTH_KEYS.includes(row.key)) return;
       if (RETIRED_ARTICLE_KEYS.includes(row.key)) { localStorage.removeItem(row.key); return; }
       if (row.key === AVATAR_KEY) {
         // The photo can be newer on one side than the other. Keep the newer
@@ -211,12 +246,12 @@ const cloudRestore = async () => {
     if (admin) {
       const meta = cloudUser.user_metadata || {};
       const stored = store.get("ceoAccount", null);
-      ceoUser = stored || { name: meta.name || "CEO", mobile: meta.mobile || "", email: cloudUser.email || "", codeHash: "" };
+      ceoUser = stored || { name: meta.name || "CEO", mobile: meta.mobile || "", email: cloudUser.email || "" };
       ceoUser.email = cloudUser.email || ceoUser.email || "";
       store.set("ceoAccount", ceoUser);
       setCeoSession(true);
-    } else if (ceoLoggedIn) {
-      // Signed in, but not an admin: drop CEO rights.
+    } else {
+      cloudUser = null;
       setCeoSession(false);
     }
     return admin;
@@ -388,32 +423,106 @@ const fields = {
   loginPass: { input: document.getElementById("ofLoginPass"), err: document.getElementById("errLoginPass") },
 };
 
-const loadOwner = () => {
-  try { return JSON.parse(localStorage.getItem("ownerAccount")); } catch { return null; }
-};
-let owner = loadOwner();
-
 // ===== User accounts (for reviews & comments) =====
-const USERS_KEY = "siteUsers";
-const USER_SESSION_KEY = "siteUserSession";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+const accountEmail = (mobile) => cloudEmail(mobile);
+let currentUser = null;
+let owner = null;
+let accountAuthUser = null;
+let cloudOwnerProfiles = null;
 
-const loadUser = () => {
-  try { return JSON.parse(localStorage.getItem(USER_SESSION_KEY)); } catch { return null; }
+const getAccountProfiles = async (authUser) => {
+  if (!sb || !authUser) return { customer: null, owner: null };
+  const [customerResult, ownerResult] = await Promise.all([
+    sb.from("customer_profiles").select("user_id,full_name,mobile,email,city").eq("user_id", authUser.id).maybeSingle(),
+    sb.from("owner_profiles").select("user_id,full_name,mobile,age,city,categories").eq("user_id", authUser.id).maybeSingle()
+  ]);
+  if (customerResult.error) throw customerResult.error;
+  if (ownerResult.error) throw ownerResult.error;
+  const customer = customerResult.data ? {
+    id: customerResult.data.user_id,
+    name: customerResult.data.full_name,
+    mobile: customerResult.data.mobile,
+    email: customerResult.data.email,
+    city: customerResult.data.city
+  } : null;
+  const ownerProfile = ownerResult.data ? {
+    id: ownerResult.data.user_id,
+    name: ownerResult.data.full_name,
+    mobile: ownerResult.data.mobile,
+    age: ownerResult.data.age,
+    city: ownerResult.data.city,
+    categories: ownerResult.data.categories,
+    category: ownerResult.data.categories[0]
+  } : null;
+  return { customer, owner: ownerProfile };
 };
-let currentUser = loadUser();
 
-const getUsers = () => {
-  const list = store.get(USERS_KEY, []);
-  return Array.isArray(list) ? list : [];
+const refreshAccountProfiles = async (authUser) => {
+  accountAuthUser = authUser || null;
+  const profiles = await getAccountProfiles(accountAuthUser);
+  currentUser = profiles.customer;
+  owner = profiles.owner;
+  refreshOwnerButton();
+  applyAccess();
+  if (typeof renderReviews === "function") await renderReviews();
+  return profiles;
 };
 
-const saveUserSession = (u) => {
-  currentUser = u;
-  try {
-    if (u) localStorage.setItem(USER_SESSION_KEY, JSON.stringify(u));
-    else localStorage.removeItem(USER_SESSION_KEY);
-  } catch {}
+const resetClientIdentityForAuthChange = () => {
+  cloudUser = null;
+  cloudPending.clear();
+  cloudOwnerProfiles = null;
+  accountAuthUser = null;
+  currentUser = null;
+  owner = null;
+  setCeoSession(false);
+  refreshOwnerButton();
+  applyAccess();
+};
+
+const signOutSiteAccount = async () => {
+  if (!sb) throw new Error("Cloud account service is unavailable.");
+  const { error } = await sb.auth.signOut();
+  if (error) throw error;
+  resetClientIdentityForAuthChange();
+  if (typeof renderReviews === "function") await renderReviews();
+};
+
+const signInWithMobile = async (mobile, password) => {
+  if (!sb) throw new Error("Account service is unavailable. Check your connection and try again.");
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: accountEmail(mobile),
+    password
+  });
+  if (error) throw error;
+  if (!data.user || !data.session) {
+    throw new Error("Email confirmation is enabled. The site administrator must disable it before accounts can sign in.");
+  }
+  cloudPending.clear();
+  resetClientIdentityForAuthChange();
+  return data.user;
+};
+
+const createOrResumeAuthAccount = async (mobile, password, metadata) => {
+  if (!sb) throw new Error("Account service is unavailable. Check your connection and try again.");
+  const { data, error } = await sb.auth.signUp({
+    email: accountEmail(mobile),
+    password,
+    options: { data: metadata }
+  });
+  if (!error && data.user && data.session) {
+    cloudPending.clear();
+    resetClientIdentityForAuthChange();
+    return data.user;
+  }
+  if (!error && data.user && !data.session) {
+    throw new Error("Email confirmation is enabled. The site administrator must disable it before accounts can be created.");
+  }
+  if (error && /already registered|already been registered/i.test(error.message || "")) {
+    return signInWithMobile(mobile, password);
+  }
+  throw error || new Error("Account creation did not complete.");
 };
 
 
@@ -579,11 +688,17 @@ if (userShowPassLogin) {
 }
 
 if (userLogout) {
-  userLogout.addEventListener("click", () => {
-    saveUserSession(null);
-    closeUserModal();
-    showToast("Logged out.");
-    if (typeof renderReviews === "function") renderReviews();
+  userLogout.addEventListener("click", async () => {
+    userLogout.disabled = true;
+    try {
+      await signOutSiteAccount();
+      closeUserModal();
+      showToast("Logged out.");
+    } catch (error) {
+      showToast(`Logout failed: ${error.message || "Cloud service error."}`, true);
+    } finally {
+      userLogout.disabled = false;
+    }
   });
 }
 
@@ -593,8 +708,14 @@ userModal.addEventListener("click", (e) => { if (e.target === userModal) closeUs
 if (userForm) {
   userForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!sb) {
+      showToast("Account service is unavailable. Check your connection and try again.", true);
+      return;
+    }
+    userSubmit.disabled = true;
 
-    if (userModalMode === "signup") {
+    try {
+      if (userModalMode === "signup") {
       const name = String(uFields.name.input.value || "").trim();
       const mobile = normMobile(uFields.mobile.input.value);
       const email = String(uFields.email.input.value || "").trim().toLowerCase();
@@ -618,61 +739,56 @@ if (userForm) {
 
       if (!ok) { showToast("Please fix the highlighted fields.", true); return; }
 
-      const users = getUsers();
-      if (users.some((u) => u.mobile === mobile)) {
-        setUserError(uFields.mobile, "This number is already registered. Please login.");
-        showToast("This number is already registered. Please login.", true);
-        return;
-      }
-      if (users.some((u) => u.email === email)) {
-        setUserError(uFields.email, "This email is already registered. Please login.");
-        showToast("This email is already registered. Please login.", true);
-        return;
-      }
-
-      const blocked = rateMsg("user");
-      if (blocked) { showToast(blocked, true); return; }
-
-      const passHash = await sha256Hex(pass);
-      const rec = { name, mobile, email, city, passHash, at: new Date().toISOString() };
-      users.push(rec);
-      store.set(USERS_KEY, users);
-      saveUserSession({ name, mobile, email, city });
-      clearAttempts("user");
+      const authUser = await createOrResumeAuthAccount(mobile, pass, { name, mobile });
+      const { error } = await sb.from("customer_profiles").insert({
+        user_id: authUser.id,
+        full_name: name,
+        mobile,
+        email,
+        city
+      });
+      if (error && !/duplicate key|already exists/i.test(error.message || "")) throw error;
+      const profiles = await refreshAccountProfiles(authUser);
+      if (!profiles.customer) throw new Error("Account was created but its customer profile could not be loaded. Please sign in again.");
       closeUserModal();
-      showToast(`Account created successfully. Welcome, ${name}!`);
-      if (typeof renderReviews === "function") renderReviews();
+      showToast(`Account ready. Welcome, ${profiles.customer.name}!`);
       return;
-    }
+      }
 
-    // ---------- Login ----------
-    const mobile = normMobile(uFields.loginMobile.input.value);
-    const pass = String(uFields.loginPass.input.value || "");
-    if (!MOBILE_RE.test(mobile)) { setUserError(uFields.loginMobile, "Enter a valid number, e.g. 03123456789."); showToast("Login failed — invalid mobile number.", true); return; }
-    if (!pass) { setUserError(uFields.loginPass, "Enter your password."); showToast("Login failed — password required.", true); return; }
-    const blocked = rateMsg("user");
-    if (blocked) { setUserError(uFields.loginPass, blocked); showToast(blocked, true); return; }
-
-    const matched = getUsers().find((u) => u.mobile === mobile);
-    if (!matched) {
-      logAttempt("user");
-      setUserError(uFields.loginMobile, "This number is not registered. Please sign up.");
-      showToast("Login failed — number not registered.", true);
-      return;
+      const mobile = normMobile(uFields.loginMobile.input.value);
+      const pass = String(uFields.loginPass.input.value || "");
+      if (!MOBILE_RE.test(mobile)) {
+        setUserError(uFields.loginMobile, "Enter a valid number, e.g. 03123456789.");
+        showToast("Login failed — invalid mobile number.", true);
+        return;
+      }
+      if (!pass) {
+        setUserError(uFields.loginPass, "Enter your password.");
+        showToast("Login failed — password required.", true);
+        return;
+      }
+      const authUser = await signInWithMobile(mobile, pass);
+      const profiles = await refreshAccountProfiles(authUser);
+      if (!profiles.customer) {
+        throw new Error("No customer profile was found for this account. Choose Create Account and use the same mobile and password to finish setup.");
+      }
+      setUserError(uFields.loginMobile, "");
+      setUserError(uFields.loginPass, "");
+      closeUserModal();
+      showToast(`Logged in successfully. Welcome back, ${profiles.customer.name}!`);
+    } catch (error) {
+      const message = error.message || "Account request failed. Please try again.";
+      if (userModalMode === "signup") {
+        if (/mobile|already registered|duplicate key/i.test(message)) setUserError(uFields.mobile, message);
+        else if (/email/i.test(message)) setUserError(uFields.email, message);
+        else setUserError(uFields.pass, message);
+      } else {
+        setUserError(uFields.loginPass, message);
+      }
+      showToast(message, true);
+    } finally {
+      userSubmit.disabled = false;
     }
-    if (!(await hashMatches(pass, matched.passHash))) {
-      logAttempt("user");
-      setUserError(uFields.loginPass, "Wrong password.");
-      showToast("Login failed — wrong password.", true);
-      return;
-    }
-    clearAttempts("user");
-    setUserError(uFields.loginMobile, "");
-    setUserError(uFields.loginPass, "");
-    saveUserSession({ name: matched.name, mobile: matched.mobile, email: matched.email, city: matched.city });
-    closeUserModal();
-    showToast(`Logged in successfully. Welcome back, ${matched.name}!`);
-    if (typeof renderReviews === "function") renderReviews();
   });
 }
 
@@ -716,7 +832,7 @@ const validateSignup = () => {
   if (!age || !Number.isInteger(ageNum) || ageNum < 18 || ageNum > 100) { setError(fields.age, "Age must be between 18 and 100."); ok = false; } else setError(fields.age, "");
   if (city.length < 2) { setError(fields.city, "Enter your city."); ok = false; } else setError(fields.city, "");
   if (!category) { setError(fields.category, "Select one category — you will only get access to it."); ok = false; } else setError(fields.category, "");
-  if (pass.length < 6) { setError(fields.pass, "Choose a password (min 6 characters)."); ok = false; } else setError(fields.pass, "");
+  if (pass.length < 8) { setError(fields.pass, "Choose a password (min 8 characters)."); ok = false; } else setError(fields.pass, "");
 
   if (!ok) return null;
   return { name, mobile, age: ageNum, city, category, pass };
@@ -744,13 +860,17 @@ if (ownerGoCategory) {
 }
 
 if (ownerLogout) {
-  ownerLogout.addEventListener("click", () => {
-    store.remove("ownerAccount");
-    owner = null;
-    closeOwnerModal();
-    refreshOwnerButton();
-    applyAccess();
-    showToast("Logged out of owner account.");
+  ownerLogout.addEventListener("click", async () => {
+    ownerLogout.disabled = true;
+    try {
+      await signOutSiteAccount();
+      closeOwnerModal();
+      showToast("Logged out of owner account.");
+    } catch (error) {
+      showToast(`Logout failed: ${error.message || "Cloud service error."}`, true);
+    } finally {
+      ownerLogout.disabled = false;
+    }
   });
 }
 
@@ -764,62 +884,65 @@ document.addEventListener("keydown", (e) => {
 
 ownerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (!sb) {
+    showToast("Account service is unavailable. Check your connection and try again.", true);
+    return;
+  }
+  ownerSubmit.disabled = true;
 
-  if (ownerModalMode === "signup") {
-    const data = await validateSignup();
-    if (!data) { showToast("Signup failed — please fix the fields (valid mobile number required).", true); return; }
-    const passHash = await sha256Hex(data.pass);
-    delete data.pass;
-    owner = { ...data, categories: [data.category], passHash };
-    try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
-    const ownersList = store.get("owners", []);
-    const existingIdx = ownersList.findIndex((o) => o.mobile === owner.mobile);
-    if (existingIdx !== -1) {
-      ownersList[existingIdx] = { ...ownersList[existingIdx], ...owner };
-    } else {
-      ownersList.push({ name: owner.name, mobile: owner.mobile, age: owner.age, city: owner.city, categories: [owner.category], passHash: owner.passHash });
+  try {
+    if (ownerModalMode === "signup") {
+      const data = await validateSignup();
+      if (!data) { showToast("Signup failed — please fix the fields.", true); return; }
+      const authUser = await createOrResumeAuthAccount(data.mobile, data.pass, { name: data.name, mobile: data.mobile });
+      const { error } = await sb.from("owner_profiles").insert({
+        user_id: authUser.id,
+        full_name: data.name,
+        mobile: data.mobile,
+        age: data.age,
+        city: data.city,
+        categories: [data.category]
+      });
+      if (error && !/duplicate key|already exists/i.test(error.message || "")) throw error;
+      const profiles = await refreshAccountProfiles(authUser);
+      if (!profiles.owner) throw new Error("Account was created but its owner profile could not be loaded. Please sign in again.");
+      closeOwnerModal();
+      showToast(`Welcome, ${owner.name}! Select your paid category plan to unlock its tools.`);
+      return;
     }
-    store.set("owners", ownersList);
-    closeOwnerModal();
-    refreshOwnerButton();
-    applyAccess();
-    showToast(`Welcome, ${owner.name}! Access: ${labelFor(owner.category)} only.`);
-  } else {
+
     const mobile = normMobile(fields.loginMobile.input.value);
     const pass = fields.loginPass.input.value;
-    if (!MOBILE_RE.test(mobile)) { setError(fields.loginMobile, "Enter a valid mobile number, e.g. 03123456789."); showToast("Login failed — invalid mobile number.", true); return; }
-    if (!pass) { setError(fields.loginPass, "Enter your password."); showToast("Login failed — password required.", true); return; }
-    const blocked = rateMsg("owner");
-    if (blocked) { setError(fields.loginPass, blocked); showToast(blocked, true); return; }
-    const ownersList = store.get("owners", []);
-    const matched = ownersList.find((o) => o.mobile === mobile) || (owner && owner.mobile === mobile ? owner : null);
-    if (!matched) {
-      logAttempt("owner");
-      setError(fields.loginMobile, "This number is not registered. Please sign up.");
-      showToast("Login failed — number not registered.", true);
+    if (!MOBILE_RE.test(mobile)) {
+      setError(fields.loginMobile, "Enter a valid mobile number, e.g. 03123456789.");
+      showToast("Login failed — invalid mobile number.", true);
       return;
     }
-    // SECURITY: a mobile number alone is not enough, the password must match too.
-    if (!matched.passHash) {
-      setError(fields.loginPass, "This account has no password yet. Please sign up again with the same number to set one.");
-      showToast("Please sign up again with the same number to set your password.", true);
+    if (!pass) {
+      setError(fields.loginPass, "Enter your password.");
+      showToast("Login failed — password required.", true);
       return;
     }
-    if (!(await hashMatches(pass, matched.passHash))) {
-      logAttempt("owner");
-      setError(fields.loginPass, "Wrong password.");
-      showToast("Login failed — wrong password.", true);
-      return;
-    }
-    clearAttempts("owner");
+    const authUser = await signInWithMobile(mobile, pass);
+    const profiles = await refreshAccountProfiles(authUser);
+    if (!profiles.owner) throw new Error("No owner profile found. Choose Sign Up and use the same mobile and password to finish setup.");
     setError(fields.loginMobile, "");
     setError(fields.loginPass, "");
-    owner = { ...matched, categories: ownerAllowedCats(matched) };
-    try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
     closeOwnerModal();
-    refreshOwnerButton();
-    applyAccess();
-    showToast(`Logged in — welcome back, ${owner.name}! Access: ${ownerAllowedCats(owner).map(labelFor).join(", ")}.`);
+    showToast(`Logged in — welcome back, ${owner.name}!`);
+  } catch (error) {
+    const message = error.message || "Owner account request failed.";
+    if (ownerModalMode === "signup") {
+      if (/mobile|already registered|duplicate key/i.test(message)) setError(fields.mobile, message);
+      else if (/age/i.test(message)) setError(fields.age, message);
+      else if (/city/i.test(message)) setError(fields.city, message);
+      else setError(fields.pass, message);
+    } else {
+      setError(fields.loginPass, message);
+    }
+    showToast(message, true);
+  } finally {
+    ownerSubmit.disabled = false;
   }
 });
 
@@ -836,8 +959,8 @@ const store = {
 };
 
 let ceoUser = store.get("ceoAccount", null);
-let ceoLoggedIn = !!ceoUser && store.get("ceoLoggedIn", false) === true;
-let ceoMode = (localStorage.getItem("ceoMode") === "all") || ceoLoggedIn;
+let ceoLoggedIn = false;
+let ceoMode = false;
 let removedKeys = store.get("removedKeys", []);
 let customCats = store.get("customCats", []);
 
@@ -856,33 +979,6 @@ const ceoCodeInput = document.getElementById("ceoCode");
 const ceoErrName = document.getElementById("ceoErrName");
 const ceoErrMobile = document.getElementById("ceoErrMobile");
 const ceoErrCode = document.getElementById("ceoErrCode");
-
-// ===== Security: password hashing =====
-// SHA-256 via WebCrypto (needs https or localhost).
-// Older accounts keep the legacy djb2 hash, so both are accepted on login.
-const legacyHash = (s) => {
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
-  return h.toString(36);
-};
-
-const sha256Hex = async (s) => {
-  try {
-    if (window.crypto && window.crypto.subtle && window.crypto.subtle.digest) {
-      const buf = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode("oms::" + s));
-      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
-    }
-  } catch {}
-  return "fb$" + legacyHash(s);
-};
-
-// Checks a plain password against a stored hash (new SHA-256 or legacy).
-const hashMatches = async (plain, stored) => {
-  if (!stored) return false;
-  if (stored.startsWith("fb$")) return stored === "fb$" + legacyHash(plain);
-  return stored === (await sha256Hex(plain));
-};
-
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 
@@ -990,10 +1086,15 @@ const setCeoSession = (value) => {
   } catch {}
   applyAccess();
   updateCeoStats();
+  if (typeof renderReviews === "function") renderReviews();
 };
 
 ceoLoginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (!sb) {
+    showToast("CEO access requires Supabase. Offline mode cannot securely verify administrator access.", true);
+    return;
+  }
 
   if (!ceoUser) {
     // ---------- CREATE the CEO account (first time only) ----------
@@ -1009,59 +1110,50 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     else { ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid"); }
     if (!ok) { showToast("Fix the highlighted fields and try again.", true); return; }
 
-    if (sb) {
-      cloudState("syncing", "Creating…");
-      const { data, error } = await sb.auth.signUp({
-        email: cloudEmail(mobile),
-        password: code,
-        options: { data: { name, mobile } }
-      });
-      if (error) {
-        cloudState("error", "Error");
-        if (/already registered|already been registered/i.test(error.message || "")) {
-          showToast("Account already exists — Login with mobile + password.", true);
-          setCeoLoginMode();
-        } else {
-          showToast(authErrMsg(error), true);
-        }
-        return;
-      }
-      if (!data.session) {
-        cloudState("error", "Confirm email");
-        showToast("Account ban gaya — email confirmation band karein (Authentication → Email → Confirm email OFF), phir login karein.", true);
+    cloudState("syncing", "Creating…");
+    const { data, error } = await sb.auth.signUp({
+      email: cloudEmail(mobile),
+      password: code,
+      options: { data: { name, mobile } }
+    });
+    if (error) {
+      cloudState("error", "Error");
+      if (/already registered|already been registered/i.test(error.message || "")) {
+        ceoUser = { name, mobile, email: cloudEmail(mobile) };
+        store.set("ceoAccount", ceoUser);
+        showToast("Account already exists — Login with mobile + password.", true);
         setCeoLoginMode();
-        return;
-      }
-      cloudUser = data.user;
-      // SECURITY: creating the account is not enough. The database must
-      // list this user in the "admins" table (see supabase/setup.sql).
-      const admin = await isCloudAdmin();
-      ceoUser = { name, mobile, email: cloudEmail(mobile), codeHash: await sha256Hex(code) };
-      store.set("ceoAccount", ceoUser);
-      if (admin) {
-        setCeoSession(true);
-        showCeoPanel();
-        showToast(`CEO account ready — welcome, ${name}!`);
-        cloudBusy = false;
-        await cloudPushAll();
-        cloudState("connected", "Synced ✓");
       } else {
-        // Not an admin yet: show the one-time activation steps.
-        try { await sb.auth.signOut(); } catch {}
-        cloudUser = null;
-        cloudState(null, "Not signed in");
-        showCeoSetupHint(cloudEmail(mobile));
-        showToast("Account created! One step left: activate CEO access (see the box below).");
+        showToast(authErrMsg(error), true);
       }
       return;
     }
-
-    // ---------- Offline (no Supabase) local CEO account ----------
-    ceoUser = { name, mobile, email: "", codeHash: await sha256Hex(code) };
+    if (!data.session) {
+      cloudState("error", "Confirm email");
+      showToast("Account ban gaya — email confirmation band karein (Authentication → Email → Confirm email OFF), phir login karein.", true);
+      setCeoLoginMode();
+      return;
+    }
+    cloudUser = data.user;
+    const admin = await isCloudAdmin();
+    ceoUser = { name, mobile, email: cloudEmail(mobile) };
     store.set("ceoAccount", ceoUser);
-    setCeoSession(true);
-    showCeoPanel();
-    showToast(`CEO account created (local only) — welcome, ${name}!`);
+    if (admin) {
+      setCeoSession(true);
+      showCeoPanel();
+      showToast(`CEO account ready — welcome, ${name}!`);
+      cloudBusy = false;
+      await cloudPushAll();
+      cloudState("connected", "Synced ✓");
+      await migrateLegacyReviews();
+      await loadReviews();
+    } else {
+      await sb.auth.signOut();
+      cloudUser = null;
+      cloudState(null, "Not signed in");
+      showCeoSetupHint(cloudEmail(mobile));
+      showToast("Account created! One step left: activate CEO access (see the box below).");
+    }
   } else {
     // ---------- LOGIN ----------
     const mobile = normMobile(ceoMobileInput.value);
@@ -1086,79 +1178,52 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       return;
     }
 
-    if (sb) {
-      cloudState("syncing", "Signing in…");
-      const { data, error } = await sb.auth.signInWithPassword({
-        email: cloudEmail(mobile),
-        password: code
-      });
-      if (error) {
-        cloudState("error", "Error");
-        logAttempt("ceo");
-        if (/invalid login credentials/i.test(error.message || "") && ceoUser && mobile !== ceoUser.mobile) {
-          ceoErrMobile.textContent = "This number is not registered in cloud.";
-          ceoMobileInput.classList.add("invalid");
-        } else if (/invalid login credentials/i.test(error.message || "")) {
-          ceoErrCode.textContent = "Wrong password.";
-          ceoCodeInput.classList.add("invalid");
-        }
-        showToast(authErrMsg(error), true);
-        return;
-      }
-      // SECURITY: valid password is not enough. The database decides.
-      const admin = await isCloudAdmin();
-      if (!admin) {
-        try { await sb.auth.signOut(); } catch {}
-        cloudUser = null;
-        cloudState("error", "Not CEO");
-        ceoErrCode.textContent = "This account is not registered as the CEO account.";
-        ceoCodeInput.classList.add("invalid");
-        showToast("Access denied — this account is not the CEO account.", true);
-        logAttempt("ceo");
-        return;
-      }
-      clearAttempts("ceo");
-      cloudUser = data.user;
-      ceoErrMobile.textContent = ""; ceoMobileInput.classList.remove("invalid");
-      ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid");
-      const meta = data.user.user_metadata || {};
-      if (!ceoUser) ceoUser = { name: meta.name || "CEO", mobile: meta.mobile || mobile, email: cloudUser.email || "", codeHash: "" };
-      ceoUser.email = cloudUser.email || ceoUser.email || "";
-      if (!ceoUser.codeHash) ceoUser.codeHash = await sha256Hex(code);
-      store.set("ceoAccount", ceoUser);
-      setCeoSession(true);
-      cloudBusy = true;
-      const ok = await cloudPull();
-      cloudBusy = false;
-      restoreOwnerAvatar().then((rec) => { if (rec) publishOwnerAvatar(rec); });
-      showCeoPanel();
-      showToast(ok ? `Logged in - cloud data synced. Welcome back, ${ceoUser.name}!` : `Logged in - welcome back, ${ceoUser.name}!`);
-      return;
-    }
-
-    // ---------- Offline login ----------
-    if (mobile !== ceoUser.mobile) {
-      ceoErrMobile.textContent = "This number is not registered.";
-      ceoMobileInput.classList.add("invalid");
-      showToast("Login failed — number not registered.", true);
-      return;
-    }
-    const blockedLocal = rateMsg("ceo");
-    if (blockedLocal) { ceoErrCode.textContent = blockedLocal; showToast(blockedLocal, true); return; }
-    const codeOk = await hashMatches(code, ceoUser.codeHash);
-    if (!codeOk) {
+    cloudState("syncing", "Signing in…");
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: cloudEmail(mobile),
+      password: code
+    });
+    if (error) {
+      cloudState("error", "Error");
       logAttempt("ceo");
-      ceoErrCode.textContent = "Wrong password.";
+      if (/invalid login credentials/i.test(error.message || "") && ceoUser && mobile !== ceoUser.mobile) {
+        ceoErrMobile.textContent = "This number is not registered in cloud.";
+        ceoMobileInput.classList.add("invalid");
+      } else if (/invalid login credentials/i.test(error.message || "")) {
+        ceoErrCode.textContent = "Wrong password.";
+        ceoCodeInput.classList.add("invalid");
+      }
+      showToast(authErrMsg(error), true);
+      return;
+    }
+    cloudUser = data.user;
+    const admin = await isCloudAdmin();
+    if (!admin) {
+      await sb.auth.signOut();
+      cloudUser = null;
+      cloudState("error", "Not CEO");
+      ceoErrCode.textContent = "This account is not registered as the CEO account.";
       ceoCodeInput.classList.add("invalid");
-      showToast("Login failed — wrong password.", true);
+      showToast("Access denied — this account is not the CEO account.", true);
+      logAttempt("ceo");
       return;
     }
     clearAttempts("ceo");
-    ceoErrCode.textContent = "";
-    ceoCodeInput.classList.remove("invalid");
+    ceoErrMobile.textContent = ""; ceoMobileInput.classList.remove("invalid");
+    ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid");
+    const meta = data.user.user_metadata || {};
+    if (!ceoUser) ceoUser = { name: meta.name || "CEO", mobile: meta.mobile || mobile, email: cloudUser.email || "" };
+    ceoUser.email = cloudUser.email || ceoUser.email || "";
+    store.set("ceoAccount", ceoUser);
     setCeoSession(true);
+    cloudBusy = true;
+    const ok = await cloudPull();
+    cloudBusy = false;
+    restoreOwnerAvatar().then((rec) => { if (rec) publishOwnerAvatar(rec); });
     showCeoPanel();
-    showToast(`Logged in — welcome back, ${ceoUser.name}!`);
+    showToast(ok ? `Logged in - cloud data synced. Welcome back, ${ceoUser.name}!` : `Logged in - welcome back, ${ceoUser.name}!`);
+    await migrateLegacyReviews();
+    await loadReviews();
   }
 });
 
@@ -1704,7 +1769,25 @@ const categoryUsage = (key) => {
   return { entries, features };
 };
 
-const adminAllOwners = () => store.get("owners", []);
+const adminAllOwners = () => cloudOwnerProfiles || store.get("owners", []);
+const loadCloudOwnerProfiles = async () => {
+  if (!sb || !cloudUser || !ceoLoggedIn) throw new Error("CEO cloud session is required to load owner profiles.");
+  const { data, error } = await sb.from("owner_profiles")
+    .select("user_id,full_name,mobile,age,city,categories")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  cloudOwnerProfiles = data.map((profile) => ({
+    id: profile.user_id,
+    name: profile.full_name,
+    mobile: profile.mobile,
+    age: profile.age,
+    city: profile.city,
+    categories: profile.categories,
+    role: "Owner"
+  }));
+  updateCeoStats();
+  return cloudOwnerProfiles;
+};
 const adminOwnerList = () => {
   const owners = adminAllOwners();
   const legacy = owner && !owners.some((o) => o.mobile === owner.mobile) ? owner : null;
@@ -1729,6 +1812,9 @@ const openAdminPanel = () => {
   renderAdminPanel();
   adminModal.classList.add("open");
   adminModal.setAttribute("aria-hidden", "false");
+  loadCloudOwnerProfiles().then(renderAdminPanel).catch((error) => {
+    showToast(`Owner profiles could not be loaded: ${error.message || "Cloud service error."}`, true);
+  });
 };
 
 const adminTabsHtml = () => {
@@ -1907,12 +1993,12 @@ const renderAdminOwners = () => {
   const list = adminOwnerList();
   const keys = allCategoryKeys();
 
-  const cards = list.map((o, i) => {
+  const cards = list.map((o) => {
     const allowed = ownerAllowedCats(o);
     const chips = keys.map((k) => {
       const meta = catMeta(k);
       const on = allowed.includes(k);
-      return `<button type="button" class="admin-cat-chip${on ? " on" : ""}" data-owner-mobile="${escHtml(o.mobile)}" data-owner-cat="${escHtml(k)}" aria-pressed="${on}">${meta.icon} ${escHtml(meta.name)}</button>`;
+      return `<button type="button" class="admin-cat-chip${on ? " on" : ""}" data-owner-user="${escHtml(o.id || "")}" data-owner-cat="${escHtml(k)}" aria-pressed="${on}"${o.id ? "" : " disabled"}>${meta.icon} ${escHtml(meta.name)}</button>`;
     }).join("");
     const role = o.role ? escHtml(String(o.role)) : "Owner";
     return `<div class="admin-owner-card">` +
@@ -1922,7 +2008,7 @@ const renderAdminOwners = () => {
       `<div class="admin-owner-meta">${escHtml(o.mobile)}${o.city ? " · " + escHtml(o.city) : ""}${o.age ? " · age " + escHtml(String(o.age)) : ""}</div></div></div>` +
       `<div class="admin-owner-actions">` +
       `<span class="admin-owner-count">${allowed.length}/${keys.length} access</span>` +
-      `<button type="button" class="admin-danger-btn" data-owner-remove="${i}">Remove</button></div></div>` +
+      `<button type="button" class="admin-danger-btn" data-owner-remove="${escHtml(o.id || "")}"${o.id ? "" : " disabled"}>Remove profile</button></div></div>` +
       `<div class="admin-cat-list">${chips}</div></div>`;
   }).join("");
 
@@ -2030,44 +2116,50 @@ const renderAdminPanel = () => {
   if (adminTab === "subscriptions") loadAdminSubscriptionRequests();
 };
 
-const toggleOwnerCategory = (mobile, catKey) => {
-  let owners = adminAllOwners();
-  let idx = owners.findIndex((o) => o.mobile === mobile);
-  if (idx === -1 && owner && owner.mobile === mobile) {
-    owners = [{ ...owner, categories: owner.category ? [owner.category] : [] }, ...owners];
-    idx = 0;
+const toggleOwnerCategory = async (userId, catKey) => {
+  const target = adminAllOwners().find((profile) => profile.id === userId);
+  if (!target || !sb || !cloudUser || !await isCloudAdmin()) {
+    throw new Error("Only the site CEO can change owner category access.");
   }
-  if (idx === -1) return;
-  const o = owners[idx];
-  if (!Array.isArray(o.categories)) o.categories = o.category ? [o.category] : [];
-  if (o.categories.includes(catKey)) o.categories = o.categories.filter((c) => c !== catKey);
-  else o.categories.push(catKey);
-  store.set("owners", owners);
-  if (owner && owner.mobile === mobile) {
-    owner = { ...owner, categories: o.categories, category: o.categories[0] || "" };
-    try { localStorage.setItem("ownerAccount", JSON.stringify(owner)); } catch {}
+  const current = ownerAllowedCats(target);
+  const categories = current.includes(catKey)
+    ? current.filter((category) => category !== catKey)
+    : [...current, catKey];
+  if (!categories.length) {
+    showToast("An owner must keep at least one category assigned.", true);
+    return;
+  }
+  const { error } = await sb.rpc("admin_set_owner_categories", {
+    p_user_id: userId,
+    p_categories: categories
+  });
+  if (error) throw error;
+  target.categories = categories;
+  if (owner?.id === userId) {
+    owner = { ...owner, categories, category: categories[0] };
     applyAccess();
   }
   renderAdminPanel();
-  showToast(`${labelFor(catKey) || catKey} access ${o.categories.includes(catKey) ? "granted" : "revoked"} for ${o.name}.`);
+  showToast(`${labelFor(catKey) || catKey} access ${categories.includes(catKey) ? "granted" : "revoked"} for ${target.name}.`);
 };
 
-const removeOwnerByIndex = (i) => {
-  const full = adminOwnerList();
-  const target = full[i];
-  if (!target) return;
-  if (!confirm(`Remove owner account "${target.name}" (${target.mobile})?`)) return;
-  const next = adminAllOwners().filter((o) => o.mobile !== target.mobile);
-  store.set("owners", next);
-  if (owner && owner.mobile === target.mobile) {
-    store.remove("ownerAccount");
+const removeOwnerById = async (userId) => {
+  const target = adminAllOwners().find((profile) => profile.id === userId);
+  if (!target || !sb || !cloudUser || !await isCloudAdmin()) {
+    throw new Error("Only the site CEO can remove owner profiles.");
+  }
+  if (!confirm(`Remove owner access for "${target.name}" (${target.mobile})? Their Supabase login remains available for other account features.`)) return;
+  const { error } = await sb.from("owner_profiles").delete().eq("user_id", userId);
+  if (error) throw error;
+  cloudOwnerProfiles = adminAllOwners().filter((profile) => profile.id !== userId);
+  if (owner?.id === userId) {
     owner = null;
     refreshOwnerButton();
   }
   applyAccess();
   updateCeoStats();
   renderAdminPanel();
-  showToast(`Owner "${target.name}" removed.`);
+  showToast(`Owner access removed for "${target.name}".`);
 };
 
 adminModal.addEventListener("click", (e) => {
@@ -2079,9 +2171,23 @@ adminModal.addEventListener("click", (e) => {
   const filter = e.target.closest("[data-admin-filter]");
   if (filter) { adminDataCat = filter.getAttribute("data-admin-filter"); renderAdminPanel(); return; }
   const chip = e.target.closest("[data-owner-cat]");
-  if (chip) { toggleOwnerCategory(chip.getAttribute("data-owner-mobile"), chip.getAttribute("data-owner-cat")); return; }
+  if (chip) {
+    chip.disabled = true;
+    toggleOwnerCategory(chip.getAttribute("data-owner-user"), chip.getAttribute("data-owner-cat")).catch((error) => {
+      showToast(`Owner access could not be changed: ${error.message}`, true);
+      chip.disabled = false;
+    });
+    return;
+  }
   const rmOwner = e.target.closest("[data-owner-remove]");
-  if (rmOwner) { removeOwnerByIndex(Number(rmOwner.getAttribute("data-owner-remove"))); }
+  if (rmOwner) {
+    rmOwner.disabled = true;
+    removeOwnerById(rmOwner.getAttribute("data-owner-remove")).catch((error) => {
+      showToast(`Owner profile could not be removed: ${error.message}`, true);
+      rmOwner.disabled = false;
+    });
+    return;
+  }
   const approve = e.target.closest("[data-subscription-approve]");
   if (approve) {
     approve.disabled = true;
@@ -2886,10 +2992,75 @@ const revNameErr = document.getElementById("revNameErr");
 const revRatingErr = document.getElementById("revRatingErr");
 
 let pickedRating = 0;
+let reviewCache = [];
 
-const getReviews = () => {
-  const list = store.get(REVIEWS_KEY, []);
-  return Array.isArray(list) ? list : [];
+const getReviews = () => reviewCache;
+
+const loadReviews = async () => {
+  if (!reviewList) return;
+  if (!sb) {
+    reviewCache = [];
+    renderReviews();
+    if (reviewsCountEl) reviewsCountEl.textContent = "Reviews require an internet connection.";
+    return;
+  }
+  const { data, error } = await sb.from("site_reviews")
+    .select("id,author_id,author_name,rating,comment,created_at")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) {
+    console.warn("Could not load public reviews:", error.message);
+    reviewCache = [];
+    renderReviews();
+    if (reviewsCountEl) reviewsCountEl.textContent = "Reviews are temporarily unavailable.";
+    return;
+  }
+  reviewCache = (data || []).map((review) => ({
+    id: review.id,
+    author_id: review.author_id,
+    name: review.author_name,
+    rating: review.rating,
+    text: review.comment,
+    at: review.created_at
+  }));
+  renderReviews();
+};
+
+const migrateLegacyReviews = async () => {
+  if (!sb || !cloudUser || !ceoLoggedIn) return;
+  let legacy;
+  try {
+    legacy = JSON.parse(localStorage.getItem(REVIEWS_KEY) || "[]");
+  } catch (error) {
+    console.warn("Could not read legacy local reviews:", error);
+    return;
+  }
+  if (!Array.isArray(legacy) || !legacy.length) return;
+  const rows = legacy.flatMap((review, index) => {
+    const rating = Number(review.rating);
+    const name = String(review.name || "").trim().slice(0, 60);
+    if (!name || !Number.isInteger(rating) || rating < 1 || rating > 5) return [];
+    return [{
+      author_id: null,
+      author_name: name,
+      rating,
+      comment: String(review.text || "").slice(0, 500),
+      legacy_id: String(review.id || `${review.at || "legacy"}-${index}`).slice(0, 200),
+      created_at: Number.isNaN(Date.parse(review.at)) ? new Date().toISOString() : new Date(review.at).toISOString()
+    }];
+  });
+  if (!rows.length) return;
+  const { error } = await sb.from("site_reviews").upsert(rows, { onConflict: "legacy_id", ignoreDuplicates: true });
+  if (error) {
+    console.warn("Could not migrate legacy reviews:", error.message);
+    showToast(`Legacy reviews were not migrated: ${error.message}`, true);
+    return;
+  }
+  try {
+    localStorage.removeItem(REVIEWS_KEY);
+  } catch (error) {
+    console.warn("Legacy reviews were migrated but the local copy could not be removed:", error);
+  }
 };
 
 const starString = (n) => "★".repeat(n) + "☆".repeat(5 - n);
@@ -2926,6 +3097,10 @@ const renderReviews = () => {
         `<span class="rv-bar-val">${count}</span></div>`;
     }).join("");
   }
+  if (revNameInput) {
+    revNameInput.value = currentUser?.name || "";
+    revNameInput.readOnly = !!currentUser;
+  }
 
   if (!total) {
     reviewList.innerHTML = "";
@@ -2937,7 +3112,7 @@ const renderReviews = () => {
   const sorted = [...list].sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
   reviewList.innerHTML = sorted.map((r) => {
     const initial = escHtml(String(r.name || "?").trim().charAt(0).toUpperCase());
-    const canDelete = isCEO;
+    const canDelete = isCEO || (r.author_id && r.author_id === accountAuthUser?.id);
     return `<div class="review-item" data-review-id="${escHtml(r.id)}">` +
       `<div class="review-item-head">` +
       `<span class="review-avatar">${initial}</span>` +
@@ -2991,9 +3166,9 @@ if (revNameInput) {
 }
 
 if (reviewForm) {
-  reviewForm.addEventListener("submit", (e) => {
+  reviewForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!currentUser || !currentUser.name) {
+    if (!currentUser || !currentUser.name || !accountAuthUser) {
       showToast("Please sign up or login first to post a review.", true);
       if (typeof openUserModal === "function") openUserModal("signup");
       return;
@@ -3018,21 +3193,26 @@ if (reviewForm) {
 
     if (!ok) { showToast("Please add your name and rating.", true); return; }
 
-    const list = getReviews();
-    list.push({
-      id: newEntryId(),
-      name, text,
-      rating: pickedRating,
-      at: new Date().toISOString(),
-      mobile: currentUser.mobile || ""
-    });
-    store.set(REVIEWS_KEY, list);
-
-    reviewForm.reset();
-    pickedRating = 0;
-    paintStars(0);
-    renderReviews();
-    showToast("Thanks! Your review has been posted. ⭐");
+    const submit = reviewForm.querySelector('button[type="submit"]');
+    if (submit) submit.disabled = true;
+    try {
+      const { error } = await sb.from("site_reviews").insert({
+        author_id: accountAuthUser.id,
+        author_name: currentUser.name,
+        rating: pickedRating,
+        comment: text
+      });
+      if (error) throw error;
+      reviewForm.reset();
+      pickedRating = 0;
+      paintStars(0);
+      await loadReviews();
+      showToast("Thanks! Your review has been posted. ⭐");
+    } catch (error) {
+      showToast(`Review could not be posted: ${error.message || "Cloud service error."}`, true);
+    } finally {
+      if (submit) submit.disabled = false;
+    }
   });
 
   reviewForm.addEventListener("input", (e) => {
@@ -3044,22 +3224,29 @@ if (reviewForm) {
 }
 
 if (reviewList) {
-  reviewList.addEventListener("click", (e) => {
+  reviewList.addEventListener("click", async (e) => {
     const btn = e.target.closest("[data-review-del]");
     if (!btn) return;
     const id = btn.getAttribute("data-review-del");
-    const list = getReviews();
-    const item = list.find((r) => r.id === id);
+    const item = getReviews().find((r) => r.id === id);
     if (!item) return;
     const isCEO = !!(ceoMode && ceoUser);
-    if (!isCEO) {
-      showToast("Only the CEO can delete a review.", true);
+    const isAuthor = item.author_id && item.author_id === accountAuthUser?.id;
+    if (!isCEO && !isAuthor) {
+      showToast("You can only delete your own review.", true);
       return;
     }
     if (!confirm(`Delete review by "${item.name}"?`)) return;
-    store.set(REVIEWS_KEY, list.filter((r) => r.id !== id));
-    renderReviews();
-    showToast("Review deleted.");
+    btn.disabled = true;
+    try {
+      const { error } = await sb.from("site_reviews").delete().eq("id", id);
+      if (error) throw error;
+      await loadReviews();
+      showToast("Review deleted.");
+    } catch (error) {
+      showToast(`Review could not be deleted: ${error.message || "Cloud service error."}`, true);
+      btn.disabled = false;
+    }
   });
 }
 
@@ -3729,9 +3916,16 @@ updateFeatureBadges();
 (async () => {
   try {
     const signedIn = await cloudRestore();
+    let authUser = null;
+    if (sb) {
+      const { data, error } = await sb.auth.getSession();
+      if (error) throw error;
+      authUser = data.session?.user || null;
+    }
+    await refreshAccountProfiles(authUser);
+    if (ceoLoggedIn) await migrateLegacyReviews();
+    await loadReviews();
     if (signedIn) {
-      owner = loadOwner();
-      ceoMode = localStorage.getItem("ceoMode") === "all";
       removedKeys = store.get("removedKeys", []);
       customCats = store.get("customCats", []);
       applyRemovedKeys();
@@ -3747,5 +3941,20 @@ updateFeatureBadges();
     }
   } catch (e) {
     console.warn("Cloud init failed:", e);
+    showToast(`Account or cloud data could not be restored: ${e.message || "Cloud service error."}`, true);
   }
 })();
+
+if (sb) {
+  sb.auth.onAuthStateChange((event) => {
+    if (event !== "SIGNED_OUT") return;
+    setTimeout(() => {
+      cloudUser = null;
+      cloudOwnerProfiles = null;
+      setCeoSession(false);
+      refreshAccountProfiles(null).catch((error) => {
+        showToast(`Account state could not be cleared: ${error.message || "Cloud service error."}`, true);
+      });
+    }, 0);
+  });
+}

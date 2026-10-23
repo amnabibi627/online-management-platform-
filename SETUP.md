@@ -2,8 +2,9 @@
 
 Online Management Site — `https://onlinemanagement.site`
 
-Static site (HTML / CSS / JS). Cloudflare Pages host. Supabase for auth and
-cloud sync. `localStorage` for offline work.
+Static site (HTML / CSS / JS). Cloudflare Pages host. Supabase Auth and
+row-level-secured tables for category accounts, Owner/User accounts and reviews.
+Some presentation and registration data still uses `localStorage`.
 
 Category-page feature workspaces require an approved, unexpired subscription
 for that specific category. Records are stored in that account's category
@@ -39,6 +40,9 @@ Accounts are keyed by mobile number, so the app signs in with
 This creates:
 
 - `public.admins` — the CEO table (with RLS, so a user can only read their own row)
+- `public.customer_profiles` and `public.owner_profiles` — account profiles linked to Supabase Auth
+- `public.site_reviews` — public reviews with signed-in author and CEO-delete policies
+- A CEO-only function for changing owner category access
 - `public.category_subscriptions` — active/revoked, expiry-based access per user and category
 - `public.subscription_requests` — private payment requests for customer and admin review
 - CEO-only functions to atomically approve or reject a payment request
@@ -49,6 +53,27 @@ This creates:
 
 Re-run this setup SQL after deploying the subscription flow. New category
 accounts cannot submit payment requests until the new tables and policies exist.
+The updated setup also removes old client-side password hashes from synced
+profile JSON without deleting the profile details.
+
+Existing Owner/User accounts created by the old browser-only login need a
+one-time re-registration using the same mobile number and a new password. Their
+old local account is not proof of identity and cannot be securely migrated.
+Any profile or review data kept only in that browser remains there until the
+CEO imports eligible legacy reviews during a CEO sign-in.
+
+The old browser-only CEO login is also retired. Its local password record is
+removed; create or use a Supabase Auth account for the CEO mobile number, then
+complete the CEO activation step below. Existing Supabase CEO accounts remain
+usable.
+
+Owner/User and category accounts use the same mobile-number login (`mobile@bms.app`),
+so someone who already has a category account can finish an Owner/User profile
+by choosing **Create Account** and entering the same mobile number and password.
+This setup does not verify phone-number ownership: configure a Supabase SMS OTP
+provider before treating a mobile number as verified. Password recovery is not
+self-service because the login email is an internal alias; verify the account
+holder through a separate support process before any manual reset.
 
 ### 1.3 Make your own account the CEO
 
@@ -189,8 +214,8 @@ Things that still need a manual action once:
 
 ## 7. Known limits
 
-- Anyone can still take a **screenshot** or **screen record**. Anti copy stops
-  casual copying only.
+- The website does not block browser copy, print, or inspection controls.
+  Client-delivered content cannot be reliably protected from copying.
 - Live ads are read from the visitor's own `localStorage` right now, so ads
   registered in one browser are not visible in another. A shared public table
   is needed for that.

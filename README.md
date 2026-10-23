@@ -1,7 +1,8 @@
 # Business Management System
 
-All-in-one business management web app — a static HTML/CSS/JavaScript site with
-Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
+All-in-one business management web app — a static HTML/CSS/JavaScript site.
+Category workspaces use Supabase Auth and cloud data; several home-page
+accounts and features still rely on browser-local storage.
 
 ## Features
 
@@ -41,7 +42,11 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
   Fiverr gig style (thumbnail, seller row, title, meta, links, "Starts from
   PKR X" price and a green Contact button that opens WhatsApp). Ads show up
   only while they are live
-- **Supabase sync** — data and auth synced to the cloud; works offline too (localStorage)
+- **Category subscriptions** — each category requires its own subscription:
+  PKR 3,000/month, PKR 9,000/3 months, or PKR 12,000/6 months. JazzCash
+  payments are manually checked by the CEO before access is approved
+- **Category workspace cloud storage** — Supabase Auth and per-account cloud
+  data for subscribed category workspaces
 
 ## Files
 
@@ -51,36 +56,42 @@ Supabase cloud sync (auth + data) and a full offline fallback via localStorage.
 | `script.js`  | All app logic (auth, CRUD, sync, reviews, ads) |
 | `liveads.js` | Renders the public "Running Business Ads" cards |
 | `styles.css` | Styling |
-| `anti-copy.js` | Blocks right click, copy, cut, drag, save, select and devtools shortcuts |
 | `_headers` | Cloudflare Pages security headers (CSP, HSTS, frame options) |
 | `CNAME` | Custom domain `onlinemanagement.site` |
-| `supabase/setup.sql` | CEO `admins` table, public `site_profile` table + row level security policies |
+| `supabase/setup.sql` | Admin, per-category subscriptions, payment requests, sync tables and row level security |
 | `SETUP.md` | Step by step deployment and security setup guide |
 
 ## Running
 
 Just open `index.html` in a browser — no build step, no dependencies.
 
-The app loads Supabase from a CDN. Where Supabase is unreachable (network-level
-blocking), everything still works locally in `localStorage` and syncs automatically
-once the connection is restored.
+The app loads Supabase from a CDN. Home-page features that use `localStorage`
+remain available on that browser without a connection. Category workspace
+sign-in and data, Owner/User accounts, CEO access, and public reviews require
+Supabase. They cannot authenticate or load cloud records while the service is
+unavailable; browser-local features remain limited to that device.
 
-## Security
+## Security and current limits
 
-- **No secret codes in the code.** CEO rights come from the server side `admins`
-  table only. A signed in session by itself never unlocks the CEO panel.
-- **Passwords are hashed** with SHA-256 (WebCrypto) before they are stored. The
-  browser only ever keeps a hash, never the plain password.
-- **Login throttling.** 5 failed attempts in 60 seconds locks the form for that
-  role (CEO, Owner, User) with a clear message.
-- **Row level security** on every Supabase table. A user can only read and write
-  their own rows, and nobody can insert rows as an anonymous visitor.
-- **CSP and other headers** are set through `_headers` (script source allow list,
-  no inline scripts, no framing, no object embedding, HSTS).
-- **Link safety.** `javascript:` and `data:` URLs are blocked and every external
-  link gets `rel="noopener noreferrer"`.
-- **Anti copy** (`anti-copy.js`) stops casual copying of text, images and source.
-  This is deterrence only — nobody can stop a screenshot or a screen recording.
+- **Category workspace access** is enforced by Supabase row-level security:
+  every category needs its own active subscription. The CEO approval functions
+  also check the admin role on the server.
+- **Owner and User credentials use Supabase Auth.** Their profile records and
+  public reviews are stored in Supabase tables protected by row-level security.
+  Old browser-only account records are not accepted as proof of identity.
+- **JazzCash payments are manual.** The CEO checks the payment in JazzCash and
+  approves the request in the admin panel. The site does not have payment-gateway
+  verification.
+- **Live ads are currently browser-local** rather than shared through a
+  public cloud-backed listing. Registrations made in one browser do not
+  automatically appear to visitors on other devices.
+- **Financial summaries are estimates.** They infer money fields and payment
+  status from feature records; they are not a reconciled accounting ledger.
+- **CSP and transport headers** are configured through `_headers`; production
+  behavior depends on deploying through a host that applies those headers.
+- **Browser content restrictions are not security.** The site does not block
+  copy, printing, or DevTools; those browser features cannot reliably protect
+  client-delivered content.
 
 Full instructions are in [SETUP.md](SETUP.md).
 

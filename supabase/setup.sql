@@ -35,9 +35,6 @@ drop policy if exists "admins_delete_service" on public.admins;
 create policy "admins_delete_service" on public.admins
   for delete to service_role using (true);
 
--- ------------------------------------------------------------
--- 2. Category subscriptions and manual JazzCash payment requests
--- ------------------------------------------------------------
 create or replace function public.is_oms_admin()
 returns boolean
 language sql
@@ -54,6 +51,173 @@ $$;
 revoke all on function public.is_oms_admin() from public;
 grant execute on function public.is_oms_admin() to authenticated;
 
+-- ------------------------------------------------------------
+-- 2. Account profiles and public reviews
+--    Credentials live only in Supabase Auth, never in browser tables.
+-- ------------------------------------------------------------
+create table if not exists public.customer_profiles (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  full_name  text not null check (char_length(trim(full_name)) between 2 and 60),
+  mobile     text not null unique check (mobile ~ '^03[0-9]{9}$'),
+  email      text not null unique check (char_length(email) <= 254),
+  city       text not null check (char_length(trim(city)) between 2 and 40),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.owner_profiles (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  full_name  text not null check (char_length(trim(full_name)) between 3 and 60),
+  mobile     text not null unique check (mobile ~ '^03[0-9]{9}$'),
+  age        integer not null check (age between 18 and 100),
+  city       text not null check (char_length(trim(city)) between 2 and 40),
+  categories text[] not null check (
+    cardinality(categories) between 1 and 8
+    and categories <@ array[
+      'clinic', 'academy', 'restaurant', 'generalstore',
+      'beautysalon', 'petrolpump', 'medicalstore', 'laboratory'
+    ]::text[]
+  ),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.customer_profiles enable row level security;
+alter table public.owner_profiles enable row level security;
+
+revoke all on table public.customer_profiles, public.owner_profiles from anon, authenticated, public;
+grant select, insert on table public.customer_profiles to authenticated;
+grant update (full_name, email, city, updated_at) on table public.customer_profiles to authenticated;
+grant select, insert on table public.owner_profiles to authenticated;
+grant update (full_name, age, city, updated_at) on table public.owner_profiles to authenticated;
+
+drop policy if exists "customer_profiles_read_own_or_admin" on public.customer_profiles;
+create policy "customer_profiles_read_own_or_admin" on public.customer_profiles
+  for select to authenticated
+  using (auth.uid() = user_id or public.is_oms_admin());
+
+drop policy if exists "customer_profiles_insert_own" on public.customer_profiles;
+create policy "customer_profiles_insert_own" on public.customer_profiles
+  for insert to authenticated
+  with check (
+    auth.uid() = user_id
+    and (auth.jwt() ->> 'email') = (mobile || '@bms.app')
+  );
+
+drop policy if exists "customer_profiles_update_own" on public.customer_profiles;
+create policy "customer_profiles_update_own" on public.customer_profiles
+  for update to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "owner_profiles_read_own_or_admin" on public.owner_profiles;
+create policy "owner_profiles_read_own_or_admin" on public.owner_profiles
+  for select to authenticated
+  using (auth.uid() = user_id or public.is_oms_admin());
+
+drop policy if exists "owner_profiles_insert_own" on public.owner_profiles;
+create policy "owner_profiles_insert_own" on public.owner_profiles
+  for insert to authenticated
+  with check (
+    auth.uid() = user_id
+    and (auth.jwt() ->> 'email') = (mobile || '@bms.app')
+    and cardinality(categories) = 1
+  );
+
+drop policy if exists "owner_profiles_update_own" on public.owner_profiles;
+create policy "owner_profiles_update_own" on public.owner_profiles
+  for update to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "owner_profiles_admin_update" on public.owner_profiles;
+create policy "owner_profiles_admin_update" on public.owner_profiles
+  for update to authenticated
+  using (public.is_oms_admin())
+  with check (public.is_oms_admin());
+
+grant delete on table public.owner_profiles to authenticated;
+drop policy if exists "owner_profiles_admin_delete" on public.owner_profiles;
+create policy "owner_profiles_admin_delete" on public.owner_profiles
+  for delete to authenticated
+  using (public.is_oms_admin());
+
+create or replace function public.admin_set_owner_categories(p_user_id uuid, p_categories text[])
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can change owner category access';
+  end if;
+
+  if p_categories is null
+    or cardinality(p_categories) < 1
+    or cardinality(p_categories) > 8
+    or not (p_categories <@ array[
+      'clinic', 'academy', 'restaurant', 'generalstore',
+      'beautysalon', 'petrolpump', 'medicalstore', 'laboratory'
+    ]::text[])
+  then
+    raise exception 'Invalid owner category access list';
+  end if;
+
+  update public.owner_profiles
+  set categories = p_categories, updated_at = now()
+  where user_id = p_user_id;
+
+  if not found then
+    raise exception 'Owner profile not found';
+  end if;
+end;
+$$;
+
+revoke all on function public.admin_set_owner_categories(uuid, text[]) from public;
+grant execute on function public.admin_set_owner_categories(uuid, text[]) to authenticated;
+
+create table if not exists public.site_reviews (
+  id          uuid primary key default gen_random_uuid(),
+  author_id   uuid references auth.users(id) on delete set null,
+  author_name text not null check (char_length(trim(author_name)) between 2 and 60),
+  rating      integer not null check (rating between 1 and 5),
+  comment     text not null default '' check (char_length(comment) <= 500),
+  legacy_id   text unique,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists site_reviews_created_idx on public.site_reviews (created_at desc);
+alter table public.site_reviews enable row level security;
+
+revoke all on table public.site_reviews from anon, authenticated, public;
+grant select on table public.site_reviews to anon, authenticated;
+grant insert, delete on table public.site_reviews to authenticated;
+
+drop policy if exists "site_reviews_read_public" on public.site_reviews;
+create policy "site_reviews_read_public" on public.site_reviews
+  for select to anon, authenticated using (true);
+
+drop policy if exists "site_reviews_insert_own_or_legacy_admin" on public.site_reviews;
+create policy "site_reviews_insert_own_or_legacy_admin" on public.site_reviews
+  for insert to authenticated
+  with check (
+    (author_id = auth.uid() and legacy_id is null
+      and exists (
+        select 1 from public.customer_profiles p
+        where p.user_id = auth.uid() and p.full_name = author_name
+      ))
+    or (author_id is null and legacy_id is not null and public.is_oms_admin())
+  );
+
+drop policy if exists "site_reviews_delete_own_or_admin" on public.site_reviews;
+create policy "site_reviews_delete_own_or_admin" on public.site_reviews
+  for delete to authenticated
+  using (author_id = auth.uid() or public.is_oms_admin());
+
+-- ------------------------------------------------------------
+-- 3. Category subscriptions and manual JazzCash payment requests
+-- ------------------------------------------------------------
 create table if not exists public.category_subscriptions (
   user_id     uuid not null references auth.users(id) on delete cascade,
   category    text not null check (category in (
@@ -200,7 +364,7 @@ grant execute on function public.admin_approve_subscription_request(uuid) to aut
 grant execute on function public.admin_reject_subscription_request(uuid, text) to authenticated;
 
 -- ------------------------------------------------------------
--- 3. Lock down the sync table (app_data)
+-- 4. Lock down the sync table (app_data)
 --    Category data requires an active subscription for that category.
 -- ------------------------------------------------------------
 alter table public.app_data enable row level security;
@@ -243,11 +407,27 @@ create policy "app_data_own_all" on public.app_data
     )
   );
 
+-- Remove legacy browser-side password hashes without deleting profile data.
+update public.app_data as a
+set value = case
+  when a.key in ('ownerAccount', 'ceoAccount') and jsonb_typeof(a.value) = 'object'
+    then a.value - 'passHash' - 'codeHash'
+  when a.key in ('owners', 'siteUsers') and jsonb_typeof(a.value) = 'array'
+    then (
+      select coalesce(jsonb_agg(entry - 'passHash' - 'codeHash'), '[]'::jsonb)
+      from jsonb_array_elements(a.value) as items(entry)
+    )
+  else a.value
+end,
+updated_at = now()
+where a.key in ('ownerAccount', 'ceoAccount', 'owners', 'siteUsers')
+  and a.value is not null;
+
 -- Nobody may create rows as the anonymous role.
 drop policy if exists "app_data_anon_all" on public.app_data;
 
 -- ------------------------------------------------------------
--- 4. Public site profile (the owner's photo shown to everyone)
+-- 5. Public site profile (the owner's photo shown to everyone)
 --    Anyone may read it, only an admin may write it.
 -- ------------------------------------------------------------
 create table if not exists public.site_profile (
@@ -270,7 +450,7 @@ create policy "site_profile_write_admin" on public.site_profile
   with check (exists (select 1 from public.admins a where a.user_id = auth.uid()));
 
 -- ------------------------------------------------------------
--- 5. Make your own account the CEO
+-- 6. Make your own account the CEO
 --    Put YOUR email below (this is the email you used in the
 --    app: your mobile number + @bms.app, e.g. 03042954627@bms.app)
 -- ------------------------------------------------------------
@@ -283,7 +463,7 @@ on conflict (user_id) do nothing;
 -- select user_id, email, role from public.admins;
 
 -- ------------------------------------------------------------
--- 6. Extra hardening
+-- 7. Extra hardening
 -- ------------------------------------------------------------
 -- Block anon sign-ups (run only if you do NOT want random visitors
 -- to create accounts). Owners/CEO still sign in with their account.

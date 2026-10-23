@@ -36,28 +36,16 @@
     });
   }
 
-  /* ---------- CTA band button opens the registration modal ---------- */
-  var ctaBtn = document.getElementById("ctaRegisterBtn");
-  if (ctaBtn) {
-    ctaBtn.addEventListener("click", function () {
-      var opener = document.getElementById("openRegForm");
-      if (opener) opener.click();
-    });
-  }
-
   /* ---------- Reveal on scroll ---------- */
   var SELECTOR = [
     ".section-head",
     ".trust-inner",
     ".industry-card",
-    ".step",
-    ".faq-item",
     ".ads-combo-reg",
     ".ads-combo-live",
     ".owner-profile",
     ".reviews-summary",
-    ".review-form",
-    ".cta-inner"
+    ".review-form"
   ].join(",");
 
   var items = Array.prototype.slice.call(document.querySelectorAll(SELECTOR));

@@ -27,5 +27,8 @@
 /anti-copy.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/ui.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 /favicon.svg
   Cache-Control: public, max-age=86400

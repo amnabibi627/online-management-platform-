@@ -18,9 +18,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261023D" />
+  <link rel="stylesheet" href="styles.css?v=20261023E" />
 </head>
 <body>
+
+  <a href="#main" class="skip-link">Skip to main content</a>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
   <!-- ========== 1. HEADER & NAVIGATION ========== -->
   <header class="site-header" id="top">
@@ -34,7 +37,7 @@
         </span>
       </a>
 
-      <nav class="main-nav" id="mainNav">
+      <nav class="main-nav" id="mainNav" aria-label="Main navigation">
         <a href="#top" class="nav-link active">Home Page</a>
         <a href="#industries" class="nav-link">Select Categories</a>
         <a href="#business-registration" class="nav-link">Register Business</a>
@@ -51,7 +54,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <!-- ========== 2. HOME PAGE / HERO ========== -->
     <section class="hero" id="home">
       <div class="hero-glow" aria-hidden="true"></div>
@@ -72,6 +75,42 @@
         </div>
       </div>
     </section>
+
+    <!-- ========== TRUST STRIP ========== -->
+    <div class="trust-strip">
+      <div class="container">
+        <div class="trust-inner">
+          <div class="trust-item">
+            <span class="trust-icon" aria-hidden="true">&#127970;</span>
+            <div class="trust-text">
+              <strong>8 Business Categories</strong>
+              <span>Ready-made portals for every type</span>
+            </div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon" aria-hidden="true">&#128179;</span>
+            <div class="trust-text">
+              <strong>3 Ad Plans</strong>
+              <span>15 days, 30 days or 1 full year</span>
+            </div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon" aria-hidden="true">&#9989;</span>
+            <div class="trust-text">
+              <strong>Owner Approved Ads</strong>
+              <span>Live only after payment is received</span>
+            </div>
+          </div>
+          <div class="trust-item">
+            <span class="trust-icon" aria-hidden="true">&#128172;</span>
+            <div class="trust-text">
+              <strong>Direct Owner Contact</strong>
+              <span>Talk to the owner on WhatsApp</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ========== 3. INDUSTRY CATEGORIES ========== -->
     <section class="section industries" id="industries">
@@ -131,6 +170,34 @@
             <div class="industry-icon">🔬</div>
             <h3>Laboratory</h3>
             <p>Lab Tests, Sample Tracking &amp; Digital Report Management</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HOW IT WORKS ========== -->
+    <section class="section how-it-works">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">How It <span class="accent">Works</span></h2>
+          <p class="section-subtitle">Three simple steps from choosing a category to seeing your ad live on this website.</p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <div class="step-num">01</div>
+            <h3>Choose Your Category</h3>
+            <p>Pick the business type that fits you. Every category opens its own portal with the tools that business needs.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">02</div>
+            <h3>Register Your Business</h3>
+            <p>Pick a plan and fill the short form. Your shop name, address, numbers, photos and links all go in one place.</p>
+          </article>
+          <article class="step">
+            <div class="step-num">03</div>
+            <h3>Send Payment and Go Live</h3>
+            <p>Contact the owner on WhatsApp and send your payment. As soon as it is received, your ad starts running here.</p>
           </article>
         </div>
       </div>
@@ -823,6 +890,51 @@
       </div>
     </section>
 
+    <!-- ========== FAQ ========== -->
+    <section class="section faq-band">
+      <div class="container">
+        <div class="faq-grid">
+          <div class="faq-side">
+            <h2 class="section-title">Questions? <span class="accent">Answered</span></h2>
+            <p>Everything about ad plans, payment, activation and reviews in one place. Still stuck? Message the owner directly.</p>
+
+            <div class="faq-help">
+              <h3>Need help right now?</h3>
+              <p>Message the owner on WhatsApp and get a reply about plans, payment or your ad.</p>
+              <a class="btn btn-primary" href="https://wa.me/923042954627" target="_blank" rel="noopener">WhatsApp 0304 295 4627</a>
+            </div>
+          </div>
+
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary>How long does my ad stay live?</summary>
+              <div class="faq-answer">You can choose 15 days for 2,500 PKR, 30 days for 5,000 PKR, or a full year for 60,000 PKR. Your ad runs for the plan you pick.</div>
+            </details>
+            <details class="faq-item">
+              <summary>How do I activate my ad after submitting the form?</summary>
+              <div class="faq-answer">Submit the form first. After that, contact the owner on WhatsApp and send your payment. As soon as the owner receives it, your ad becomes active and starts running on this website.</div>
+            </details>
+            <details class="faq-item">
+              <summary>What details can I add to my ad?</summary>
+              <div class="faq-answer">Business name, owner name, mobile number, WhatsApp number, category, address, photos, videos and your social links.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Do I need an account to post a review?</summary>
+              <div class="faq-answer">Yes. Click <strong>User Sign Up</strong>, create your account with your name, mobile, email, city and password, then post your rating and comment.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Who can delete a review?</summary>
+              <div class="faq-answer">Only the site owner can delete a review. Your comment stays public until then.</div>
+            </details>
+            <details class="faq-item">
+              <summary>Who do I contact for help?</summary>
+              <div class="faq-answer">Contact the owner from the Owner Details section, or message <a href="https://wa.me/923042954627" target="_blank" rel="noopener">0304 295 4627</a> on WhatsApp.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ========== BUSINESS REGISTRATION FORM (modal) ========== -->
     <div class="reg-modal" id="regModal" aria-hidden="true">
       <div class="reg-modal-box" role="dialog" aria-modal="true" aria-labelledby="regModalTitle">
@@ -1123,6 +1235,20 @@
           </form>
 
           <div class="review-list" id="reviewList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CTA BAND ========== -->
+    <section class="cta-band">
+      <div class="container cta-inner">
+        <div class="cta-copy">
+          <h2>Ready to Put Your Business Online?</h2>
+          <p>Register your business, pick a plan and start reaching real customers across Pakistan.</p>
+        </div>
+        <div class="cta-actions">
+          <button type="button" class="btn btn-primary btn-lg" id="ctaRegisterBtn">Register Your Business</button>
+          <a href="https://wa.me/923042954627" target="_blank" rel="noopener" class="btn btn-outline btn-lg">Talk to the Owner</a>
         </div>
       </div>
     </section>
@@ -1483,10 +1609,15 @@
 
   <div class="toast" id="toast" role="status"></div>
 
+  <button type="button" class="to-top" id="toTop" aria-label="Back to top" title="Back to top">
+    <span aria-hidden="true">&#8593;</span>
+  </button>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="anti-copy.js?v=20261023D"></script>
-  <script src="script.js?v=20261023D"></script>
-  <script src="liveads.js?v=20261023D"></script>
+  <script src="anti-copy.js?v=20261023E"></script>
+  <script src="script.js?v=20261023E"></script>
+  <script src="liveads.js?v=20261023E"></script>
+  <script src="ui.js?v=20261023E"></script>
 
 </body>
 </html>

@@ -9,23 +9,23 @@
   var root = document.documentElement;
   root.classList.add("js");
 
-  /* ---------- Scroll progress bar ---------- */
+  /* ---------- Scroll progress bar + back-to-top ---------- */
   var bar = document.getElementById("scrollProgress");
   var toTop = document.getElementById("toTop");
 
-  function onScroll() {
-    var doc = document.documentElement;
-    var max = doc.scrollHeight - window.innerHeight;
-    var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
-    if (bar) bar.style.width = (pct < 0 ? 0 : pct > 100 ? 100 : pct) + "%";
-    if (toTop) toTop.classList.toggle("show", window.scrollY > 600);
-  }
+  window.addEventListener(
+    "scroll",
+    function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+      if (bar) bar.style.width = (pct < 0 ? 0 : pct > 100 ? 100 : pct) + "%";
+      if (toTop) toTop.classList.toggle("show", window.scrollY > 600);
+      checkReveals();
+    },
+    { passive: true }
+  );
 
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll, { passive: true });
-  onScroll();
-
-  /* ---------- Back to top ---------- */
   if (toTop) {
     toTop.addEventListener("click", function () {
       try {
@@ -61,55 +61,56 @@
   ].join(",");
 
   var items = Array.prototype.slice.call(document.querySelectorAll(SELECTOR));
-  if (!items.length) return;
+  var pending = [];
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  if (reduced || !("IntersectionObserver" in window)) {
-    return;
+  function show(el) {
+    if (!el || el.classList.contains("in")) return;
+    el.classList.add("in");
+    el.style.transitionDelay = "";
   }
 
-  items.forEach(function (el, i) {
-    el.classList.add("reveal");
-    el.style.transitionDelay = (i % 6) * 55 + "ms";
-  });
+  function checkReveals() {
+    var limit = window.innerHeight - 40;
+    for (var i = pending.length - 1; i >= 0; i--) {
+      var el = pending[i];
+      if (el.getBoundingClientRect().top < limit) {
+        show(el);
+        pending.splice(i, 1);
+      }
+    }
+  }
 
-  var io = new IntersectionObserver(
-    function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("in");
-        entry.target.style.transitionDelay = "";
-        io.unobserve(entry.target);
+  /* Only animate when the user is fine with motion and the API exists. */
+  if (items.length && !reduced) {
+    items.forEach(function (el, i) {
+      el.classList.add("reveal");
+      el.style.transitionDelay = (i % 6) * 55 + "ms";
+    });
+    pending = items.slice();
+
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) show(entry.target);
+          });
+        },
+        { rootMargin: "0px 0px -40px 0px", threshold: 0.05 }
+      );
+      items.forEach(function (el) {
+        io.observe(el);
       });
-    },
-    { rootMargin: "0px 0px -50px 0px", threshold: 0.06 }
-  );
+    }
 
-  items.forEach(function (el) {
-    io.observe(el);
-  });
+    checkReveals();
+    window.addEventListener("resize", checkReveals, { passive: true });
 
-  /* Anything already on screen should never wait for a scroll event. */
-  window.requestAnimationFrame(function () {
-    items.forEach(function (el) {
-      var r = el.getBoundingClientRect();
-      if (r.top < window.innerHeight && r.bottom > 0) {
-        el.classList.add("in");
-        el.style.transitionDelay = "";
-        io.unobserve(el);
-      }
-    });
-  });
-
-  /* Safety net: never leave content hidden if the observer is unavailable
-     or the page is inside a viewer that does not fire intersections. */
-  window.setTimeout(function () {
-    items.forEach(function (el) {
-      if (!el.classList.contains("in")) {
-        el.classList.add("in");
-        el.style.transitionDelay = "";
-      }
-    });
-  }, 6000);
+    /* Last resort: never leave a section hidden if nothing above fired. */
+    window.setTimeout(function () {
+      pending.slice().forEach(show);
+      pending = [];
+    }, 9000);
+  }
 })();

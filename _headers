@@ -21,6 +21,15 @@
 /script.js
   Cache-Control: public, max-age=0, must-revalidate
 
+/feature-registry.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/category.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/category.css
+  Cache-Control: public, max-age=0, must-revalidate
+
 /liveads.js
   Cache-Control: public, max-age=0, must-revalidate
 

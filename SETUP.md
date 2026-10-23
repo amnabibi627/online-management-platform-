@@ -5,6 +5,11 @@ Online Management Site — `https://onlinemanagement.site`
 Static site (HTML / CSS / JS). Cloudflare Pages host. Supabase for auth and
 cloud sync. `localStorage` for offline work.
 
+Category-page feature workspaces require a signed-in Supabase account. Their
+records are stored under the account's `app_data` row for that category and are
+not saved to browser-only storage. The `app_data` row-level security policy in
+`supabase/setup.sql` limits access to the authenticated account owner.
+
 ---
 
 ## 1. Supabase (one time)

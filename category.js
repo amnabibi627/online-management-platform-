@@ -6,6 +6,8 @@
 
 const CATEGORY_SITE_NAME = "Online Management Site";
 const CATEGORY_SITE_URL = "https://onlinemanagement.site";
+const CATEGORY_MODULES = window.OMS_FEATURE_MODULES;
+const CATEGORY_SUPABASE = CATEGORY_MODULES.supabaseClient;
 
 const CATEGORIES = {
   clinic: {
@@ -243,12 +245,383 @@ const fillCategoryFeatures = () => {
   const grid = document.getElementById("catFeatures");
   if (!grid) return;
   grid.innerHTML = CURRENT.features.map((f) =>
-    `<div class="cat-feature">` +
+    `<button class="cat-feature cat-tool-card" type="button" data-tool-feature="${escHtml(f.id)}">` +
     `<div class="cat-feature-icon">${f.icon}</div>` +
     `<h3>${escHtml(f.name)}</h3>` +
     `<p>${escHtml(f.desc)}</p>` +
-    `</div>`
+    `<span class="cat-tool-open">Open workspace <span aria-hidden="true">&rarr;</span></span>` +
+    `</button>`
   ).join("");
+};
+
+const categoryEscape = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+}[char]));
+
+const categoryEmail = (mobile) => `${mobile}@bms.app`;
+const categoryMobile = (value) => value.trim().replace(/[\s-]/g, "").replace(/^\+92/, "0");
+const categoryCollectionKey = `${CURRENT.key}:data`;
+const categoryData = { v: CATEGORY_MODULES.FEATURE_VERSION, features: {} };
+let categoryUser = null;
+let categoryFeature = null;
+let categoryEditId = null;
+let categoryBusy = false;
+let categorySessionReady = false;
+let categorySessionPromise = Promise.resolve();
+
+const categoryFeatureDef = (featureId, card) => {
+  const registered = CATEGORY_MODULES.FEATURE_REGISTRY[CURRENT.key]?.[featureId];
+  const generic = CATEGORY_MODULES.GENERIC_FEATURES.find((feature) => feature.id === featureId);
+  const fallback = CATEGORY_MODULES.GENERIC_FEATURES[0];
+  return {
+    id: featureId,
+    name: registered?.name || generic?.name || card.querySelector("h3")?.textContent || featureId,
+    icon: registered?.icon || generic?.icon || card.querySelector(".cat-feature-icon")?.textContent || "📁",
+    fields: registered?.fields || generic?.fields || fallback.fields
+  };
+};
+
+const categoryEnsureToolsUi = () => {
+  if (!document.getElementById("categoryWorkspaceModal")) {
+    document.body.insertAdjacentHTML("beforeend",
+      `<div class="category-workspace-modal" id="categoryWorkspaceModal" aria-hidden="true">` +
+      `<section class="category-workspace" role="dialog" aria-modal="true" aria-labelledby="categoryWorkspaceTitle">` +
+      `<button type="button" class="category-workspace-close" data-workspace-close aria-label="Close workspace">&times;</button>` +
+      `<div id="categoryWorkspaceContent"></div></section></div>` +
+      `<div class="category-auth-modal" id="categoryAuthModal" aria-hidden="true">` +
+      `<section class="category-auth-panel" role="dialog" aria-modal="true" aria-labelledby="categoryAuthTitle">` +
+      `<button type="button" class="category-workspace-close" data-auth-close aria-label="Close sign in">&times;</button>` +
+      `<div id="categoryAuthContent"></div></section></div>`);
+  }
+  const featureSection = document.getElementById("catFeatures");
+  if (featureSection && !document.getElementById("categoryAccountBar")) {
+    const accountBar = document.createElement("div");
+    accountBar.id = "categoryAccountBar";
+    accountBar.className = "category-account-bar";
+    accountBar.innerHTML = `<div><strong>Secure cloud workspace</strong><span id="categoryAccountStatus">Sign in to save and sync your business records.</span></div>` +
+      `<div class="category-account-actions"><button type="button" class="btn btn-primary" id="categorySignIn">Sign in / Create account</button>` +
+      `<button type="button" class="btn btn-outline" id="categorySignOut" hidden>Sign out</button></div>`;
+    featureSection.before(accountBar);
+  }
+};
+
+const setCategoryAccountUi = () => {
+  const status = document.getElementById("categoryAccountStatus");
+  const signIn = document.getElementById("categorySignIn");
+  const signOut = document.getElementById("categorySignOut");
+  if (!status || !signIn || !signOut) return;
+  if (!CATEGORY_SUPABASE) {
+    status.textContent = "Cloud service is unavailable. Please refresh or contact support.";
+    signIn.disabled = true;
+    return;
+  }
+  status.textContent = categoryUser
+    ? `Signed in as ${categoryUser.user_metadata?.mobile || categoryUser.email}. Records sync securely to your account.`
+    : "Sign in to save and sync your business records.";
+  signIn.hidden = !!categoryUser;
+  signOut.hidden = !categoryUser;
+};
+
+const showCategoryAuth = (mode = "login", message = "") => {
+  const modal = document.getElementById("categoryAuthModal");
+  const content = document.getElementById("categoryAuthContent");
+  if (!modal || !content) return;
+  const signup = mode === "signup";
+  content.innerHTML = `<p class="category-workspace-eyebrow">Online Management Site</p>` +
+    `<h2 id="categoryAuthTitle">${signup ? "Create your secure account" : "Sign in to your workspace"}</h2>` +
+    `<p class="category-auth-copy">Your records are stored in your account and sync across your devices.</p>` +
+    `<form id="categoryAuthForm" class="category-auth-form">` +
+    (signup ? `<label>Full name<input name="name" type="text" autocomplete="name" required minlength="3" maxlength="80"></label>` : "") +
+    `<label>Mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
+    `<label>Password<input name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>` +
+    `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
+    `<button class="btn btn-primary" type="submit">${signup ? "Create account" : "Sign in"}</button></form>` +
+    `<p class="category-auth-switch">${signup ? "Already have an account?" : "New to Online Management Site?"} ` +
+    `<button type="button" data-auth-mode="${signup ? "login" : "signup"}">${signup ? "Sign in" : "Create account"}</button></p>`;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  content.querySelector("input")?.focus();
+};
+
+const closeCategoryAuth = () => {
+  const modal = document.getElementById("categoryAuthModal");
+  if (!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+};
+
+const closeCategoryWorkspace = () => {
+  const modal = document.getElementById("categoryWorkspaceModal");
+  if (!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  categoryFeature = null;
+  categoryEditId = null;
+};
+
+const categoryItems = () => {
+  const items = categoryData.features[categoryFeature?.id || ""];
+  return Array.isArray(items) ? items : [];
+};
+
+const categoryRenderList = () => {
+  if (!categoryFeature) return;
+  const content = document.getElementById("categoryWorkspaceContent");
+  const items = categoryItems();
+  const columns = categoryFeature.fields.map((field) => `<th>${categoryEscape(field.label)}</th>`).join("");
+  const rows = items.map((item) => {
+    const cells = categoryFeature.fields.map((field) =>
+      `<td>${categoryEscape(item[field.key] ?? item.fields?.[field.key] ?? "") || "<span class=\"category-empty-value\">—</span>"}</td>`
+    ).join("");
+    return `<tr>${cells}<td class="category-row-actions">` +
+      `<button type="button" data-tool-edit="${categoryEscape(item.id)}">Edit</button>` +
+      `<button type="button" data-tool-delete="${categoryEscape(item.id)}">Delete</button></td></tr>`;
+  }).join("");
+  content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} workspace</p>` +
+    `<h2 id="categoryWorkspaceTitle">${categoryEscape(categoryFeature.icon)} ${categoryEscape(categoryFeature.name)}</h2>` +
+    `<p class="category-workspace-description">Manage this tool's records. Changes are saved to your signed-in account.</p>` +
+    `<div class="category-workspace-toolbar"><span>${items.length} ${items.length === 1 ? "record" : "records"}</span>` +
+    `<button class="btn btn-primary" type="button" data-tool-add>Add record</button></div>` +
+    (items.length
+      ? `<div class="category-workspace-table-wrap"><table><thead><tr>${columns}<th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
+      : `<div class="category-workspace-empty"><strong>No records yet</strong><span>Add your first ${categoryEscape(categoryFeature.name.toLowerCase())} record to get started.</span></div>`);
+};
+
+const categoryRenderForm = (itemId = null) => {
+  if (!categoryFeature) return;
+  categoryEditId = itemId;
+  const item = itemId ? categoryItems().find((entry) => entry.id === itemId) : null;
+  const fieldsHtml = categoryFeature.fields.map((field) => {
+    const value = item?.[field.key] ?? item?.fields?.[field.key] ?? "";
+    const required = field.required ? "required" : "";
+    const id = `category-field-${categoryEscape(field.key)}`;
+    let control;
+    if (field.type === "textarea") {
+      control = `<textarea id="${id}" name="${categoryEscape(field.key)}" rows="3" ${required}>${categoryEscape(value)}</textarea>`;
+    } else if (field.type === "select") {
+      control = `<select id="${id}" name="${categoryEscape(field.key)}" ${required}><option value="">Choose…</option>` +
+        (field.options || []).map((option) => `<option value="${categoryEscape(option)}" ${value === option ? "selected" : ""}>${categoryEscape(option)}</option>`).join("") +
+        `</select>`;
+    } else {
+      control = `<input id="${id}" name="${categoryEscape(field.key)}" type="${categoryEscape(["text", "date", "time", "number", "tel", "email"].includes(field.type) ? field.type : "text")}" value="${categoryEscape(value)}" ${field.type === "number" ? 'step="any"' : ""} ${required}>`;
+    }
+    return `<label for="${id}">${categoryEscape(field.label)}${field.required ? " *" : ""}${control}</label>`;
+  }).join("");
+  const content = document.getElementById("categoryWorkspaceContent");
+  content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} workspace</p>` +
+    `<h2 id="categoryWorkspaceTitle">${itemId ? "Edit" : "Add"} ${categoryEscape(categoryFeature.name)}</h2>` +
+    `<form class="category-record-form" id="categoryRecordForm"><div class="category-record-fields">${fieldsHtml}</div>` +
+    `<p class="category-auth-error" role="alert"></p><div class="category-workspace-toolbar">` +
+    `<button type="button" class="btn btn-outline" data-tool-back>Back</button>` +
+    `<button type="submit" class="btn btn-primary" ${categoryBusy ? "disabled" : ""}>${categoryBusy ? "Saving…" : "Save record"}</button></div></form>`;
+  content.querySelector("input,select,textarea")?.focus();
+};
+
+const categoryLoadData = async () => {
+  if (!categoryUser || !CATEGORY_SUPABASE) return;
+  const { data, error } = await CATEGORY_SUPABASE.from("app_data")
+    .select("value")
+    .eq("user_id", categoryUser.id)
+    .eq("key", categoryCollectionKey)
+    .maybeSingle();
+  if (error) throw error;
+  const value = data?.value;
+  categoryData.features = value && typeof value === "object" && value.features && typeof value.features === "object"
+    ? value.features
+    : {};
+};
+
+const categorySaveData = async () => {
+  if (!categoryUser || !CATEGORY_SUPABASE) throw new Error("Sign in is required to save records.");
+  const { error } = await CATEGORY_SUPABASE.from("app_data").upsert({
+    user_id: categoryUser.id,
+    key: categoryCollectionKey,
+    value: { v: CATEGORY_MODULES.FEATURE_VERSION, features: categoryData.features, updated: Date.now() },
+    updated_at: new Date().toISOString()
+  }, { onConflict: "user_id,key" });
+  if (error) throw error;
+};
+
+const openCategoryFeature = async (card) => {
+  if (!categorySessionReady) await categorySessionPromise;
+  if (!categoryUser) {
+    showCategoryAuth("login", "Sign in to open this secure workspace.");
+    return;
+  }
+  const featureId = card.dataset.toolFeature;
+  categoryFeature = categoryFeatureDef(featureId, card);
+  categoryEditId = null;
+  const modal = document.getElementById("categoryWorkspaceModal");
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  const content = document.getElementById("categoryWorkspaceContent");
+  content.innerHTML = `<p class="category-workspace-loading">Loading your secure records…</p>`;
+  try {
+    await categoryLoadData();
+    categoryRenderList();
+  } catch (error) {
+    content.innerHTML = `<h2 id="categoryWorkspaceTitle">Could not load records</h2><p class="category-auth-error">${categoryEscape(error.message || "Cloud data could not be loaded.")}</p>` +
+      `<button type="button" class="btn btn-outline" data-workspace-close>Close</button>`;
+  }
+};
+
+const initCategoryTools = () => {
+  categoryEnsureToolsUi();
+  setCategoryAccountUi();
+  const signIn = document.getElementById("categorySignIn");
+  const signOut = document.getElementById("categorySignOut");
+  signIn?.addEventListener("click", () => showCategoryAuth("login"));
+  signOut?.addEventListener("click", async () => {
+    if (!CATEGORY_SUPABASE) return;
+    try {
+      const { error } = await CATEGORY_SUPABASE.auth.signOut();
+      if (error) throw error;
+      categoryUser = null;
+      categoryData.features = {};
+      closeCategoryWorkspace();
+      setCategoryAccountUi();
+    } catch (error) {
+      showCategoryAuth("login", `Sign out failed: ${error.message || "Cloud service is unavailable."}`);
+    }
+  });
+
+  document.getElementById("catFeatures")?.addEventListener("click", (event) => {
+    const card = event.target.closest("[data-tool-feature]");
+    if (card) openCategoryFeature(card);
+  });
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-workspace-close]")) closeCategoryWorkspace();
+    if (event.target.closest("[data-auth-close]")) closeCategoryAuth();
+    const mode = event.target.closest("[data-auth-mode]");
+    if (mode) showCategoryAuth(mode.dataset.authMode);
+    const add = event.target.closest("[data-tool-add]");
+    if (add) categoryRenderForm();
+    if (event.target.closest("[data-tool-back]")) categoryRenderList();
+    const edit = event.target.closest("[data-tool-edit]");
+    if (edit) categoryRenderForm(edit.dataset.toolEdit);
+    const del = event.target.closest("[data-tool-delete]");
+    if (del && categoryFeature && categoryUser) {
+      const previous = categoryItems();
+      const updated = previous.filter((item) => item.id !== del.dataset.toolDelete);
+      categoryData.features[categoryFeature.id] = updated;
+      del.disabled = true;
+      categorySaveData().then(categoryRenderList).catch((error) => {
+        categoryData.features[categoryFeature.id] = previous;
+        categoryRenderList();
+        document.getElementById("categoryWorkspaceContent").insertAdjacentHTML(
+          "afterbegin",
+          `<p class="category-auth-error" role="alert">Delete failed: ${categoryEscape(error.message || "Cloud save failed.")}</p>`
+        );
+      });
+    }
+  });
+  document.getElementById("categoryAuthContent")?.addEventListener("submit", async (event) => {
+    const form = event.target.closest("#categoryAuthForm");
+    if (!form || !CATEGORY_SUPABASE) return;
+    event.preventDefault();
+    const formData = new FormData(form);
+    const mobile = categoryMobile(String(formData.get("mobile") || ""));
+    const password = String(formData.get("password") || "");
+    const signup = !!formData.get("name");
+    const message = form.querySelector(".category-auth-error");
+    const submit = form.querySelector('button[type="submit"]');
+    if (!/^\d{7,15}$/.test(mobile)) {
+      message.textContent = "Enter a valid mobile number, including country code if needed.";
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = signup ? "Creating account…" : "Signing in…";
+    try {
+      const result = signup
+        ? await CATEGORY_SUPABASE.auth.signUp({
+          email: categoryEmail(mobile),
+          password,
+          options: { data: { name: String(formData.get("name")).trim(), mobile } }
+        })
+        : await CATEGORY_SUPABASE.auth.signInWithPassword({ email: categoryEmail(mobile), password });
+      if (result.error) throw result.error;
+      if (!result.data.session) {
+        message.textContent = "Account created, but email confirmation is required. Ask the site administrator to turn off Supabase email confirmation, then sign in.";
+        submit.disabled = false;
+        submit.textContent = "Create account";
+        return;
+      }
+      categoryUser = result.data.user;
+      closeCategoryAuth();
+      setCategoryAccountUi();
+      await categoryLoadData();
+      if (categoryFeature) categoryRenderList();
+    } catch (error) {
+      message.textContent = error.message || "Authentication failed. Please try again.";
+      submit.disabled = false;
+      submit.textContent = signup ? "Create account" : "Sign in";
+    }
+  });
+  document.getElementById("categoryWorkspaceContent")?.addEventListener("submit", async (event) => {
+    const form = event.target.closest("#categoryRecordForm");
+    if (!form || !categoryFeature || !categoryUser) return;
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const fields = Object.fromEntries(new FormData(form).entries());
+    const current = categoryItems();
+    const existing = categoryEditId ? current.find((item) => item.id === categoryEditId) : null;
+    const entry = {
+      id: existing?.id || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`),
+      fields,
+      createdAt: existing?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    categoryData.features[categoryFeature.id] = existing
+      ? current.map((item) => item.id === existing.id ? entry : item)
+      : [entry, ...current];
+    categoryBusy = true;
+    categoryRenderForm(existing?.id || null);
+    try {
+      await categorySaveData();
+      categoryBusy = false;
+      categoryRenderList();
+    } catch (error) {
+      categoryData.features[categoryFeature.id] = current;
+      categoryBusy = false;
+      const activeForm = document.getElementById("categoryRecordForm");
+      const saveButton = activeForm?.querySelector('button[type="submit"]');
+      if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = "Save record";
+      }
+      const alert = activeForm?.querySelector(".category-auth-error");
+      if (alert) alert.textContent = `Save failed: ${error.message || "Cloud save failed."}`;
+    }
+  });
+  document.getElementById("categoryWorkspaceModal")?.addEventListener("click", (event) => {
+    if (event.target.id === "categoryWorkspaceModal") closeCategoryWorkspace();
+  });
+  document.getElementById("categoryAuthModal")?.addEventListener("click", (event) => {
+    if (event.target.id === "categoryAuthModal") closeCategoryAuth();
+  });
+
+  if (CATEGORY_SUPABASE) {
+    categorySessionPromise = CATEGORY_SUPABASE.auth.getSession().then(({ data, error }) => {
+      if (error) throw error;
+      categoryUser = data.session?.user || null;
+      categorySessionReady = true;
+      setCategoryAccountUi();
+      if (categoryUser) return categoryLoadData();
+    }).catch((error) => {
+      categorySessionReady = true;
+      setCategoryAccountUi();
+      showCategoryAuth("login", `Session check failed: ${error.message || "Cloud service is unavailable."}`);
+    });
+    CATEGORY_SUPABASE.auth.onAuthStateChange((_event, session) => {
+      categoryUser = session?.user || null;
+      categorySessionReady = true;
+      if (!categoryUser) {
+        categoryData.features = {};
+        closeCategoryWorkspace();
+      }
+      setCategoryAccountUi();
+    });
+  }
 };
 
 const fillCategoryRelated = () => {
@@ -299,3 +672,4 @@ fillCategoryHero();
 fillCategoryFeatures();
 fillCategoryRelated();
 initCategoryPage();
+initCategoryTools();

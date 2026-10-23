@@ -684,7 +684,7 @@ body.detail-open { overflow: hidden; }
 }
 .review-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .review-form .field { margin-bottom: 0.9rem; }
-.review-form label { display: block; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+.review-form label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink); margin-bottom: 0.35rem; }
 .review-form input[type="text"],
 .review-form textarea {
   width: 100%; font-family: inherit; font-size: 0.93rem; color: var(--ink);
@@ -1425,9 +1425,14 @@ body.detail-open { overflow: hidden; }
   gap: 1rem; margin-top: 1.1rem;
 }
 .ads-combo-live .live-ads-empty {
-  margin-top: 1.6rem; padding: 1.4rem 1rem;
-  border: 1.5px dashed var(--border); border-radius: 14px;
-  background: #f7f9fc; font-size: 0.9rem;
+  margin-top: 1.6rem; padding: 2.6rem 1.2rem;
+  border: 1px dashed #cfd8e6; border-radius: 18px;
+  background: linear-gradient(180deg, #fbfcfe, #f4f7fc);
+  font-size: 0.9rem; font-weight: 500;
+}
+.ads-combo-live .live-ads-empty::before {
+  content: "\1F4E3"; display: block; font-size: 1.7rem;
+  margin-bottom: 0.6rem; opacity: 0.85;
 }
 
 @media (max-width: 900px) {
@@ -1958,18 +1963,19 @@ body.detail-open { overflow: hidden; }
 .fiverr-gig-card {
   background: #ffffff;
   border: 1px solid #e3e8f0;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 .fiverr-gig-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.4);
+  transform: translateY(-3px);
 }
 .fiverr-gig-thumb {
   height: 180px;
-  background: linear-gradient(135deg, #f7f9fc 0%, #fef2f2 50%, #eef2f8 100%);
+  background: linear-gradient(135deg, #f7f9fc 0%, #eaf2ff 50%, #eef2f8 100%);
   position: relative;
 }
 .fiverr-gig-thumb-inner {

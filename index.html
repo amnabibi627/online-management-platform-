@@ -28,28 +28,26 @@
   <!-- ========== 1. HEADER & NAVIGATION ========== -->
   <header class="site-header" id="top">
     <div class="container header-inner">
-      <a href="#top" class="brand brand-profile" aria-label="Online Management Site — Home">
-        <span class="brand-mark" aria-hidden="true">OMS</span>
+      <a href="#top" class="brand brand-profile">
+        <span class="brand-avatar" id="headerAvatar" role="button" tabindex="0" title="Click to add your profile photo (DP)" aria-label="Add or change your profile photo">A</span>
+        <input type="file" id="headerAvatarInput" accept="image/*" hidden />
         <span class="brand-info">
-          <span class="brand-accent">Online Management</span>
-          <span class="brand-name">Site</span>
+          <span class="brand-accent">Founder &amp; CEO</span>
+          <span class="brand-name">Amna Bibi</span>
         </span>
       </a>
 
       <nav class="main-nav" id="mainNav" aria-label="Main navigation">
-        <a href="#top" class="nav-link active">Home</a>
-        <a href="#industries" class="nav-link">Categories</a>
+        <a href="#top" class="nav-link active">Home Page</a>
+        <a href="#industries" class="nav-link">Select Categories</a>
         <a href="#business-registration" class="nav-link">Register Business</a>
         <a href="#owner-details" class="nav-link">Owner Details</a>
-        <a href="#reviews" class="nav-link">Reviews</a>
+        <a href="#reviews" class="nav-link">Rating &amp; Comments</a>
       </nav>
 
       <div class="header-actions">
-        <a href="#business-registration" class="btn btn-outline header-cta">Register Business</a>
         <button type="button" class="btn btn-primary" id="userSignupHeaderBtn">User Sign Up</button>
-        <span class="brand-avatar" id="headerAvatar" role="button" tabindex="0" title="Click to add your profile photo (DP)" aria-label="Add or change your profile photo">A</span>
-        <input type="file" id="headerAvatarInput" accept="image/*" hidden />
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
           <span></span><span></span><span></span>
         </button>
       </div>

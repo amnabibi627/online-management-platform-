@@ -241,17 +241,22 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-inner { position: relative; }
 
 .hero-badge {
-  display: inline-flex; align-items: center; gap: 0.55rem;
-  padding: 0.5rem 1.15rem; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #dbe6f7; backdrop-filter: blur(6px);
-  font-weight: 600; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 0.75rem;
+  padding: 0.45rem 1.05rem 0.45rem 0.48rem; border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045));
+  border: 1px solid rgba(147, 197, 253, 0.28);
+  color: #e5efff; backdrop-filter: blur(10px);
+  font-weight: 700; font-size: 0.76rem; letter-spacing: 0.09em; text-transform: uppercase;
+  box-shadow: 0 8px 28px rgba(2, 8, 23, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   margin-bottom: 1.6rem;
 }
-.hero-badge::before {
-  content: ""; width: 7px; height: 7px; border-radius: 50%;
-  background: var(--amber); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+.hero-badge-mark {
+  display: grid; place-items: center;
+  width: 2rem; height: 2rem; border-radius: 50%;
+  background: linear-gradient(135deg, #60a5fa, #22d3ee);
+  color: #071426; font-size: 0.62rem; font-weight: 900;
+  letter-spacing: -0.04em;
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.28);
 }
 
 .hero-title {

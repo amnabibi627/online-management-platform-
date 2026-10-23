@@ -1,27 +1,27 @@
 :root {
   /* ---- Brand ---- */
-  --pink: #2563eb;          /* primary blue      */
-  --pink-dark: #1d4ed8;     /* primary hover     */
-  --pink-light: #3b82f6;    /* soft blue         */
+  --pink: #ff8f04;
+  --pink-dark: #e57e00;
+  --pink-light: #ffad42;
 
-  --navy: #0b1220;          /* deep canvas       */
-  --navy-800: #131f38;
-  --navy-700: #1c2b47;
-  --slate: #0b1220;
+  --navy: #0e2431;
+  --navy-800: #112f3e;
+  --navy-700: #1b4051;
+  --slate: #0e2431;
 
-  --sky: #60a5fa;
-  --cyan: #22d3ee;
-  --amber: #f59e0b;
+  --sky: #6374ff;
+  --cyan: #2b3dda;
+  --amber: #ff8f04;
 
   /* ---- Surfaces ---- */
-  --bg: #f4f6fb;
+  --bg: #f7f7f7;
   --card: #ffffff;
-  --border: #e3e8f0;
-  --border-strong: #cfd8e6;
+  --border: #e7e7e7;
+  --border-strong: #d3d8dd;
 
   /* ---- Text ---- */
-  --ink: #0f172a;
-  --muted: #5b6b84;
+  --ink: #202020;
+  --muted: #5b6670;
 
   /* ---- Status ---- */
   --success: #059669;
@@ -141,7 +141,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   color: #ffffff;
   background: var(--pink);
   font-weight: 600;
-  box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.9);
+  box-shadow: 0 6px 16px -6px rgba(255, 143, 4, 0.42);
 }
 
 @media (max-width: 1150px) {
@@ -188,11 +188,11 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .btn-primary {
   background: var(--pink);
   color: #ffffff;
-  box-shadow: 0 10px 24px -12px rgba(37, 99, 235, 0.9);
+  box-shadow: 0 10px 24px -12px rgba(255, 143, 4, 0.62);
 }
 .btn-primary:hover {
   background: var(--pink-dark);
-  box-shadow: 0 16px 30px -12px rgba(29, 78, 216, 0.9);
+  box-shadow: 0 16px 30px -12px rgba(229, 126, 0, 0.58);
 }
 
 .btn-outline {
@@ -212,8 +212,8 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   position: relative; overflow: hidden; padding: 7rem 0 6rem; text-align: center;
   border-bottom: 0;
   background:
-    radial-gradient(900px 480px at 50% -12%, rgba(37, 99, 235, 0.28), transparent 70%),
-    linear-gradient(180deg, #0b1220 0%, #0e1830 62%, #101d3a 100%);
+    radial-gradient(900px 480px at 50% -12%, rgba(255, 143, 4, 0.22), transparent 70%),
+    linear-gradient(180deg, #0e2431 0%, #102b39 62%, #153747 100%);
   color: #ffffff;
 }
 
@@ -233,8 +233,8 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-glow {
   position: absolute; inset: -30% -10% auto; height: 720px;
   background:
-    radial-gradient(560px 320px at 28% 30%, rgba(37, 99, 235, 0.34), transparent 70%),
-    radial-gradient(520px 300px at 76% 20%, rgba(34, 211, 238, 0.20), transparent 70%);
+    radial-gradient(560px 320px at 28% 30%, rgba(255, 143, 4, 0.28), transparent 70%),
+    radial-gradient(520px 300px at 76% 20%, rgba(43, 61, 218, 0.2), transparent 70%);
   pointer-events: none;
 }
 
@@ -244,7 +244,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   display: inline-flex; align-items: center; gap: 0.75rem;
   padding: 0.45rem 1.05rem 0.45rem 0.48rem; border-radius: 999px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.045));
-  border: 1px solid rgba(147, 197, 253, 0.28);
+  border: 1px solid rgba(255, 143, 4, 0.32);
   color: #e5efff; backdrop-filter: blur(10px);
   font-weight: 700; font-size: 0.76rem; letter-spacing: 0.09em; text-transform: uppercase;
   box-shadow: 0 8px 28px rgba(2, 8, 23, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -253,10 +253,10 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-badge-mark {
   display: grid; place-items: center;
   width: 2rem; height: 2rem; border-radius: 50%;
-  background: linear-gradient(135deg, #60a5fa, #22d3ee);
+  background: linear-gradient(135deg, #ff8f04, #ffc266);
   color: #071426; font-size: 0.62rem; font-weight: 900;
   letter-spacing: -0.04em;
-  box-shadow: 0 0 18px rgba(34, 211, 238, 0.28);
+  box-shadow: 0 0 18px rgba(255, 143, 4, 0.32);
 }
 
 .hero-title {
@@ -276,7 +276,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .hero-title .accent {
   display: block;
-  background: linear-gradient(100deg, #93c5fd 0%, #60a5fa 45%, #22d3ee 100%);
+  background: linear-gradient(100deg, #ff8f04 0%, #ffad42 58%, #ffd18a 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
@@ -334,9 +334,9 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 /* Owner details: the one dark band on the page */
 .owner-details {
   background:
-    radial-gradient(760px 320px at 78% 0%, rgba(37, 99, 235, 0.30), transparent 72%),
-    radial-gradient(620px 280px at 12% 100%, rgba(34, 211, 238, 0.16), transparent 72%),
-    linear-gradient(160deg, #0b1220 0%, #101c33 100%);
+    radial-gradient(760px 320px at 78% 0%, rgba(255, 143, 4, 0.25), transparent 72%),
+    radial-gradient(620px 280px at 12% 100%, rgba(43, 61, 218, 0.18), transparent 72%),
+    linear-gradient(160deg, #0e2431 0%, #153747 100%);
   border-top: 0;
   color: #ffffff;
 }
@@ -813,7 +813,7 @@ body.detail-open { overflow: hidden; }
   display: grid; grid-template-columns: 1fr 1.15fr; overflow: hidden;
 }
 .user-side {
-  background: linear-gradient(160deg, #0b1220 0%, #0b1220 55%, #1d4ed8 120%);
+  background: linear-gradient(160deg, #0e2431 0%, #0e2431 55%, #2b3dda 120%);
   color: #ffffff; padding: 2.2rem 1.8rem; display: flex; flex-direction: column; gap: 0.9rem;
 }
 .user-side-logo { display: flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 0.95rem; letter-spacing: 0.2px; }

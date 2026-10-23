@@ -33,8 +33,8 @@
   position: relative; overflow: hidden;
   padding: 2.6rem 0 5.2rem;
   background:
-    radial-gradient(900px 480px at 50% -14%, rgba(37, 99, 235, 0.30), transparent 70%),
-    linear-gradient(180deg, #0b1220 0%, #0e1830 62%, #101d3a 100%);
+    radial-gradient(900px 480px at 50% -14%, rgba(255, 143, 4, 0.22), transparent 70%),
+    linear-gradient(180deg, #0e2431 0%, #102b39 62%, #153747 100%);
   color: #ffffff;
 }
 .cat-hero::before {
@@ -60,7 +60,7 @@
 .cat-eyebrow {
   display: inline-block;
   font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: #93c5fd;
+  text-transform: uppercase; color: #ffad42;
   margin-bottom: 0.95rem;
 }
 
@@ -70,7 +70,7 @@
   margin-bottom: 1rem;
 }
 .cat-hero h1 .accent {
-  background: linear-gradient(100deg, #93c5fd 0%, #60a5fa 45%, #22d3ee 100%);
+  background: linear-gradient(100deg, #ff8f04 0%, #ffad42 58%, #ffd18a 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
@@ -122,7 +122,7 @@
 .cat-hero-icon {
   width: 72px; height: 72px; border-radius: 20px;
   display: grid; place-items: center; font-size: 2rem;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.45), rgba(34, 211, 238, 0.30));
+  background: linear-gradient(135deg, rgba(255, 143, 4, 0.32), rgba(43, 61, 218, 0.24));
   border: 1px solid rgba(255, 255, 255, 0.18);
   margin-bottom: 1.2rem;
 }
@@ -209,8 +209,8 @@
 .cat-plan:hover { transform: translateY(-4px); box-shadow: 0 28px 50px -34px rgba(15, 23, 42, 0.45); }
 .cat-plan.popular {
   background:
-    radial-gradient(360px 200px at 88% 0%, rgba(34, 211, 238, 0.22), transparent 70%),
-    linear-gradient(160deg, #12203c, #0b1220);
+    radial-gradient(360px 200px at 88% 0%, rgba(255, 143, 4, 0.2), transparent 70%),
+    linear-gradient(160deg, #153747, #0e2431);
   border: 0; color: #ffffff;
   box-shadow: 0 44px 74px -44px rgba(11, 18, 32, 0.85);
 }

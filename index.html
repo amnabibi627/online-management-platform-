@@ -28,26 +28,28 @@
   <!-- ========== 1. HEADER & NAVIGATION ========== -->
   <header class="site-header" id="top">
     <div class="container header-inner">
-      <a href="#top" class="brand brand-profile">
-        <span class="brand-avatar" id="headerAvatar" role="button" tabindex="0" title="Click to add your profile photo (DP)" aria-label="Add or change your profile photo">A</span>
-        <input type="file" id="headerAvatarInput" accept="image/*" hidden />
+      <a href="#top" class="brand brand-profile" aria-label="Online Management Site — Home">
+        <span class="brand-mark" aria-hidden="true">OMS</span>
         <span class="brand-info">
-          <span class="brand-accent">Founder &amp; CEO</span>
-          <span class="brand-name">Amna Bibi</span>
+          <span class="brand-accent">Online Management</span>
+          <span class="brand-name">Site</span>
         </span>
       </a>
 
       <nav class="main-nav" id="mainNav" aria-label="Main navigation">
-        <a href="#top" class="nav-link active">Home Page</a>
-        <a href="#industries" class="nav-link">Select Categories</a>
+        <a href="#top" class="nav-link active">Home</a>
+        <a href="#industries" class="nav-link">Categories</a>
         <a href="#business-registration" class="nav-link">Register Business</a>
         <a href="#owner-details" class="nav-link">Owner Details</a>
-        <a href="#reviews" class="nav-link">Rating &amp; Comments</a>
+        <a href="#reviews" class="nav-link">Reviews</a>
       </nav>
 
       <div class="header-actions">
+        <a href="#business-registration" class="btn btn-outline header-cta">Register Business</a>
         <button type="button" class="btn btn-primary" id="userSignupHeaderBtn">User Sign Up</button>
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span class="brand-avatar" id="headerAvatar" role="button" tabindex="0" title="Click to add your profile photo (DP)" aria-label="Add or change your profile photo">A</span>
+        <input type="file" id="headerAvatarInput" accept="image/*" hidden />
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -1167,50 +1169,6 @@
     </section>
 
   </main>
-
-  <!-- ========== FOOTER ========== -->
-  <footer class="site-footer">
-    <div class="container footer-top">
-      <div class="footer-brand">
-        <div class="footer-brand-row">
-          <span class="footer-mark">OM</span>
-          <div>
-            <strong>Online Management Site</strong>
-            <span>Founder &amp; CEO, Amna Bibi</span>
-          </div>
-        </div>
-        <p class="footer-about">
-          One simple portal for clinics, academies, restaurants, general stores,
-          beauty salons, petrol pumps, medical stores and laboratories. Register your
-          business, run your ad and manage daily work in one place.
-        </p>
-      </div>
-
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <a href="#top">Home Page</a>
-        <a href="#industries">Select Categories</a>
-        <a href="#business-registration">Register Business</a>
-        <a href="#owner-details">Owner Details</a>
-        <a href="#reviews">Rating &amp; Comments</a>
-      </div>
-
-      <div class="footer-col">
-        <h4>Get in Touch</h4>
-        <a href="mailto:amnabibi7293@gmail.com">amnabibi7293@gmail.com</a>
-        <a href="https://wa.me/923042954627" target="_blank" rel="noopener">WhatsApp: 0304 295 4627</a>
-        <a href="https://www.facebook.com/profile.php?id=61592411609927" target="_blank" rel="noopener">Facebook</a>
-        <a href="https://www.tiktok.com/@words_of_amna" target="_blank" rel="noopener">TikTok</a>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <div class="container footer-bottom-inner">
-        <p>&copy; 2026 Online Management Site. All rights reserved.</p>
-        <p>Built by Amna Bibi</p>
-      </div>
-    </div>
-  </footer>
 
   <!-- ========== USER SIGN UP / LOGIN MODAL ========== -->
   <div class="owner-modal" id="userModal" aria-hidden="true">

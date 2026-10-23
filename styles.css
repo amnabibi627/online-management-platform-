@@ -1320,6 +1320,24 @@ body.detail-open { overflow: hidden; }
   border: 1px dashed var(--border); background: #f7f9fc;
   border-radius: 14px; padding: 2rem 1.2rem;
 }
+.admin-subscription-request {
+  margin-bottom: 0.8rem; padding: 1rem 1.1rem;
+  border: 1px solid var(--border); border-radius: 14px; background: #ffffff;
+}
+.admin-subscription-request-head, .admin-subscription-request-details, .admin-subscription-actions {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+}
+.admin-subscription-request-head strong, .admin-subscription-request-head span { display: block; }
+.admin-subscription-request-head strong { font-size: 0.96rem; }
+.admin-subscription-request-head > div > span { margin-top: 0.2rem; color: var(--muted); font-size: 0.8rem; }
+.admin-subscription-request-details {
+  justify-content: flex-start; margin: 0.9rem 0; padding: 0.75rem;
+  border-radius: 10px; background: #f7f9fc; font-size: 0.8rem;
+}
+.admin-subscription-request-details span { display: grid; gap: 0.2rem; min-width: 135px; }
+.admin-subscription-request-details b { color: var(--muted); font-size: 0.69rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.admin-subscription-actions { justify-content: flex-start; }
+.admin-subscription-actions .btn { cursor: pointer; }
 
 /* --- Category rows --- */
 .admin-cat-row {

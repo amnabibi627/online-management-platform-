@@ -36,22 +36,218 @@ create policy "admins_delete_service" on public.admins
   for delete to service_role using (true);
 
 -- ------------------------------------------------------------
--- 2. Lock down the sync table (app_data)
---    A user can only read/write their own rows. Nothing else.
+-- 2. Category subscriptions and manual JazzCash payment requests
+-- ------------------------------------------------------------
+create or replace function public.is_oms_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.admins
+    where user_id = auth.uid() and role = 'ceo'
+  );
+$$;
+
+revoke all on function public.is_oms_admin() from public;
+grant execute on function public.is_oms_admin() to authenticated;
+
+create table if not exists public.category_subscriptions (
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  category    text not null check (category in (
+    'clinic', 'academy', 'restaurant', 'generalstore',
+    'beautysalon', 'petrolpump', 'medicalstore', 'laboratory'
+  )),
+  plan        text not null check (plan in ('1-month', '3-month', '6-month')),
+  status      text not null default 'active' check (status in ('active', 'revoked')),
+  started_at  timestamptz not null default now(),
+  expires_at  timestamptz not null,
+  updated_at  timestamptz not null default now(),
+  primary key (user_id, category)
+);
+
+create table if not exists public.subscription_requests (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid not null references auth.users(id) on delete cascade,
+  category          text not null check (category in (
+    'clinic', 'academy', 'restaurant', 'generalstore',
+    'beautysalon', 'petrolpump', 'medicalstore', 'laboratory'
+  )),
+  plan              text not null check (plan in ('1-month', '3-month', '6-month')),
+  amount            integer not null check (
+    (plan = '1-month' and amount = 3000) or
+    (plan = '3-month' and amount = 9000) or
+    (plan = '6-month' and amount = 12000)
+  ),
+  account_name      text not null,
+  account_mobile    text not null,
+  payment_reference text not null unique,
+  payer_mobile      text not null,
+  status            text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  admin_note        text,
+  created_at        timestamptz not null default now(),
+  reviewed_at       timestamptz
+);
+
+create index if not exists subscription_requests_recent_idx
+  on public.subscription_requests (created_at desc);
+
+alter table public.category_subscriptions enable row level security;
+alter table public.subscription_requests enable row level security;
+
+revoke all on table public.category_subscriptions, public.subscription_requests from anon, authenticated, public;
+grant select on table public.category_subscriptions to authenticated;
+grant select, insert on table public.subscription_requests to authenticated;
+
+drop policy if exists "category_subscriptions_read_own_or_admin" on public.category_subscriptions;
+create policy "category_subscriptions_read_own_or_admin" on public.category_subscriptions
+  for select to authenticated
+  using (auth.uid() = user_id or public.is_oms_admin());
+
+drop policy if exists "category_subscriptions_admin_write" on public.category_subscriptions;
+
+drop policy if exists "subscription_requests_read_own_or_admin" on public.subscription_requests;
+create policy "subscription_requests_read_own_or_admin" on public.subscription_requests
+  for select to authenticated
+  using (auth.uid() = user_id or public.is_oms_admin());
+
+drop policy if exists "subscription_requests_insert_own" on public.subscription_requests;
+create policy "subscription_requests_insert_own" on public.subscription_requests
+  for insert to authenticated
+  with check (auth.uid() = user_id and status = 'pending');
+
+drop policy if exists "subscription_requests_admin_update" on public.subscription_requests;
+
+create or replace function public.admin_approve_subscription_request(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_request public.subscription_requests%rowtype;
+  v_months integer;
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can approve payment requests';
+  end if;
+
+  select * into v_request
+  from public.subscription_requests
+  where id = p_request_id and status = 'pending'
+  for update;
+
+  if not found then
+    raise exception 'Pending payment request not found';
+  end if;
+
+  v_months := case v_request.plan
+    when '1-month' then 1
+    when '3-month' then 3
+    when '6-month' then 6
+  end;
+
+  insert into public.category_subscriptions
+    (user_id, category, plan, status, started_at, expires_at, updated_at)
+  values
+    (v_request.user_id, v_request.category, v_request.plan, 'active', now(),
+     now() + make_interval(months => v_months), now())
+  on conflict (user_id, category) do update
+    set plan = excluded.plan,
+        status = 'active',
+        started_at = case
+          when category_subscriptions.expires_at > now() then category_subscriptions.started_at
+          else now()
+        end,
+        expires_at = greatest(category_subscriptions.expires_at, now())
+          + make_interval(months => v_months),
+        updated_at = now();
+
+  update public.subscription_requests
+  set status = 'approved', reviewed_at = now()
+  where id = v_request.id;
+end;
+$$;
+
+create or replace function public.admin_reject_subscription_request(p_request_id uuid, p_note text default null)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can reject payment requests';
+  end if;
+
+  update public.subscription_requests
+  set status = 'rejected',
+      admin_note = nullif(left(trim(coalesce(p_note, '')), 500), ''),
+      reviewed_at = now()
+  where id = p_request_id and status = 'pending';
+
+  if not found then
+    raise exception 'Pending payment request not found';
+  end if;
+end;
+$$;
+
+revoke all on function public.admin_approve_subscription_request(uuid) from public;
+revoke all on function public.admin_reject_subscription_request(uuid, text) from public;
+grant execute on function public.admin_approve_subscription_request(uuid) to authenticated;
+grant execute on function public.admin_reject_subscription_request(uuid, text) to authenticated;
+
+-- ------------------------------------------------------------
+-- 3. Lock down the sync table (app_data)
+--    Category data requires an active subscription for that category.
 -- ------------------------------------------------------------
 alter table public.app_data enable row level security;
 
 drop policy if exists "app_data_own_all" on public.app_data;
 create policy "app_data_own_all" on public.app_data
   for all to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  using (
+    auth.uid() = user_id
+    and (
+      public.is_oms_admin()
+      or key not in (
+        'clinic:data', 'academy:data', 'restaurant:data', 'generalstore:data',
+        'beautysalon:data', 'petrolpump:data', 'medicalstore:data', 'laboratory:data'
+      )
+      or exists (
+        select 1 from public.category_subscriptions s
+        where s.user_id = auth.uid()
+          and s.category = split_part(key, ':', 1)
+          and s.status = 'active'
+          and s.expires_at > now()
+      )
+    )
+  )
+  with check (
+    auth.uid() = user_id
+    and (
+      public.is_oms_admin()
+      or key not in (
+        'clinic:data', 'academy:data', 'restaurant:data', 'generalstore:data',
+        'beautysalon:data', 'petrolpump:data', 'medicalstore:data', 'laboratory:data'
+      )
+      or exists (
+        select 1 from public.category_subscriptions s
+        where s.user_id = auth.uid()
+          and s.category = split_part(key, ':', 1)
+          and s.status = 'active'
+          and s.expires_at > now()
+      )
+    )
+  );
 
 -- Nobody may create rows as the anonymous role.
 drop policy if exists "app_data_anon_all" on public.app_data;
 
 -- ------------------------------------------------------------
--- 3. Public site profile (the owner's photo shown to everyone)
+-- 4. Public site profile (the owner's photo shown to everyone)
 --    Anyone may read it, only an admin may write it.
 -- ------------------------------------------------------------
 create table if not exists public.site_profile (
@@ -74,7 +270,7 @@ create policy "site_profile_write_admin" on public.site_profile
   with check (exists (select 1 from public.admins a where a.user_id = auth.uid()));
 
 -- ------------------------------------------------------------
--- 4. Make your own account the CEO
+-- 5. Make your own account the CEO
 --    Put YOUR email below (this is the email you used in the
 --    app: your mobile number + @bms.app, e.g. 03042954627@bms.app)
 -- ------------------------------------------------------------
@@ -87,7 +283,7 @@ on conflict (user_id) do nothing;
 -- select user_id, email, role from public.admins;
 
 -- ------------------------------------------------------------
--- 5. Extra hardening
+-- 6. Extra hardening
 -- ------------------------------------------------------------
 -- Block anon sign-ups (run only if you do NOT want random visitors
 -- to create accounts). Owners/CEO still sign in with their account.

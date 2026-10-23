@@ -1734,6 +1734,7 @@ const openAdminPanel = () => {
 const adminTabsHtml = () => {
   const tabs = [
     ["overview", "📊 Overview"],
+    ["subscriptions", "💳 Subscriptions"],
     ["data", "🗂️ Business Data"],
     ["owners", "👥 Owners & Access"],
     ["categories", "🏷️ Categories"],
@@ -1743,6 +1744,71 @@ const adminTabsHtml = () => {
   return `<div class="admin-tabs">` + tabs.map(([id, label]) =>
     `<button type="button" class="admin-tab${adminTab === id ? " active" : ""}" data-admin-tab="${id}">${label}</button>`
   ).join("") + `</div>`;
+};
+
+const renderAdminSubscriptions = () =>
+  adminTabsHtml() +
+  `<div class="admin-section-title">💳 Category subscription payments</div>` +
+  `<p class="admin-hint">Open the JazzCash app and verify the sender, amount and transaction reference in your received payments before approving. Approval activates only the category and duration on that request.</p>` +
+  `<div id="adminSubscriptionRequestList"><div class="admin-empty">Loading payment requests…</div></div>`;
+
+const loadAdminSubscriptionRequests = async () => {
+  const list = document.getElementById("adminSubscriptionRequestList");
+  if (!list || !sb || !cloudUser) return;
+  const { data, error } = await sb.from("subscription_requests")
+    .select("id,user_id,category,plan,amount,account_name,account_mobile,payment_reference,payer_mobile,status,admin_note,created_at")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) {
+    list.innerHTML = `<div class="admin-note">Could not load subscription requests: ${escHtml(error.message)}. Confirm that the subscription SQL setup has been applied.</div>`;
+    return;
+  }
+  if (!data || !data.length) {
+    list.innerHTML = `<div class="admin-empty">No subscription payment requests yet.</div>`;
+    return;
+  }
+  const categoryNames = Object.fromEntries(BUILTIN_CATEGORIES.map((key) => [key, catMeta(key)]));
+  list.innerHTML = data.map((request) => {
+    const meta = categoryNames[request.category] || { icon: "📁", name: request.category };
+    const plan = CATEGORY_PLAN_INFO[request.plan] || { label: request.plan };
+    return `<article class="admin-subscription-request">` +
+      `<div class="admin-subscription-request-head"><div><strong>${escHtml(meta.icon)} ${escHtml(meta.name)} · ${escHtml(plan.label)}</strong>` +
+      `<span>${escHtml(request.account_name)} · account ${escHtml(request.account_mobile)}</span></div>` +
+      `<span class="admin-pill ${request.status === "approved" ? "ok" : request.status === "rejected" ? "off" : ""}">${escHtml(request.status)}</span></div>` +
+      `<div class="admin-subscription-request-details"><span><b>Amount</b> PKR ${rupees(request.amount)}</span>` +
+      `<span><b>JazzCash sender</b> ${escHtml(request.payer_mobile)}</span>` +
+      `<span><b>Transaction ID</b> ${escHtml(request.payment_reference)}</span>` +
+      `<span><b>Submitted</b> ${fmtDate(request.created_at)}</span></div>` +
+      (request.admin_note ? `<p class="admin-hint">Admin note: ${escHtml(request.admin_note)}</p>` : "") +
+      (request.status === "pending" ? `<div class="admin-subscription-actions">` +
+        `<button type="button" class="btn btn-primary" data-subscription-approve="${escHtml(request.id)}">Verify &amp; approve</button>` +
+        `<button type="button" class="btn btn-outline" data-subscription-reject="${escHtml(request.id)}">Reject</button></div>` : "") +
+      `</article>`;
+  }).join("");
+};
+
+const CATEGORY_PLAN_INFO = {
+  "1-month": { label: "1 Month" },
+  "3-month": { label: "3 Months" },
+  "6-month": { label: "6 Months" }
+};
+
+const reviewSubscriptionRequest = async (requestId, approve) => {
+  if (!sb || !cloudUser || !await isCloudAdmin()) {
+    showToast("Only the authenticated site CEO can review subscription payments.", true);
+    return;
+  }
+  const rejectNote = approve ? null : window.prompt("Optional reason for rejecting this payment request:");
+  if (!approve && rejectNote === null) return;
+  const result = approve
+    ? await sb.rpc("admin_approve_subscription_request", { p_request_id: requestId })
+    : await sb.rpc("admin_reject_subscription_request", { p_request_id: requestId, p_note: rejectNote });
+  if (result.error) {
+    showToast(`Subscription request could not be ${approve ? "approved" : "rejected"}: ${result.error.message}`, true);
+    return;
+  }
+  showToast(approve ? "Payment approved. Category access is now active." : "Payment request rejected.");
+  await loadAdminSubscriptionRequests();
 };
 
 const renderAdminOverview = () => {
@@ -1948,7 +2014,8 @@ const renderAdminSettings = () => {
 const renderAdminPanel = () => {
   if (!adminPanel) return;
   let body;
-  if (adminTab === "data") body = renderAdminData();
+  if (adminTab === "subscriptions") body = renderAdminSubscriptions();
+  else if (adminTab === "data") body = renderAdminData();
   else if (adminTab === "owners") body = renderAdminOwners();
   else if (adminTab === "categories") body = renderAdminCategories();
   else if (adminTab === "reports") body = renderAdminReports();
@@ -1960,6 +2027,7 @@ const renderAdminPanel = () => {
     `<div class="feature-head"><div class="feature-title"><span class="feature-icon">🛡️</span>` +
     `<div><h3>Super Admin Panel</h3><p class="feature-sub">${escHtml(ceoUser ? ceoUser.name : "CEO")} · full control over every category & owner</p></div></div></div>` +
     body;
+  if (adminTab === "subscriptions") loadAdminSubscriptionRequests();
 };
 
 const toggleOwnerCategory = (mobile, catKey) => {
@@ -2014,6 +2082,23 @@ adminModal.addEventListener("click", (e) => {
   if (chip) { toggleOwnerCategory(chip.getAttribute("data-owner-mobile"), chip.getAttribute("data-owner-cat")); return; }
   const rmOwner = e.target.closest("[data-owner-remove]");
   if (rmOwner) { removeOwnerByIndex(Number(rmOwner.getAttribute("data-owner-remove"))); }
+  const approve = e.target.closest("[data-subscription-approve]");
+  if (approve) {
+    approve.disabled = true;
+    reviewSubscriptionRequest(approve.getAttribute("data-subscription-approve"), true).catch((error) => {
+      showToast(`Subscription review failed: ${error.message}`, true);
+      approve.disabled = false;
+    });
+    return;
+  }
+  const reject = e.target.closest("[data-subscription-reject]");
+  if (reject) {
+    reject.disabled = true;
+    reviewSubscriptionRequest(reject.getAttribute("data-subscription-reject"), false).catch((error) => {
+      showToast(`Subscription review failed: ${error.message}`, true);
+      reject.disabled = false;
+    });
+  }
 });
 
 document.addEventListener("keydown", (e) => {

@@ -301,6 +301,14 @@
 .category-record-fields label, .category-auth-form label {
   display: grid; gap: 0.4rem; color: var(--ink); font-size: 0.84rem; font-weight: 700;
 }
+.category-auth-form .category-subscription-ack {
+  display: flex; align-items: flex-start; gap: 0.55rem;
+  color: var(--muted); font-size: 0.8rem; line-height: 1.45;
+}
+.category-auth-form .category-subscription-ack input {
+  width: 1rem; height: 1rem; flex: 0 0 auto; margin-top: 0.1rem; padding: 0;
+  border: 1px solid #d8deea; border-radius: 3px; cursor: pointer;
+}
 .category-record-fields input, .category-record-fields select, .category-record-fields textarea,
 .category-auth-form input {
   width: 100%; min-width: 0; padding: 0.75rem 0.85rem; border: 1px solid #d8deea;
@@ -316,6 +324,17 @@
 .category-auth-error { min-height: 1.2rem; margin: 0; color: #b42318; font-size: 0.82rem; line-height: 1.5; }
 .category-auth-switch { margin: 1rem 0 0; color: var(--muted); font-size: 0.85rem; text-align: center; }
 .category-workspace-loading { padding: 2rem 0; color: var(--muted); text-align: center; }
+.category-jazzcash-box {
+  display: grid; gap: 0.3rem; margin: 1rem 0; padding: 1rem 1.1rem;
+  border: 1px solid #f3d6ad; border-radius: 14px;
+  background: linear-gradient(135deg, #fff8ed, #fffdf8);
+}
+.category-jazzcash-box span {
+  color: #78501e; font-size: 0.7rem; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.category-jazzcash-box strong { color: var(--ink); font-size: 1.25rem; letter-spacing: 0.03em; }
+.category-jazzcash-box small { color: var(--muted); font-size: 0.77rem; line-height: 1.5; }
 
 /* ---------- Plans ---------- */
 .cat-plans {
@@ -390,6 +409,7 @@
 .cat-plan.popular li::before { color: var(--cyan); }
 
 .cat-plan .btn { margin-top: auto; width: 100%; text-align: center; }
+.cat-plan button.btn { cursor: pointer; font: inherit; font-weight: 700; }
 .cat-plan.popular .btn-primary {
   background: #ffffff; color: #2b3dda; box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.7);
 }

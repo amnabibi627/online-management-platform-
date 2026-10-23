@@ -8,6 +8,11 @@ const CATEGORY_SITE_NAME = "Online Management Site";
 const CATEGORY_SITE_URL = "https://onlinemanagement.site";
 const CATEGORY_MODULES = window.OMS_FEATURE_MODULES;
 const CATEGORY_SUPABASE = CATEGORY_MODULES.supabaseClient;
+const CATEGORY_SUBSCRIPTION_PLANS = {
+  "1-month": { label: "1 Month", months: 1, price: 3000 },
+  "3-month": { label: "3 Months", months: 3, price: 9000 },
+  "6-month": { label: "6 Months", months: 6, price: 12000 }
+};
 
 const CATEGORIES = {
   clinic: {
@@ -268,6 +273,9 @@ let categoryEditId = null;
 let categoryBusy = false;
 let categorySessionReady = false;
 let categorySessionPromise = Promise.resolve();
+let categorySubscription = null;
+let categoryLatestRequest = null;
+let categorySelectedPlan = null;
 
 const categoryFeatureDef = (featureId, card) => {
   const registered = CATEGORY_MODULES.FEATURE_REGISTRY[CURRENT.key]?.[featureId];
@@ -298,8 +306,10 @@ const categoryEnsureToolsUi = () => {
     const accountBar = document.createElement("div");
     accountBar.id = "categoryAccountBar";
     accountBar.className = "category-account-bar";
-    accountBar.innerHTML = `<div><strong>Secure cloud workspace</strong><span id="categoryAccountStatus">Sign in to save and sync your business records.</span></div>` +
-      `<div class="category-account-actions"><button type="button" class="btn btn-primary" id="categorySignIn">Sign in / Create account</button>` +
+    accountBar.innerHTML = `<div><strong>Category subscription</strong><span id="categoryAccountStatus">Choose a plan for this category to unlock its tools.</span></div>` +
+      `<div class="category-account-actions"><button type="button" class="btn btn-primary" id="categorySubscribe">View plans</button>` +
+      `<button type="button" class="btn btn-outline" id="categoryLogin">Sign in</button>` +
+      `<button type="button" class="btn btn-outline" id="categoryRefreshAccess" hidden>Refresh access</button>` +
       `<button type="button" class="btn btn-outline" id="categorySignOut" hidden>Sign out</button></div>`;
     featureSection.before(accountBar);
   }
@@ -307,37 +317,86 @@ const categoryEnsureToolsUi = () => {
 
 const setCategoryAccountUi = () => {
   const status = document.getElementById("categoryAccountStatus");
-  const signIn = document.getElementById("categorySignIn");
+  const subscribe = document.getElementById("categorySubscribe");
+  const login = document.getElementById("categoryLogin");
+  const refresh = document.getElementById("categoryRefreshAccess");
   const signOut = document.getElementById("categorySignOut");
-  if (!status || !signIn || !signOut) return;
+  if (!status || !subscribe || !login || !refresh || !signOut) return;
   if (!CATEGORY_SUPABASE) {
     status.textContent = "Cloud service is unavailable. Please refresh or contact support.";
-    signIn.disabled = true;
+    subscribe.disabled = true;
+    login.disabled = true;
+    document.querySelectorAll("[data-subscription-plan]").forEach((button) => { button.disabled = true; });
     return;
   }
-  status.textContent = categoryUser
-    ? `Signed in as ${categoryUser.user_metadata?.mobile || categoryUser.email}. Records sync securely to your account.`
-    : "Sign in to save and sync your business records.";
-  signIn.hidden = !!categoryUser;
+  if (categorySubscription?.status === "active" && new Date(categorySubscription.expires_at) > new Date()) {
+    status.textContent = `Active until ${new Date(categorySubscription.expires_at).toLocaleDateString()}. ${categoryUser?.user_metadata?.mobile || categoryUser?.email || "Signed in"} · only ${CURRENT.short} access.`;
+    subscribe.textContent = "Renew / Change plan";
+  } else if (categoryLatestRequest?.status === "pending") {
+    status.textContent = `Payment request submitted for ${categoryLatestRequest.plan}. Waiting for the owner to verify your JazzCash payment.`;
+    subscribe.textContent = "View plans";
+  } else if (categoryLatestRequest?.status === "rejected") {
+    status.textContent = `Payment request was not approved${categoryLatestRequest.admin_note ? `: ${categoryLatestRequest.admin_note}` : "."} You can submit a new request.`;
+    subscribe.textContent = "Choose a plan";
+  } else if (categoryUser) {
+    status.textContent = `Signed in as ${categoryUser.user_metadata?.mobile || categoryUser.email}. This category is locked until its subscription is approved.`;
+    subscribe.textContent = "Choose a plan";
+  } else {
+    status.textContent = `Choose a plan for ${CURRENT.short}; payment is verified before access is activated.`;
+    subscribe.textContent = "Choose a plan";
+  }
+  subscribe.hidden = false;
+  login.hidden = !!categoryUser;
+  refresh.hidden = !categoryUser;
   signOut.hidden = !categoryUser;
 };
 
-const showCategoryAuth = (mode = "login", message = "") => {
+const showCategorySignIn = (message = "") => {
   const modal = document.getElementById("categoryAuthModal");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;
-  const signup = mode === "signup";
-  content.innerHTML = `<p class="category-workspace-eyebrow">Online Management Site</p>` +
-    `<h2 id="categoryAuthTitle">${signup ? "Create your secure account" : "Sign in to your workspace"}</h2>` +
-    `<p class="category-auth-copy">Your records are stored in your account and sync across your devices.</p>` +
-    `<form id="categoryAuthForm" class="category-auth-form">` +
-    (signup ? `<label>Full name<input name="name" type="text" autocomplete="name" required minlength="3" maxlength="80"></label>` : "") +
-    `<label>Mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
-    `<label>Password<input name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>` +
+  content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} workspace</p>` +
+    `<h2 id="categoryAuthTitle">Sign in to your account</h2>` +
+    `<p class="category-auth-copy">An active subscription is required for this category. Other categories require their own separate subscription.</p>` +
+    `<form id="categoryLoginForm" class="category-auth-form">` +
+    `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
+    `<label>Password<input name="password" type="password" autocomplete="current-password" required></label>` +
     `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
-    `<button class="btn btn-primary" type="submit">${signup ? "Create account" : "Sign in"}</button></form>` +
-    `<p class="category-auth-switch">${signup ? "Already have an account?" : "New to Online Management Site?"} ` +
-    `<button type="button" data-auth-mode="${signup ? "login" : "signup"}">${signup ? "Sign in" : "Create account"}</button></p>`;
+    `<button class="btn btn-primary" type="submit">Sign in</button></form>` +
+    `<p class="category-auth-switch">New account? Purchase a plan after paying through JazzCash. <button type="button" data-auth-plans>View plans</button></p>`;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  content.querySelector("input")?.focus();
+};
+
+const showCategoryAuth = (planId = categorySelectedPlan, mode = "signup", message = "") => {
+  const modal = document.getElementById("categoryAuthModal");
+  const content = document.getElementById("categoryAuthContent");
+  if (!modal || !content) return;
+  const plan = CATEGORY_SUBSCRIPTION_PLANS[planId];
+  if (!plan) {
+    document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  categorySelectedPlan = planId;
+  const signup = mode === "signup";
+  const alreadySignedIn = !!categoryUser;
+  content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} subscription</p>` +
+    `<h2 id="categoryAuthTitle">Payment &amp; account setup</h2>` +
+    `<p class="category-auth-copy">Plan: <strong>${plan.label}</strong> · PKR ${plan.price.toLocaleString()} · applies only to ${categoryEscape(CURRENT.short)}. Send payment by JazzCash to the owner number below. Access starts only after manual payment verification.</p>` +
+    `<div class="category-jazzcash-box"><span>JazzCash account</span><strong>03042954627</strong><small>Confirm the recipient name shown in JazzCash before sending. Keep your transaction receipt and reference ID.</small></div>` +
+    `<form id="categoryAuthForm" class="category-auth-form">` +
+    (!alreadySignedIn && signup ? `<label>Full name<input name="name" type="text" autocomplete="name" required minlength="3" maxlength="80"></label>` : "") +
+    (alreadySignedIn ? "" : `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
+    `<label>Password<input name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>`) +
+    `<label>JazzCash sender mobile<input name="payerMobile" type="tel" inputmode="tel" required placeholder="Number used to send payment"></label>` +
+    `<label>JazzCash transaction / reference ID<input name="paymentReference" type="text" required maxlength="100" autocomplete="off" placeholder="Enter the transaction ID from your receipt"></label>` +
+    `<label class="category-subscription-ack"><input name="categoryOnly" type="checkbox" required> I understand this purchase activates only ${categoryEscape(CURRENT.short)}.</label>` +
+    `<p class="category-auth-copy">After you submit, this request stays pending while the owner checks the payment in JazzCash. Do not send your password or PIN to anyone.</p>` +
+    `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
+    `<button class="btn btn-primary" type="submit">${alreadySignedIn ? "Submit payment for verification" : signup ? "Create account & submit payment" : "Sign in & submit payment"}</button></form>` +
+    (alreadySignedIn ? `<p class="category-auth-switch">Signed in as ${categoryEscape(categoryUser.user_metadata?.mobile || categoryUser.email)}. <button type="button" data-auth-signout>Use another account</button></p>` :
+      `<p class="category-auth-switch">${signup ? "Already have an account?" : "Need a new account?"} <button type="button" data-auth-mode="${signup ? "login" : "signup"}" data-plan="${categoryEscape(planId)}">${signup ? "Sign in" : "Create account"}</button></p>`);
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
   content.querySelector("input")?.focus();
@@ -362,6 +421,39 @@ const closeCategoryWorkspace = () => {
 const categoryItems = () => {
   const items = categoryData.features[categoryFeature?.id || ""];
   return Array.isArray(items) ? items : [];
+};
+
+const categoryHasAccess = () =>
+  !!categorySubscription &&
+  categorySubscription.status === "active" &&
+  new Date(categorySubscription.expires_at).getTime() > Date.now();
+
+const categoryRefreshSubscription = async () => {
+  if (!categoryUser || !CATEGORY_SUPABASE) {
+    categorySubscription = null;
+    categoryLatestRequest = null;
+    setCategoryAccountUi();
+    return;
+  }
+  const [subscriptionResult, requestResult] = await Promise.all([
+    CATEGORY_SUPABASE.from("category_subscriptions")
+      .select("category,plan,status,started_at,expires_at")
+      .eq("user_id", categoryUser.id)
+      .eq("category", CURRENT.key)
+      .maybeSingle(),
+    CATEGORY_SUPABASE.from("subscription_requests")
+      .select("plan,status,admin_note,created_at")
+      .eq("user_id", categoryUser.id)
+      .eq("category", CURRENT.key)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+  ]);
+  if (subscriptionResult.error) throw subscriptionResult.error;
+  if (requestResult.error) throw requestResult.error;
+  categorySubscription = subscriptionResult.data || null;
+  categoryLatestRequest = requestResult.data || null;
+  setCategoryAccountUi();
 };
 
 const categoryRenderList = () => {
@@ -419,6 +511,7 @@ const categoryRenderForm = (itemId = null) => {
 
 const categoryLoadData = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) return;
+  if (!categoryHasAccess()) throw new Error("An active subscription is required for this category.");
   const { data, error } = await CATEGORY_SUPABASE.from("app_data")
     .select("value")
     .eq("user_id", categoryUser.id)
@@ -433,6 +526,7 @@ const categoryLoadData = async () => {
 
 const categorySaveData = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) throw new Error("Sign in is required to save records.");
+  if (!categoryHasAccess()) throw new Error("Your category subscription is not active.");
   const { error } = await CATEGORY_SUPABASE.from("app_data").upsert({
     user_id: categoryUser.id,
     key: categoryCollectionKey,
@@ -444,8 +538,8 @@ const categorySaveData = async () => {
 
 const openCategoryFeature = async (card) => {
   if (!categorySessionReady) await categorySessionPromise;
-  if (!categoryUser) {
-    showCategoryAuth("login", "Sign in to open this secure workspace.");
+  if (!categoryUser || !categoryHasAccess()) {
+    document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
   const featureId = card.dataset.toolFeature;
@@ -468,20 +562,38 @@ const openCategoryFeature = async (card) => {
 const initCategoryTools = () => {
   categoryEnsureToolsUi();
   setCategoryAccountUi();
-  const signIn = document.getElementById("categorySignIn");
+  const subscribe = document.getElementById("categorySubscribe");
+  const refresh = document.getElementById("categoryRefreshAccess");
   const signOut = document.getElementById("categorySignOut");
-  signIn?.addEventListener("click", () => showCategoryAuth("login"));
+  subscribe?.addEventListener("click", () => {
+    document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  refresh?.addEventListener("click", async () => {
+    if (!categoryUser) return;
+    refresh.disabled = true;
+    try {
+      await categoryRefreshSubscription();
+    } catch (error) {
+      const status = document.getElementById("categoryAccountStatus");
+      if (status) status.textContent = `Could not refresh subscription: ${error.message || "Cloud service error."}`;
+    } finally {
+      refresh.disabled = false;
+    }
+  });
   signOut?.addEventListener("click", async () => {
     if (!CATEGORY_SUPABASE) return;
     try {
       const { error } = await CATEGORY_SUPABASE.auth.signOut();
       if (error) throw error;
       categoryUser = null;
+      categorySubscription = null;
+      categoryLatestRequest = null;
       categoryData.features = {};
       closeCategoryWorkspace();
       setCategoryAccountUi();
     } catch (error) {
-      showCategoryAuth("login", `Sign out failed: ${error.message || "Cloud service is unavailable."}`);
+      const status = document.getElementById("categoryAccountStatus");
+      if (status) status.textContent = `Sign out failed: ${error.message || "Cloud service is unavailable."}`;
     }
   });
 
@@ -492,8 +604,28 @@ const initCategoryTools = () => {
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-workspace-close]")) closeCategoryWorkspace();
     if (event.target.closest("[data-auth-close]")) closeCategoryAuth();
+    const planButton = event.target.closest("[data-subscription-plan]");
+    if (planButton) showCategoryAuth(planButton.dataset.subscriptionPlan, categoryUser ? "request" : "signup");
+    if (event.target.closest("#categoryLogin")) showCategorySignIn();
+    if (event.target.closest("[data-auth-plans]")) {
+      closeCategoryAuth();
+      document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
     const mode = event.target.closest("[data-auth-mode]");
-    if (mode) showCategoryAuth(mode.dataset.authMode);
+    if (mode) showCategoryAuth(mode.dataset.plan, mode.dataset.authMode);
+    if (event.target.closest("[data-auth-signout]")) {
+      CATEGORY_SUPABASE?.auth.signOut().then(({ error }) => {
+        if (error) throw error;
+        categoryUser = null;
+        categorySubscription = null;
+        categoryLatestRequest = null;
+        setCategoryAccountUi();
+        showCategoryAuth(categorySelectedPlan, "signup");
+      }).catch((error) => {
+        const message = document.querySelector("#categoryAuthContent .category-auth-error");
+        if (message) message.textContent = `Could not switch accounts: ${error.message || "Cloud service error."}`;
+      });
+    }
     const add = event.target.closest("[data-tool-add]");
     if (add) categoryRenderForm();
     if (event.target.closest("[data-tool-back]")) categoryRenderList();
@@ -516,6 +648,37 @@ const initCategoryTools = () => {
     }
   });
   document.getElementById("categoryAuthContent")?.addEventListener("submit", async (event) => {
+    const loginForm = event.target.closest("#categoryLoginForm");
+    if (loginForm && CATEGORY_SUPABASE) {
+      event.preventDefault();
+      const formData = new FormData(loginForm);
+      const mobile = categoryMobile(String(formData.get("mobile") || ""));
+      const password = String(formData.get("password") || "");
+      const message = loginForm.querySelector(".category-auth-error");
+      const submit = loginForm.querySelector('button[type="submit"]');
+      if (!/^\d{7,15}$/.test(mobile)) {
+        message.textContent = "Enter a valid account mobile number.";
+        return;
+      }
+      submit.disabled = true;
+      submit.textContent = "Signing in…";
+      try {
+        const { data, error } = await CATEGORY_SUPABASE.auth.signInWithPassword({
+          email: categoryEmail(mobile),
+          password
+        });
+        if (error) throw error;
+        categoryUser = data.user;
+        categorySessionReady = true;
+        await categoryRefreshSubscription();
+        closeCategoryAuth();
+      } catch (error) {
+        message.textContent = error.message || "Sign in failed. Please check your details.";
+        submit.disabled = false;
+        submit.textContent = "Sign in";
+      }
+      return;
+    }
     const form = event.target.closest("#categoryAuthForm");
     if (!form || !CATEGORY_SUPABASE) return;
     event.preventDefault();
@@ -525,36 +688,55 @@ const initCategoryTools = () => {
     const signup = !!formData.get("name");
     const message = form.querySelector(".category-auth-error");
     const submit = form.querySelector('button[type="submit"]');
-    if (!/^\d{7,15}$/.test(mobile)) {
-      message.textContent = "Enter a valid mobile number, including country code if needed.";
+    const payerMobile = categoryMobile(String(formData.get("payerMobile") || ""));
+    const paymentReference = String(formData.get("paymentReference") || "").trim();
+    if (!/^\d{7,15}$/.test(payerMobile)) {
+      message.textContent = "Enter the mobile number used to send the JazzCash payment.";
+      return;
+    }
+    if (!/^[A-Za-z0-9-]{4,100}$/.test(paymentReference)) {
+      message.textContent = "Enter a valid JazzCash transaction/reference ID (at least 4 letters or numbers).";
       return;
     }
     submit.disabled = true;
-    submit.textContent = signup ? "Creating account…" : "Signing in…";
+    submit.textContent = categoryUser ? "Submitting request…" : signup ? "Creating account…" : "Signing in…";
     try {
-      const result = signup
-        ? await CATEGORY_SUPABASE.auth.signUp({
-          email: categoryEmail(mobile),
-          password,
-          options: { data: { name: String(formData.get("name")).trim(), mobile } }
-        })
-        : await CATEGORY_SUPABASE.auth.signInWithPassword({ email: categoryEmail(mobile), password });
-      if (result.error) throw result.error;
-      if (!result.data.session) {
-        message.textContent = "Account created, but email confirmation is required. Ask the site administrator to turn off Supabase email confirmation, then sign in.";
-        submit.disabled = false;
-        submit.textContent = "Create account";
-        return;
+      if (!categoryUser) {
+        if (!/^\d{7,15}$/.test(mobile)) throw new Error("Enter a valid account mobile number.");
+        const result = signup
+          ? await CATEGORY_SUPABASE.auth.signUp({
+            email: categoryEmail(mobile),
+            password,
+            options: { data: { name: String(formData.get("name")).trim(), mobile } }
+          })
+          : await CATEGORY_SUPABASE.auth.signInWithPassword({ email: categoryEmail(mobile), password });
+        if (result.error) throw result.error;
+        if (!result.data.session || !result.data.user) {
+          throw new Error("Email confirmation is enabled, so sign-up cannot continue yet. The site administrator must disable Supabase email confirmation, then you can sign in.");
+        }
+        categoryUser = result.data.user;
+        categorySessionReady = true;
       }
-      categoryUser = result.data.user;
+      const request = await CATEGORY_SUPABASE.from("subscription_requests").insert({
+        user_id: categoryUser.id,
+        category: CURRENT.key,
+        plan: categorySelectedPlan,
+        amount: CATEGORY_SUBSCRIPTION_PLANS[categorySelectedPlan].price,
+        account_name: String(formData.get("name") || categoryUser.user_metadata?.name || "Account holder").trim().slice(0, 80),
+        account_mobile: categoryMobile(String(formData.get("mobile") || categoryUser.user_metadata?.mobile || categoryUser.email?.split("@")[0] || "")),
+        payment_reference: paymentReference,
+        payer_mobile: payerMobile,
+        status: "pending"
+      });
+      if (request.error) throw request.error;
+      await categoryRefreshSubscription();
       closeCategoryAuth();
       setCategoryAccountUi();
-      await categoryLoadData();
-      if (categoryFeature) categoryRenderList();
+      document.getElementById("categoryAccountBar")?.scrollIntoView({ behavior: "smooth", block: "center" });
     } catch (error) {
       message.textContent = error.message || "Authentication failed. Please try again.";
       submit.disabled = false;
-      submit.textContent = signup ? "Create account" : "Sign in";
+      submit.textContent = categoryUser ? "Submit payment for verification" : signup ? "Create account & submit payment" : "Sign in & submit payment";
     }
   });
   document.getElementById("categoryWorkspaceContent")?.addEventListener("submit", async (event) => {
@@ -605,21 +787,32 @@ const initCategoryTools = () => {
       if (error) throw error;
       categoryUser = data.session?.user || null;
       categorySessionReady = true;
+      if (categoryUser) return categoryRefreshSubscription();
+      categorySubscription = null;
+      categoryLatestRequest = null;
       setCategoryAccountUi();
-      if (categoryUser) return categoryLoadData();
     }).catch((error) => {
       categorySessionReady = true;
-      setCategoryAccountUi();
-      showCategoryAuth("login", `Session check failed: ${error.message || "Cloud service is unavailable."}`);
+      const status = document.getElementById("categoryAccountStatus");
+      if (status) status.textContent = `Could not verify account: ${error.message || "Cloud service is unavailable."}`;
     });
     CATEGORY_SUPABASE.auth.onAuthStateChange((_event, session) => {
       categoryUser = session?.user || null;
       categorySessionReady = true;
       if (!categoryUser) {
         categoryData.features = {};
+        categorySubscription = null;
+        categoryLatestRequest = null;
         closeCategoryWorkspace();
+        setCategoryAccountUi();
+      } else {
+        setTimeout(() => {
+          categoryRefreshSubscription().catch((error) => {
+            const status = document.getElementById("categoryAccountStatus");
+            if (status) status.textContent = `Could not verify this category subscription: ${error.message || "Cloud service error."}`;
+          });
+        }, 0);
       }
-      setCategoryAccountUi();
     });
   }
 };

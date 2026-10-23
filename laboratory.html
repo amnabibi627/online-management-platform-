@@ -21,8 +21,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261023K" />
-  <link rel="stylesheet" href="category.css?v=20261023M" />
+  <link rel="stylesheet" href="styles.css?v=20261023N" />
+  <link rel="stylesheet" href="category.css?v=20261023O" />
 </head>
 <body data-category="laboratory">
 
@@ -78,7 +78,7 @@
           <h1 id="catH1">Laboratory <span class="accent">Management</span></h1>
           <p id="catDesc">Test catalog, sample tracking, digital reports and delivery — your lab, fully paperless.</p>
           <div class="cat-hero-actions">
-            <a href="index.html#business-registration" class="btn btn-primary btn-lg">Register Your Business</a>
+            <a href="#categorySubscriptionPlans" class="btn btn-primary btn-lg">Get Category Access</a>
             <a href="https://wa.me/923042954627" target="_blank" rel="noopener" class="btn btn-outline btn-lg">Talk to the Owner</a>
           </div>
           <ul class="cat-hero-points">
@@ -94,7 +94,7 @@
           <p>Every tool below is part of the Laboratory portal.</p>
           <div class="cat-hero-stats">
             <div><strong id="catToolsStat">12</strong><span>Tools</span></div>
-            <div><strong>3</strong><span>Ad Plans</span></div>
+            <div><strong>3</strong><span>Subscription Plans</span></div>
             <div><strong>1</strong><span>Dashboard</span></div>
           </div>
         </aside>
@@ -174,50 +174,48 @@
     </section>
 
     <!-- ========== PLANS ========== -->
-    <section class="cat-plans">
+    <section class="cat-plans" id="categorySubscriptionPlans">
       <div class="container">
         <div class="section-head">
-          <h2 class="section-title">Choose Your <span class="accent">Ad Plan</span></h2>
-          <p class="section-subtitle">Your business ad runs on this website for the plan you pick.</p>
+          <h2 class="section-title">Choose Your <span class="accent">Management Plan</span></h2>
+          <p class="section-subtitle">Subscribe to this category only. Each category has its own separate access and subscription.</p>
         </div>
 
         <div class="cat-plan-grid">
           <div class="cat-plan">
-            <span class="cat-plan-tag">Starter</span>
-            <strong class="cat-plan-price">2,500 <em>PKR</em></strong>
-            <span class="cat-plan-days">15 days</span>
+            <span class="cat-plan-tag">1 Month</span>
+            <strong class="cat-plan-price">3,000 <em>PKR</em></strong>
+            <span class="cat-plan-days">One category · 1 month</span>
             <ul>
-              <li>Business ad on the home page</li>
-              <li>Photos and contact details</li>
-              <li>Direct WhatsApp button</li>
+              <li>Full access to every Laboratory tool</li>
+              <li>Secure account and cloud-saved records</li>
+              <li>Access starts after payment approval</li>
             </ul>
-            <a href="index.html#business-registration" class="btn btn-outline">Choose 15 Days</a>
+            <button type="button" class="btn btn-outline" data-subscription-plan="1-month">Choose 1 Month</button>
           </div>
 
           <div class="cat-plan popular">
-            <span class="cat-plan-tag">Most Popular</span>
-            <strong class="cat-plan-price">5,000 <em>PKR</em></strong>
-            <span class="cat-plan-days">30 days</span>
+            <span class="cat-plan-tag">3 Months</span>
+            <strong class="cat-plan-price">9,000 <em>PKR</em></strong>
+            <span class="cat-plan-days">One category · 3 months</span>
             <ul>
-              <li>Business ad on the home page</li>
-              <li>Photos, videos and social links</li>
-              <li>Direct WhatsApp button</li>
-              <li>Priority placement in the ads list</li>
+              <li>Full access to every Laboratory tool</li>
+              <li>Secure account and cloud-saved records</li>
+              <li>Access starts after payment approval</li>
             </ul>
-            <a href="index.html#business-registration" class="btn btn-primary">Choose 30 Days</a>
+            <button type="button" class="btn btn-primary" data-subscription-plan="3-month">Choose 3 Months</button>
           </div>
 
           <div class="cat-plan">
             <span class="cat-plan-tag">Best Value</span>
-            <strong class="cat-plan-price">60,000 <em>PKR</em></strong>
-            <span class="cat-plan-days">1 full year</span>
+            <strong class="cat-plan-price">12,000 <em>PKR</em></strong>
+            <span class="cat-plan-days">One category · 6 months</span>
             <ul>
-              <li>Business ad for 12 months</li>
-              <li>Photos, videos and social links</li>
-              <li>Direct WhatsApp button</li>
-              <li>No monthly renewal needed</li>
+              <li>Full access to every Laboratory tool</li>
+              <li>Secure account and cloud-saved records</li>
+              <li>Access starts after payment approval</li>
             </ul>
-            <a href="index.html#business-registration" class="btn btn-outline">Choose 1 Year</a>
+            <button type="button" class="btn btn-outline" data-subscription-plan="6-month">Choose 6 Months</button>
           </div>
         </div>
       </div>
@@ -300,7 +298,7 @@
   <script src="anti-copy.js?v=20261023J"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="category.js?v=20261023K"></script>
+  <script src="category.js?v=20261023N"></script>
   <script src="ui.js?v=20261023J"></script>
 
 </body>

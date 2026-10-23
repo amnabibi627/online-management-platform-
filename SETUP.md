@@ -5,10 +5,19 @@ Online Management Site — `https://onlinemanagement.site`
 Static site (HTML / CSS / JS). Cloudflare Pages host. Supabase for auth and
 cloud sync. `localStorage` for offline work.
 
-Category-page feature workspaces require a signed-in Supabase account. Their
-records are stored under the account's `app_data` row for that category and are
-not saved to browser-only storage. The `app_data` row-level security policy in
-`supabase/setup.sql` limits access to the authenticated account owner.
+Category-page feature workspaces require an approved, unexpired subscription
+for that specific category. Records are stored in that account's category
+`app_data` row and are not saved to browser-only storage. Supabase row-level
+security checks the category subscription on every read and write, so paying
+for one category does not unlock another.
+
+Payments are manual: the customer sends JazzCash to `03042954627`, creates or
+signs into an account, then submits the sender's mobile number and transaction
+reference for the selected category and plan. The request remains pending until
+the CEO checks the payment in JazzCash and approves it in **Super Admin →
+Subscriptions**. Approval activates only the requested category; a renewal
+extends its current expiry. Do not approve a request until the amount, sender,
+and transaction reference match the JazzCash payment history.
 
 ---
 
@@ -30,10 +39,16 @@ Accounts are keyed by mobile number, so the app signs in with
 This creates:
 
 - `public.admins` — the CEO table (with RLS, so a user can only read their own row)
+- `public.category_subscriptions` — active/revoked, expiry-based access per user and category
+- `public.subscription_requests` — private payment requests for customer and admin review
+- CEO-only functions to atomically approve or reject a payment request
 - `public.site_profile` — the owner photo shown to every visitor (anyone can read
   it, only an admin can write it)
-- locks down `public.app_data` (only the owner of a row can read or write it, and
-  the anonymous role cannot insert anything)
+- locks down `public.app_data` so category records also require an active
+  subscription for that category (and the anonymous role cannot insert anything)
+
+Re-run this setup SQL after deploying the subscription flow. New category
+accounts cannot submit payment requests until the new tables and policies exist.
 
 ### 1.3 Make your own account the CEO
 
@@ -54,6 +69,24 @@ select user_id, email, role from public.admins;
 
 > If the insert returns 0 rows, the account does not exist yet. Open the site,
 > sign up with that mobile number first, then run the insert again.
+
+### 1.4 Reviewing JazzCash payments
+
+1. Open the **Owner Account** button on the home page and sign in as the CEO.
+2. Open **Super Admin → Subscriptions**.
+3. For each pending request, open JazzCash and confirm the transaction
+   reference, sender mobile, and exact plan amount in your received-payment
+   history.
+4. Press **Verify & approve** only after all three details match. Approval
+   starts or extends the subscription for that one category. Reject requests
+   that cannot be verified.
+
+The website does not verify JazzCash automatically. Never approve a request
+based only on the customer's submitted reference or screenshot.
+
+The category plans are PKR 3,000 for one month, PKR 9,000 for three months,
+and PKR 12,000 for six months. A customer's same login may hold several
+subscriptions, but every category must be purchased and approved separately.
 
 ---
 

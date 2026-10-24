@@ -9,6 +9,8 @@
 --    browser can ask "am I the CEO?" without the answer being
 --    spoofable. Only the service role can insert rows.
 -- ------------------------------------------------------------
+create extension if not exists pgcrypto with schema extensions;
+
 create table if not exists public.admins (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null unique references auth.users(id) on delete cascade,
@@ -60,9 +62,18 @@ revoke all on function public.is_oms_admin() from public;
 grant execute on function public.is_oms_admin() to anon, authenticated;
 
 create table if not exists public.oms_ceo_bootstrap_state (
-  singleton   boolean primary key default true check (singleton),
-  consumed_at timestamptz
+  singleton       boolean primary key default true check (singleton),
+  expected_email  text,
+  expected_name   text,
+  expected_mobile text,
+  secret_hash     text,
+  consumed_at     timestamptz
 );
+
+alter table public.oms_ceo_bootstrap_state add column if not exists expected_email text;
+alter table public.oms_ceo_bootstrap_state add column if not exists expected_name text;
+alter table public.oms_ceo_bootstrap_state add column if not exists expected_mobile text;
+alter table public.oms_ceo_bootstrap_state add column if not exists secret_hash text;
 
 insert into public.oms_ceo_bootstrap_state (singleton, consumed_at)
 values (true, null)
@@ -71,6 +82,54 @@ on conflict (singleton) do nothing;
 alter table public.oms_ceo_bootstrap_state enable row level security;
 revoke all on table public.oms_ceo_bootstrap_state from public, anon, authenticated;
 grant all on table public.oms_ceo_bootstrap_state to service_role;
+
+create or replace function public.configure_oms_ceo_bootstrap(
+  p_email text,
+  p_name text,
+  p_mobile text,
+  p_secret text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  setup_state public.oms_ceo_bootstrap_state%rowtype;
+begin
+  select * into setup_state
+  from public.oms_ceo_bootstrap_state
+  where singleton
+  for update;
+
+  if not found then
+    raise exception 'CEO setup state is missing';
+  end if;
+  if setup_state.consumed_at is not null
+    or exists (select 1 from public.admins where role = 'ceo')
+  then
+    raise exception 'The one-time CEO setup has already been used';
+  end if;
+  if p_email is null or length(trim(p_email)) > 254
+    or position('@' in p_email) < 2
+    or p_name is null or char_length(trim(p_name)) not between 3 and 80
+    or p_mobile is null or p_mobile !~ '^03[0-9]{9}$'
+    or p_secret is null or char_length(p_secret) not between 32 and 256
+  then
+    raise exception 'Provide valid CEO details and a setup secret between 32 and 256 characters';
+  end if;
+
+  update public.oms_ceo_bootstrap_state
+  set expected_email = lower(trim(p_email)),
+      expected_name = trim(p_name),
+      expected_mobile = p_mobile,
+      secret_hash = extensions.crypt(p_secret, extensions.gen_salt('bf'))
+  where singleton;
+end;
+$$;
+
+revoke all on function public.configure_oms_ceo_bootstrap(text, text, text, text) from public, anon, authenticated;
+grant execute on function public.configure_oms_ceo_bootstrap(text, text, text, text) to service_role;
 
 create or replace function public.oms_ceo_setup_available()
 returns boolean
@@ -82,6 +141,8 @@ as $$
   select exists (
     select 1 from public.oms_ceo_bootstrap_state s
     where s.singleton and s.consumed_at is null
+      and s.expected_email is not null and s.expected_name is not null
+      and s.expected_mobile is not null and s.secret_hash is not null
       and not exists (select 1 from public.admins a where a.role = 'ceo')
   );
 $$;
@@ -89,12 +150,9 @@ $$;
 revoke all on function public.oms_ceo_setup_available() from public;
 grant execute on function public.oms_ceo_setup_available() to anon, authenticated, service_role;
 
-create or replace function public.complete_oms_ceo_bootstrap(
-  p_user_id uuid,
-  p_email text,
-  p_name text,
-  p_mobile text
-)
+drop function if exists public.complete_oms_ceo_bootstrap(uuid, text, text, text);
+
+create or replace function public.claim_oms_ceo(p_name text, p_mobile text, p_secret text)
 returns void
 language plpgsql
 security definer
@@ -102,9 +160,10 @@ set search_path = ''
 as $$
 declare
   setup_state public.oms_ceo_bootstrap_state%rowtype;
+  auth_email text;
 begin
-  if auth.role() is distinct from 'service_role' then
-    raise exception 'Only the trusted CEO setup service can complete bootstrap';
+  if auth.uid() is null then
+    raise exception 'Sign in before claiming the CEO account';
   end if;
 
   select * into setup_state
@@ -113,28 +172,36 @@ begin
   for update;
 
   if not found or setup_state.consumed_at is not null
+    or setup_state.expected_email is null or setup_state.secret_hash is null
     or exists (select 1 from public.admins where role = 'ceo')
   then
     raise exception 'One-time CEO setup has already been used';
   end if;
-  if p_user_id is null or p_email is null
-    or p_name is null or char_length(trim(p_name)) not between 3 and 80
-    or p_mobile is null or p_mobile !~ '^03[0-9]{9}$'
+
+  select lower(u.email) into auth_email
+  from auth.users u
+  where u.id = auth.uid();
+
+  if auth_email is distinct from setup_state.expected_email
+    or trim(coalesce(p_name, '')) is distinct from setup_state.expected_name
+    or p_mobile is distinct from setup_state.expected_mobile
+    or p_secret is null or char_length(p_secret) not between 32 and 256
+    or extensions.crypt(p_secret, setup_state.secret_hash) is distinct from setup_state.secret_hash
   then
-    raise exception 'Invalid CEO account details';
+    raise exception 'The supplied CEO details could not be verified';
   end if;
 
   insert into public.admins (user_id, email, full_name, mobile, role)
-  values (p_user_id, lower(trim(p_email)), trim(p_name), p_mobile, 'ceo');
+  values (auth.uid(), auth_email, setup_state.expected_name, setup_state.expected_mobile, 'ceo');
 
   update public.oms_ceo_bootstrap_state
-  set consumed_at = now()
+  set consumed_at = now(), secret_hash = null
   where singleton;
 end;
 $$;
 
-revoke all on function public.complete_oms_ceo_bootstrap(uuid, text, text, text) from public, anon, authenticated;
-grant execute on function public.complete_oms_ceo_bootstrap(uuid, text, text, text) to service_role;
+revoke all on function public.claim_oms_ceo(text, text, text) from public, anon;
+grant execute on function public.claim_oms_ceo(text, text, text) to authenticated;
 
 create or replace function public.update_oms_ceo_profile(p_name text, p_mobile text)
 returns void

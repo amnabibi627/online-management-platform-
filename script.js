@@ -1197,26 +1197,49 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       }
 
       cloudState("syncing", "Creating…");
-      let bootstrapError;
+      let authResult = await sb.auth.signUp({
+        email,
+        password,
+        options: { data: { name, mobile } },
+      });
+      if (authResult.error) {
+        if (!/already registered|already been registered/i.test(authResult.error.message || "")) {
+          ceoSecretInput.value = "";
+          throw authResult.error;
+        }
+        authResult = await sb.auth.signInWithPassword({ email, password });
+      } else if (!authResult.data.session) {
+        authResult = await sb.auth.signInWithPassword({ email, password });
+        if (authResult.error && /not confirmed|email_not_confirmed/i.test(authResult.error.message || "")) {
+          ceoSecretInput.value = "";
+          throw new Error("Supabase email confirmation is on. Turn off Confirm email in Authentication → Providers → Email, then try again.");
+        }
+      }
+      if (authResult.error) {
+        ceoSecretInput.value = "";
+        throw authResult.error;
+      }
+      if (!authResult.data.session || !authResult.data.user) {
+        ceoSecretInput.value = "";
+        throw new Error("CEO account sign-in did not complete. Check the email confirmation setting and try again.");
+      }
+      cloudUser = authResult.data.user;
+      let claimError;
       try {
-        const result = await sb.functions.invoke("ceo-bootstrap", {
-          body: { email, name, mobile, secret, password },
+        const result = await sb.rpc("claim_oms_ceo", {
+          p_name: name,
+          p_mobile: mobile,
+          p_secret: secret,
         });
-        bootstrapError = result.error;
+        claimError = result.error;
       } finally {
         ceoSecretInput.value = "";
       }
-      if (bootstrapError) {
-        let message = bootstrapError.message || "CEO setup failed.";
-        try {
-          const details = await bootstrapError.context?.json();
-          if (details?.error) message = details.error;
-        } catch {}
-        throw new Error(message);
+      if (claimError) {
+        await sb.auth.signOut();
+        cloudUser = null;
+        throw claimError;
       }
-      const { data, error: loginError } = await sb.auth.signInWithPassword({ email, password });
-      if (loginError) throw new Error(`CEO account was created, but sign-in failed: ${loginError.message}`);
-      cloudUser = data.user;
       if (!await isCloudAdmin()) {
         await sb.auth.signOut();
         cloudUser = null;

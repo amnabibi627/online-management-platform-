@@ -3604,7 +3604,7 @@ const loadReviews = async () => {
     return;
   }
   const { data, error } = await sb.from("site_reviews")
-    .select("id,author_id,author_name,rating,comment,created_at")
+    .select("*")
     .order("created_at", { ascending: false })
     .limit(500);
   if (error) {
@@ -3620,7 +3620,9 @@ const loadReviews = async () => {
     name: review.author_name,
     rating: review.rating,
     text: review.comment,
-    at: review.created_at
+    at: review.created_at,
+    reply: review.owner_reply || "",
+    replyAt: review.owner_reply_at || null
   }));
   renderReviews();
 };
@@ -3697,8 +3699,7 @@ const renderReviews = () => {
     }).join("");
   }
   if (revNameInput) {
-    revNameInput.value = currentUser?.name || "";
-    revNameInput.readOnly = !!currentUser;
+    revNameInput.readOnly = false;
   }
 
   if (!total) {
@@ -3712,6 +3713,24 @@ const renderReviews = () => {
   reviewList.innerHTML = sorted.map((r) => {
     const initial = escHtml(String(r.name || "?").trim().charAt(0).toUpperCase());
     const canDelete = isCEO || (r.author_id && r.author_id === accountAuthUser?.id);
+    const reply = String(r.reply || "").trim();
+    const replyBlock = reply
+      ? `<div class="review-reply">` +
+          `<div class="review-reply-head">` +
+            `<span class="review-reply-badge">Owner reply</span>` +
+            (r.replyAt ? `<span class="review-reply-date">${fmtReviewDate(r.replyAt)}</span>` : "") +
+          `</div>` +
+          `<p class="review-reply-text">${escHtml(reply)}</p>` +
+        `</div>`
+      : "";
+    const ownerActions = isCEO
+      ? `<div class="review-owner-actions">` +
+          `<button type="button" class="review-reply-open" data-review-reply="${escHtml(r.id)}">` +
+            (reply ? "Edit reply" : "Reply as owner") +
+          `</button>` +
+          (reply ? `<button type="button" class="review-reply-open is-danger" data-review-reply-remove="${escHtml(r.id)}">Remove reply</button>` : "") +
+        `</div>`
+      : "";
     return `<div class="review-item" data-review-id="${escHtml(r.id)}">` +
       `<div class="review-item-head">` +
       `<span class="review-avatar">${initial}</span>` +
@@ -3720,6 +3739,8 @@ const renderReviews = () => {
       `<span class="review-date">${fmtReviewDate(r.at)}</span>` +
       `</div>` +
       (r.text ? `<p class="review-comment">${escHtml(r.text)}</p>` : "") +
+      replyBlock +
+      ownerActions +
       (canDelete ? `<button type="button" class="review-del" data-review-del="${escHtml(r.id)}" title="Delete review" aria-label="Delete review">&times;</button>` : "") +
       `</div>`;
   }).join("");
@@ -3747,20 +3768,9 @@ if (starPicker) {
 }
 
 if (revNameInput) {
-  revNameInput.addEventListener("focus", () => {
-    if (currentUser && currentUser.name) return;
-    if (typeof openUserModal === "function") {
-      openUserModal("signup");
-      revNameInput.blur();
-      return;
-    }
-  });
-  revNameInput.addEventListener("click", () => {
-    if (currentUser && currentUser.name) return;
-    if (typeof openUserModal === "function") {
-      openUserModal("signup");
-      revNameInput.blur();
-    }
+  revNameInput.addEventListener("input", () => {
+    if (revNameErr) revNameErr.textContent = "";
+    revNameInput.classList.remove("invalid");
   });
 }
 
@@ -3797,7 +3807,7 @@ if (reviewForm) {
     try {
       const { error } = await sb.from("site_reviews").insert({
         author_id: accountAuthUser.id,
-        author_name: currentUser.name,
+        author_name: name,
         rating: pickedRating,
         comment: text
       });
@@ -3822,8 +3832,83 @@ if (reviewForm) {
   });
 }
 
+const findReviewItem = (id) =>
+  Array.prototype.find.call(
+    reviewList ? reviewList.querySelectorAll(".review-item") : [],
+    (el) => el.dataset.reviewId === id
+  );
+
+const openOwnerReplyEditor = (id) => {
+  const item = findReviewItem(id);
+  if (!item) return;
+  Array.prototype.forEach.call(
+    reviewList.querySelectorAll(".review-reply-form"),
+    (form) => { if (form.dataset.reviewReplyForm !== id) form.remove(); }
+  );
+  const existing = item.querySelector(".review-reply-form");
+  if (existing) {
+    const area = existing.querySelector("textarea");
+    if (area) area.focus();
+    return;
+  }
+  const review = getReviews().find((r) => r.id === id);
+  const form = document.createElement("form");
+  form.className = "review-reply-form";
+  form.dataset.reviewReplyForm = id;
+  form.innerHTML =
+    `<label class="review-reply-label">Owner reply</label>` +
+    `<textarea rows="3" maxlength="500" aria-label="Owner reply" placeholder="Write a reply as the site owner…"></textarea>` +
+    `<div class="review-reply-actions">` +
+      `<button type="button" class="review-reply-cancel" data-review-reply-cancel="1">Cancel</button>` +
+      `<button type="submit" class="review-reply-save">Save reply</button>` +
+    `</div>`;
+  form.querySelector("textarea").value = (review && review.reply) || "";
+  item.appendChild(form);
+  form.querySelector("textarea").focus();
+};
+
 if (reviewList) {
   reviewList.addEventListener("click", async (e) => {
+    const cancel = e.target.closest("[data-review-reply-cancel]");
+    if (cancel) {
+      const form = cancel.closest(".review-reply-form");
+      if (form) form.remove();
+      return;
+    }
+
+    const openReply = e.target.closest("[data-review-reply]");
+    if (openReply) {
+      if (!(ceoMode && ceoUser)) {
+        showToast("Only the site owner can reply to reviews.", true);
+        return;
+      }
+      openOwnerReplyEditor(openReply.getAttribute("data-review-reply"));
+      return;
+    }
+
+    const removeReply = e.target.closest("[data-review-reply-remove]");
+    if (removeReply) {
+      if (!(ceoMode && ceoUser)) {
+        showToast("Only the site owner can remove replies.", true);
+        return;
+      }
+      const replyId = removeReply.getAttribute("data-review-reply-remove");
+      if (!confirm("Remove the owner reply from this review?")) return;
+      removeReply.disabled = true;
+      try {
+        const { error } = await sb.from("site_reviews")
+          .update({ owner_reply: null, owner_reply_at: null })
+          .eq("id", replyId);
+        if (error) throw error;
+        await loadReviews();
+        showToast("Owner reply removed.");
+      } catch (error) {
+        showToast(`Reply could not be removed: ${error.message || "Cloud service error."}`, true);
+        removeReply.disabled = false;
+      }
+      return;
+    }
+
     const btn = e.target.closest("[data-review-del]");
     if (!btn) return;
     const id = btn.getAttribute("data-review-del");
@@ -3845,6 +3930,37 @@ if (reviewList) {
     } catch (error) {
       showToast(`Review could not be deleted: ${error.message || "Cloud service error."}`, true);
       btn.disabled = false;
+    }
+  });
+
+  reviewList.addEventListener("submit", async (e) => {
+    const form = e.target.closest("[data-review-reply-form]");
+    if (!form) return;
+    e.preventDefault();
+    if (!(ceoMode && ceoUser)) {
+      showToast("Only the site owner can reply to reviews.", true);
+      return;
+    }
+    const replyId = form.dataset.reviewReplyForm;
+    const area = form.querySelector("textarea");
+    const text = String(area ? area.value : "").trim();
+    if (!text) {
+      showToast("Write a reply before saving.", true);
+      if (area) area.focus();
+      return;
+    }
+    const save = form.querySelector('button[type="submit"]');
+    if (save) save.disabled = true;
+    try {
+      const { error } = await sb.from("site_reviews")
+        .update({ owner_reply: text, owner_reply_at: new Date().toISOString() })
+        .eq("id", replyId);
+      if (error) throw error;
+      await loadReviews();
+      showToast("Owner reply saved.");
+    } catch (error) {
+      showToast(`Reply could not be saved: ${error.message || "Cloud service error."}`, true);
+      if (save) save.disabled = false;
     }
   });
 }

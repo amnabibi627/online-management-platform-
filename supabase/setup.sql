@@ -448,26 +448,42 @@ create table if not exists public.site_reviews (
   created_at  timestamptz not null default now()
 );
 
+-- The site owner (CEO) can reply to any public review. Replies are readable by everyone.
+alter table public.site_reviews add column if not exists owner_reply text;
+alter table public.site_reviews add column if not exists owner_reply_at timestamptz;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.site_reviews'::regclass
+      and conname = 'site_reviews_owner_reply_len'
+  ) then
+    alter table public.site_reviews
+      add constraint site_reviews_owner_reply_len
+      check (owner_reply is null or char_length(owner_reply) <= 500);
+  end if;
+end $$;
+
 create index if not exists site_reviews_created_idx on public.site_reviews (created_at desc);
 alter table public.site_reviews enable row level security;
 
 revoke all on table public.site_reviews from anon, authenticated, public;
 grant select on table public.site_reviews to anon, authenticated;
 grant insert, delete on table public.site_reviews to authenticated;
+grant update (owner_reply, owner_reply_at) on table public.site_reviews to authenticated;
 
 drop policy if exists "site_reviews_read_public" on public.site_reviews;
 create policy "site_reviews_read_public" on public.site_reviews
   for select to anon, authenticated using (true);
 
+-- Reviewers choose the public display name they type in the form (it is not
+-- forced to match the account profile name).
 drop policy if exists "site_reviews_insert_own_or_legacy_admin" on public.site_reviews;
 create policy "site_reviews_insert_own_or_legacy_admin" on public.site_reviews
   for insert to authenticated
   with check (
-    (author_id = auth.uid() and legacy_id is null
-      and exists (
-        select 1 from public.customer_profiles p
-        where p.user_id = auth.uid() and p.full_name = author_name
-      ))
+    (author_id = auth.uid() and legacy_id is null)
     or (author_id is null and legacy_id is not null and public.is_oms_admin())
   );
 
@@ -475,6 +491,13 @@ drop policy if exists "site_reviews_delete_own_or_admin" on public.site_reviews;
 create policy "site_reviews_delete_own_or_admin" on public.site_reviews
   for delete to authenticated
   using (author_id = auth.uid() or public.is_oms_admin());
+
+-- Only the CEO can add, edit or remove an owner reply.
+drop policy if exists "site_reviews_owner_reply_admin" on public.site_reviews;
+create policy "site_reviews_owner_reply_admin" on public.site_reviews
+  for update to authenticated
+  using (public.is_oms_admin())
+  with check (public.is_oms_admin());
 
 drop policy if exists "site_reviews_active_account_guard" on public.site_reviews;
 create policy "site_reviews_active_account_guard" on public.site_reviews

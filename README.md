@@ -24,11 +24,14 @@ still rely on browser storage.
   every visitor sees
 - **User accounts** — a real "User Sign Up" page in the header (separate from the
   Owner Account button). Users fill in full name, mobile, email, city, password
-  and confirm password, then sign in to post ratings and comments. Clicking the
-  "Your Name" box in the reviews section opens the same signup page
+  and confirm password, then sign in to post ratings and comments. Signing in
+  does not fill the review name for you — every reviewer types the public name
+  they want shown, and clicking the "Your Name" box no longer jumps to signup
 - **Ratings & comments** — only signed-in users can post a 1–5 star rating and a
-  comment; average score and star distribution shown live. A user can delete only
-  their own review, the CEO can delete any review
+  comment; average score and star distribution shown live. Reviews are public on
+  the landing page for every visitor to read. A user can delete only their own
+  review; the CEO (site owner) can delete any review and reply to any review,
+  with replies visible to everyone
 - **Business registration** — a "Register Your Business" card opens a compact
   modal form with three paid plans (15 days / PKR 2,500, 30 days / PKR 5,000,
   1 year / PKR 60,000) picked inside the form. Requests are saved in Supabase;

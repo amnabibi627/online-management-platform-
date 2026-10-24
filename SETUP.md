@@ -57,7 +57,8 @@ This creates:
 - A server-side CEO availability check and CEO profile/email-management
   functions. No Edge Function deployment or service-role key is needed.
 - `public.customer_profiles` and `public.owner_profiles` — account profiles linked to Supabase Auth
-- `public.site_reviews` — public reviews with signed-in author and CEO-delete policies
+- `public.site_reviews` — public reviews with typed display names, own-review
+  delete, CEO delete and CEO owner replies
 - A CEO-only function for changing owner category access
 - `public.category_subscriptions` — active/revoked, expiry-based access per user and category
 - `public.subscription_requests` — private payment requests for customer and admin review
@@ -84,6 +85,12 @@ Re-run this setup SQL after deploying the subscription flow. New category
 accounts cannot submit payment requests until the new tables and policies exist.
 The updated setup also removes old client-side password hashes from synced
 profile JSON without deleting the profile details.
+
+The same run adds `site_reviews.owner_reply` / `owner_reply_at`, the CEO-only
+reply policy, and the looser insert policy that accepts the display name each
+reviewer types instead of forcing the account profile name. Until it is run, a
+typed review name (different from the profile name) is rejected by row-level
+security and owner replies cannot be saved.
 
 After running the latest setup SQL, **Super Admin → Accounts** lists cloud
 accounts and their owner categories, active subscriptions, pending payment

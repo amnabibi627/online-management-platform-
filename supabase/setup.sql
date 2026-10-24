@@ -49,7 +49,7 @@ as $$
 $$;
 
 revoke all on function public.is_oms_admin() from public;
-grant execute on function public.is_oms_admin() to authenticated;
+grant execute on function public.is_oms_admin() to anon, authenticated;
 
 -- ------------------------------------------------------------
 -- 2. Account profiles and public reviews
@@ -452,6 +452,86 @@ create policy "site_profile_write_admin" on public.site_profile
 -- ------------------------------------------------------------
 -- 6. Public business ad listings and private registration requests
 -- ------------------------------------------------------------
+create or replace function public.business_ad_media_manifest_valid(
+  p_media_files jsonb,
+  p_photo_count integer,
+  p_video_count integer
+)
+returns boolean
+language plpgsql
+immutable
+set search_path = ''
+as $$
+declare
+  v_item jsonb;
+  v_path text;
+  v_kind text;
+  v_photos integer := 0;
+  v_videos integer := 0;
+  v_seen text[] := array[]::text[];
+begin
+  if p_media_files is null
+    or pg_catalog.jsonb_typeof(p_media_files) <> 'array'
+    or pg_catalog.jsonb_array_length(p_media_files) > 35 then
+    return false;
+  end if;
+
+  for v_item in select value from pg_catalog.jsonb_array_elements(p_media_files) loop
+    v_path := v_item ->> 'path';
+    v_kind := v_item ->> 'kind';
+    if v_path is null or v_kind is null or v_kind not in ('photo', 'video')
+      or v_path = any(v_seen)
+      or v_path !~ '^[0-9a-f-]{36}/(photos|videos)/[0-9a-f-]{36}\.(jpg|png|webp|mp4|webm)$'
+      or (v_kind = 'photo' and pg_catalog.split_part(v_path, '/', 2) <> 'photos')
+      or (v_kind = 'video' and pg_catalog.split_part(v_path, '/', 2) <> 'videos') then
+      return false;
+    end if;
+
+    v_seen := pg_catalog.array_append(v_seen, v_path);
+    if v_kind = 'photo' then
+      v_photos := v_photos + 1;
+    else
+      v_videos := v_videos + 1;
+    end if;
+  end loop;
+
+  return p_photo_count between 0 and 30
+    and p_video_count between 0 and 5
+    and v_photos = p_photo_count
+    and v_videos = p_video_count;
+end;
+$$;
+
+revoke all on function public.business_ad_media_manifest_valid(jsonb, integer, integer) from public;
+grant execute on function public.business_ad_media_manifest_valid(jsonb, integer, integer) to anon, authenticated;
+
+create or replace function public.business_ad_media_paths_match_request(p_request_id uuid, p_media_files jsonb)
+returns boolean
+language plpgsql
+immutable
+set search_path = ''
+as $$
+declare
+  v_item jsonb;
+  v_path text;
+begin
+  if p_request_id is null or p_media_files is null
+    or pg_catalog.jsonb_typeof(p_media_files) <> 'array' then
+    return false;
+  end if;
+  for v_item in select value from pg_catalog.jsonb_array_elements(p_media_files) loop
+    v_path := v_item ->> 'path';
+    if v_path is null or pg_catalog.split_part(v_path, '/', 1) <> p_request_id::text then
+      return false;
+    end if;
+  end loop;
+  return true;
+end;
+$$;
+
+revoke all on function public.business_ad_media_paths_match_request(uuid, jsonb) from public;
+grant execute on function public.business_ad_media_paths_match_request(uuid, jsonb) to anon, authenticated;
+
 create table if not exists public.business_ad_requests (
   id                  uuid primary key default gen_random_uuid(),
   legacy_id           text unique,
@@ -468,8 +548,9 @@ create table if not exists public.business_ad_requests (
   facebook            text not null default '' check (char_length(facebook) <= 200),
   instagram           text not null default '' check (char_length(instagram) <= 200),
   tiktok              text not null default '' check (char_length(tiktok) <= 200),
-  photo_count         integer not null default 0 check (photo_count between 0 and 8),
-  video_count         integer not null default 0 check (video_count between 0 and 8),
+  media_files         jsonb not null default '[]'::jsonb,
+  photo_count         integer not null default 0,
+  video_count         integer not null default 0,
   plan                text not null check (plan in ('15days', '30days', '1year')),
   amount              integer not null check (
     (plan = '15days' and amount = 2500) or
@@ -483,6 +564,24 @@ create table if not exists public.business_ad_requests (
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
+
+alter table public.business_ad_requests
+  add column if not exists media_files jsonb not null default '[]'::jsonb;
+update public.business_ad_requests
+set photo_count = 0, video_count = 0
+where media_files = '[]'::jsonb and (photo_count <> 0 or video_count <> 0);
+alter table public.business_ad_requests
+  drop constraint if exists business_ad_requests_photo_count_check,
+  drop constraint if exists business_ad_requests_video_count_check,
+  drop constraint if exists business_ad_requests_media_manifest_check;
+alter table public.business_ad_requests
+  add constraint business_ad_requests_photo_count_check check (photo_count between 0 and 30),
+  add constraint business_ad_requests_video_count_check check (video_count between 0 and 5),
+  add constraint business_ad_requests_media_manifest_check
+    check (
+      public.business_ad_media_manifest_valid(media_files, photo_count, video_count)
+      and public.business_ad_media_paths_match_request(id, media_files)
+    );
 
 create or replace function public.set_business_ad_request_timestamps()
 returns trigger
@@ -520,6 +619,8 @@ create policy "business_ad_requests_insert_pending" on public.business_ad_reques
     and started_at is null
     and expires_at is null
     and legacy_id is null
+    and public.business_ad_media_manifest_valid(media_files, photo_count, video_count)
+    and public.business_ad_media_paths_match_request(id, media_files)
   );
 
 drop policy if exists "business_ad_requests_admin_legacy_insert" on public.business_ad_requests;
@@ -532,6 +633,8 @@ create policy "business_ad_requests_admin_legacy_insert" on public.business_ad_r
     and payment_received_at is null
     and started_at is null
     and expires_at is null
+    and public.business_ad_media_manifest_valid(media_files, photo_count, video_count)
+    and public.business_ad_media_paths_match_request(id, media_files)
   );
 
 drop policy if exists "business_ad_requests_admin_select" on public.business_ad_requests;
@@ -561,12 +664,14 @@ create table if not exists public.business_ads (
   facebook    text not null default '',
   instagram   text not null default '',
   tiktok      text not null default '',
+  media_files jsonb not null default '[]'::jsonb,
   plan        text not null check (plan in ('15days', '30days', '1year')),
   amount      integer not null,
   started_at  timestamptz not null,
   expires_at  timestamptz not null
 );
 
+alter table public.business_ads add column if not exists media_files jsonb not null default '[]'::jsonb;
 create index if not exists business_ads_expiry_idx on public.business_ads (expires_at desc);
 alter table public.business_ads enable row level security;
 revoke all on table public.business_ads from public, anon, authenticated;
@@ -576,6 +681,244 @@ drop policy if exists "business_ads_read_active" on public.business_ads;
 create policy "business_ads_read_active" on public.business_ads
   for select to anon, authenticated
   using (expires_at > now());
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'business-ad-media',
+  'business-ad-media',
+  false,
+  26214400,
+  array['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm']
+)
+on conflict (id) do update set
+  name = excluded.name,
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+grant select, insert on storage.objects to anon, authenticated;
+grant delete on storage.objects to authenticated;
+revoke update, delete on storage.objects from anon;
+revoke update on storage.objects from authenticated;
+
+create or replace function public.can_upload_business_ad_media(p_name text, p_metadata jsonb)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_request public.business_ad_requests%rowtype;
+  v_kind text;
+  v_mime text;
+  v_size bigint;
+begin
+  if p_name !~ '^[0-9a-f-]{36}/(photos|videos)/[0-9a-f-]{36}\.(jpg|png|webp|mp4|webm)$' then
+    return false;
+  end if;
+  v_kind := case pg_catalog.split_part(p_name, '/', 2) when 'photos' then 'photo' else 'video' end;
+  v_mime := p_metadata ->> 'mimetype';
+  v_size := nullif(p_metadata ->> 'size', '')::bigint;
+  if v_mime is null or v_size is null then return false; end if;
+  if v_kind = 'photo' and (v_mime not in ('image/jpeg', 'image/png', 'image/webp') or v_size > 5242880) then
+    return false;
+  end if;
+  if v_kind = 'video' and (v_mime not in ('video/mp4', 'video/webm') or v_size > 26214400) then
+    return false;
+  end if;
+
+  select * into v_request
+  from public.business_ad_requests
+  where id::text = pg_catalog.split_part(p_name, '/', 1)
+    and status = 'pending'
+    and legacy_id is null;
+  if not found
+    or not public.business_ad_media_manifest_valid(
+      v_request.media_files, v_request.photo_count, v_request.video_count
+    )
+    or not (v_request.media_files @> pg_catalog.jsonb_build_array(
+      pg_catalog.jsonb_build_object('path', p_name, 'kind', v_kind)
+    )) then
+    return false;
+  end if;
+  return true;
+exception
+  when invalid_text_representation then return false;
+end;
+$$;
+
+revoke all on function public.can_upload_business_ad_media(text, jsonb) from public;
+grant execute on function public.can_upload_business_ad_media(text, jsonb) to anon, authenticated;
+
+drop policy if exists "business_ad_media_upload_manifest" on storage.objects;
+create policy "business_ad_media_upload_manifest" on storage.objects
+  for insert to anon, authenticated
+  with check (
+    bucket_id = 'business-ad-media'
+    and public.can_upload_business_ad_media(name, metadata)
+  );
+
+drop policy if exists "business_ad_media_read_active_or_admin" on storage.objects;
+create policy "business_ad_media_read_active_or_admin" on storage.objects
+  for select to anon, authenticated
+  using (
+    bucket_id = 'business-ad-media'
+    and (
+      exists (
+        select 1 from public.business_ads ad
+        where ad.request_id::text = pg_catalog.split_part(name, '/', 1)
+          and ad.expires_at > now()
+          and ad.media_files @> pg_catalog.jsonb_build_array(
+            pg_catalog.jsonb_build_object('path', name)
+          )
+      )
+      or (
+        auth.role() = 'authenticated'
+        and public.is_oms_admin()
+        and exists (
+          select 1 from public.business_ad_requests request
+          where request.id::text = pg_catalog.split_part(name, '/', 1)
+            and request.media_files @> pg_catalog.jsonb_build_array(
+              pg_catalog.jsonb_build_object('path', name)
+            )
+        )
+      )
+    )
+  );
+
+drop policy if exists "business_ad_media_delete_pending_or_admin" on storage.objects;
+drop policy if exists "business_ad_media_delete_admin" on storage.objects;
+create policy "business_ad_media_delete_admin" on storage.objects
+  for delete to authenticated
+  using (
+    bucket_id = 'business-ad-media'
+    and public.is_oms_admin()
+  );
+
+drop policy if exists "business_ad_media_select_boundary" on storage.objects;
+create policy "business_ad_media_select_boundary" on storage.objects
+  as restrictive for select to anon, authenticated
+  using (
+    bucket_id <> 'business-ad-media'
+    or (
+      exists (
+        select 1 from public.business_ads ad
+        where ad.request_id::text = pg_catalog.split_part(name, '/', 1)
+          and ad.expires_at > now()
+          and ad.media_files @> pg_catalog.jsonb_build_array(
+            pg_catalog.jsonb_build_object('path', name)
+          )
+      )
+      or (
+        auth.role() = 'authenticated'
+        and public.is_oms_admin()
+        and exists (
+          select 1 from public.business_ad_requests request
+          where request.id::text = pg_catalog.split_part(name, '/', 1)
+            and request.media_files @> pg_catalog.jsonb_build_array(
+              pg_catalog.jsonb_build_object('path', name)
+            )
+        )
+      )
+    )
+  );
+
+drop policy if exists "business_ad_media_insert_boundary" on storage.objects;
+create policy "business_ad_media_insert_boundary" on storage.objects
+  as restrictive for insert to anon, authenticated
+  with check (
+    bucket_id <> 'business-ad-media'
+    or (
+      bucket_id = 'business-ad-media'
+      and public.can_upload_business_ad_media(name, metadata)
+    )
+  );
+
+drop policy if exists "business_ad_media_delete_boundary" on storage.objects;
+create policy "business_ad_media_delete_boundary" on storage.objects
+  as restrictive for delete to anon, authenticated
+  using (bucket_id <> 'business-ad-media' or public.is_oms_admin());
+
+create or replace function public.finalize_business_ad_media(p_request_id uuid, p_media_files jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_request public.business_ad_requests%rowtype;
+  v_item jsonb;
+  v_path text;
+  v_kind text;
+  v_mime text;
+  v_size bigint;
+  v_photos integer := 0;
+  v_videos integer := 0;
+begin
+  select * into v_request
+  from public.business_ad_requests
+  where id = p_request_id and status = 'pending' and legacy_id is null
+  for update;
+  if not found then raise exception 'Pending business ad request not found'; end if;
+
+  for v_item in select value from pg_catalog.jsonb_array_elements(p_media_files) loop
+    v_path := v_item ->> 'path';
+    v_kind := v_item ->> 'kind';
+    if pg_catalog.split_part(v_path, '/', 1) <> p_request_id::text then
+      raise exception 'Uploaded media does not belong to this ad request';
+    end if;
+    if not (v_request.media_files @> pg_catalog.jsonb_build_array(
+      pg_catalog.jsonb_build_object('path', v_path, 'kind', v_kind)
+    )) then
+      raise exception 'Uploaded media was not included in this ad request';
+    end if;
+    select metadata ->> 'mimetype', nullif(metadata ->> 'size', '')::bigint
+      into v_mime, v_size
+    from storage.objects
+    where bucket_id = 'business-ad-media' and name = v_path;
+    if not found then raise exception 'An uploaded media file is missing'; end if;
+    if v_kind = 'photo' and v_mime in ('image/jpeg', 'image/png', 'image/webp')
+      and v_size <= 5242880 then
+      v_photos := v_photos + 1;
+    elsif v_kind = 'video' and v_mime in ('video/mp4', 'video/webm')
+      and v_size <= 26214400 then
+      v_videos := v_videos + 1;
+    else
+      raise exception 'An uploaded media file has an invalid type or size';
+    end if;
+  end loop;
+
+  if not public.business_ad_media_manifest_valid(p_media_files, v_photos, v_videos) then
+    raise exception 'The uploaded media list is invalid';
+  end if;
+
+  update public.business_ad_requests
+  set media_files = p_media_files, photo_count = v_photos, video_count = v_videos
+  where id = p_request_id;
+end;
+$$;
+
+revoke all on function public.finalize_business_ad_media(uuid, jsonb) from public;
+grant execute on function public.finalize_business_ad_media(uuid, jsonb) to anon, authenticated;
+
+create or replace function public.delete_business_ad_media_objects()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  delete from storage.objects
+  where bucket_id = 'business-ad-media'
+    and pg_catalog.split_part(name, '/', 1) = old.id::text;
+  return old;
+end;
+$$;
+
+drop trigger if exists business_ad_requests_delete_media on public.business_ad_requests;
+create trigger business_ad_requests_delete_media
+  before delete on public.business_ad_requests
+  for each row execute function public.delete_business_ad_media_objects();
 
 create or replace function public.admin_business_ad_mark_paid(p_request_id uuid)
 returns void
@@ -632,6 +975,17 @@ begin
     raise exception 'Verify payment before activating this business ad';
   end if;
 
+  if exists (
+    select 1
+    from pg_catalog.jsonb_array_elements(v_request.media_files) as media(item)
+    left join storage.objects object_file
+      on object_file.bucket_id = 'business-ad-media'
+      and object_file.name = media.item ->> 'path'
+    where object_file.name is null
+  ) then
+    raise exception 'Some uploaded media files are missing; do not activate this ad yet';
+  end if;
+
   v_days := case v_request.plan
     when '15days' then 15
     when '30days' then 30
@@ -641,11 +995,11 @@ begin
 
   insert into public.business_ads (
     request_id, business_name, category, city, address, about, timing, whatsapp,
-    website, facebook, instagram, tiktok, plan, amount, started_at, expires_at
+    website, facebook, instagram, tiktok, media_files, plan, amount, started_at, expires_at
   ) values (
     v_request.id, v_request.business_name, v_request.category, v_request.city,
     v_request.address, v_request.about, v_request.timing, v_request.whatsapp,
-    v_request.website, v_request.facebook, v_request.instagram, v_request.tiktok,
+    v_request.website, v_request.facebook, v_request.instagram, v_request.tiktok, v_request.media_files,
     v_request.plan, v_request.amount, v_started_at, v_expires_at
   )
   on conflict (request_id) do update set
@@ -660,6 +1014,7 @@ begin
     facebook = excluded.facebook,
     instagram = excluded.instagram,
     tiktok = excluded.tiktok,
+    media_files = excluded.media_files,
     plan = excluded.plan,
     amount = excluded.amount,
     started_at = excluded.started_at,

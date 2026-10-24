@@ -41,7 +41,10 @@ still rely on browser storage.
   stop, re-activate and delete actions
 - **Running Business Ads** — a public section that lists every activated ad in
   card format with public business details, social links and WhatsApp contact.
-  Listings are shared across devices and automatically hidden after expiry
+  Listings are shared across devices and automatically hidden after expiry.
+  Photos and MP4/WebM videos are stored privately and become viewable only
+  after payment verification and CEO activation (up to 30 photos at 5 MB each
+  and 5 videos at 25 MB each)
 - **Cashbook** — explicit per-account, per-category income and expense entries
   stored in Supabase. Received/paid totals, receivables, unpaid expenses and
   net cash are reported separately; operational feature records are never
@@ -92,8 +95,11 @@ browser-local features remain limited to that device.
 - **Business ad payments remain manual.** An owner must confirm each payment
   in JazzCash. A paid request does not become public until the CEO activates it.
   Legacy browser-only requests are imported as pending and must be re-verified.
-- **Ad media is not uploaded.** Photo/video selection only previews files in
-  the browser; users must send media separately to the owner on WhatsApp.
+- **Ad media uses Supabase Storage.** Uploaded files are private before
+  activation and delivered with short-lived signed links only while the ad is
+  active. Previously issued links can remain usable for up to 15 minutes after
+  an ad is stopped or expires. Media remains stored until the CEO deletes its
+  request; Supabase storage capacity and billing limits still apply.
 - **The cashbook is an explicit cash-tracking tool, not double-entry
   accounting.** Older feature records are not imported as transactions, and
   cashbook totals are only as complete as the transactions the user records.

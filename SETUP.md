@@ -51,6 +51,8 @@ This creates:
   it, only an admin can write it)
 - `public.business_ad_requests` — private registration and payment-review data
 - `public.business_ads` — public, unexpired listings only
+- A private `business-ad-media` Storage bucket with restricted upload policies
+  and size/type validation
 - CEO-only business-ad functions for payment verification, activation, extension,
   stopping and deletion
 - `public.financial_transactions` — explicit owner cashbook entries, protected
@@ -189,8 +191,12 @@ Ads** panel, verify the payment in JazzCash, use **Payment Received**, then
 activate the listing. The server rejects activation until payment has been
 marked received. Public listings contain only approved display/contact details;
 private owner and mobile details are not included. Stopping or expiring a
-listing removes it from the public list. Photos/videos are only previewed by
-the browser and must be sent separately on WhatsApp.
+listing removes it from the public list and media links are only available
+while the listing is active. Registration allows up to 30 JPG/PNG/WebP photos
+(5 MB each) and 5 MP4/WebM videos (25 MB each). A fully populated listing can
+use up to 275 MB; monitor Supabase Storage capacity and billing. Media is
+removed when the CEO deletes the ad request. Previously issued signed links can
+remain usable for up to 15 minutes after an ad is stopped or expires.
 
 Older browser-only requests are imported once when the CEO opens Business Ads.
 They are deliberately imported as pending, regardless of their old status, so
@@ -241,8 +247,11 @@ Things that still need a manual action once:
   Client-delivered content cannot be reliably protected from copying.
 - JazzCash payment checks are manual; the website does not connect to or
   automatically verify payments through a payment gateway.
-- Photos/videos are not uploaded to Supabase storage. The form only previews
-  selected files; owners/customers must exchange media separately.
+- Business-ad media is uploaded to a private Supabase Storage bucket. Signed
+  links expire after 15 minutes and are available only to the CEO for review or
+  to the public while the ad is active. A link issued just before an ad stops
+  or expires may continue working until it expires. Files remain stored until
+  the CEO deletes the request.
 - The cashbook tracks explicit cash transactions; it is not double-entry
   accounting or a tax/accounting system. Its totals depend on complete,
   accurate entries, and existing feature records are not backfilled.

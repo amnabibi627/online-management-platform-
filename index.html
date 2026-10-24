@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261026A" />
+  <link rel="stylesheet" href="styles.css?v=20261024b" />
 </head>
 <body>
 
@@ -808,7 +808,7 @@
                 <ul class="reg-cta-list">
                   <li>Ad live from 15 days up to 1 full year</li>
                   <li>Your address and contact shown to customers</li>
-                  <li>Social links included; media sent separately</li>
+                  <li>Photos and videos displayed after payment verification</li>
                 </ul>
                 <div class="reg-cta-plans">
                   <span class="reg-cta-plan"><strong>2,500</strong> PKR / 15 Days</span>
@@ -971,17 +971,17 @@
 
           <div class="reg-media">
             <div class="media-box">
-              <label class="media-label" for="regPhotos">Profile Photos</label>
-              <input type="file" id="regPhotos" name="regPhotos" accept="image/*" multiple />
+              <label class="media-label" for="regPhotos">Business Photos (up to 30, 5 MB each)</label>
+              <input type="file" id="regPhotos" name="regPhotos" accept="image/jpeg,image/png,image/webp" multiple />
               <div class="media-preview" id="regPhotoPreview"></div>
             </div>
             <div class="media-box">
-              <label class="media-label" for="regVideos">Business Videos</label>
-              <input type="file" id="regVideos" name="regVideos" accept="video/*" multiple />
+              <label class="media-label" for="regVideos">Business Videos (up to 5, 25 MB each)</label>
+              <input type="file" id="regVideos" name="regVideos" accept="video/mp4,video/webm" multiple />
               <div class="media-preview" id="regVideoPreview"></div>
             </div>
           </div>
-          <p class="reg-media-note" id="regMediaNote">Photos and videos are previewed here only. Send them to the owner on WhatsApp; they are not uploaded to the listing.</p>
+          <p class="reg-media-note" id="regMediaNote">Up to 30 photos (5 MB each) and 5 videos (25 MB each). Media stays private until the CEO activates your paid ad.</p>
 
           <!-- Payment -->
           <h3 class="reg-form-title">Payment</h3>
@@ -1004,7 +1004,7 @@
 
           <label class="reg-terms">
             <input type="checkbox" id="regTerms" name="regTerms" />
-            <span>I confirm the details are correct and will contact the owner to arrange payment. I understand listings are activated after manual payment verification.</span>
+            <span>I confirm the details are correct and will contact the owner to arrange payment. I understand that uploaded media and listing details become public only after manual payment verification and ad activation.</span>
           </label>
           <span class="field-error" id="regTermsErr"></span>
 
@@ -1459,8 +1459,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261026A"></script>
-  <script src="liveads.js?v=20261026A"></script>
+  <script src="script.js?v=20261024b"></script>
+  <script src="liveads.js?v=20261024b"></script>
   <script src="ui.js?v=20261023H"></script>
 
 </body>

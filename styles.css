@@ -1678,6 +1678,9 @@ body.detail-open { overflow: hidden; }
   background: rgba(30, 41, 59, 0.72); color: #ffffff; padding: 0.1rem 0;
 }
 .media-empty { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+.biz-ad-media-tools { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.biz-ad-media-links { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.82rem; }
+.biz-ad-media-links a { color: var(--pink-dark); font-weight: 700; text-decoration: underline; }
 
 /* --- Selected plan summary --- */
 .reg-plan-summary {
@@ -2037,6 +2040,32 @@ body.detail-open { overflow: hidden; }
   height: 100%;
   background-image: radial-gradient(circle at 30% 40%, rgba(43, 61, 218, 0.15), transparent 50%),
                     radial-gradient(circle at 70% 60%, rgba(20, 45, 78, 0.12), transparent 50%);
+}
+.fiverr-gig-media {
+  display: flex;
+  gap: 0.5rem;
+  height: 180px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  background: #eaf2ff;
+}
+.fiverr-gig-media-item {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  scroll-snap-align: start;
+  background: #0e2431;
+}
+.fiverr-gig-media-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
 }
 .fiverr-gig-content {
   padding: 1rem 1rem 0.9rem;

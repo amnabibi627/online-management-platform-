@@ -3444,6 +3444,7 @@ const regPhotoPreview = document.getElementById("regPhotoPreview");
 const regVideoPreview = document.getElementById("regVideoPreview");
 const regPhotosInput = document.getElementById("regPhotos");
 const regVideosInput = document.getElementById("regVideos");
+const regMediaNote = document.getElementById("regMediaNote");
 const regTerms = document.getElementById("regTerms");
 const regTermsErr = document.getElementById("regTermsErr");
 const regModal = document.getElementById("regModal");
@@ -3523,8 +3524,30 @@ if (planGrid) {
   });
 }
 
-// --- Media pickers (preview only, nothing is uploaded from the browser) ---
+// --- Business ad media ---
 const clearPreview = (el) => { if (el) el.innerHTML = ""; };
+
+const BUSINESS_AD_MEDIA = {
+  photos: { maxCount: 30, maxBytes: 5 * 1024 * 1024, types: ["image/jpeg", "image/png", "image/webp"] },
+  videos: { maxCount: 5, maxBytes: 25 * 1024 * 1024, types: ["video/mp4", "video/webm"] }
+};
+const MEDIA_EXTENSIONS = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "video/mp4": "mp4",
+  "video/webm": "webm"
+};
+
+const validateBusinessAdFiles = (files, kind) => {
+  const limit = BUSINESS_AD_MEDIA[kind];
+  if (files.length > limit.maxCount) return `Choose no more than ${limit.maxCount} ${kind}.`;
+  const invalidType = files.find((file) => !limit.types.includes(file.type));
+  if (invalidType) return `Use ${kind === "photos" ? "JPG, PNG or WebP" : "MP4 or WebM"} files only.`;
+  const oversized = files.find((file) => file.size > limit.maxBytes);
+  if (oversized) return `Each ${kind === "photos" ? "photo" : "video"} must be ${kind === "photos" ? "5 MB" : "25 MB"} or smaller.`;
+  return "";
+};
 
 const renderMediaPreview = (files, container, kind) => {
   if (!container) return;
@@ -3533,7 +3556,7 @@ const renderMediaPreview = (files, container, kind) => {
     container.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
     return;
   }
-  [...files].slice(0, 8).forEach((file) => {
+  [...files].forEach((file) => {
     const wrap = document.createElement("div");
     wrap.className = "media-thumb";
     const url = URL.createObjectURL(file);
@@ -3554,21 +3577,60 @@ const renderMediaPreview = (files, container, kind) => {
     }
     container.appendChild(wrap);
   });
-  if (files.length > 8) {
-    const more = document.createElement("span");
-    more.className = "media-empty";
-    more.textContent = `+${files.length - 8} more`;
-    container.appendChild(more);
-  }
 };
 
-regPhotosInput?.addEventListener("change", () => renderMediaPreview(regPhotosInput.files, regPhotoPreview, "photo"));
-regVideosInput?.addEventListener("change", () => renderMediaPreview(regVideosInput.files, regVideoPreview, "video"));
+const handleBusinessAdMediaChange = (input, preview, kind) => {
+  if (!input) return;
+  const files = [...(input.files || [])];
+  const error = validateBusinessAdFiles(files, kind);
+  if (error) {
+    input.value = "";
+    renderMediaPreview([], preview, kind === "photos" ? "photo" : "video");
+    if (regMediaNote) regMediaNote.textContent = error;
+    showToast(error, true);
+    return;
+  }
+  if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
+  renderMediaPreview(files, preview, kind === "photos" ? "photo" : "video");
+};
+
+regPhotosInput?.addEventListener("change", () => handleBusinessAdMediaChange(regPhotosInput, regPhotoPreview, "photos"));
+regVideosInput?.addEventListener("change", () => handleBusinessAdMediaChange(regVideosInput, regVideoPreview, "videos"));
 
 clearPreview(regPhotoPreview);
 clearPreview(regVideoPreview);
 if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
 if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
+
+const buildBusinessAdMediaManifest = (requestId, photos, videos) => {
+  const files = [
+    ...photos.map((file) => ({ file, kind: "photos" })),
+    ...videos.map((file) => ({ file, kind: "videos" }))
+  ];
+  return files.map(({ file, kind }) => {
+    const mediaKind = kind === "photos" ? "photo" : "video";
+    const folder = kind;
+    const path = `${requestId}/${folder}/${newCloudUuid()}.${MEDIA_EXTENSIONS[file.type]}`;
+    return { file, kind: mediaKind, path };
+  });
+};
+
+const uploadBusinessAdMedia = async (manifest, onProgress) => {
+  const uploaded = [];
+  const failures = [];
+  for (const item of manifest) {
+    const { error } = await sb.storage.from("business-ad-media").upload(item.path, item.file, {
+      cacheControl: "3600",
+      contentType: item.file.type,
+      upsert: false
+    });
+    if (error) failures.push(error);
+    else uploaded.push({ path: item.path, kind: item.kind });
+    onProgress?.(uploaded.length + failures.length, manifest.length);
+  }
+  return { uploaded, failures };
+};
 
 // --- Validation helpers ---
 const setRegError = (inputEl, errEl, message) => {
@@ -3662,6 +3724,16 @@ if (regForm) {
 
     const get = (id) => document.getElementById(id).value.trim();
     const plan = PLAN_INFO[planKey];
+    const photos = [...(regPhotosInput?.files || [])];
+    const videos = [...(regVideosInput?.files || [])];
+    const mediaError = validateBusinessAdFiles(photos, "photos") || validateBusinessAdFiles(videos, "videos");
+    if (mediaError) {
+      if (regMediaNote) regMediaNote.textContent = mediaError;
+      showToast(mediaError, true);
+      return;
+    }
+    let submission;
+    let mediaWarning = "";
     const entry = {
       business_name: get("regBizName"),
       owner_name: get("regOwnerName"),
@@ -3676,8 +3748,8 @@ if (regForm) {
       facebook: get("regFacebook"),
       instagram: get("regInstagram"),
       tiktok: get("regTiktok"),
-      photo_count: Math.min(regPhotosInput?.files?.length || 0, 8),
-      video_count: Math.min(regVideosInput?.files?.length || 0, 8),
+      photo_count: photos.length,
+      video_count: videos.length,
       plan: planKey,
       amount: plan.price
     };
@@ -3685,11 +3757,34 @@ if (regForm) {
     submitButton.disabled = true;
     try {
       entry.id = newCloudUuid();
+      const mediaManifest = buildBusinessAdMediaManifest(entry.id, photos, videos);
+      entry.media_files = mediaManifest.map(({ path, kind }) => ({ path, kind }));
       const { error } = await sb
         .from("business_ad_requests")
         .insert(entry);
       if (error) throw error;
-      const submission = { id: entry.id, created_at: new Date().toISOString() };
+      submission = { id: entry.id, created_at: new Date().toISOString() };
+
+      if (mediaManifest.length) {
+        if (regMediaNote) regMediaNote.textContent = "Uploading media securely… Please keep this page open until the upload finishes.";
+        try {
+          const result = await uploadBusinessAdMedia(mediaManifest, (done, total) => {
+            if (regMediaNote) regMediaNote.textContent = `Uploading media securely… ${done} of ${total} files complete.`;
+          });
+          const { error: finalizeError } = await sb.rpc("finalize_business_ad_media", {
+            p_request_id: submission.id,
+            p_media_files: result.uploaded
+          });
+          if (finalizeError) throw finalizeError;
+          if (result.failures.length) {
+            console.error("Some business ad media failed to upload:", result.failures);
+            mediaWarning = " Some media could not be uploaded; only successful files will appear. Contact the owner if you need to add the rest.";
+          }
+        } catch (error) {
+          console.error("Business ad media processing failed:", error);
+          mediaWarning = " The registration was saved, but media could not be finalized. Contact the owner with your request reference before activation.";
+        }
+      }
 
       const receipts = getRegistrationReceipts();
       receipts.unshift({
@@ -3706,20 +3801,22 @@ if (regForm) {
       clearPreview(regVideoPreview);
       if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
       if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+      if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
       store.set(REG_PLAN_KEY, null);
       markPlanSelected(null);
       renderPlanSummary();
       renderRegistrations();
       resetRegErrors();
 
-      showToast("Registration saved online. The owner must verify your payment before the ad can go live.");
+      showToast(`Registration saved online. The owner must verify your payment before the ad can go live.${mediaWarning}`, !!mediaWarning);
       closeRegModal();
       regListWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
 
       const waText = encodeURIComponent(
         `Assalam o Alaikum! I submitted my business registration on Online Management Site.\n` +
         `Business: ${entry.business_name}\nOwner: ${entry.owner_name}\nPlan: ${plan.label} (PKR ${rupees(entry.amount)})\n` +
-        `Request reference: ${submission.id}\nPlease send me the payment details.`
+        `Request reference: ${submission.id}\nPlease send me the payment details.` +
+        (mediaWarning ? `\n${mediaWarning.trim()}` : "")
       );
       window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
     } catch (error) {
@@ -3743,6 +3840,7 @@ if (regForm) {
   document.getElementById("regReset")?.addEventListener("click", () => {
     clearPreview(regPhotoPreview);
     clearPreview(regVideoPreview);
+    if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
     if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
     if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
     store.set(REG_PLAN_KEY, null);
@@ -3882,6 +3980,7 @@ const mapBusinessAdRequest = (row) => ({
   facebook: row.facebook,
   instagram: row.instagram,
   tiktok: row.tiktok,
+  mediaFiles: Array.isArray(row.media_files) ? row.media_files : [],
   photoCount: row.photo_count,
   videoCount: row.video_count,
   plan: row.plan,
@@ -3926,8 +4025,9 @@ const normalizeLegacyAd = (ad, index) => {
     facebook: optionalText(ad.facebook),
     instagram: optionalText(ad.instagram),
     tiktok: optionalText(ad.tiktok),
-    photo_count: Math.min(8, Math.max(0, Number(ad.photoCount) || 0)),
-    video_count: Math.min(8, Math.max(0, Number(ad.videoCount) || 0)),
+    photo_count: 0,
+    video_count: 0,
+    media_files: [],
     plan: ad.plan,
     amount: PLAN_INFO[ad.plan].price,
     status: "pending",
@@ -4042,7 +4142,7 @@ const bizAdRowHtml = (ad) => {
       `<div><span>City</span><strong>${escHtml(ad.city)}</strong></div>` +
       `<div><span>Submitted</span><strong>${fmtRegDate(ad.at) || "-"}</strong></div>` +
       `<div><span>Payment verified</span><strong>${ad.paidAt ? fmtRegDate(ad.paidAt) : "No"}</strong></div>` +
-      `<div><span>Media selected</span><strong>${ad.photoCount || 0} photo(s), ${ad.videoCount || 0} video(s) — not uploaded</strong></div>` +
+      `<div><span>Media uploaded</span><strong>${ad.photoCount || 0} photo(s), ${ad.videoCount || 0} video(s)</strong></div>` +
       (active || expiredTxt ? `<div><span>Expires on</span><strong>${expiredTxt || "-"}</strong></div>` : "") +
     `</div>` +
     (ad.about ? `<p class="biz-ad-about">${escHtml(ad.about)}</p>` : "") +
@@ -4054,6 +4154,9 @@ const bizAdRowHtml = (ad) => {
           linkHtml(ad.instagram, "Instagram") +
           linkHtml(ad.tiktok, "TikTok") +
         `</div>`
+      : "") +
+    (ad.mediaFiles.length
+      ? `<div class="biz-ad-media-tools"><button type="button" class="biz-ad-btn" data-ad-media="${escHtml(ad.id)}">Preview uploaded media (${ad.mediaFiles.length})</button><div class="biz-ad-media-links" data-ad-media-links="${escHtml(ad.id)}" hidden></div></div>`
       : "") +
     `<div class="biz-ad-actions">${actionButtons.join("")}</div>` +
   `</article>`;
@@ -4135,6 +4238,34 @@ document.getElementById("ceoBizAdsPanel")?.addEventListener("click", openBizAdsP
 
 bizAdsModal?.addEventListener("click", (e) => {
   if (e.target === bizAdsModal || e.target.closest("[data-biz-ads-close]")) { closeBizAdsPanel(); return; }
+
+  const mediaButton = e.target.closest("[data-ad-media]");
+  if (mediaButton) {
+    const ad = businessAdRequests.find((item) => item.id === mediaButton.dataset.adMedia);
+    const linksContainer = bizAdsPanel.querySelector(`[data-ad-media-links="${CSS.escape(mediaButton.dataset.adMedia)}"]`);
+    if (!ad || !linksContainer || mediaButton.disabled) return;
+    mediaButton.disabled = true;
+    (async () => {
+      try {
+        const paths = ad.mediaFiles.map((item) => item.path);
+        const { data, error } = await sb.storage.from("business-ad-media").createSignedUrls(paths, 600);
+        if (error) throw error;
+        linksContainer.innerHTML = (data || []).map((item, index) => {
+          const media = ad.mediaFiles.find((file) => file.path === item.path) || ad.mediaFiles[index];
+          if (!item.signedUrl) return "";
+          const label = `${media?.kind === "video" ? "Video" : "Photo"} ${index + 1}`;
+          return `<a href="${escHtml(item.signedUrl)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+        }).filter(Boolean).join(" · ") || `<span>No uploaded files are available.</span>`;
+        linksContainer.hidden = false;
+      } catch (error) {
+        console.error("Could not create business ad media preview links:", error);
+        showToast(error.message || "Could not load uploaded media.", true);
+      } finally {
+        mediaButton.disabled = false;
+      }
+    })();
+    return;
+  }
 
   const filterBtn = e.target.closest("[data-ad-filter]");
   if (filterBtn) { bizAdsFilter = filterBtn.dataset.adFilter; renderBizAdsPanel(); return; }

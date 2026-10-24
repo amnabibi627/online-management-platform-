@@ -4,7 +4,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(self), camera=(self), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; connect-src 'self' https://lsoprwhjnurfqnsymhzf.supabase.co wss://lsoprwhjnurfqnsymhzf.supabase.co https://cloudflareinsights.com https://static.cloudflareinsights.com; frame-src https://amna-bi-bi.vercel.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://lsoprwhjnurfqnsymhzf.supabase.co; media-src 'self' blob: https://lsoprwhjnurfqnsymhzf.supabase.co; connect-src 'self' https://lsoprwhjnurfqnsymhzf.supabase.co wss://lsoprwhjnurfqnsymhzf.supabase.co https://cloudflareinsights.com https://static.cloudflareinsights.com; frame-src https://amna-bi-bi.vercel.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
   Cross-Origin-Opener-Policy: same-origin-allow-popups
   Cross-Origin-Resource-Policy: same-origin
   X-XSS-Protection: 0

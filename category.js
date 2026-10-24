@@ -489,13 +489,15 @@ const categoryRenderForm = (itemId = null) => {
     const id = `category-field-${categoryEscape(field.key)}`;
     let control;
     if (field.type === "textarea") {
-      control = `<textarea id="${id}" name="${categoryEscape(field.key)}" rows="3" ${required}>${categoryEscape(value)}</textarea>`;
+      control = `<textarea id="${id}" name="${categoryEscape(field.key)}" rows="3" maxlength="2000" ${required}>${categoryEscape(value)}</textarea>`;
     } else if (field.type === "select") {
       control = `<select id="${id}" name="${categoryEscape(field.key)}" ${required}><option value="">Choose…</option>` +
         (field.options || []).map((option) => `<option value="${categoryEscape(option)}" ${value === option ? "selected" : ""}>${categoryEscape(option)}</option>`).join("") +
         `</select>`;
     } else {
-      control = `<input id="${id}" name="${categoryEscape(field.key)}" type="${categoryEscape(["text", "date", "time", "number", "tel", "email"].includes(field.type) ? field.type : "text")}" value="${categoryEscape(value)}" ${field.type === "number" ? 'step="any"' : ""} ${required}>`;
+      const maxLength = { text: 200, tel: 20, email: 254 }[field.type];
+      const constraints = field.type === "number" ? 'min="0" step="any"' : (maxLength ? `maxlength="${maxLength}"` : "");
+      control = `<input id="${id}" name="${categoryEscape(field.key)}" type="${categoryEscape(["text", "date", "time", "number", "tel", "email"].includes(field.type) ? field.type : "text")}" value="${categoryEscape(value)}" ${constraints} ${required}>`;
     }
     return `<label for="${id}">${categoryEscape(field.label)}${field.required ? " *" : ""}${control}</label>`;
   }).join("");
@@ -838,11 +840,16 @@ const initCategoryPage = () => {
   const navToggle = document.getElementById("navToggle");
   const mainNav = document.getElementById("mainNav");
   if (navToggle && mainNav) {
-    navToggle.addEventListener("click", () => mainNav.classList.toggle("open"));
-  }
-  if (mainNav) {
+    const setNavOpen = (open) => {
+      mainNav.classList.toggle("open", open);
+      navToggle.setAttribute("aria-expanded", String(open));
+    };
+    navToggle.addEventListener("click", () => setNavOpen(!mainNav.classList.contains("open")));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && mainNav.classList.contains("open")) setNavOpen(false);
+    });
     mainNav.querySelectorAll(".nav-link").forEach((link) => {
-      link.addEventListener("click", () => mainNav.classList.remove("open"));
+      link.addEventListener("click", () => setNavOpen(false));
     });
   }
 

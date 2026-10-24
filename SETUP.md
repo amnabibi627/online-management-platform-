@@ -4,7 +4,8 @@ Online Management Site — `https://onlinemanagement.site`
 
 Static site (HTML / CSS / JS). Cloudflare Pages host. Supabase Auth and
 row-level-secured tables for category accounts, Owner/User accounts and reviews.
-Some presentation and registration data still uses `localStorage`.
+Business-ad requests/listings and explicit cashbook transactions also use
+Supabase. Some presentation settings and local receipts still use `localStorage`.
 
 Category-page feature workspaces require an approved, unexpired subscription
 for that specific category. Records are stored in that account's category
@@ -48,6 +49,12 @@ This creates:
 - CEO-only functions to atomically approve or reject a payment request
 - `public.site_profile` — the owner photo shown to every visitor (anyone can read
   it, only an admin can write it)
+- `public.business_ad_requests` — private registration and payment-review data
+- `public.business_ads` — public, unexpired listings only
+- CEO-only business-ad functions for payment verification, activation, extension,
+  stopping and deletion
+- `public.financial_transactions` — explicit owner cashbook entries, protected
+  by per-user and per-category row-level security
 - locks down `public.app_data` so category records also require an active
   subscription for that category (and the anonymous role cannot insert anything)
 
@@ -177,7 +184,23 @@ Plans:
 | 1 year | 365 | PKR 60,000 |
 
 Ads stay inactive until the CEO activates them from the CEO panel after the
-payment is received.
+payment is received. New registrations are cloud-backed. In the CEO **Business
+Ads** panel, verify the payment in JazzCash, use **Payment Received**, then
+activate the listing. The server rejects activation until payment has been
+marked received. Public listings contain only approved display/contact details;
+private owner and mobile details are not included. Stopping or expiring a
+listing removes it from the public list. Photos/videos are only previewed by
+the browser and must be sent separately on WhatsApp.
+
+Older browser-only requests are imported once when the CEO opens Business Ads.
+They are deliberately imported as pending, regardless of their old status, so
+the CEO must re-check payment before publishing them.
+
+The Owner **Business Admin Panel → Cashbook** stores explicit income and
+expense transactions for the signed-in owner and allowed categories. Settled
+income and paid expenses affect net cash; pending income and unpaid expenses
+are reported separately. Old feature records are not treated as transactions
+or automatically imported.
 
 ---
 
@@ -216,7 +239,10 @@ Things that still need a manual action once:
 
 - The website does not block browser copy, print, or inspection controls.
   Client-delivered content cannot be reliably protected from copying.
-- Live ads are read from the visitor's own `localStorage` right now, so ads
-  registered in one browser are not visible in another. A shared public table
-  is needed for that.
-- The financial ledger uses a label heuristic, so some totals can drift.
+- JazzCash payment checks are manual; the website does not connect to or
+  automatically verify payments through a payment gateway.
+- Photos/videos are not uploaded to Supabase storage. The form only previews
+  selected files; owners/customers must exchange media separately.
+- The cashbook tracks explicit cash transactions; it is not double-entry
+  accounting or a tax/accounting system. Its totals depend on complete,
+  accurate entries, and existing feature records are not backfilled.

@@ -1279,6 +1279,23 @@ body.detail-open { overflow: hidden; }
   background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
   border-radius: 10px; padding: 0.6rem 0.9rem; font-size: 0.82rem; margin-bottom: 1rem;
 }
+.cashbook-form {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem; align-items: end; margin: 1rem 0 1.4rem;
+  padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: #fff;
+}
+.cashbook-form label { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.78rem; font-weight: 700; color: var(--ink); }
+.cashbook-form input, .cashbook-form select {
+  width: 100%; min-width: 0; padding: 0.6rem 0.65rem;
+  border: 1px solid var(--border); border-radius: 9px; background: #fff; color: var(--ink);
+  font: inherit; font-weight: 400;
+}
+.cashbook-form input:focus, .cashbook-form select:focus { outline: 2px solid var(--pink-light); outline-offset: 1px; }
+.cashbook-description { grid-column: span 2; }
+.cashbook-form button { min-height: 42px; }
+@media (max-width: 600px) {
+  .cashbook-description { grid-column: auto; }
+}
 
 /* --- Owner cards --- */
 .admin-owner-card {
@@ -1745,6 +1762,8 @@ body.detail-open { overflow: hidden; }
 .reg-item-status.s-expired, .reg-item-status.s-stopped { background: #f7f9fc; color: #5b6b84; }
 .reg-item-meta { font-size: 0.84rem; color: var(--muted); line-height: 1.7; }
 .reg-item-meta strong { color: var(--ink); font-weight: 600; }
+.reg-item-contact { display: inline-block; margin-top: 0.25rem; color: var(--pink-dark); font-weight: 700; }
+.reg-item-contact:hover { text-decoration: underline; }
 .reg-item-del {
   background: none; border: 0; cursor: pointer; font-family: inherit;
   font-size: 0.8rem; font-weight: 600; color: #cfd8e6; margin-left: auto;
@@ -2170,6 +2189,7 @@ body.detail-open { overflow: hidden; }
 .fiverr-gig-contact:hover {
   background: #059669;
 }
+.fiverr-gig-contact.disabled { opacity: 0.65; cursor: not-allowed; }
 .live-ads-empty {
   text-align: center;
   color: #5b6b84;

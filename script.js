@@ -131,8 +131,7 @@ const avatarTime = (v) => (!v || typeof v === "string" ? 0 : Number(v.t) || 0);
 
 const SYNC_KEY = (k) => !!k && !k.startsWith("sb-") && !k.startsWith("oms_attempts_") && (
   k === "customCats" || k === "removedKeys" || k === "ownerAvatar" ||
-  k === "businessRegistrations" || k === "selectedBizPlan" ||
-  k.endsWith(":data"));
+  k.endsWith(":data") || k.startsWith("accountingLedger:"));
 
 const cloudPushRows = async (rows) => {
   if (!sb || !cloudUser || !rows.length) return;
@@ -185,6 +184,7 @@ const cloudPull = async () => {
   (data || []).forEach((row) => {
     try {
       if (LEGACY_LOCAL_AUTH_KEYS.includes(row.key)) return;
+      if (row.key === "businessRegistrations" || row.key === "selectedBizPlan") return;
       if (RETIRED_ARTICLE_KEYS.includes(row.key)) { localStorage.removeItem(row.key); return; }
       if (row.key === AVATAR_KEY) {
         // The photo can be newer on one side than the other. Keep the newer
@@ -276,12 +276,19 @@ const authErrMsg = (error) => {
 const navToggle = document.getElementById("navToggle");
 const mainNav = document.getElementById("mainNav");
 
-navToggle.addEventListener("click", () => {
-  mainNav.classList.toggle("open");
-});
+const setNavOpen = (open) => {
+  mainNav.classList.toggle("open", open);
+  navToggle.setAttribute("aria-expanded", String(open));
+};
+
+navToggle.addEventListener("click", () => setNavOpen(!mainNav.classList.contains("open")));
 
 mainNav.querySelectorAll(".nav-link").forEach((link) => {
-  link.addEventListener("click", () => mainNav.classList.remove("open"));
+  link.addEventListener("click", () => setNavOpen(false));
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && mainNav.classList.contains("open")) setNavOpen(false);
 });
 
 // Active nav link on scroll
@@ -1419,9 +1426,11 @@ const renderFeatureForm = (itemId) => {
         ${(f.options || []).map((o) => `<option value="${escHtml(o)}"${String(val) === o ? " selected" : ""}>${escHtml(o)}</option>`).join("")}
       </select>`;
     } else if (f.type === "textarea") {
-      control = `<textarea name="${f.key}" rows="3" placeholder="Enter ${escHtml(f.label.toLowerCase())}"${f.required ? " data-required" : ""}>${escHtml(String(val))}</textarea>`;
+      control = `<textarea name="${f.key}" rows="3" maxlength="2000" placeholder="Enter ${escHtml(f.label.toLowerCase())}"${f.required ? " data-required" : ""}>${escHtml(String(val))}</textarea>`;
     } else {
-      control = `<input type="${f.type}" name="${f.key}" value="${escHtml(String(val))}" placeholder="Enter ${escHtml(f.label.toLowerCase())}"${f.required ? " data-required" : ""} />`;
+      const maxLength = { text: 200, tel: 20, email: 254 }[f.type];
+      const constraints = f.type === "number" ? ' min="0" step="any"' : (maxLength ? ` maxlength="${maxLength}"` : "");
+      control = `<input type="${f.type}" name="${f.key}" value="${escHtml(String(val))}" placeholder="Enter ${escHtml(f.label.toLowerCase())}"${constraints}${f.required ? " data-required" : ""} />`;
     }
     return `<div class="field"><label>${escHtml(f.label)}${f.required ? ' <span class="req-star">*</span>' : ""}</label>${control}<span class="field-error" data-err="${f.key}"></span></div>`;
   }).join("");
@@ -1462,7 +1471,10 @@ const saveFeatureForm = (itemId) => {
       if (errEl) errEl.textContent = msg;
     };
     if (f.required && !value) { fail(`${f.label} is required.`); return; }
-    if (f.type === "number" && value && isNaN(Number(value))) { fail(`${f.label} must be a number.`); return; }
+    if (f.type === "number" && value) {
+      const number = Number(value);
+      if (!Number.isFinite(number) || number < 0) { fail(`${f.label} must be a non-negative number.`); return; }
+    }
     el.classList.remove("invalid");
     if (errEl) errEl.textContent = "";
     data[f.key] = value;
@@ -2228,64 +2240,79 @@ const ownerScopeKeys = () => {
   return all.filter((k) => allowed.includes(k));
 };
 
-const MONEY_KEYS = ["amount", "price", "fee", "total", "cost", "salary", "profit", "due", "paid", "advance", "rent", "bill", "charges", "rate", "revenue", "expense", "balance"];
-const STATUS_PAID = /paid|clear|complete|done|received|settled|success|cash|card|online/i;
-const STATUS_PENDING = /pend|due|unpaid|partial|remaining|unclear|outstanding|credit|overdue|defaulter/i;
+let accountingTransactions = [];
+let accountingTransactionsOwnerId = null;
 
-const toNum = (v) => {
-  if (typeof v === "number") return isFinite(v) ? v : 0;
-  const n = parseFloat(String(v ?? "").replace(/[^0-9.\-]/g, ""));
-  return isFinite(n) ? n : 0;
+const loadAccountingTransactions = async () => {
+  if (!sb || !cloudUser) throw new Error("Sign in to load your cloud cashbook.");
+  accountingTransactions = [];
+  accountingTransactionsOwnerId = null;
+  const { data, error } = await sb.from("financial_transactions")
+    .select("id,user_id,category,transaction_date,transaction_type,payment_status,amount,description,created_at")
+    .eq("user_id", cloudUser.id)
+    .order("transaction_date", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  accountingTransactions = data || [];
+  accountingTransactionsOwnerId = cloudUser.id;
 };
 
-const isMoneyKey = (k) => MONEY_KEYS.some((m) => String(k).toLowerCase().includes(m));
+const transactionsForCategories = (keys) =>
+  (accountingTransactionsOwnerId === cloudUser?.id ? accountingTransactions : [])
+    .filter((transaction) => keys.includes(transaction.category));
+
+const transactionSummary = (transactions) => {
+  const sum = (test) => transactions.reduce((total, transaction) =>
+    test(transaction) ? total + Number(transaction.amount || 0) : total, 0);
+  const income = sum((t) => t.transaction_type === "income");
+  const expenses = sum((t) => t.transaction_type === "expense");
+  const received = sum((t) => t.transaction_type === "income" && t.payment_status === "settled");
+  const receivable = sum((t) => t.transaction_type === "income" && t.payment_status === "pending");
+  const expensesPaid = sum((t) => t.transaction_type === "expense" && t.payment_status === "settled");
+  const payable = sum((t) => t.transaction_type === "expense" && t.payment_status === "pending");
+  return {
+    income, expenses, received, receivable, expensesPaid, payable,
+    netCash: received - expensesPaid,
+    transactionCount: transactions.length
+  };
+};
 
 const featureLedger = (key, fid) => {
   const col = store.get(collectionKey(key), null);
   const entries = (col && col.features && col.features[fid]) || [];
-  let total = 0, pending = 0, paid = 0, count = 0;
-  entries.forEach((it) => {
-    count++;
-    const f = it && it.fields && typeof it.fields === "object" ? { ...it, ...it.fields } : (it || {});
-    const skey = Object.keys(f).find((kk) => kk !== "id" && /status|payment|paid|mode|method/i.test(kk));
-    const sval = skey ? String(f[skey] ?? "") : "";
-    let entryTotal = 0;
-    Object.entries(f).forEach(([fk, fv]) => {
-      if (fk === "id" || fk === "createdAt" || fk === "updatedAt") return;
-      if (!isMoneyKey(fk)) return;
-      entryTotal += toNum(fv);
-    });
-    total += entryTotal;
-    if (STATUS_PAID.test(sval)) paid += entryTotal;
-    else if (STATUS_PENDING.test(sval)) pending += entryTotal;
-    else paid += entryTotal;
-  });
-  return { total, pending, paid, count };
+  return { count: Array.isArray(entries) ? entries.length : 0 };
 };
 
 const categoryLedger = (key) => {
   const col = store.get(collectionKey(key), null);
-  let total = 0, pending = 0, paid = 0, entries = 0, features = 0;
+  let entries = 0, features = 0;
   if (col && col.features) {
     Object.keys(col.features).forEach((fid) => {
       const arr = col.features[fid];
       if (!Array.isArray(arr) || !arr.length) return;
       features++;
-      const l = featureLedger(key, fid);
-      total += l.total; pending += l.pending; paid += l.paid; entries += l.count;
+      entries += arr.length;
     });
   }
-  return { total, pending, paid, entries, features };
+  return {
+    ...transactionSummary(transactionsForCategories([key])),
+    entries,
+    features
+  };
 };
 
 const ownerScopeLedger = () => {
   const keys = ownerAdminCat === "all" ? ownerScopeKeys() : [ownerAdminCat];
-  let total = 0, pending = 0, paid = 0, entries = 0, features = 0;
+  let entries = 0, features = 0;
   keys.forEach((k) => {
     const l = categoryLedger(k);
-    total += l.total; pending += l.pending; paid += l.paid; entries += l.entries; features += l.features;
+    entries += l.entries;
+    features += l.features;
   });
-  return { total, pending, paid, entries, features, keys };
+  return {
+    ...transactionSummary(transactionsForCategories(keys)),
+    entries, features, keys
+  };
 };
 
 const money = (n) => "PKR " + Math.round(n || 0).toLocaleString();
@@ -2296,19 +2323,29 @@ const closeOwnerAdmin = () => {
   ownerAdminPanel.innerHTML = "";
 };
 
-const openOwnerAdmin = () => {
+const openOwnerAdmin = async () => {
   if (!ceoUser && !owner) { showToast("Business Admin Panel requires CEO or Owner login.", true); return; }
+  if (!sb || !cloudUser) { showToast("Sign in online to open your cloud cashbook.", true); return; }
   ownerAdminTab = "overview";
   ownerAdminCat = "all";
-  renderOwnerAdminPanel();
+  ownerAdminPanel.innerHTML = `<p class="admin-empty">Loading your cloud cashbook…</p>`;
   ownerAdminModal.classList.add("open");
   ownerAdminModal.setAttribute("aria-hidden", "false");
+  try {
+    await loadAccountingTransactions();
+    renderOwnerAdminPanel();
+  } catch (error) {
+    console.error("Business Admin Panel failed to load:", error);
+    ownerAdminPanel.innerHTML = `<button type="button" class="modal-close" data-owner-admin-close aria-label="Close">&times;</button>` +
+      `<p class="admin-empty">Could not load your cashbook: ${escHtml(error.message || "Unknown error")}</p>`;
+  }
 };
 
 const ownerAdminTabsHtml = () => {
   const tabs = [
     ["overview", "📊 Overview"],
     ["reports", "💰 Financial Reports"],
+    ["cashbook", "📒 Cashbook"],
     ["analytics", "📈 Analytics"],
     ["data", "🗂️ Data"]
   ];
@@ -2337,20 +2374,21 @@ const renderOwnerAdminOverview = () => {
     return `<div class="admin-cat-row">` +
       `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${m.icon}</span>` +
       `<div><div class="admin-cat-row-name">${escHtml(m.name)}</div>` +
-      `<div class="admin-cat-row-meta">${l.entries} entries · ${l.features} features · ${money(l.total)}</div></div></div>` +
+      `<div class="admin-cat-row-meta">${l.entries} records · ${l.transactionCount} transactions · net cash ${money(l.netCash)}</div></div></div>` +
       `<button type="button" class="admin-ghost-btn" data-owner-admin-goto="${escHtml(k)}">Report</button></div>`;
   }).join("");
 
   return ownerAdminTabsHtml() + ownerScopeBar() +
     `<div class="admin-stat-grid">` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(led.total)}</div><div class="admin-stat-lbl">Total Value</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(led.paid)}</div><div class="admin-stat-lbl">Paid / Received</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(led.pending)}</div><div class="admin-stat-lbl">Pending / Due</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.received)}</div><div class="admin-stat-lbl">Income received</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.receivable)}</div><div class="admin-stat-lbl">Income receivable</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.expensesPaid)}</div><div class="admin-stat-lbl">Expenses paid</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.payable)}</div><div class="admin-stat-lbl">Expenses unpaid</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.netCash)}</div><div class="admin-stat-lbl">Net cash recorded</div></div>` +
     `<div class="admin-stat"><div class="admin-stat-num">${led.entries}</div><div class="admin-stat-lbl">Total Entries</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${led.features}</div><div class="admin-stat-lbl">Active Features</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${keys.length}</div><div class="admin-stat-lbl">My Categories</div></div>` +
     `</div>` +
     `<div class="admin-note">Signed in as <strong>${escHtml(ownersName)}</strong> · ${keys.length} categor${keys.length === 1 ? "y" : "ies"} in scope.</div>` +
+    `<div class="admin-note">Financial totals include only transactions entered in the Cashbook. Feature records are not treated as income or expenses.</div>` +
     `<div class="admin-section-title">📁 Category performance</div>` +
     (catCards || `<div class="admin-empty">No categories in your scope.</div>`);
 };
@@ -2360,28 +2398,35 @@ const renderOwnerAdminReports = () => {
   const rows = keys.map((k) => {
     const m = catMeta(k);
     const l = categoryLedger(k);
-    const rate = l.total > 0 ? Math.round((l.paid / l.total) * 100) : 0;
     return `<tr><td><span class="admin-recent-icon">${m.icon}</span> ${escHtml(m.name)}</td>` +
-      `<td>${l.entries}</td><td>${money(l.total)}</td><td>${money(l.paid)}</td><td>${money(l.pending)}</td><td>${rate}%</td></tr>`;
+      `<td>${l.transactionCount}</td><td>${money(l.income)}</td><td>${money(l.received)}</td>` +
+      `<td>${money(l.receivable)}</td><td>${money(l.expenses)}</td><td>${money(l.expensesPaid)}</td>` +
+      `<td>${money(l.payable)}</td><td>${money(l.netCash)}</td></tr>`;
   }).join("");
   return ownerAdminTabsHtml() + ownerScopeBar() +
-    `<div class="admin-section-title">💰 Financial report by category</div>` +
+    `<div class="admin-section-title">💰 Cashbook report by category</div>` +
+    `<p class="admin-note">Only saved cashbook transactions are included. Pending income and unpaid expenses are excluded from net cash.</p>` +
     `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
-    `<th>Category</th><th>Entries</th><th>Total</th><th>Paid</th><th>Pending</th><th>Collected %</th>` +
-    `</tr></thead><tbody>${rows || `<tr><td colspan="6" class="f-muted">No data.</td></tr>`}</tbody></table></div>`;
+    `<th>Category</th><th>Transactions</th><th>Income</th><th>Received</th><th>Receivable</th>` +
+    `<th>Expenses</th><th>Paid</th><th>Unpaid</th><th>Net cash</th>` +
+    `</tr></thead><tbody>${rows || `<tr><td colspan="9" class="f-muted">No data.</td></tr>`}</tbody></table></div>`;
 };
 
 const renderOwnerAdminAnalytics = () => {
   const keys = ownerAdminCat === "all" ? ownerScopeKeys() : [ownerAdminCat];
   const led = ownerScopeLedger();
-  const maxTotal = Math.max(1, ...keys.map((k) => categoryLedger(k).total));
+  const maxActivity = Math.max(1, ...keys.map((k) => {
+    const l = categoryLedger(k);
+    return l.income + l.expenses;
+  }));
   const totalBars = keys.map((k) => {
     const m = catMeta(k);
     const l = categoryLedger(k);
-    const pct = Math.round((l.total / maxTotal) * 100);
+    const activity = l.income + l.expenses;
+    const pct = Math.round((activity / maxActivity) * 100);
     return `<div class="admin-bar-row"><span class="admin-bar-lbl">${m.icon} ${escHtml(m.name)}</span>` +
       `<span class="admin-bar-track"><span class="admin-bar-fill" style="width:${pct}%"></span></span>` +
-      `<span class="admin-bar-val">${money(l.total)}</span></div>`;
+      `<span class="admin-bar-val">${money(activity)}</span></div>`;
   }).join("");
 
   const featureBreakdown = keys.map((k) => {
@@ -2393,22 +2438,78 @@ const renderOwnerAdminAnalytics = () => {
       if (!Array.isArray(arr) || !arr.length) return "";
       const def = getFeatureDef(k, fid, null);
       const l = featureLedger(k, fid);
+      const maxEntries = Math.max(1, ...Object.values(col.features).map((entries) => Array.isArray(entries) ? entries.length : 0));
       return `<div class="admin-bar-row"><span class="admin-bar-lbl">${def.icon} ${escHtml(def.name)}</span>` +
-        `<span class="admin-bar-track"><span class="admin-bar-fill" style="width:${Math.round((l.total / Math.max(1, led.total)) * 100)}%"></span></span>` +
-        `<span class="admin-bar-val">${money(l.total)}</span></div>`;
+        `<span class="admin-bar-track"><span class="admin-bar-fill" style="width:${Math.round((l.count / maxEntries) * 100)}%"></span></span>` +
+        `<span class="admin-bar-val">${l.count} records</span></div>`;
     }).join("");
     return frows ? `<div class="admin-section-title">${m.icon} ${escHtml(m.name)}</div><div class="admin-bars">${frows}</div>` : "";
   }).join("");
 
   return ownerAdminTabsHtml() + ownerScopeBar() +
     `<div class="admin-stat-grid">` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(led.total)}</div><div class="admin-stat-lbl">Gross Value</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(led.paid)}</div><div class="admin-stat-lbl">Collected</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(led.pending)}</div><div class="admin-stat-lbl">Outstanding</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.received)}</div><div class="admin-stat-lbl">Cash received</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.expensesPaid)}</div><div class="admin-stat-lbl">Cash expenses</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(led.netCash)}</div><div class="admin-stat-lbl">Net cash</div></div>` +
     `</div>` +
-    `<div class="admin-section-title">📈 Value by category</div>` +
+    `<div class="admin-section-title">📈 Recorded transaction amounts by category</div>` +
     `<div class="admin-bars">${totalBars || `<div class="admin-empty">No data.</div>`}</div>` +
-    (featureBreakdown ? `<div class="admin-section-title">🔎 Breakdown by feature</div>${featureBreakdown}` : "");
+    (featureBreakdown ? `<div class="admin-section-title">🔎 Operational records by feature (not financial)</div>${featureBreakdown}` : "");
+};
+
+const cashbookStatusLabel = (transaction) => {
+  if (transaction.transaction_type === "income") {
+    return transaction.payment_status === "settled" ? "Received" : "Receivable";
+  }
+  return transaction.payment_status === "settled" ? "Paid" : "Unpaid";
+};
+
+const renderOwnerAdminCashbook = () => {
+  const keys = ownerAdminCat === "all" ? ownerScopeKeys() : [ownerAdminCat];
+  const transactions = transactionsForCategories(keys).slice()
+    .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+  const summary = transactionSummary(transactions);
+  const categoryOptions = keys.map((key) => {
+    const meta = catMeta(key);
+    return `<option value="${escHtml(key)}"${keys.length === 1 ? " selected" : ""}>${escHtml(meta.name)}</option>`;
+  }).join("");
+  const rows = transactions.slice(0, 200).map((transaction) => {
+    const meta = catMeta(transaction.category);
+    const typeLabel = transaction.transaction_type === "income" ? "Income" : "Expense";
+    return `<tr>` +
+      `<td>${fmtRegDate(transaction.transaction_date)}</td>` +
+      `<td>${meta.icon} ${escHtml(meta.name)}</td>` +
+      `<td>${typeLabel}</td>` +
+      `<td>${escHtml(cashbookStatusLabel(transaction))}</td>` +
+      `<td>${money(transaction.amount)}</td>` +
+      `<td>${escHtml(transaction.description)}</td>` +
+      `<td class="f-act-cell"><button type="button" class="admin-ghost-btn" data-cashbook-delete="${escHtml(transaction.id)}">Delete</button></td>` +
+      `</tr>`;
+  }).join("");
+
+  return ownerAdminTabsHtml() + ownerScopeBar() +
+    `<div class="admin-section-title">📒 Cashbook transactions</div>` +
+    `<p class="admin-note">Enter each income or expense once. Pending income and unpaid expenses are tracked separately; only settled transactions affect net cash. Older feature records are not imported as financial entries.</p>` +
+    `<div class="admin-stat-grid">` +
+      `<div class="admin-stat"><div class="admin-stat-num">${money(summary.received)}</div><div class="admin-stat-lbl">Income received</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">${money(summary.receivable)}</div><div class="admin-stat-lbl">Receivable</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">${money(summary.expensesPaid)}</div><div class="admin-stat-lbl">Expenses paid</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">${money(summary.payable)}</div><div class="admin-stat-lbl">Expenses unpaid</div></div>` +
+      `<div class="admin-stat"><div class="admin-stat-num">${money(summary.netCash)}</div><div class="admin-stat-lbl">Net cash</div></div>` +
+    `</div>` +
+    `<form class="cashbook-form" data-cashbook-form>` +
+      `<label>Category<select name="category" required>${categoryOptions}</select></label>` +
+      `<label>Type<select name="transaction_type" required><option value="income">Income</option><option value="expense">Expense</option></select></label>` +
+      `<label>Payment status<select name="payment_status" required><option value="settled">Settled</option><option value="pending">Pending</option></select></label>` +
+      `<label>Amount (PKR)<input name="amount" type="number" min="1" step="1" inputmode="numeric" required /></label>` +
+      `<label>Date<input name="transaction_date" type="date" value="${new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10)}" required /></label>` +
+      `<label class="cashbook-description">Description<input name="description" type="text" minlength="3" maxlength="160" required placeholder="e.g. Consultation fee or utility bill" /></label>` +
+      `<button type="submit" class="btn btn-primary">Add transaction</button>` +
+    `</form>` +
+    `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
+      `<th>Date</th><th>Category</th><th>Type</th><th>Status</th><th>Amount</th><th>Description</th><th></th>` +
+    `</tr></thead><tbody>${rows || `<tr><td colspan="7" class="f-muted">No cashbook transactions in this scope yet.</td></tr>`}</tbody></table></div>` +
+    (transactions.length > 200 ? `<p class="admin-note">Showing the latest 200 of ${transactions.length} transactions.</p>` : "");
 };
 
 const renderOwnerAdminData = () => {
@@ -2441,6 +2542,7 @@ const renderOwnerAdminPanel = () => {
   if (!ownerAdminPanel) return;
   let body;
   if (ownerAdminTab === "reports") body = renderOwnerAdminReports();
+  else if (ownerAdminTab === "cashbook") body = renderOwnerAdminCashbook();
   else if (ownerAdminTab === "analytics") body = renderOwnerAdminAnalytics();
   else if (ownerAdminTab === "data") body = renderOwnerAdminData();
   else body = renderOwnerAdminOverview();
@@ -2448,18 +2550,91 @@ const renderOwnerAdminPanel = () => {
   ownerAdminPanel.innerHTML =
     `<button type="button" class="modal-close" data-owner-admin-close aria-label="Close">&times;</button>` +
     `<div class="feature-head"><div class="feature-title"><span class="feature-icon">🔐</span>` +
-    `<div><h3>Business Admin Panel</h3><p class="feature-sub">${escHtml(ceoMode ? "CEO — full access" : owner ? owner.name + " · Owner" : "Owner")} · financial reports, analytics &amp; management tools</p></div></div></div>` +
+    `<div><h3>Business Admin Panel</h3><p class="feature-sub">${escHtml(ceoMode ? "CEO — full access" : owner ? owner.name + " · Owner" : "Owner")} · cashbook, reports, analytics &amp; management tools</p></div></div></div>` +
     body;
 };
 
 ownerAdminModal.addEventListener("click", (e) => {
   if (e.target === ownerAdminModal || e.target.closest("[data-owner-admin-close]")) { closeOwnerAdmin(); return; }
+  const deleteTransaction = e.target.closest("[data-cashbook-delete]");
+  if (deleteTransaction) {
+    const transaction = accountingTransactions.find((item) => item.id === deleteTransaction.dataset.cashbookDelete);
+    if (!transaction || !confirm(`Delete this ${transaction.transaction_type} transaction for ${money(transaction.amount)}?`)) return;
+    deleteTransaction.disabled = true;
+    (async () => {
+      try {
+        const { error } = await sb.from("financial_transactions").delete()
+          .eq("id", transaction.id)
+          .eq("user_id", cloudUser.id);
+        if (error) throw error;
+        accountingTransactions = accountingTransactions.filter((item) => item.id !== transaction.id);
+        renderOwnerAdminPanel();
+        showToast("Cashbook transaction deleted.");
+      } catch (error) {
+        console.error("Cashbook transaction deletion failed:", error);
+        showToast(error.message || "Could not delete the transaction.", true);
+        deleteTransaction.disabled = false;
+      }
+    })();
+    return;
+  }
   const tab = e.target.closest("[data-owner-admin-tab]");
   if (tab) { ownerAdminTab = tab.getAttribute("data-owner-admin-tab"); renderOwnerAdminPanel(); return; }
   const filter = e.target.closest("[data-owner-admin-filter]");
   if (filter) { ownerAdminCat = filter.getAttribute("data-owner-admin-filter"); renderOwnerAdminPanel(); return; }
   const goto = e.target.closest("[data-owner-admin-goto]");
   if (goto) { ownerAdminCat = goto.getAttribute("data-owner-admin-goto"); ownerAdminTab = "reports"; renderOwnerAdminPanel(); }
+});
+
+ownerAdminModal.addEventListener("submit", (e) => {
+  const form = e.target.closest("[data-cashbook-form]");
+  if (!form) return;
+  e.preventDefault();
+  const formData = new FormData(form);
+  const category = String(formData.get("category") || "");
+  const type = String(formData.get("transaction_type") || "");
+  const status = String(formData.get("payment_status") || "");
+  const amount = Number(formData.get("amount"));
+  const date = String(formData.get("transaction_date") || "");
+  const description = String(formData.get("description") || "").trim();
+  const allowedCategories = ownerScopeKeys();
+  const parsedDate = new Date(`${date}T00:00:00`);
+  const parsedLocalDate = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, "0")}-${String(parsedDate.getDate()).padStart(2, "0")}`;
+  const validDate = /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+    !Number.isNaN(parsedDate.getTime()) &&
+    parsedLocalDate === date;
+  if (!cloudUser || !sb) { showToast("Sign in to save cashbook transactions.", true); return; }
+  if (!allowedCategories.includes(category) || !["income", "expense"].includes(type) ||
+      !["settled", "pending"].includes(status) || !Number.isSafeInteger(amount) || amount <= 0 ||
+      !validDate || description.length < 3 || description.length > 160) {
+    showToast("Check the category, type, status, date, amount and description.", true);
+    return;
+  }
+
+  const submit = form.querySelector('button[type="submit"]');
+  if (submit) submit.disabled = true;
+  (async () => {
+    try {
+      const { data, error } = await sb.from("financial_transactions").insert({
+        user_id: cloudUser.id,
+        category,
+        transaction_date: date,
+        transaction_type: type,
+        payment_status: status,
+        amount,
+        description
+      }).select("id,user_id,category,transaction_date,transaction_type,payment_status,amount,description,created_at").single();
+      if (error) throw error;
+      if (!data?.id) throw new Error("The server did not return the saved transaction.");
+      accountingTransactions.unshift(data);
+      renderOwnerAdminPanel();
+      showToast("Cashbook transaction saved.");
+    } catch (error) {
+      console.error("Cashbook transaction save failed:", error);
+      showToast(error.message || "Could not save the transaction.", true);
+      if (submit) submit.disabled = false;
+    }
+  })();
 });
 
 document.addEventListener("keydown", (e) => {
@@ -2486,16 +2661,27 @@ const closeCategoryAdmin = () => {
   catAdminKey = null;
 };
 
-const openCategoryAdmin = (key) => {
+const openCategoryAdmin = async (key) => {
   if (!canAccessCat(key)) {
     showToast(`Access denied — you don't have ${labelFor(key)} access.`, true);
     return;
   }
   catAdminKey = key;
   catAdminTab = "overview";
-  renderCategoryAdmin();
+  catAdminPanel.innerHTML = `<p class="admin-empty">Loading category data…</p>`;
   catAdminModal.classList.add("open");
   catAdminModal.setAttribute("aria-hidden", "false");
+  if (sb && cloudUser) {
+    try {
+      await loadAccountingTransactions();
+    } catch (error) {
+      console.error("Category cashbook data failed to load:", error);
+      accountingTransactions = [];
+      accountingTransactionsOwnerId = null;
+      showToast("Cashbook totals could not be refreshed. Retry from the Business Admin Panel.", true);
+    }
+  }
+  renderCategoryAdmin();
 };
 
 const catAdminTabsHtml = () => {
@@ -2524,25 +2710,25 @@ const catAdminFeatureSummaries = (key) => {
 const renderCatAdminOverview = () => {
   const m = catMeta(catAdminKey);
   const l = categoryLedger(catAdminKey);
-  const rate = l.total > 0 ? Math.round((l.paid / l.total) * 100) : 0;
   const feats = catAdminFeatureSummaries(catAdminKey);
   const featRows = feats.map((f) =>
     `<div class="admin-cat-row">` +
     `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${f.def.icon}</span>` +
     `<div><div class="admin-cat-row-name">${escHtml(f.def.name)}</div>` +
-    `<div class="admin-cat-row-meta">${f.count} entries · ${money(f.total)}</div></div></div>` +
+    `<div class="admin-cat-row-meta">${f.count} operational records</div></div></div>` +
     `<button type="button" class="admin-ghost-btn" data-cat-admin-feature="${escHtml(f.fid)}">Open</button></div>`
   ).join("");
 
   return catAdminTabsHtml() +
     `<div class="admin-stat-grid">` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(l.total)}</div><div class="admin-stat-lbl">Total Value</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(l.paid)}</div><div class="admin-stat-lbl">Paid / Received</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${money(l.pending)}</div><div class="admin-stat-lbl">Pending / Due</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(l.received)}</div><div class="admin-stat-lbl">Income received</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(l.receivable)}</div><div class="admin-stat-lbl">Receivable</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(l.expensesPaid)}</div><div class="admin-stat-lbl">Expenses paid</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(l.payable)}</div><div class="admin-stat-lbl">Expenses unpaid</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${money(l.netCash)}</div><div class="admin-stat-lbl">Net cash recorded</div></div>` +
     `<div class="admin-stat"><div class="admin-stat-num">${l.entries}</div><div class="admin-stat-lbl">Total Entries</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${l.features}</div><div class="admin-stat-lbl">Active Features</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${rate}%</div><div class="admin-stat-lbl">Collected</div></div>` +
     `</div>` +
+    `<p class="admin-note">Financial values come only from the cloud Cashbook. Feature records are counted as operational data, not money.</p>` +
     `<div class="admin-toolbar">` +
     `<button type="button" class="btn btn-primary" data-cat-admin-export>⬇️ Export CSV</button>` +
     `<button type="button" class="btn btn-outline" data-cat-admin-data>🗂️ View All Data</button>` +
@@ -2553,39 +2739,36 @@ const renderCatAdminOverview = () => {
 };
 
 const renderCatAdminReports = () => {
-  const feats = catAdminFeatureSummaries(catAdminKey);
-  const rows = feats.map((f) => {
-    const rate = f.total > 0 ? Math.round((f.paid / f.total) * 100) : 0;
-    return `<tr><td><span class="admin-recent-icon">${f.def.icon}</span> ${escHtml(f.def.name)}</td>` +
-      `<td>${f.count}</td><td>${money(f.total)}</td><td>${money(f.paid)}</td><td>${money(f.pending)}</td><td>${rate}%</td></tr>`;
-  }).join("");
   const l = categoryLedger(catAdminKey);
   return catAdminTabsHtml() +
-    `<div class="admin-section-title">💰 Financial report — ${escHtml(catMeta(catAdminKey).name)}</div>` +
+    `<div class="admin-section-title">💰 Cashbook report — ${escHtml(catMeta(catAdminKey).name)}</div>` +
+    `<p class="admin-note">Net cash includes settled income less paid expenses. Pending amounts are shown separately and are not included in net cash.</p>` +
     `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
-    `<th>Feature</th><th>Entries</th><th>Total</th><th>Paid</th><th>Pending</th><th>Collected %</th>` +
-    `</tr></thead><tbody>${rows || `<tr><td colspan="6" class="f-muted">No data.</td></tr>`}` +
-    `</tbody><tfoot><tr><th>Total</th><th>${l.entries}</th><th>${money(l.total)}</th><th>${money(l.paid)}</th><th>${money(l.pending)}</th><th>—</th></tr></tfoot></table></div>`;
+    `<th>Transactions</th><th>Income</th><th>Received</th><th>Receivable</th><th>Expenses</th><th>Paid</th><th>Unpaid</th><th>Net cash</th>` +
+    `</tr></thead><tbody><tr><td>${l.transactionCount}</td><td>${money(l.income)}</td><td>${money(l.received)}</td>` +
+    `<td>${money(l.receivable)}</td><td>${money(l.expenses)}</td><td>${money(l.expensesPaid)}</td>` +
+    `<td>${money(l.payable)}</td><td>${money(l.netCash)}</td></tr></tbody></table></div>` +
+    `<p class="admin-note">Add or manage entries in Business Admin → Cashbook. No amounts are inferred from feature records.</p>`;
 };
 
 const renderCatAdminFeatures = () => {
   const feats = catAdminFeatureSummaries(catAdminKey);
-  const maxTotal = Math.max(1, ...feats.map((f) => f.total));
+  const maxCount = Math.max(1, ...feats.map((f) => f.count));
   const bars = feats.map((f) => {
-    const pct = Math.round((f.total / maxTotal) * 100);
+    const pct = Math.round((f.count / maxCount) * 100);
     return `<div class="admin-bar-row"><span class="admin-bar-lbl">${f.def.icon} ${escHtml(f.def.name)}</span>` +
       `<span class="admin-bar-track"><span class="admin-bar-fill" style="width:${pct}%"></span></span>` +
-      `<span class="admin-bar-val">${money(f.total)}</span></div>`;
+      `<span class="admin-bar-val">${f.count} records</span></div>`;
   }).join("");
   const cards = feats.map((f) =>
     `<div class="admin-cat-row">` +
     `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${f.def.icon}</span>` +
     `<div><div class="admin-cat-row-name">${escHtml(f.def.name)}</div>` +
-    `<div class="admin-cat-row-meta">${f.count} entries · ${money(f.paid)} paid · ${money(f.pending)} due</div></div></div>` +
+    `<div class="admin-cat-row-meta">${f.count} operational records</div></div></div>` +
     `<button type="button" class="admin-ghost-btn" data-cat-admin-feature="${escHtml(f.fid)}">Manage</button></div>`
   ).join("");
   return catAdminTabsHtml() +
-    `<div class="admin-section-title">📈 Value by feature</div>` +
+    `<div class="admin-section-title">📈 Operational records by feature</div>` +
     `<div class="admin-bars">${bars || `<div class="admin-empty">No data.</div>`}</div>` +
     `<div class="admin-section-title">🧩 Manage features</div>` +
     (cards || `<div class="admin-empty">No features with data yet.</div>`);
@@ -2599,31 +2782,26 @@ const renderCatAdminTop = () => {
       const def = getFeatureDef(catAdminKey, fid, null);
       (col.features[fid] || []).forEach((it) => {
         const f = it && it.fields && typeof it.fields === "object" ? { ...it, ...it.fields } : (it || {});
-        let val = 0;
-        Object.entries(f).forEach(([fk, fv]) => {
-          if (fk === "id" || fk === "createdAt" || fk === "updatedAt") return;
-          if (isMoneyKey(fk)) val += toNum(fv);
-        });
         const labelKey = Object.keys(f).find((k) =>
           k !== "id" && k !== "createdAt" && k !== "updatedAt" &&
           /name|title|patient|customer|client|student|dish|item|product|medicine|service|course|doctor|supplier|attendant|stylist/i.test(k)
         );
         const label = labelKey && f[labelKey] ? String(f[labelKey]) : (def.name + " #" + String(it.id || "").slice(0, 4));
-        items.push({ def, label, val, at: it.updatedAt || it.createdAt });
+        items.push({ def, label, at: it.updatedAt || it.createdAt });
       });
     });
   }
-  items.sort((a, b) => b.val - a.val);
+  items.sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
   const top = items.slice(0, 10);
   const rows = top.map((it, i) =>
     `<tr><td>${i + 1}</td><td><span class="admin-recent-icon">${it.def.icon}</span> ${escHtml(it.label)}</td>` +
-    `<td>${escHtml(it.def.name)}</td><td>${money(it.val)}</td><td>${fmtDate(it.at)}</td></tr>`
+    `<td>${escHtml(it.def.name)}</td><td>${fmtDate(it.at)}</td></tr>`
   ).join("");
   return catAdminTabsHtml() +
-    `<div class="admin-section-title">🏆 Top 10 by value — ${escHtml(catMeta(catAdminKey).name)}</div>` +
+    `<div class="admin-section-title">🕒 10 most recently updated records — ${escHtml(catMeta(catAdminKey).name)}</div>` +
     `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
-    `<th>#</th><th>Record</th><th>Feature</th><th>Value</th><th>Updated</th>` +
-    `</tr></thead><tbody>${rows || `<tr><td colspan="5" class="f-muted">No records yet.</td></tr>`}</tbody></table></div>`;
+    `<th>#</th><th>Record</th><th>Feature</th><th>Updated</th>` +
+    `</tr></thead><tbody>${rows || `<tr><td colspan="4" class="f-muted">No records yet.</td></tr>`}</tbody></table></div>`;
 };
 
 const renderCatAdminData = () => {
@@ -3255,6 +3433,7 @@ renderReviews();
 // ===== Business Registration =====
 const REG_KEY = "businessRegistrations";
 const REG_PLAN_KEY = "selectedBizPlan";
+const REG_RECEIPTS_KEY = "businessAdReceipts";
 
 const regForm = document.getElementById("regForm");
 const planGrid = document.getElementById("planGrid");
@@ -3279,11 +3458,22 @@ const PLAN_INFO = {
 
 const MOBILE_LOOKUP_RE = /^03\d{9}$/;
 const normalizeMobile = (v) => String(v || "").replace(/[^\d]/g, "");
+const newCloudUuid = () => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+  }
+  throw new Error("This browser cannot securely create a registration reference.");
+};
 
 const rupees = (n) => Number(n || 0).toLocaleString("en-PK");
 
-const getRegistrations = () => {
-  const list = store.get(REG_KEY, []);
+const getRegistrationReceipts = () => {
+  const list = store.get(REG_RECEIPTS_KEY, []);
   return Array.isArray(list) ? list : [];
 };
 
@@ -3444,7 +3634,7 @@ const validateRegForm = () => {
 
 // --- Submit ---
 if (regForm) {
-  regForm.addEventListener("submit", (e) => {
+  regForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     if (!validateRegForm()) {
@@ -3463,12 +3653,18 @@ if (regForm) {
     }
     if (planErr) planErr.textContent = "";
 
+    const submitButton = regForm.querySelector('button[type="submit"]');
+    if (submitButton?.disabled) return;
+    if (!sb) {
+      showToast("Cloud registration is unavailable right now. Please try again when the connection is restored.", true);
+      return;
+    }
+
     const get = (id) => document.getElementById(id).value.trim();
     const plan = PLAN_INFO[planKey];
     const entry = {
-      id: newEntryId(),
-      business: get("regBizName"),
-      owner: get("regOwnerName"),
+      business_name: get("regBizName"),
+      owner_name: get("regOwnerName"),
       mobile: normalizeMobile(get("regMobile")),
       whatsapp: normalizeMobile(get("regWhatsapp")),
       category: get("regCategory"),
@@ -3480,43 +3676,58 @@ if (regForm) {
       facebook: get("regFacebook"),
       instagram: get("regInstagram"),
       tiktok: get("regTiktok"),
-      photoCount: regPhotosInput?.files?.length || 0,
-      videoCount: regVideosInput?.files?.length || 0,
+      photo_count: Math.min(regPhotosInput?.files?.length || 0, 8),
+      video_count: Math.min(regVideosInput?.files?.length || 0, 8),
       plan: planKey,
-      planLabel: plan.label,
-      amount: plan.price,
-      at: new Date().toISOString(),
-      status: "pending"
+      amount: plan.price
     };
 
-    const list = getRegistrations();
-    list.push(entry);
-    store.set(REG_KEY, list);
+    submitButton.disabled = true;
+    try {
+      entry.id = newCloudUuid();
+      const { error } = await sb
+        .from("business_ad_requests")
+        .insert(entry);
+      if (error) throw error;
+      const submission = { id: entry.id, created_at: new Date().toISOString() };
 
-    regForm.reset();
-    clearPreview(regPhotoPreview);
-    clearPreview(regVideoPreview);
-    if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
-    if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
-    store.set(REG_PLAN_KEY, null);
-    markPlanSelected(null);
-    renderPlanSummary();
-    renderRegistrations();
-    resetRegErrors();
+      const receipts = getRegistrationReceipts();
+      receipts.unshift({
+        id: submission.id,
+        business: entry.business_name,
+        planLabel: plan.label,
+        amount: plan.price,
+        at: submission.created_at
+      });
+      store.set(REG_RECEIPTS_KEY, receipts.slice(0, 20));
 
-    showToast("Registration submitted! Now contact the owner on WhatsApp to send the payment.");
-    closeRegModal();
-    regListWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
+      regForm.reset();
+      clearPreview(regPhotoPreview);
+      clearPreview(regVideoPreview);
+      if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+      if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
+      store.set(REG_PLAN_KEY, null);
+      markPlanSelected(null);
+      renderPlanSummary();
+      renderRegistrations();
+      resetRegErrors();
 
-    // Straight to the owner's WhatsApp with the business and plan pre-filled.
-    const waText = encodeURIComponent(
-      `Assalam o Alaikum! I submitted my business registration on Online Management Site.\n` +
-      `Business: ${entry.business}\nOwner: ${entry.owner}\nPlan: ${entry.planLabel} (PKR ${rupees(entry.amount)})\n` +
-      `Please send me the payment details so my ad can run.`
-    );
-    setTimeout(() => {
+      showToast("Registration saved online. The owner must verify your payment before the ad can go live.");
+      closeRegModal();
+      regListWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      const waText = encodeURIComponent(
+        `Assalam o Alaikum! I submitted my business registration on Online Management Site.\n` +
+        `Business: ${entry.business_name}\nOwner: ${entry.owner_name}\nPlan: ${plan.label} (PKR ${rupees(entry.amount)})\n` +
+        `Request reference: ${submission.id}\nPlease send me the payment details.`
+      );
       window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
-    }, 700);
+    } catch (error) {
+      console.error("Business ad registration failed:", error);
+      showToast(error.message || "Could not save the registration. Please try again.", true);
+    } finally {
+      submitButton.disabled = false;
+    }
   });
 
   regForm.addEventListener("input", (e) => {
@@ -3580,7 +3791,7 @@ const fmtRegDate = (v) => {
 
 const renderRegistrations = () => {
   if (!regList || !regListWrap) return;
-  const list = getRegistrations().slice().sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+  const list = getRegistrationReceipts().slice().sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
 
   if (!list.length) {
     regListWrap.hidden = true;
@@ -3590,25 +3801,23 @@ const renderRegistrations = () => {
 
   regListWrap.hidden = false;
   regList.innerHTML = list.map((r) => {
-    const status = adStatusOf(r);
-    const label = AD_STATUS_LABEL[status] || "Awaiting payment";
-    const expiry = status === "live" && r.expiresAt ? `<br /><strong>Ad expires:</strong> ${fmtRegDate(r.expiresAt)}` : "";
+    const waText = encodeURIComponent(
+      `Assalam o Alaikum! I submitted my business registration on Online Management Site.\n` +
+      `Business: ${r.business}\nPlan: ${r.planLabel} (PKR ${rupees(r.amount)})\n` +
+      `Request reference: ${r.id}\nPlease send me the payment details.`
+    );
     return `<div class="reg-item" data-reg-id="${escHtml(r.id)}">` +
       `<div class="reg-item-head">` +
       `<span class="reg-item-name">${escHtml(r.business)}</span>` +
       `<span class="reg-item-plan">${escHtml(r.planLabel || "Plan")}</span>` +
-      `<span class="reg-item-status s-${status}">${label}</span>` +
-      `<button type="button" class="reg-item-del" data-reg-del="${escHtml(r.id)}">Remove</button>` +
+      `<span class="reg-item-status s-pending">Submitted</span>` +
+      `<button type="button" class="reg-item-del" data-reg-del="${escHtml(r.id)}">Hide receipt</button>` +
       `</div>` +
       `<div class="reg-item-meta">` +
-      `<strong>Owner:</strong> ${escHtml(r.owner)} &nbsp;•&nbsp; ` +
-      `<strong>Mobile:</strong> ${escHtml(r.mobile)} &nbsp;•&nbsp; ` +
-      `<strong>Category:</strong> ${escHtml(r.category)}<br />` +
-      `<strong>City:</strong> ${escHtml(r.city)} &nbsp;•&nbsp; ` +
       `<strong>Amount:</strong> PKR ${rupees(r.amount)} &nbsp;•&nbsp; ` +
       `<strong>Submitted:</strong> ${fmtRegDate(r.at)}` +
-      expiry +
-      (r.photoCount || r.videoCount ? `<br /><strong>Media:</strong> ${r.photoCount || 0} photo(s), ${r.videoCount || 0} video(s) selected` : "") +
+      `<br /><strong>Reference:</strong> ${escHtml(r.id)}` +
+      `<br /><a class="reg-item-contact" href="https://wa.me/923042954627?text=${waText}" target="_blank" rel="noopener noreferrer">Contact owner on WhatsApp</a>` +
       `</div>` +
       `</div>`;
   }).join("");
@@ -3619,13 +3828,13 @@ if (regList) {
     const btn = e.target.closest("[data-reg-del]");
     if (!btn) return;
     const id = btn.getAttribute("data-reg-del");
-    const list = getRegistrations();
+    const list = getRegistrationReceipts();
     const item = list.find((r) => r.id === id);
     if (!item) return;
-    if (!confirm(`Remove the registration for "${item.business}"?`)) return;
-    store.set(REG_KEY, list.filter((r) => r.id !== id));
+    if (!confirm(`Hide the receipt for "${item.business}" from this browser? The online request will not be deleted.`)) return;
+    store.set(REG_RECEIPTS_KEY, list.filter((r) => r.id !== id));
     renderRegistrations();
-    showToast("Registration removed.");
+    showToast("Receipt hidden from this browser.");
   });
 }
 
@@ -3633,33 +3842,20 @@ markPlanSelected(getSelectedPlan());
 renderPlanSummary();
 
 // ===== Business Ads (CEO panel) =====
-// Ad lifecycle: pending -> paid -> live -> expired (or stopped early).
-// Payment and activation are both controlled by the CEO after the money is received.
 const PLAN_DAYS = { "15days": 15, "30days": 30, "1year": 365 };
 
 const bizAdsModal = document.getElementById("bizAdsModal");
 const bizAdsPanel = document.getElementById("bizAdsPanel");
 let bizAdsFilter = "all";
+let businessAdRequests = [];
+let bizAdsBusy = false;
+let legacyAdsMigrated = false;
 
 const adStatusOf = (ad) => {
   if (ad.status === "live" && ad.expiresAt && new Date(ad.expiresAt).getTime() <= Date.now()) {
     return "expired";
   }
   return ad.status || "pending";
-};
-
-// Expiry sweep: anything past its expiry date is marked expired and dropped from live listings.
-const sweepExpiredAds = () => {
-  const list = getRegistrations();
-  let changed = false;
-  list.forEach((ad) => {
-    if (ad.status === "live" && ad.expiresAt && new Date(ad.expiresAt).getTime() <= Date.now()) {
-      ad.status = "expired";
-      changed = true;
-    }
-  });
-  if (changed) store.set(REG_KEY, list);
-  return changed;
 };
 
 const AD_STATUS_LABEL = {
@@ -3670,11 +3866,127 @@ const AD_STATUS_LABEL = {
   stopped: "Stopped"
 };
 
-const addPlanDuration = (from, planKey) => {
-  const days = PLAN_DAYS[planKey] || 30;
-  const d = new Date(from);
-  d.setDate(d.getDate() + days);
-  return d.toISOString();
+const planLabel = (planKey) => PLAN_INFO[planKey]?.label || "Plan";
+const mapBusinessAdRequest = (row) => ({
+  id: row.id,
+  business: row.business_name,
+  owner: row.owner_name,
+  mobile: row.mobile,
+  whatsapp: row.whatsapp,
+  category: row.category,
+  city: row.city,
+  address: row.address,
+  about: row.about,
+  timing: row.timing,
+  website: row.website,
+  facebook: row.facebook,
+  instagram: row.instagram,
+  tiktok: row.tiktok,
+  photoCount: row.photo_count,
+  videoCount: row.video_count,
+  plan: row.plan,
+  planLabel: planLabel(row.plan),
+  amount: row.amount,
+  status: row.status,
+  paidAt: row.payment_received_at,
+  startedAt: row.started_at,
+  expiresAt: row.expires_at,
+  at: row.created_at
+});
+
+const normalizeLegacyAd = (ad, index) => {
+  if (!ad || typeof ad !== "object" || !PLAN_INFO[ad.plan]) return null;
+  const text = (value, max) => typeof value === "string" && value.trim().length <= max ? value.trim() : "";
+  const business = text(ad.business, 100);
+  const owner = text(ad.owner, 80);
+  const mobile = normalizeMobile(ad.mobile);
+  const whatsapp = normalizeMobile(ad.whatsapp || ad.mobile);
+  const category = text(ad.category, 60);
+  const city = text(ad.city, 40);
+  const address = text(ad.address, 160);
+  const about = text(ad.about, 300);
+  const timing = text(ad.timing, 80);
+  if (business.length < 3 || owner.length < 3 || !MOBILE_LOOKUP_RE.test(mobile) ||
+      !MOBILE_LOOKUP_RE.test(whatsapp) || category.length < 2 || city.length < 2 ||
+      address.length < 5 || about.length < 10 || timing.length < 3) return null;
+  const optionalText = (value) => text(value || "", 200);
+  const createdAt = ad.at && !Number.isNaN(Date.parse(ad.at)) ? new Date(ad.at).toISOString() : new Date().toISOString();
+  return {
+    legacy_id: String(ad.id || `legacy-${createdAt}-${index}`),
+    business_name: business,
+    owner_name: owner,
+    mobile,
+    whatsapp,
+    category,
+    city,
+    address,
+    about,
+    timing,
+    website: optionalText(ad.website),
+    facebook: optionalText(ad.facebook),
+    instagram: optionalText(ad.instagram),
+    tiktok: optionalText(ad.tiktok),
+    photo_count: Math.min(8, Math.max(0, Number(ad.photoCount) || 0)),
+    video_count: Math.min(8, Math.max(0, Number(ad.videoCount) || 0)),
+    plan: ad.plan,
+    amount: PLAN_INFO[ad.plan].price,
+    status: "pending",
+    created_at: createdAt
+  };
+};
+
+const migrateLegacyBusinessAds = async () => {
+  if (legacyAdsMigrated) return;
+  if (!sb || !cloudUser || !ceoLoggedIn) throw new Error("Sign in as the CEO to migrate older business registrations.");
+
+  const { data: legacyRow, error: readError } = await sb
+    .from(CLOUD_TABLE)
+    .select("value")
+    .eq("user_id", cloudUser.id)
+    .eq("key", REG_KEY)
+    .maybeSingle();
+  if (readError) throw readError;
+
+  const localLegacy = store.get(REG_KEY, []);
+  const cloudLegacy = legacyRow?.value;
+  const legacy = [
+    ...(Array.isArray(localLegacy) ? localLegacy : []),
+    ...(Array.isArray(cloudLegacy) ? cloudLegacy : [])
+  ];
+  const unique = new Map();
+  legacy.forEach((ad, index) => {
+    const normalized = normalizeLegacyAd(ad, index);
+    if (!normalized) throw new Error("An older registration is incomplete or invalid. It was kept unchanged; review it before retrying migration.");
+    unique.set(normalized.legacy_id, normalized);
+  });
+
+  const rows = [...unique.values()].map(({ created_at, ...row }) => row);
+  if (rows.length) {
+    const { error } = await sb
+      .from("business_ad_requests")
+      .upsert(rows, { onConflict: "legacy_id", ignoreDuplicates: true });
+    if (error) throw error;
+  }
+
+  if (legacyRow) {
+    const { error } = await sb.from(CLOUD_TABLE).delete()
+      .eq("user_id", cloudUser.id)
+      .eq("key", REG_KEY);
+    if (error) throw error;
+  }
+  try { localStorage.removeItem(REG_KEY); } catch (error) {
+    console.warn("Could not remove the migrated local business registrations:", error);
+  }
+  legacyAdsMigrated = true;
+};
+
+const loadBusinessAdRequests = async () => {
+  const { data, error } = await sb
+    .from("business_ad_requests")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  businessAdRequests = (data || []).map(mapBusinessAdRequest);
 };
 
 const bizAdRowHtml = (ad) => {
@@ -3682,26 +3994,28 @@ const bizAdRowHtml = (ad) => {
   const active = status === "live";
   const expiredTxt = ad.expiresAt ? fmtRegDate(ad.expiresAt) : "";
 
-  // Links may be typed without https://, so normalise before using them as href.
-  // SECURITY: only allow http/https to block javascript:/data: schemes.
   const safeLink = (v) => {
     try {
       const s = String(v || "").trim();
       if (!s) return "";
-      if (/^(javascript|data|vbscript):/i.test(s)) return "";
       const abs = /^https?:\/\//i.test(s) ? s : `https://${s}`;
       const u = new URL(abs);
       if (u.protocol === "http:" || u.protocol === "https:") return u.href;
-    } catch {}
+    } catch (error) {
+      console.warn("Invalid business ad link was omitted:", error);
+    }
     return "";
   };
-  const safeUrl = (u) => safeLink(u);
+  const linkHtml = (url, label) => {
+    const safe = safeLink(url);
+    return safe ? `<a class="biz-ad-link" href="${escHtml(safe)}" target="_blank" rel="noopener noreferrer">${label}</a>` : "";
+  };
 
   const actionButtons = [];
   if (status === "pending") {
     actionButtons.push(`<button type="button" class="biz-ad-btn ok" data-ad-action="paid" data-ad-id="${escHtml(ad.id)}">Payment Received</button>`);
   }
-  if (status === "pending" || status === "paid") {
+  if (status === "paid") {
     actionButtons.push(`<button type="button" class="biz-ad-btn go" data-ad-action="live" data-ad-id="${escHtml(ad.id)}">Activate Ad</button>`);
   }
   if (active) {
@@ -3727,17 +4041,18 @@ const bizAdRowHtml = (ad) => {
       `<div><span>Category</span><strong>${escHtml(ad.category)}</strong></div>` +
       `<div><span>City</span><strong>${escHtml(ad.city)}</strong></div>` +
       `<div><span>Submitted</span><strong>${fmtRegDate(ad.at) || "-"}</strong></div>` +
-      `<div><span>Media</span><strong>${ad.photoCount || 0} photo(s), ${ad.videoCount || 0} video(s)</strong></div>` +
+      `<div><span>Payment verified</span><strong>${ad.paidAt ? fmtRegDate(ad.paidAt) : "No"}</strong></div>` +
+      `<div><span>Media selected</span><strong>${ad.photoCount || 0} photo(s), ${ad.videoCount || 0} video(s) — not uploaded</strong></div>` +
       (active || expiredTxt ? `<div><span>Expires on</span><strong>${expiredTxt || "-"}</strong></div>` : "") +
     `</div>` +
     (ad.about ? `<p class="biz-ad-about">${escHtml(ad.about)}</p>` : "") +
     (ad.address || ad.website || ad.facebook || ad.instagram || ad.tiktok
       ? `<div class="biz-ad-links">` +
           (ad.address ? `<span class="biz-ad-link plain">📍 ${escHtml(ad.address)}</span>` : "") +
-          (ad.website ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.website))}" target="_blank" rel="noopener noreferrer">🌐 Website</a>` : "") +
-          (ad.facebook ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.facebook))}" target="_blank" rel="noopener noreferrer">Facebook</a>` : "") +
-          (ad.instagram ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.instagram))}" target="_blank" rel="noopener noreferrer">Instagram</a>` : "") +
-          (ad.tiktok ? `<a class="biz-ad-link" href="${escHtml(safeLink(ad.tiktok))}" target="_blank" rel="noopener noreferrer">TikTok</a>` : "") +
+          linkHtml(ad.website, "🌐 Website") +
+          linkHtml(ad.facebook, "Facebook") +
+          linkHtml(ad.instagram, "Instagram") +
+          linkHtml(ad.tiktok, "TikTok") +
         `</div>`
       : "") +
     `<div class="biz-ad-actions">${actionButtons.join("")}</div>` +
@@ -3746,9 +4061,7 @@ const bizAdRowHtml = (ad) => {
 
 const renderBizAdsPanel = () => {
   if (!bizAdsPanel) return;
-  sweepExpiredAds();
-
-  const all = getRegistrations().slice().sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
+  const all = businessAdRequests.slice().sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
   const counts = { pending: 0, paid: 0, live: 0, expired: 0, stopped: 0 };
   all.forEach((a) => { counts[adStatusOf(a)] = (counts[adStatusOf(a)] || 0) + 1; });
 
@@ -3768,7 +4081,7 @@ const renderBizAdsPanel = () => {
         return s === bizAdsFilter;
       });
 
-  const totalPaid = all.filter((a) => ["paid", "live", "expired", "stopped"].includes(adStatusOf(a)))
+  const totalPaid = all.filter((a) => a.paidAt)
     .reduce((sum, a) => sum + (Number(a.amount) || 0), 0);
 
   bizAdsPanel.innerHTML =
@@ -3794,12 +4107,21 @@ const renderBizAdsPanel = () => {
       : `<p class="admin-empty">No ads in this list yet.</p>`);
 };
 
-const openBizAdsPanel = () => {
-  if (!ceoLoggedIn || !ceoUser) { showToast("Business Ads requires CEO login.", true); return; }
+const openBizAdsPanel = async () => {
+  if (!ceoLoggedIn || !ceoUser || !cloudUser || !sb) { showToast("Business Ads requires an online CEO login.", true); return; }
   bizAdsFilter = "all";
-  renderBizAdsPanel();
+  bizAdsPanel.innerHTML = `<p class="admin-empty">Loading cloud registrations…</p>`;
   bizAdsModal.classList.add("open");
   bizAdsModal.setAttribute("aria-hidden", "false");
+  try {
+    await migrateLegacyBusinessAds();
+    await loadBusinessAdRequests();
+    renderBizAdsPanel();
+  } catch (error) {
+    console.error("Business ad admin panel failed to load:", error);
+    bizAdsPanel.innerHTML = `<button class="admin-close" type="button" data-biz-ads-close aria-label="Close">×</button>` +
+      `<h3 class="admin-title">Business Ads</h3><p class="admin-empty">Could not load ad requests: ${escHtml(error.message || "Unknown error")}</p>`;
+  }
 };
 
 const closeBizAdsPanel = () => {
@@ -3807,24 +4129,6 @@ const closeBizAdsPanel = () => {
   bizAdsModal.classList.remove("open");
   bizAdsModal.setAttribute("aria-hidden", "true");
   bizAdsPanel.innerHTML = "";
-};
-
-const setAdStatus = (id, status, message) => {
-  const list = getRegistrations();
-  const ad = list.find((r) => r.id === id);
-  if (!ad) return;
-  ad.status = status;
-  if (status === "live") {
-    ad.startedAt = new Date().toISOString();
-    ad.expiresAt = addPlanDuration(Date.now(), ad.plan);
-  }
-  if (status === "paid") {
-    ad.paidAt = new Date().toISOString();
-  }
-  store.set(REG_KEY, list);
-  renderRegistrations();
-  renderBizAdsPanel();
-  if (message) showToast(message);
 };
 
 document.getElementById("ceoBizAdsPanel")?.addEventListener("click", openBizAdsPanel);
@@ -3836,49 +4140,58 @@ bizAdsModal?.addEventListener("click", (e) => {
   if (filterBtn) { bizAdsFilter = filterBtn.dataset.adFilter; renderBizAdsPanel(); return; }
 
   const actionBtn = e.target.closest("[data-ad-action]");
-  if (!actionBtn) return;
+  if (!actionBtn || bizAdsBusy) return;
 
-  const id = actionBtn.dataset.adId;
-  const action = actionBtn.dataset.adAction;
-  const ad = getRegistrations().find((r) => r.id === id);
-  if (!ad) return;
+  const { adId: id, adAction: action } = actionBtn.dataset;
+  const ad = businessAdRequests.find((r) => r.id === id);
+  if (!ad) { showToast("This ad request is no longer available. Refresh the list.", true); return; }
+  if (action === "delete" && !confirm(`Delete the registration for "${ad.business}"?`)) return;
 
-  if (action === "paid") {
-    setAdStatus(id, "paid", `Payment marked received for ${ad.business}.`);
-  } else if (action === "live") {
-    setAdStatus(id, "live", `${ad.business} ad is live for ${PLAN_DAYS[ad.plan] || 30} days.`);
-  } else if (action === "extend") {
-    const list = getRegistrations();
-    const item = list.find((r) => r.id === id);
-    const base = item.expiresAt && new Date(item.expiresAt).getTime() > Date.now() ? item.expiresAt : Date.now();
-    item.expiresAt = addPlanDuration(base, item.plan);
-    store.set(REG_KEY, list);
-    renderRegistrations();
-    renderBizAdsPanel();
-    showToast(`${ad.business} ad extended to ${fmtRegDate(item.expiresAt)}.`);
-  } else if (action === "stop") {
-    const list = getRegistrations();
-    const item = list.find((r) => r.id === id);
-    item.status = "stopped";
-    item.expiresAt = new Date().toISOString();
-    store.set(REG_KEY, list);
-    renderRegistrations();
-    renderBizAdsPanel();
-    showToast(`${ad.business} ad stopped.`);
-  } else if (action === "delete") {
-    if (!confirm(`Delete the registration for "${ad.business}"?`)) return;
-    store.set(REG_KEY, getRegistrations().filter((r) => r.id !== id));
-    renderRegistrations();
-    renderBizAdsPanel();
-    showToast("Ad deleted.");
-  }
+  const rpcNames = {
+    paid: "admin_business_ad_mark_paid",
+    live: "admin_business_ad_publish",
+    extend: "admin_business_ad_extend",
+    stop: "admin_business_ad_stop",
+    delete: "admin_business_ad_delete"
+  };
+  const rpc = rpcNames[action];
+  if (!rpc) return;
+
+  bizAdsBusy = true;
+  actionBtn.disabled = true;
+  (async () => {
+    try {
+      const { error } = await sb.rpc(rpc, { p_request_id: id });
+      if (error) throw error;
+      const messages = {
+        paid: `Payment marked received for ${ad.business}.`,
+        live: `${ad.business} ad activated for ${PLAN_DAYS[ad.plan]} days.`,
+        extend: `${ad.business} ad extended.`,
+        stop: `${ad.business} ad stopped.`,
+        delete: "Ad request deleted."
+      };
+      showToast(messages[action]);
+      try {
+        await loadBusinessAdRequests();
+        renderBizAdsPanel();
+      } catch (refreshError) {
+        console.error("Business ad action succeeded but the list refresh failed:", refreshError);
+        showToast("Action completed, but the list could not refresh. Close and reopen Business Ads.", true);
+      }
+    } catch (error) {
+      console.error(`Business ad action '${action}' failed:`, error);
+      showToast(error.message || "The ad action failed. Please refresh and try again.", true);
+      renderBizAdsPanel();
+    } finally {
+      bizAdsBusy = false;
+    }
+  })();
 });
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && bizAdsModal?.classList.contains("open")) closeBizAdsPanel();
 });
 
-sweepExpiredAds();
 renderRegistrations();
 
 // ===== Init: apply saved removals, rebuild custom categories =====

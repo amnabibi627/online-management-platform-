@@ -1,12 +1,13 @@
 # Business Management System
 
 All-in-one business management web app — a static HTML/CSS/JavaScript site.
-Category workspaces use Supabase Auth and cloud data; several home-page
-accounts and features still rely on browser-local storage.
+Category workspaces, homepage Owner/User accounts, business-ad requests/listings,
+and the cashbook use Supabase; some presentation settings and local-only tools
+still rely on browser storage.
 
 ## Features
 
-- **CEO master account** — registration locked behind a secret code, login/logout, reset
+- **CEO access** — Supabase Auth login with server-side admin-role verification
 - **Owner accounts** — sign up with a business category, restricted access to that category only
 - **8 industry categories** — Clinic, Academy, Restaurant, General Store, Beauty Salon,
   Petrol Pump, Medical Store, Laboratory — each with 12 working CRUD modules
@@ -30,18 +31,21 @@ accounts and features still rely on browser-local storage.
   their own review, the CEO can delete any review
 - **Business registration** — a "Register Your Business" card opens a compact
   modal form with three paid plans (15 days / PKR 2,500, 30 days / PKR 5,000,
-  1 year / PKR 60,000) picked inside the form. All details are required, plus
-  optional website and social links (Facebook, Instagram, TikTok). After
-  submitting, the owner's WhatsApp opens with the business and plan pre-filled
-  so the customer can send the payment
+  1 year / PKR 60,000) picked inside the form. Requests are saved in Supabase;
+  owner and payment details are private. Payment is manually verified by the
+  CEO before the listing can be activated. WhatsApp opens with a request
+  reference for payment follow-up
 - **Business Ads panel** (CEO only) — review every registration, confirm the
-  payment, then activate the ad. Expiry is set from the plan automatically
-  (15 days / 30 days / 1 year), with extend, stop and delete actions. Expired
-  ads drop out of the live list on their own
+  payment, then activate the ad. Server-side CEO-only operations enforce this
+  order. Expiry is set from the plan (15 days / 30 days / 1 year), with extend,
+  stop, re-activate and delete actions
 - **Running Business Ads** — a public section that lists every activated ad in
-  Fiverr gig style (thumbnail, seller row, title, meta, links, "Starts from
-  PKR X" price and a green Contact button that opens WhatsApp). Ads show up
-  only while they are live
+  card format with public business details, social links and WhatsApp contact.
+  Listings are shared across devices and automatically hidden after expiry
+- **Cashbook** — explicit per-account, per-category income and expense entries
+  stored in Supabase. Received/paid totals, receivables, unpaid expenses and
+  net cash are reported separately; operational feature records are never
+  guessed to be financial transactions
 - **Category subscriptions** — each category requires its own subscription:
   PKR 3,000/month, PKR 9,000/3 months, or PKR 12,000/6 months. JazzCash
   payments are manually checked by the CEO before access is approved
@@ -53,12 +57,14 @@ accounts and features still rely on browser-local storage.
 | File | Purpose |
 |------|---------|
 | `index.html` | Page structure, category sections, modals |
-| `script.js`  | All app logic (auth, CRUD, sync, reviews, ads) |
+| `script.js`  | Homepage auth, CRUD, sync, reviews and admin logic |
+| `category.js` / `category.css` | Category page subscriptions, workspaces and styling |
+| `feature-registry.js` | Category tools, form fields and Supabase client |
 | `liveads.js` | Renders the public "Running Business Ads" cards |
 | `styles.css` | Styling |
 | `_headers` | Cloudflare Pages security headers (CSP, HSTS, frame options) |
 | `CNAME` | Custom domain `onlinemanagement.site` |
-| `supabase/setup.sql` | Admin, per-category subscriptions, payment requests, sync tables and row level security |
+| `supabase/setup.sql` | Admin, subscriptions, business ads, cashbook, sync tables and row level security |
 | `SETUP.md` | Step by step deployment and security setup guide |
 
 ## Running
@@ -67,9 +73,10 @@ Just open `index.html` in a browser — no build step, no dependencies.
 
 The app loads Supabase from a CDN. Home-page features that use `localStorage`
 remain available on that browser without a connection. Category workspace
-sign-in and data, Owner/User accounts, CEO access, and public reviews require
-Supabase. They cannot authenticate or load cloud records while the service is
-unavailable; browser-local features remain limited to that device.
+sign-in and data, Owner/User accounts, CEO access, public reviews, business-ad
+requests/listings, and the cashbook require Supabase. Supabase-backed features
+cannot sign in or save/load cloud records while the service is unavailable;
+browser-local features remain limited to that device.
 
 ## Security and current limits
 
@@ -82,11 +89,14 @@ unavailable; browser-local features remain limited to that device.
 - **JazzCash payments are manual.** The CEO checks the payment in JazzCash and
   approves the request in the admin panel. The site does not have payment-gateway
   verification.
-- **Live ads are currently browser-local** rather than shared through a
-  public cloud-backed listing. Registrations made in one browser do not
-  automatically appear to visitors on other devices.
-- **Financial summaries are estimates.** They infer money fields and payment
-  status from feature records; they are not a reconciled accounting ledger.
+- **Business ad payments remain manual.** An owner must confirm each payment
+  in JazzCash. A paid request does not become public until the CEO activates it.
+  Legacy browser-only requests are imported as pending and must be re-verified.
+- **Ad media is not uploaded.** Photo/video selection only previews files in
+  the browser; users must send media separately to the owner on WhatsApp.
+- **The cashbook is an explicit cash-tracking tool, not double-entry
+  accounting.** Older feature records are not imported as transactions, and
+  cashbook totals are only as complete as the transactions the user records.
 - **CSP and transport headers** are configured through `_headers`; production
   behavior depends on deploying through a host that applies those headers.
 - **Browser content restrictions are not security.** The site does not block

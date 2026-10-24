@@ -450,7 +450,387 @@ create policy "site_profile_write_admin" on public.site_profile
   with check (exists (select 1 from public.admins a where a.user_id = auth.uid()));
 
 -- ------------------------------------------------------------
--- 6. Make your own account the CEO
+-- 6. Public business ad listings and private registration requests
+-- ------------------------------------------------------------
+create table if not exists public.business_ad_requests (
+  id                  uuid primary key default gen_random_uuid(),
+  legacy_id           text unique,
+  business_name       text not null check (char_length(trim(business_name)) between 3 and 100),
+  owner_name          text not null check (char_length(trim(owner_name)) between 3 and 80),
+  mobile              text not null check (mobile ~ '^03[0-9]{9}$'),
+  whatsapp            text not null check (whatsapp ~ '^03[0-9]{9}$'),
+  category            text not null check (char_length(trim(category)) between 2 and 60),
+  city                text not null check (char_length(trim(city)) between 2 and 40),
+  address             text not null check (char_length(trim(address)) between 5 and 160),
+  about               text not null check (char_length(trim(about)) between 10 and 300),
+  timing              text not null check (char_length(trim(timing)) between 3 and 80),
+  website             text not null default '' check (char_length(website) <= 200),
+  facebook            text not null default '' check (char_length(facebook) <= 200),
+  instagram           text not null default '' check (char_length(instagram) <= 200),
+  tiktok              text not null default '' check (char_length(tiktok) <= 200),
+  photo_count         integer not null default 0 check (photo_count between 0 and 8),
+  video_count         integer not null default 0 check (video_count between 0 and 8),
+  plan                text not null check (plan in ('15days', '30days', '1year')),
+  amount              integer not null check (
+    (plan = '15days' and amount = 2500) or
+    (plan = '30days' and amount = 5000) or
+    (plan = '1year' and amount = 60000)
+  ),
+  status              text not null default 'pending' check (status in ('pending', 'paid', 'live', 'stopped')),
+  payment_received_at timestamptz,
+  started_at          timestamptz,
+  expires_at          timestamptz,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now()
+);
+
+create or replace function public.set_business_ad_request_timestamps()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if tg_op = 'INSERT' then
+    new.created_at := now();
+  end if;
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+drop trigger if exists business_ad_requests_set_timestamps on public.business_ad_requests;
+create trigger business_ad_requests_set_timestamps
+  before insert or update on public.business_ad_requests
+  for each row execute function public.set_business_ad_request_timestamps();
+
+create index if not exists business_ad_requests_recent_idx
+  on public.business_ad_requests (created_at desc);
+
+alter table public.business_ad_requests enable row level security;
+revoke all on table public.business_ad_requests from public, anon, authenticated;
+grant insert on table public.business_ad_requests to anon, authenticated;
+grant select, update, delete on table public.business_ad_requests to authenticated;
+
+drop policy if exists "business_ad_requests_insert_pending" on public.business_ad_requests;
+create policy "business_ad_requests_insert_pending" on public.business_ad_requests
+  for insert to anon, authenticated
+  with check (
+    status = 'pending'
+    and payment_received_at is null
+    and started_at is null
+    and expires_at is null
+    and legacy_id is null
+  );
+
+drop policy if exists "business_ad_requests_admin_legacy_insert" on public.business_ad_requests;
+create policy "business_ad_requests_admin_legacy_insert" on public.business_ad_requests
+  for insert to authenticated
+  with check (
+    public.is_oms_admin()
+    and legacy_id is not null
+    and status = 'pending'
+    and payment_received_at is null
+    and started_at is null
+    and expires_at is null
+  );
+
+drop policy if exists "business_ad_requests_admin_select" on public.business_ad_requests;
+create policy "business_ad_requests_admin_select" on public.business_ad_requests
+  for select to authenticated using (public.is_oms_admin());
+
+drop policy if exists "business_ad_requests_admin_update" on public.business_ad_requests;
+create policy "business_ad_requests_admin_update" on public.business_ad_requests
+  for update to authenticated
+  using (public.is_oms_admin())
+  with check (public.is_oms_admin());
+
+drop policy if exists "business_ad_requests_admin_delete" on public.business_ad_requests;
+create policy "business_ad_requests_admin_delete" on public.business_ad_requests
+  for delete to authenticated using (public.is_oms_admin());
+
+create table if not exists public.business_ads (
+  request_id  uuid primary key references public.business_ad_requests(id) on delete cascade,
+  business_name text not null,
+  category    text not null,
+  city        text not null,
+  address     text not null,
+  about       text not null,
+  timing      text not null,
+  whatsapp    text not null,
+  website     text not null default '',
+  facebook    text not null default '',
+  instagram   text not null default '',
+  tiktok      text not null default '',
+  plan        text not null check (plan in ('15days', '30days', '1year')),
+  amount      integer not null,
+  started_at  timestamptz not null,
+  expires_at  timestamptz not null
+);
+
+create index if not exists business_ads_expiry_idx on public.business_ads (expires_at desc);
+alter table public.business_ads enable row level security;
+revoke all on table public.business_ads from public, anon, authenticated;
+grant select on table public.business_ads to anon, authenticated;
+
+drop policy if exists "business_ads_read_active" on public.business_ads;
+create policy "business_ads_read_active" on public.business_ads
+  for select to anon, authenticated
+  using (expires_at > now());
+
+create or replace function public.admin_business_ad_mark_paid(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can verify ad payments';
+  end if;
+
+  update public.business_ad_requests
+  set status = 'paid', payment_received_at = now(), updated_at = now()
+  where id = p_request_id and status = 'pending';
+
+  if not found then
+    raise exception 'Pending business ad request not found';
+  end if;
+end;
+$$;
+
+create or replace function public.admin_business_ad_publish(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_request public.business_ad_requests%rowtype;
+  v_days integer;
+  v_started_at timestamptz := now();
+  v_expires_at timestamptz;
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can publish business ads';
+  end if;
+
+  select * into v_request
+  from public.business_ad_requests
+  where id = p_request_id
+  for update;
+
+  if not found then
+    raise exception 'Business ad request not found';
+  end if;
+
+  if v_request.payment_received_at is null
+    or not (
+      v_request.status = 'paid'
+      or v_request.status = 'stopped'
+      or (v_request.status = 'live' and v_request.expires_at <= now())
+    ) then
+    raise exception 'Verify payment before activating this business ad';
+  end if;
+
+  v_days := case v_request.plan
+    when '15days' then 15
+    when '30days' then 30
+    when '1year' then 365
+  end;
+  v_expires_at := v_started_at + make_interval(days => v_days);
+
+  insert into public.business_ads (
+    request_id, business_name, category, city, address, about, timing, whatsapp,
+    website, facebook, instagram, tiktok, plan, amount, started_at, expires_at
+  ) values (
+    v_request.id, v_request.business_name, v_request.category, v_request.city,
+    v_request.address, v_request.about, v_request.timing, v_request.whatsapp,
+    v_request.website, v_request.facebook, v_request.instagram, v_request.tiktok,
+    v_request.plan, v_request.amount, v_started_at, v_expires_at
+  )
+  on conflict (request_id) do update set
+    business_name = excluded.business_name,
+    category = excluded.category,
+    city = excluded.city,
+    address = excluded.address,
+    about = excluded.about,
+    timing = excluded.timing,
+    whatsapp = excluded.whatsapp,
+    website = excluded.website,
+    facebook = excluded.facebook,
+    instagram = excluded.instagram,
+    tiktok = excluded.tiktok,
+    plan = excluded.plan,
+    amount = excluded.amount,
+    started_at = excluded.started_at,
+    expires_at = excluded.expires_at;
+
+  update public.business_ad_requests
+  set status = 'live', started_at = v_started_at, expires_at = v_expires_at, updated_at = now()
+  where id = v_request.id;
+end;
+$$;
+
+create or replace function public.admin_business_ad_extend(p_request_id uuid)
+returns timestamptz
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_request public.business_ad_requests%rowtype;
+  v_days integer;
+  v_expires_at timestamptz;
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can extend business ads';
+  end if;
+
+  select * into v_request
+  from public.business_ad_requests
+  where id = p_request_id and status = 'live' and expires_at > now()
+  for update;
+
+  if not found then
+    raise exception 'Active business ad not found';
+  end if;
+
+  v_days := case v_request.plan
+    when '15days' then 15
+    when '30days' then 30
+    when '1year' then 365
+  end;
+  v_expires_at := v_request.expires_at + make_interval(days => v_days);
+
+  update public.business_ad_requests
+  set expires_at = v_expires_at, updated_at = now()
+  where id = v_request.id;
+  update public.business_ads set expires_at = v_expires_at where request_id = v_request.id;
+  return v_expires_at;
+end;
+$$;
+
+create or replace function public.admin_business_ad_stop(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can stop business ads';
+  end if;
+
+  update public.business_ad_requests
+  set status = 'stopped', expires_at = now(), updated_at = now()
+  where id = p_request_id and status = 'live';
+
+  if not found then
+    raise exception 'Active business ad not found';
+  end if;
+
+  delete from public.business_ads where request_id = p_request_id;
+end;
+$$;
+
+create or replace function public.admin_business_ad_delete(p_request_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site admin can delete business ad requests';
+  end if;
+
+  delete from public.business_ad_requests where id = p_request_id;
+  if not found then
+    raise exception 'Business ad request not found';
+  end if;
+end;
+$$;
+
+revoke all on function public.admin_business_ad_mark_paid(uuid) from public;
+revoke all on function public.admin_business_ad_publish(uuid) from public;
+revoke all on function public.admin_business_ad_extend(uuid) from public;
+revoke all on function public.admin_business_ad_stop(uuid) from public;
+revoke all on function public.admin_business_ad_delete(uuid) from public;
+grant execute on function public.admin_business_ad_mark_paid(uuid) to authenticated;
+grant execute on function public.admin_business_ad_publish(uuid) to authenticated;
+grant execute on function public.admin_business_ad_extend(uuid) to authenticated;
+grant execute on function public.admin_business_ad_stop(uuid) to authenticated;
+grant execute on function public.admin_business_ad_delete(uuid) to authenticated;
+
+-- ------------------------------------------------------------
+-- 7. Explicit owner cashbook entries
+--    Feature records are operational data, not accounting transactions.
+-- ------------------------------------------------------------
+create or replace function public.oms_can_access_category(p_category text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select public.is_oms_admin() or exists (
+    select 1
+    from public.owner_profiles op
+    where op.user_id = auth.uid()
+      and p_category = any(op.categories)
+  );
+$$;
+
+revoke all on function public.oms_can_access_category(text) from public;
+grant execute on function public.oms_can_access_category(text) to authenticated;
+
+create table if not exists public.financial_transactions (
+  id               uuid primary key default gen_random_uuid(),
+  user_id          uuid not null references auth.users(id) on delete cascade,
+  category         text not null check (char_length(trim(category)) between 1 and 80),
+  transaction_date date not null,
+  transaction_type text not null check (transaction_type in ('income', 'expense')),
+  payment_status   text not null check (payment_status in ('settled', 'pending')),
+  amount           numeric(14, 2) not null check (amount > 0),
+  description      text not null check (char_length(trim(description)) between 3 and 160),
+  created_at       timestamptz not null default now()
+);
+
+create index if not exists financial_transactions_owner_date_idx
+  on public.financial_transactions (user_id, transaction_date desc);
+create index if not exists financial_transactions_owner_category_idx
+  on public.financial_transactions (user_id, category);
+
+alter table public.financial_transactions enable row level security;
+revoke all on table public.financial_transactions from public, anon, authenticated;
+grant select, insert, update, delete on table public.financial_transactions to authenticated;
+
+drop policy if exists "financial_transactions_select_own" on public.financial_transactions;
+create policy "financial_transactions_select_own" on public.financial_transactions
+  for select to authenticated using (
+    auth.uid() = user_id and public.oms_can_access_category(category)
+  );
+
+drop policy if exists "financial_transactions_insert_own" on public.financial_transactions;
+create policy "financial_transactions_insert_own" on public.financial_transactions
+  for insert to authenticated with check (
+    auth.uid() = user_id and public.oms_can_access_category(category)
+  );
+
+drop policy if exists "financial_transactions_update_own" on public.financial_transactions;
+create policy "financial_transactions_update_own" on public.financial_transactions
+  for update to authenticated
+  using (auth.uid() = user_id and public.oms_can_access_category(category))
+  with check (auth.uid() = user_id and public.oms_can_access_category(category));
+
+drop policy if exists "financial_transactions_delete_own" on public.financial_transactions;
+create policy "financial_transactions_delete_own" on public.financial_transactions
+  for delete to authenticated using (
+    auth.uid() = user_id and public.oms_can_access_category(category)
+  );
+
+-- ------------------------------------------------------------
+-- 8. Make your own account the CEO
 --    Put YOUR email below (this is the email you used in the
 --    app: your mobile number + @bms.app, e.g. 03042954627@bms.app)
 -- ------------------------------------------------------------
@@ -463,7 +843,7 @@ on conflict (user_id) do nothing;
 -- select user_id, email, role from public.admins;
 
 -- ------------------------------------------------------------
--- 7. Extra hardening
+-- 9. Extra hardening
 -- ------------------------------------------------------------
 -- Block anon sign-ups (run only if you do NOT want random visitors
 -- to create accounts). Owners/CEO still sign in with their account.

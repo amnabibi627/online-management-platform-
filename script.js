@@ -184,8 +184,21 @@ const cloudDrop = (key) => {
   cloudSchedule();
 };
 
+const ensureCurrentAccountActive = async (authUser = cloudUser) => {
+  if (!sb || !authUser) throw new Error("Sign in to verify account access.");
+  const { data, error } = await sb.rpc("oms_current_account_status");
+  if (error) throw error;
+  if (data?.active) return;
+  const message = data?.reason || "This account has been blocked. Contact the site administrator.";
+  const { error: signOutError } = await sb.auth.signOut();
+  if (signOutError) throw signOutError;
+  resetClientIdentityForAuthChange();
+  throw new Error(message);
+};
+
 const cloudPull = async () => {
   if (!sb || !cloudUser) return false;
+  await ensureCurrentAccountActive();
   cloudState("syncing", "Downloading…");
   const { data, error } = await sb.from(CLOUD_TABLE).select("key,value").eq("user_id", cloudUser.id);
   if (error) {
@@ -521,6 +534,7 @@ const signInWithMobile = async (mobile, password) => {
   if (!data.user || !data.session) {
     throw new Error("Email confirmation is enabled. The site administrator must disable it before accounts can sign in.");
   }
+  await ensureCurrentAccountActive(data.user);
   cloudPending.clear();
   resetClientIdentityForAuthChange();
   return data.user;
@@ -1960,10 +1974,14 @@ const initFeatureModules = () => {
 const adminModal = document.getElementById("adminModal");
 const adminPanel = document.getElementById("adminPanel");
 let adminTab = "overview";
-let adminDataCat = "all";
+let adminDataCat = BUILTIN_CATEGORIES[0];
+let adminDataUserId = "";
+let adminCategoryData = null;
+let adminAccounts = [];
+let adminCategorySummary = [];
+let adminAccountTypeFilter = "all";
 
-const allCategoryKeys = () =>
-  [...document.querySelectorAll(".industry-card[data-detail]")].map((c) => c.dataset.detail);
+const allCategoryKeys = () => [...BUILTIN_CATEGORIES];
 
 const catMeta = (key) => {
   const card = document.querySelector(`.industry-card[data-detail="${CSS.escape(key)}"]`);
@@ -1986,30 +2004,36 @@ const categoryUsage = (key) => {
   return { entries, features };
 };
 
-const adminAllOwners = () => cloudOwnerProfiles || store.get("owners", []);
+const adminAllOwners = () => cloudOwnerProfiles || [];
 const loadCloudOwnerProfiles = async () => {
   if (!sb || !cloudUser || !ceoLoggedIn) throw new Error("CEO cloud session is required to load owner profiles.");
-  const { data, error } = await sb.from("owner_profiles")
-    .select("user_id,full_name,mobile,age,city,categories")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  cloudOwnerProfiles = data.map((profile) => ({
-    id: profile.user_id,
-    name: profile.full_name,
-    mobile: profile.mobile,
-    age: profile.age,
-    city: profile.city,
-    categories: profile.categories,
-    role: "Owner"
-  }));
+  const accounts = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const result = await sb.rpc("admin_list_accounts").range(offset, offset + pageSize - 1);
+    if (result.error) throw result.error;
+    accounts.push(...(result.data || []));
+    if (!result.data || result.data.length < pageSize) break;
+  }
+  const summaryResult = await sb.rpc("admin_category_data_summary");
+  if (summaryResult.error) throw summaryResult.error;
+  adminAccounts = accounts;
+  adminCategorySummary = summaryResult.data || [];
+  cloudOwnerProfiles = adminAccounts
+    .filter((account) => account.account_types?.includes("Owner"))
+    .map((account) => ({
+      id: account.user_id,
+      name: account.full_name,
+      mobile: account.mobile,
+      age: account.age,
+      city: account.city,
+      categories: account.owner_categories || [],
+      role: "Owner"
+    }));
   updateCeoStats();
   return cloudOwnerProfiles;
 };
-const adminOwnerList = () => {
-  const owners = adminAllOwners();
-  const legacy = owner && !owners.some((o) => o.mobile === owner.mobile) ? owner : null;
-  return legacy ? [legacy, ...owners] : owners;
-};
+const adminOwnerList = () => adminAllOwners();
 const fmtDate = (v) => {
   const d = v ? new Date(v) : null;
   if (!d || isNaN(d.getTime())) return "—";
@@ -2022,21 +2046,39 @@ const closeAdminPanel = () => {
   adminPanel.innerHTML = "";
 };
 
-const openAdminPanel = () => {
-  if (!ceoLoggedIn || !ceoUser) { showToast("Super Admin access requires CEO login.", true); return; }
+const clearAdminConsoleCache = () => {
+  closeAdminPanel();
+  closeBizAdsPanel();
+  adminAccounts = [];
+  adminCategorySummary = [];
+  adminCategoryData = null;
+  cloudOwnerProfiles = null;
+};
+
+const openAdminPanel = async () => {
+  if (!sb || !cloudUser || !ceoLoggedIn || !ceoUser || !await isCloudAdmin()) {
+    showToast("Super Admin access requires an active CEO session.", true);
+    return;
+  }
   adminTab = "overview";
-  adminDataCat = "all";
+  adminDataCat = BUILTIN_CATEGORIES[0];
+  adminDataUserId = "";
+  adminCategoryData = null;
   renderAdminPanel();
   adminModal.classList.add("open");
   adminModal.setAttribute("aria-hidden", "false");
-  loadCloudOwnerProfiles().then(renderAdminPanel).catch((error) => {
-    showToast(`Owner profiles could not be loaded: ${error.message || "Cloud service error."}`, true);
-  });
+  try {
+    await loadCloudOwnerProfiles();
+    renderAdminPanel();
+  } catch (error) {
+    showToast(`Super Admin data could not be loaded: ${error.message || "Cloud service error."}`, true);
+  }
 };
 
 const adminTabsHtml = () => {
   const tabs = [
     ["overview", "📊 Overview"],
+    ["accounts", "👥 Accounts"],
     ["subscriptions", "💳 Subscriptions"],
     ["data", "🗂️ Business Data"],
     ["owners", "👥 Owners & Access"],
@@ -2058,15 +2100,21 @@ const renderAdminSubscriptions = () =>
 const loadAdminSubscriptionRequests = async () => {
   const list = document.getElementById("adminSubscriptionRequestList");
   if (!list || !sb || !cloudUser) return;
-  const { data, error } = await sb.from("subscription_requests")
-    .select("id,user_id,category,plan,amount,account_name,account_mobile,payment_reference,payer_mobile,status,admin_note,created_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
-  if (error) {
-    list.innerHTML = `<div class="admin-note">Could not load subscription requests: ${escHtml(error.message)}. Confirm that the subscription SQL setup has been applied.</div>`;
-    return;
+  const data = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const result = await sb.from("subscription_requests")
+      .select("id,user_id,category,plan,amount,account_name,account_mobile,payment_reference,payer_mobile,status,admin_note,created_at")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (result.error) {
+      list.innerHTML = `<div class="admin-note">Could not load subscription requests: ${escHtml(result.error.message)}. Confirm that the latest Supabase setup SQL has been applied.</div>`;
+      return;
+    }
+    data.push(...(result.data || []));
+    if (!result.data || result.data.length < pageSize) break;
   }
-  if (!data || !data.length) {
+  if (!data.length) {
     list.innerHTML = `<div class="admin-empty">No subscription payment requests yet.</div>`;
     return;
   }
@@ -2074,9 +2122,10 @@ const loadAdminSubscriptionRequests = async () => {
   list.innerHTML = data.map((request) => {
     const meta = categoryNames[request.category] || { icon: "📁", name: request.category };
     const plan = CATEGORY_PLAN_INFO[request.plan] || { label: request.plan };
+    const account = adminAccounts.find((item) => item.user_id === request.user_id);
     return `<article class="admin-subscription-request">` +
       `<div class="admin-subscription-request-head"><div><strong>${escHtml(meta.icon)} ${escHtml(meta.name)} · ${escHtml(plan.label)}</strong>` +
-      `<span>${escHtml(request.account_name)} · account ${escHtml(request.account_mobile)}</span></div>` +
+      `<span>${escHtml(request.account_name)} · account ${escHtml(request.account_mobile)}${account ? ` · ${escHtml(account.email)}` : ""}</span></div>` +
       `<span class="admin-pill ${request.status === "approved" ? "ok" : request.status === "rejected" ? "off" : ""}">${escHtml(request.status)}</span></div>` +
       `<div class="admin-subscription-request-details"><span><b>Amount</b> PKR ${rupees(request.amount)}</span>` +
       `<span><b>JazzCash sender</b> ${escHtml(request.payer_mobile)}</span>` +
@@ -2114,96 +2163,121 @@ const reviewSubscriptionRequest = async (requestId, approve) => {
   await loadAdminSubscriptionRequests();
 };
 
+const adminSummaryFor = (key) => adminCategorySummary.find((item) => item.category === key) || {
+  category: key, active_subscribers: 0, data_accounts: 0, feature_count: 0, entry_count: 0, last_updated: null
+};
+
 const renderAdminOverview = () => {
   const keys = allCategoryKeys();
-  let totalEntries = 0, totalFeatures = 0;
-  const perCat = keys.map((k) => { const u = categoryUsage(k); totalEntries += u.entries; totalFeatures += u.features; return { ...catMeta(k), ...u }; });
-  const owners = adminOwnerList();
-  const custom = customCats.length;
-  const emptyCats = perCat.filter((c) => c.entries === 0).length;
-  const accessGrants = owners.reduce((n, o) => n + (Array.isArray(o.categories) ? o.categories.length : (o.category ? 1 : 0)), 0);
-
-  const cards = perCat.map((c) =>
-    `<div class="admin-cat-row">` +
-    `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${c.icon}</span>` +
-    `<div><div class="admin-cat-row-name">${escHtml(c.name)}</div>` +
-    `<div class="admin-cat-row-meta">${c.features} features used · ${c.entries} entries</div></div></div>` +
-    `<button type="button" class="admin-ghost-btn" data-admin-view="${escHtml(c.key)}">View Data</button></div>`
-  ).join("");
-
-  const recent = [];
-  keys.forEach((k) => {
-    const col = store.get(collectionKey(k), null);
-    if (!col || !col.features) return;
-    Object.keys(col.features).forEach((fid) => {
-      const def = getFeatureDef(k, fid, null);
-      (col.features[fid] || []).forEach((it) => {
-        const f = it && it.fields && typeof it.fields === "object" ? { ...it, ...it.fields } : (it || {});
-        const labelKey = Object.keys(f).find((kk) =>
-          kk !== "id" && kk !== "createdAt" && kk !== "updatedAt" &&
-          /name|title|patient|customer|client|student|dish|item|product|medicine|service|course|doctor|supplier|attendant|stylist/i.test(kk)
-        );
-        const name = labelKey && f[labelKey] ? String(f[labelKey]) : (def ? def.name : "(entry)");
-        recent.push({ cat: catMeta(k), fid, name, at: it && (it.updatedAt || it.createdAt) });
-      });
-    });
-  });
-  recent.sort((a, b) => new Date(b.at || 0) - new Date(a.at || 0));
-  const recentRows = recent.slice(0, 6).map((r) =>
-    `<div class="admin-recent-row"><span class="admin-recent-icon">${r.cat.icon}</span>` +
-    `<span class="admin-recent-name">${escHtml(String(r.name))}</span>` +
-    `<span class="admin-recent-cat">${escHtml(r.cat.name)}</span>` +
-    `<span class="admin-recent-date">${fmtDate(r.at)}</span></div>`
-  ).join("");
+  const owners = adminAccounts.filter((account) => account.account_types?.includes("Owner")).length;
+  const blocked = adminAccounts.filter((account) => account.blocked).length;
+  const activeAccess = adminCategorySummary.reduce((count, item) => count + Number(item.active_subscribers || 0), 0);
+  const cards = keys.map((key) => {
+    const meta = catMeta(key);
+    const summary = adminSummaryFor(key);
+    return `<div class="admin-cat-row">` +
+      `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${meta.icon}</span>` +
+      `<div><div class="admin-cat-row-name">${escHtml(meta.name)}</div>` +
+      `<div class="admin-cat-row-meta">${summary.entry_count} records · ${summary.active_subscribers} active subscriptions · ${summary.data_accounts} accounts with data</div></div></div>` +
+      `<button type="button" class="admin-ghost-btn" data-admin-view="${escHtml(key)}">View Data</button></div>`;
+  }).join("");
 
   return adminTabsHtml() +
     `<div class="admin-stat-grid">` +
     `<div class="admin-stat"><div class="admin-stat-num">${keys.length}</div><div class="admin-stat-lbl">Categories</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${totalEntries}</div><div class="admin-stat-lbl">Total Entries</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${totalFeatures}</div><div class="admin-stat-lbl">Active Features</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${owners.length}</div><div class="admin-stat-lbl">Owner Accounts</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${accessGrants}</div><div class="admin-stat-lbl">Access Grants</div></div>` +
-    `<div class="admin-stat"><div class="admin-stat-num">${custom}</div><div class="admin-stat-lbl">Custom Categories</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${adminAccounts.length}</div><div class="admin-stat-lbl">Registered Accounts</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${owners}</div><div class="admin-stat-lbl">Owner Accounts</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${activeAccess}</div><div class="admin-stat-lbl">Active Category Access</div></div>` +
+    `<div class="admin-stat"><div class="admin-stat-num">${blocked}</div><div class="admin-stat-lbl">Blocked Accounts</div></div>` +
     `</div>` +
-    (emptyCats ? `<div class="admin-note">${emptyCats} ${emptyCats === 1 ? "category has" : "categories have"} no saved entries yet.</div>` : "") +
-    `<div class="admin-section-title">📁 Category-wise data</div>` +
-    (cards || `<div class="admin-empty">No categories available.</div>`) +
-    (recentRows ? `<div class="admin-section-title">🕒 Recent activity</div><div class="admin-recent">${recentRows}</div>` : "");
+    `<div class="admin-section-title">📁 Cloud category overview</div>` +
+    `<p class="admin-hint">Counts are calculated from cloud records across all accounts. Record details stay hidden until you select an account and category in Business Data.</p>` +
+    (cards || `<div class="admin-empty">No categories available.</div>`);
 };
 
 const renderAdminData = () => {
-  const keys = allCategoryKeys();
-  const filterHtml =
-    `<div class="admin-filter-bar">` +
-    `<button type="button" class="admin-filter${adminDataCat === "all" ? " active" : ""}" data-admin-filter="all">All Categories</button>` +
-    keys.map((k) => { const m = catMeta(k); return `<button type="button" class="admin-filter${adminDataCat === k ? " active" : ""}" data-admin-filter="${escHtml(k)}">${m.icon} ${escHtml(m.name)}</button>`; }).join("") +
-    `</div>`;
-
-  const useKeys = adminDataCat === "all" ? keys : [adminDataCat];
-  const blocks = useKeys.map((key) => {
-    const meta = catMeta(key);
-    const col = store.get(collectionKey(key), null);
-    const featureIds = col && col.features ? Object.keys(col.features).filter((fid) => Array.isArray(col.features[fid]) && col.features[fid].length) : [];
-    if (!featureIds.length) return "";
-    const sections = featureIds.map((fid) => {
-      const def = getFeatureDef(key, fid, null);
-      const entries = col.features[fid];
-      const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
-      const rows = entries.map((it) => {
-        const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+  const accounts = adminAccounts;
+  const accountOptions = accounts.map((account) =>
+    `<option value="${escHtml(account.user_id)}" ${account.user_id === adminDataUserId ? "selected" : ""}>` +
+    `${escHtml(account.full_name)} · ${escHtml(account.mobile || account.contact_email || account.email)} · ${escHtml(account.account_types.join(", "))}</option>`
+  ).join("");
+  const categoryOptions = allCategoryKeys().map((key) =>
+    `<option value="${escHtml(key)}" ${key === adminDataCat ? "selected" : ""}>${escHtml(catMeta(key).name)}</option>`
+  ).join("");
+  const features = adminCategoryData?.value?.features;
+  const sections = features && typeof features === "object"
+    ? Object.entries(features).filter(([, entries]) => Array.isArray(entries) && entries.length).map(([featureId, entries]) => {
+      const def = getFeatureDef(adminDataCat, featureId, null);
+      const head = def.fields.map((field) => `<th>${escHtml(field.label)}</th>`).join("");
+      const rows = entries.map((item) => {
+        const tds = def.fields.map((field) =>
+          `<td>${escHtml(String(item?.[field.key] ?? item?.fields?.[field.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`
+        ).join("");
         return `<tr>${tds}</tr>`;
       }).join("");
-      return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +
+      return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${escHtml(def.icon)}</span>` +
         `<h4>${escHtml(def.name)}</h4><span class="data-cat-total">${entries.length}</span></div>` +
         `<div class="f-table-wrap"><table class="f-table sheet-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
-    }).join("");
-    return `<div class="admin-section-title">${meta.icon} ${escHtml(meta.name)}</div>` + sections;
-  }).join("");
+    }).join("")
+    : "";
+  const selected = adminAccounts.find((account) => account.user_id === adminDataUserId);
+  const result = adminCategoryData === null
+    ? `<div class="admin-empty">Choose an account and category, then select “View records”.</div>`
+    : sections || `<div class="admin-empty">No saved records for this account and category.</div>`;
 
   return adminTabsHtml() +
-    `<div class="admin-section-title">🗂️ All business data (read-only admin view)</div>` +
-    filterHtml +
-    (blocks || `<div class="admin-empty">No data saved yet for this selection.</div>`);
+    `<div class="admin-section-title">🗂️ Business data · read only</div>` +
+    `<p class="admin-hint">Only the selected account/category is opened. Records are read-only and are not changed by this panel.</p>` +
+    `<div class="admin-data-selector">` +
+    `<label>Account<select data-admin-data-account><option value="">Choose an account</option>${accountOptions}</select></label>` +
+    `<label>Category<select data-admin-data-category>${categoryOptions}</select></label>` +
+    `<button type="button" class="btn btn-primary" data-admin-load-data${adminDataUserId ? "" : " disabled"}>View records</button></div>` +
+    (selected ? `<div class="admin-data-owner"><strong>${escHtml(selected.full_name)}</strong><span>${escHtml(selected.contact_email || selected.email)} · ${escHtml(selected.account_types.join(", "))}</span></div>` : "") +
+    (adminCategoryData ? `<p class="admin-data-updated">Last cloud save: ${fmtDate(adminCategoryData.updated_at)}</p>` : "") +
+    result;
+};
+
+const renderAdminAccounts = () => {
+  const accounts = adminAccounts.filter((account) =>
+    adminAccountTypeFilter === "all" || account.account_types?.includes(adminAccountTypeFilter)
+  );
+  const cards = accounts.map((account) => {
+    const activeCategories = (account.active_categories || []).map((key) => catMeta(key).name).join(", ");
+    const pendingCategories = (account.pending_categories || []).map((key) => catMeta(key).name).join(", ");
+    const types = (account.account_types || ["Other"]).join(", ");
+    const contactEmail = account.contact_email || account.email;
+    return `<article class="admin-account-card" data-account-id="${escHtml(account.user_id)}" data-account-search="${escHtml([
+      account.full_name, account.email, contactEmail, account.mobile, account.city, types
+    ].join(" ").toLowerCase())}">` +
+      `<div class="admin-account-head"><div><strong>${escHtml(account.full_name)}</strong>` +
+      `<span>${escHtml(types)} · Sign-in: ${escHtml(account.email)} · Contact: ${escHtml(contactEmail)}</span></div>` +
+      `<span class="admin-pill ${account.blocked ? "off" : "ok"}">${account.blocked ? "Blocked" : "Active"}</span></div>` +
+      `<div class="admin-account-details">` +
+      `<span><b>Mobile</b>${escHtml(account.mobile || "—")}</span>` +
+      `<span><b>City</b>${escHtml(account.city || "—")}</span>` +
+      `<span><b>Registered</b>${fmtDate(account.created_at)}</span>` +
+      `<span><b>Owner categories</b>${escHtml((account.owner_categories || []).map((key) => catMeta(key).name).join(", ") || "—")}</span>` +
+      `<span><b>Active subscriptions</b>${escHtml(activeCategories || "None")}</span>` +
+      `<span><b>Pending payments</b>${escHtml(pendingCategories || "None")}</span>` +
+      `</div>` +
+      (account.block_reason ? `<p class="admin-account-reason">Block reason: ${escHtml(account.block_reason)}</p>` : "") +
+      `<div class="admin-account-actions">` +
+      `<button type="button" class="btn btn-outline" data-account-block="${escHtml(account.user_id)}" data-blocked="${account.blocked ? "true" : "false"}">${account.blocked ? "Restore access" : "Block access"}</button>` +
+      `<button type="button" class="admin-danger-btn" data-account-delete="${escHtml(account.user_id)}">Permanently delete</button>` +
+      `</div></article>`;
+  }).join("");
+  return adminTabsHtml() +
+    `<div class="admin-section-title">👥 All registered accounts</div>` +
+    `<p class="admin-hint">Block access to preserve account data, or permanently delete an account after entering its exact email address. CEO accounts cannot be changed here.</p>` +
+    `<div class="admin-account-toolbar"><span>${adminAccounts.length} account${adminAccounts.length === 1 ? "" : "s"}</span><button type="button" class="admin-ghost-btn" data-admin-refresh-accounts>Refresh accounts</button></div>` +
+    `<div class="admin-account-filters"><label>Account type<select data-admin-account-type>` +
+    `<option value="all" ${adminAccountTypeFilter === "all" ? "selected" : ""}>All account types</option>` +
+    `<option value="Owner" ${adminAccountTypeFilter === "Owner" ? "selected" : ""}>Owners</option>` +
+    `<option value="Category subscription" ${adminAccountTypeFilter === "Category subscription" ? "selected" : ""}>Category accounts</option>` +
+    `<option value="Site customer" ${adminAccountTypeFilter === "Site customer" ? "selected" : ""}>Site customers</option>` +
+    `<option value="Other" ${adminAccountTypeFilter === "Other" ? "selected" : ""}>Other</option>` +
+    `</select></label><label>Search<input type="search" data-admin-account-search placeholder="Name, email, mobile, or city"></label></div>` +
+    `<div class="admin-account-list">${cards || `<div class="admin-empty">No accounts match this filter.</div>`}</div>`;
 };
 
 const renderAdminOwners = () => {
@@ -2225,7 +2299,7 @@ const renderAdminOwners = () => {
       `<div class="admin-owner-meta">${escHtml(o.mobile)}${o.city ? " · " + escHtml(o.city) : ""}${o.age ? " · age " + escHtml(String(o.age)) : ""}</div></div></div>` +
       `<div class="admin-owner-actions">` +
       `<span class="admin-owner-count">${allowed.length}/${keys.length} access</span>` +
-      `<button type="button" class="admin-danger-btn" data-owner-remove="${escHtml(o.id || "")}"${o.id ? "" : " disabled"}>Remove profile</button></div></div>` +
+      `<button type="button" class="admin-ghost-btn" data-owner-manage="${escHtml(o.id || "")}"${o.id ? "" : " disabled"}>Manage account</button></div></div>` +
       `<div class="admin-cat-list">${chips}</div></div>`;
   }).join("");
 
@@ -2239,18 +2313,17 @@ const renderAdminCategories = () => {
   const keys = allCategoryKeys();
   const rows = keys.map((k) => {
     const meta = catMeta(k);
-    const isCustom = !!customCats.find((c) => c.key === k);
-    const u = categoryUsage(k);
+    const summary = adminSummaryFor(k);
     const ownersWith = adminOwnerList().filter((o) => ownerAllowedCats(o).includes(k)).length;
     return `<div class="admin-cat-row">` +
       `<div class="admin-cat-row-left"><span class="admin-cat-row-icon">${meta.icon}</span>` +
-      `<div><div class="admin-cat-row-name">${escHtml(meta.name)} ${isCustom ? '<span class="admin-cat-badge">custom</span>' : ""}</div>` +
-      `<div class="admin-cat-row-meta">${u.entries} entries · ${ownersWith} owner${ownersWith === 1 ? "" : "s"} with access</div></div></div>` +
+      `<div><div class="admin-cat-row-name">${escHtml(meta.name)}</div>` +
+      `<div class="admin-cat-row-meta">${summary.entry_count} saved records · ${summary.active_subscribers} active subscriptions · ${ownersWith} owner${ownersWith === 1 ? "" : "s"} assigned</div></div></div>` +
       `<span class="admin-locked-tag">🔒 Always active</span></div>`;
   }).join("");
   return adminTabsHtml() +
     `<div class="admin-section-title">🏷️ Categories</div>` +
-    `<p class="admin-hint">Every category is permanently part of the system and cannot be removed here. Use <strong>Owners &amp; Access</strong> to decide who can open each one.</p>` +
+    `<p class="admin-hint">These cloud totals cover all accounts. Category records can be inspected in read-only mode from the Business Data tab.</p>` +
     (rows || `<div class="admin-empty">No categories available.</div>`);
 };
 
@@ -2258,42 +2331,33 @@ const renderAdminReports = () => {
   const keys = allCategoryKeys();
   const rows = keys.map((k) => {
     const meta = catMeta(k);
-    const u = categoryUsage(k);
-    const ownersWith = adminOwnerList().filter((o) => ownerAllowedCats(o).includes(k)).length;
-    const col = store.get(collectionKey(k), null);
-    let last = null;
-    if (col && col.features) {
-      Object.values(col.features).forEach((arr) => (arr || []).forEach((it) => {
-        const at = it && (it.updatedAt || it.createdAt);
-        if (at && (!last || new Date(at) > new Date(last))) last = at;
-      }));
-    }
+    const summary = adminSummaryFor(k);
     return `<tr>` +
       `<td><span class="admin-recent-icon">${meta.icon}</span> ${escHtml(meta.name)}</td>` +
-      `<td>${u.features}</td><td>${u.entries}</td><td>${ownersWith}</td><td>${fmtDate(last)}</td></tr>`;
+      `<td>${summary.feature_count}</td><td>${summary.entry_count}</td><td>${summary.active_subscribers}</td><td>${fmtDate(summary.last_updated)}</td></tr>`;
   }).join("");
 
-  const maxEntries = Math.max(1, ...keys.map((k) => categoryUsage(k).entries));
+  const maxEntries = Math.max(1, ...keys.map((key) => Number(adminSummaryFor(key).entry_count || 0)));
   const bars = keys.map((k) => {
     const meta = catMeta(k);
-    const u = categoryUsage(k);
-    const pct = Math.round((u.entries / maxEntries) * 100);
+    const entries = Number(adminSummaryFor(k).entry_count || 0);
+    const pct = Math.round((entries / maxEntries) * 100);
     return `<div class="admin-bar-row"><span class="admin-bar-lbl">${meta.icon} ${escHtml(meta.name)}</span>` +
       `<span class="admin-bar-track"><span class="admin-bar-fill" style="width:${pct}%"></span></span>` +
-      `<span class="admin-bar-val">${u.entries}</span></div>`;
+      `<span class="admin-bar-val">${entries}</span></div>`;
   }).join("");
 
   return adminTabsHtml() +
     `<div class="admin-section-title">📈 Category report</div>` +
     `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
-    `<th>Category</th><th>Features</th><th>Entries</th><th>Owners</th><th>Last Updated</th></tr></thead>` +
+    `<th>Category</th><th>Features</th><th>Entries</th><th>Active subscriptions</th><th>Last Updated</th></tr></thead>` +
     `<tbody>${rows}</tbody></table></div>` +
     `<div class="admin-section-title">📊 Entries distribution</div>` +
     `<div class="admin-bars">${bars}</div>`;
 };
 
 const renderAdminSettings = () => {
-  const totalOwners = adminOwnerList().length;
+  const totalAccounts = adminAccounts.length;
   const keys = allCategoryKeys().length;
   const cloudOn = typeof sb !== "undefined" && !!sb;
   return adminTabsHtml() +
@@ -2305,8 +2369,8 @@ const renderAdminSettings = () => {
     `<div class="admin-setting-sub">Supabase cloud backup of all data</div></div>` +
     `<span class="admin-pill ${cloudOn ? "ok" : "off"}">${cloudOn ? "Connected" : "Local mode"}</span></div>` +
     `<div class="admin-setting-row"><div><div class="admin-setting-name">System mode</div>` +
-    `<div class="admin-setting-sub">Categories & owners overview</div></div>` +
-    `<span class="admin-pill">${keys} categories · ${totalOwners} owners</span></div>` +
+    `<div class="admin-setting-sub">Cloud account and category overview</div></div>` +
+    `<span class="admin-pill">${keys} categories · ${totalAccounts} accounts</span></div>` +
     `<div class="admin-section-title">🔐 Access control</div>` +
     `<div class="admin-setting-row"><div><div class="admin-setting-name">CEO full access</div>` +
     `<div class="admin-setting-sub">CEO can open every category and manage owners</div></div>` +
@@ -2318,6 +2382,7 @@ const renderAdminPanel = () => {
   if (!adminPanel) return;
   let body;
   if (adminTab === "subscriptions") body = renderAdminSubscriptions();
+  else if (adminTab === "accounts") body = renderAdminAccounts();
   else if (adminTab === "data") body = renderAdminData();
   else if (adminTab === "owners") body = renderAdminOwners();
   else if (adminTab === "categories") body = renderAdminCategories();
@@ -2352,6 +2417,8 @@ const toggleOwnerCategory = async (userId, catKey) => {
   });
   if (error) throw error;
   target.categories = categories;
+  const account = adminAccounts.find((item) => item.user_id === userId);
+  if (account) account.owner_categories = categories;
   if (owner?.id === userId) {
     owner = { ...owner, categories, category: categories[0] };
     applyAccess();
@@ -2360,48 +2427,118 @@ const toggleOwnerCategory = async (userId, catKey) => {
   showToast(`${labelFor(catKey) || catKey} access ${categories.includes(catKey) ? "granted" : "revoked"} for ${target.name}.`);
 };
 
-const removeOwnerById = async (userId) => {
-  const target = adminAllOwners().find((profile) => profile.id === userId);
+const setAccountBlocked = async (userId, blocked) => {
+  const target = adminAccounts.find((account) => account.user_id === userId);
   if (!target || !sb || !cloudUser || !await isCloudAdmin()) {
-    throw new Error("Only the site CEO can remove owner profiles.");
+    throw new Error("Only the authenticated CEO can manage account access.");
   }
-  if (!confirm(`Remove owner access for "${target.name}" (${target.mobile})? Their Supabase login remains available for other account features.`)) return;
-  const { error } = await sb.from("owner_profiles").delete().eq("user_id", userId);
+  let reason = null;
+  if (blocked) {
+    reason = window.prompt(`Optional block reason for ${target.full_name}:`);
+    if (reason === null) return;
+    if (!window.confirm(`Block ${target.full_name}'s access? Their account data will be retained.`)) return;
+  } else if (!window.confirm(`Restore access for ${target.full_name}?`)) {
+    return;
+  }
+  const { error } = await sb.rpc("admin_set_account_blocked", {
+    p_user_id: userId,
+    p_blocked: blocked,
+    p_reason: reason
+  });
   if (error) throw error;
-  cloudOwnerProfiles = adminAllOwners().filter((profile) => profile.id !== userId);
-  if (owner?.id === userId) {
-    owner = null;
-    refreshOwnerButton();
-  }
-  applyAccess();
-  updateCeoStats();
+  await loadCloudOwnerProfiles();
   renderAdminPanel();
-  showToast(`Owner access removed for "${target.name}".`);
+  showToast(blocked ? `Access blocked for ${target.full_name}. Account data was retained.` : `Access restored for ${target.full_name}.`);
+};
+
+const deleteAccount = async (userId) => {
+  const target = adminAccounts.find((account) => account.user_id === userId);
+  if (!target || !sb || !cloudUser || !await isCloudAdmin()) {
+    throw new Error("Only the authenticated CEO can permanently delete accounts.");
+  }
+  if (!window.confirm(`Permanently delete ${target.full_name}? This removes the account and its saved category data, subscriptions, payment requests, and reviews. This cannot be undone.`)) return;
+  const confirmation = window.prompt(`Type this exact sign-in email to confirm permanent deletion:\n${target.email}`);
+  if (confirmation === null) return;
+  const { error } = await sb.rpc("admin_delete_account", {
+    p_user_id: userId,
+    p_confirmation: confirmation
+  });
+  if (error) throw error;
+  await loadCloudOwnerProfiles();
+  renderAdminPanel();
+  showToast(`Account ${target.email} and its linked data were permanently deleted.`);
+};
+
+const loadAdminCategoryData = async () => {
+  if (!adminDataUserId || !adminDataCat || !sb || !cloudUser || !await isCloudAdmin()) {
+    showToast("Select an account and category with an active CEO session.", true);
+    return;
+  }
+  const { data, error } = await sb.rpc("admin_get_category_data", {
+    p_user_id: adminDataUserId,
+    p_category: adminDataCat
+  });
+  if (error) throw error;
+  adminCategoryData = data;
+  renderAdminPanel();
 };
 
 adminModal.addEventListener("click", (e) => {
   if (e.target === adminModal || e.target.closest("[data-admin-close]")) { closeAdminPanel(); return; }
   const tab = e.target.closest("[data-admin-tab]");
   if (tab) { adminTab = tab.getAttribute("data-admin-tab"); renderAdminPanel(); return; }
+  const refreshAccounts = e.target.closest("[data-admin-refresh-accounts]");
+  if (refreshAccounts) {
+    refreshAccounts.disabled = true;
+    loadCloudOwnerProfiles().then(renderAdminPanel).catch((error) => {
+      showToast(`Accounts could not be refreshed: ${error.message || "Cloud service error."}`, true);
+      refreshAccounts.disabled = false;
+    });
+    return;
+  }
   const view = e.target.closest("[data-admin-view]");
-  if (view) { adminTab = "data"; adminDataCat = view.getAttribute("data-admin-view") || "all"; renderAdminPanel(); return; }
-  const filter = e.target.closest("[data-admin-filter]");
-  if (filter) { adminDataCat = filter.getAttribute("data-admin-filter"); renderAdminPanel(); return; }
+  if (view) { adminTab = "data"; adminDataCat = view.getAttribute("data-admin-view") || BUILTIN_CATEGORIES[0]; adminDataUserId = ""; adminCategoryData = null; renderAdminPanel(); return; }
+  const loadData = e.target.closest("[data-admin-load-data]");
+  if (loadData) {
+    loadData.disabled = true;
+    loadAdminCategoryData().catch((error) => {
+      showToast(`Business data could not be loaded: ${error.message || "Cloud service error."}`, true);
+      loadData.disabled = false;
+    });
+    return;
+  }
+  const blockAccount = e.target.closest("[data-account-block]");
+  if (blockAccount) {
+    blockAccount.disabled = true;
+    setAccountBlocked(blockAccount.getAttribute("data-account-block"), blockAccount.getAttribute("data-blocked") !== "true")
+      .catch((error) => {
+        showToast(`Account access could not be updated: ${error.message || "Cloud service error."}`, true);
+        blockAccount.disabled = false;
+      });
+    return;
+  }
+  const deleteButton = e.target.closest("[data-account-delete]");
+  if (deleteButton) {
+    deleteButton.disabled = true;
+    deleteAccount(deleteButton.getAttribute("data-account-delete")).catch((error) => {
+      showToast(`Account could not be deleted: ${error.message || "Cloud service error."}`, true);
+      deleteButton.disabled = false;
+    });
+    return;
+  }
+  const manageOwner = e.target.closest("[data-owner-manage]");
+  if (manageOwner) {
+    adminTab = "accounts";
+    renderAdminPanel();
+    adminPanel.querySelector(`[data-account-id="${CSS.escape(manageOwner.getAttribute("data-owner-manage"))}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   const chip = e.target.closest("[data-owner-cat]");
   if (chip) {
     chip.disabled = true;
     toggleOwnerCategory(chip.getAttribute("data-owner-user"), chip.getAttribute("data-owner-cat")).catch((error) => {
       showToast(`Owner access could not be changed: ${error.message}`, true);
       chip.disabled = false;
-    });
-    return;
-  }
-  const rmOwner = e.target.closest("[data-owner-remove]");
-  if (rmOwner) {
-    rmOwner.disabled = true;
-    removeOwnerById(rmOwner.getAttribute("data-owner-remove")).catch((error) => {
-      showToast(`Owner profile could not be removed: ${error.message}`, true);
-      rmOwner.disabled = false;
     });
     return;
   }
@@ -2422,6 +2559,31 @@ adminModal.addEventListener("click", (e) => {
       reject.disabled = false;
     });
   }
+});
+
+adminPanel.addEventListener("change", (event) => {
+  const target = event.target;
+  if (target.matches("[data-admin-account-type]")) {
+    adminAccountTypeFilter = target.value;
+    renderAdminPanel();
+  } else if (target.matches("[data-admin-data-account]")) {
+    adminDataUserId = target.value;
+    adminCategoryData = null;
+    renderAdminPanel();
+  } else if (target.matches("[data-admin-data-category]")) {
+    adminDataCat = target.value;
+    adminCategoryData = null;
+    renderAdminPanel();
+  }
+});
+
+adminPanel.addEventListener("input", (event) => {
+  const search = event.target.closest("[data-admin-account-search]");
+  if (!search) return;
+  const needle = search.value.trim().toLowerCase();
+  adminPanel.querySelectorAll(".admin-account-card").forEach((card) => {
+    card.hidden = !card.dataset.accountSearch.includes(needle);
+  });
 });
 
 document.addEventListener("keydown", (e) => {
@@ -4298,12 +4460,20 @@ const migrateLegacyBusinessAds = async () => {
 };
 
 const loadBusinessAdRequests = async () => {
-  const { data, error } = await sb
-    .from("business_ad_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
-  if (error) throw error;
-  businessAdRequests = (data || []).map(mapBusinessAdRequest);
+  if (!sb || !cloudUser || !ceoLoggedIn) throw new Error("Sign in as the CEO to load business ad requests.");
+  const rows = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await sb
+      .from("business_ad_requests")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    if (error) throw error;
+    rows.push(...(data || []));
+    if (!data || data.length < pageSize) break;
+  }
+  businessAdRequests = rows.map(mapBusinessAdRequest);
 };
 
 const bizAdRowHtml = (ad) => {
@@ -4428,7 +4598,10 @@ const renderBizAdsPanel = () => {
 };
 
 const openBizAdsPanel = async () => {
-  if (!ceoLoggedIn || !ceoUser || !cloudUser || !sb) { showToast("Business Ads requires an online CEO login.", true); return; }
+  if (!ceoLoggedIn || !ceoUser || !cloudUser || !sb || !await isCloudAdmin()) {
+    showToast("Business Ads requires an active CEO login.", true);
+    return;
+  }
   bizAdsFilter = "all";
   bizAdsPanel.innerHTML = `<p class="admin-empty">Loading cloud registrations…</p>`;
   bizAdsModal.classList.add("open");
@@ -4607,7 +4780,14 @@ updateFeatureBadges();
 })();
 
 if (sb) {
-  sb.auth.onAuthStateChange((event) => {
+  window.setInterval(() => {
+    if (!accountAuthUser || ceoLoggedIn) return;
+    ensureCurrentAccountActive(accountAuthUser).catch((error) => {
+      showToast(`Account access could not be verified: ${error.message || "Cloud service error."}`, true);
+    });
+  }, 60000);
+
+  sb.auth.onAuthStateChange((event, session) => {
     if (event === "PASSWORD_RECOVERY") {
       setTimeout(() => {
         ceoLogin.hidden = false;
@@ -4623,10 +4803,15 @@ if (sb) {
       }, 0);
       return;
     }
+    if (event === "SIGNED_IN" && session?.user?.id !== cloudUser?.id) {
+      clearAdminConsoleCache();
+      return;
+    }
     if (event !== "SIGNED_OUT") return;
     setTimeout(() => {
       cloudUser = null;
       cloudOwnerProfiles = null;
+      clearAdminConsoleCache();
       setCeoSession(false);
       refreshAccountProfiles(null).catch((error) => {
         showToast(`Account state could not be cleared: ${error.message || "Cloud service error."}`, true);

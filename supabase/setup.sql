@@ -61,6 +61,56 @@ $$;
 revoke all on function public.is_oms_admin() from public;
 grant execute on function public.is_oms_admin() to anon, authenticated;
 
+create table if not exists public.oms_account_access (
+  user_id     uuid primary key references auth.users(id) on delete cascade,
+  blocked     boolean not null default false,
+  reason      text,
+  updated_at  timestamptz not null default now(),
+  updated_by  uuid references auth.users(id) on delete set null
+);
+
+alter table public.oms_account_access enable row level security;
+revoke all on table public.oms_account_access from public, anon, authenticated;
+
+create or replace function public.oms_current_account_is_active()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select auth.uid() is not null and (
+    public.is_oms_admin()
+    or not exists (
+      select 1 from public.oms_account_access
+      where user_id = auth.uid() and blocked
+    )
+  );
+$$;
+
+create or replace function public.oms_current_account_status()
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select case
+    when auth.uid() is null then jsonb_build_object('active', false, 'reason', 'Sign in is required.')
+    when public.is_oms_admin() then jsonb_build_object('active', true, 'reason', null)
+    else coalesce((
+      select jsonb_build_object('active', not access.blocked, 'reason', access.reason)
+      from public.oms_account_access access
+      where access.user_id = auth.uid()
+    ), jsonb_build_object('active', true, 'reason', null))
+  end;
+$$;
+
+revoke all on function public.oms_current_account_is_active() from public, anon;
+revoke all on function public.oms_current_account_status() from public, anon;
+grant execute on function public.oms_current_account_is_active() to authenticated;
+grant execute on function public.oms_current_account_status() to authenticated;
+
 create table if not exists public.oms_ceo_bootstrap_state (
   singleton       boolean primary key default true check (singleton),
   expected_email  text,
@@ -341,6 +391,18 @@ create policy "owner_profiles_admin_delete" on public.owner_profiles
   for delete to authenticated
   using (public.is_oms_admin());
 
+drop policy if exists "owner_profiles_active_account_guard" on public.owner_profiles;
+create policy "owner_profiles_active_account_guard" on public.owner_profiles
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
+
+drop policy if exists "customer_profiles_active_account_guard" on public.customer_profiles;
+create policy "customer_profiles_active_account_guard" on public.customer_profiles
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
+
 create or replace function public.admin_set_owner_categories(p_user_id uuid, p_categories text[])
 returns void
 language plpgsql
@@ -414,6 +476,12 @@ create policy "site_reviews_delete_own_or_admin" on public.site_reviews
   for delete to authenticated
   using (author_id = auth.uid() or public.is_oms_admin());
 
+drop policy if exists "site_reviews_active_account_guard" on public.site_reviews;
+create policy "site_reviews_active_account_guard" on public.site_reviews
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
+
 -- ------------------------------------------------------------
 -- 3. Category subscriptions and manual JazzCash payment requests
 -- ------------------------------------------------------------
@@ -479,9 +547,21 @@ create policy "subscription_requests_read_own_or_admin" on public.subscription_r
 drop policy if exists "subscription_requests_insert_own" on public.subscription_requests;
 create policy "subscription_requests_insert_own" on public.subscription_requests
   for insert to authenticated
-  with check (auth.uid() = user_id and status = 'pending');
+  with check (auth.uid() = user_id and status = 'pending' and public.oms_current_account_is_active());
 
 drop policy if exists "subscription_requests_admin_update" on public.subscription_requests;
+
+drop policy if exists "category_subscriptions_active_account_guard" on public.category_subscriptions;
+create policy "category_subscriptions_active_account_guard" on public.category_subscriptions
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
+
+drop policy if exists "subscription_requests_active_account_guard" on public.subscription_requests;
+create policy "subscription_requests_active_account_guard" on public.subscription_requests
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
 
 create or replace function public.admin_approve_subscription_request(p_request_id uuid)
 returns void
@@ -562,6 +642,164 @@ revoke all on function public.admin_reject_subscription_request(uuid, text) from
 grant execute on function public.admin_approve_subscription_request(uuid) to authenticated;
 grant execute on function public.admin_reject_subscription_request(uuid, text) to authenticated;
 
+drop function if exists public.admin_list_accounts();
+create function public.admin_list_accounts()
+returns table (
+  user_id uuid,
+  email text,
+  contact_email text,
+  full_name text,
+  mobile text,
+  city text,
+  age integer,
+  account_types text[],
+  created_at timestamptz,
+  blocked boolean,
+  block_reason text,
+  owner_categories text[],
+  active_categories text[],
+  pending_categories text[]
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site CEO can view account details';
+  end if;
+
+  return query
+  select
+    u.id,
+    u.email::text,
+    coalesce(cp.email, u.email)::text,
+    coalesce(cp.full_name, op.full_name, latest.account_name, u.raw_user_meta_data ->> 'name', 'Account holder')::text,
+    coalesce(cp.mobile, op.mobile, latest.account_mobile, u.raw_user_meta_data ->> 'mobile', '')::text,
+    coalesce(cp.city, op.city, '')::text,
+    op.age,
+    case
+      when cardinality(type_info.types) = 0 then array['Other']::text[]
+      else type_info.types
+    end,
+    u.created_at,
+    coalesce(account_state.blocked, false),
+    account_state.reason,
+    coalesce(op.categories, array[]::text[]),
+    coalesce(active_subscriptions.categories, array[]::text[]),
+    coalesce(pending_requests.categories, array[]::text[])
+  from auth.users u
+  left join public.customer_profiles cp on cp.user_id = u.id
+  left join public.owner_profiles op on op.user_id = u.id
+  left join public.oms_account_access account_state on account_state.user_id = u.id
+  left join lateral (
+    select r.account_name, r.account_mobile
+    from public.subscription_requests r
+    where r.user_id = u.id
+    order by r.created_at desc
+    limit 1
+  ) latest on true
+  left join lateral (
+    select array_remove(array[
+      case when op.user_id is not null then 'Owner'::text end,
+      case when cp.user_id is not null then 'Site customer'::text end,
+      case when exists (
+        select 1 from public.subscription_requests r where r.user_id = u.id
+      ) then 'Category subscription'::text end
+    ], null::text) as types
+  ) type_info on true
+  left join lateral (
+    select array_agg(s.category order by s.category) as categories
+    from public.category_subscriptions s
+    where s.user_id = u.id and s.status = 'active' and s.expires_at > now()
+  ) active_subscriptions on true
+  left join lateral (
+    select array_agg(distinct r.category order by r.category) as categories
+    from public.subscription_requests r
+    where r.user_id = u.id and r.status = 'pending'
+  ) pending_requests on true
+  where not exists (select 1 from public.admins a where a.user_id = u.id)
+  order by u.created_at desc;
+end;
+$$;
+
+create or replace function public.admin_set_account_blocked(
+  p_user_id uuid,
+  p_blocked boolean,
+  p_reason text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site CEO can manage account access';
+  end if;
+  if p_blocked is null or p_user_id is null or p_user_id = auth.uid()
+    or exists (select 1 from public.admins where user_id = p_user_id) then
+    raise exception 'The CEO account cannot be changed from this control';
+  end if;
+  if not exists (select 1 from auth.users where id = p_user_id) then
+    raise exception 'Account not found';
+  end if;
+
+  insert into public.oms_account_access (user_id, blocked, reason, updated_at, updated_by)
+  values (
+    p_user_id,
+    coalesce(p_blocked, false),
+    case when p_blocked then nullif(left(trim(coalesce(p_reason, '')), 500), '') else null end,
+    now(),
+    auth.uid()
+  )
+  on conflict (user_id) do update
+    set blocked = excluded.blocked,
+        reason = excluded.reason,
+        updated_at = now(),
+        updated_by = auth.uid();
+end;
+$$;
+
+create or replace function public.admin_delete_account(p_user_id uuid, p_confirmation text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_email text;
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site CEO can permanently delete accounts';
+  end if;
+  if p_user_id is null or p_user_id = auth.uid()
+    or exists (select 1 from public.admins where user_id = p_user_id) then
+    raise exception 'The CEO account cannot be deleted from this control';
+  end if;
+
+  select email into v_email from auth.users where id = p_user_id for update;
+  if not found then
+    raise exception 'Account not found';
+  end if;
+  if lower(trim(coalesce(p_confirmation, ''))) <> lower(v_email) then
+    raise exception 'Confirmation must exactly match the account email';
+  end if;
+
+  delete from public.app_data where user_id = p_user_id;
+  delete from public.site_reviews where author_id = p_user_id;
+  delete from auth.users where id = p_user_id;
+end;
+$$;
+
+revoke all on function public.admin_list_accounts() from public, anon;
+revoke all on function public.admin_set_account_blocked(uuid, boolean, text) from public, anon;
+revoke all on function public.admin_delete_account(uuid, text) from public, anon;
+grant execute on function public.admin_list_accounts() to authenticated;
+grant execute on function public.admin_set_account_blocked(uuid, boolean, text) to authenticated;
+grant execute on function public.admin_delete_account(uuid, text) to authenticated;
+
 -- ------------------------------------------------------------
 -- 4. Lock down the sync table (app_data)
 --    Category data requires an active subscription for that category.
@@ -605,6 +843,131 @@ create policy "app_data_own_all" on public.app_data
       )
     )
   );
+
+drop policy if exists "app_data_active_account_guard" on public.app_data;
+create policy "app_data_active_account_guard" on public.app_data
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
+
+create or replace function public.admin_category_data_summary()
+returns table (
+  category text,
+  active_subscribers bigint,
+  data_accounts bigint,
+  feature_count bigint,
+  entry_count bigint,
+  last_updated timestamptz
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site CEO can view business data summaries';
+  end if;
+
+  return query
+  with categories(category) as (
+    values
+      ('clinic'), ('academy'), ('restaurant'), ('generalstore'),
+      ('beautysalon'), ('petrolpump'), ('medicalstore'), ('laboratory')
+  ),
+  data_rows as (
+    select
+      split_part(a.key, ':', 1) as category,
+      a.user_id,
+      a.updated_at,
+      case when jsonb_typeof(a.value -> 'features') = 'object'
+        then a.value -> 'features' else '{}'::jsonb end as features
+    from public.app_data a
+    where a.key in (
+      'clinic:data', 'academy:data', 'restaurant:data', 'generalstore:data',
+      'beautysalon:data', 'petrolpump:data', 'medicalstore:data', 'laboratory:data'
+    )
+  ),
+  data_metrics as (
+    select
+      d.category,
+      count(distinct d.user_id) as data_accounts,
+      coalesce(sum(metrics.feature_count), 0)::bigint as feature_count,
+      coalesce(sum(metrics.entry_count), 0)::bigint as entry_count,
+      max(d.updated_at) as last_updated
+    from data_rows d
+    cross join lateral (
+      select
+        count(*) filter (
+            where case
+              when jsonb_typeof(feature.value) = 'array' then jsonb_array_length(feature.value) > 0
+              else false
+            end
+          ) as feature_count,
+        coalesce(sum(case
+          when jsonb_typeof(feature.value) = 'array' then jsonb_array_length(feature.value)
+          else 0
+        end), 0) as entry_count
+      from jsonb_each(d.features) feature
+    ) metrics
+    group by d.category
+  ),
+  subscription_metrics as (
+    select s.category, count(distinct s.user_id) as active_subscribers
+    from public.category_subscriptions s
+    where s.status = 'active' and s.expires_at > now()
+    group by s.category
+  )
+  select
+    c.category,
+    coalesce(s.active_subscribers, 0),
+    coalesce(d.data_accounts, 0),
+    coalesce(d.feature_count, 0),
+    coalesce(d.entry_count, 0),
+    d.last_updated
+  from categories c
+  left join subscription_metrics s on s.category = c.category
+  left join data_metrics d on d.category = c.category
+  order by c.category;
+end;
+$$;
+
+create or replace function public.admin_get_category_data(p_user_id uuid, p_category text)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_result jsonb;
+begin
+  if not public.is_oms_admin() then
+    raise exception 'Only the site CEO can inspect business records';
+  end if;
+  if p_user_id is null or p_category is null or p_category not in (
+    'clinic', 'academy', 'restaurant', 'generalstore',
+    'beautysalon', 'petrolpump', 'medicalstore', 'laboratory'
+  ) then
+    raise exception 'Choose a valid account and category';
+  end if;
+
+  select jsonb_build_object('value', a.value, 'updated_at', a.updated_at)
+  into v_result
+  from public.app_data a
+  where a.user_id = p_user_id and a.key = p_category || ':data';
+
+  return coalesce(v_result, jsonb_build_object(
+    'value', jsonb_build_object('features', '{}'::jsonb),
+    'updated_at', null
+  ));
+end;
+$$;
+
+revoke all on function public.admin_category_data_summary() from public, anon;
+revoke all on function public.admin_get_category_data(uuid, text) from public, anon;
+grant execute on function public.admin_category_data_summary() to authenticated;
+grant execute on function public.admin_get_category_data(uuid, text) to authenticated;
 
 -- Remove legacy browser-side password hashes without deleting profile data.
 update public.app_data as a
@@ -1362,11 +1725,13 @@ stable
 security definer
 set search_path = ''
 as $$
-  select public.is_oms_admin() or exists (
+  select public.is_oms_admin() or (
+    public.oms_current_account_is_active() and exists (
     select 1
     from public.owner_profiles op
     where op.user_id = auth.uid()
       and p_category = any(op.categories)
+    )
   );
 $$;
 
@@ -1417,6 +1782,12 @@ create policy "financial_transactions_delete_own" on public.financial_transactio
   for delete to authenticated using (
     auth.uid() = user_id and public.oms_can_access_category(category)
   );
+
+drop policy if exists "financial_transactions_active_account_guard" on public.financial_transactions;
+create policy "financial_transactions_active_account_guard" on public.financial_transactions
+  as restrictive for all to authenticated
+  using (public.oms_current_account_is_active())
+  with check (public.oms_current_account_is_active());
 
 -- ------------------------------------------------------------
 -- 8. Make your own account the CEO

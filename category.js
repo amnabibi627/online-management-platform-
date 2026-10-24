@@ -428,6 +428,23 @@ const categoryHasAccess = () =>
   categorySubscription.status === "active" &&
   new Date(categorySubscription.expires_at).getTime() > Date.now();
 
+const categoryEnsureAccountActive = async () => {
+  if (!categoryUser || !CATEGORY_SUPABASE) throw new Error("Sign in to verify account access.");
+  const { data, error } = await CATEGORY_SUPABASE.rpc("oms_current_account_status");
+  if (error) throw error;
+  if (data?.active) return;
+  const message = data?.reason || "This account has been blocked. Contact the site administrator.";
+  const { error: signOutError } = await CATEGORY_SUPABASE.auth.signOut();
+  if (signOutError) throw signOutError;
+  categoryUser = null;
+  categoryData.features = {};
+  categorySubscription = null;
+  categoryLatestRequest = null;
+  closeCategoryWorkspace();
+  setCategoryAccountUi();
+  throw new Error(message);
+};
+
 const categoryRefreshSubscription = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) {
     categorySubscription = null;
@@ -435,6 +452,7 @@ const categoryRefreshSubscription = async () => {
     setCategoryAccountUi();
     return;
   }
+  await categoryEnsureAccountActive();
   const [subscriptionResult, requestResult] = await Promise.all([
     CATEGORY_SUPABASE.from("category_subscriptions")
       .select("category,plan,status,started_at,expires_at")
@@ -513,6 +531,7 @@ const categoryRenderForm = (itemId = null) => {
 
 const categoryLoadData = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) return;
+  await categoryEnsureAccountActive();
   if (!categoryHasAccess()) throw new Error("An active subscription is required for this category.");
   const { data, error } = await CATEGORY_SUPABASE.from("app_data")
     .select("value")
@@ -528,6 +547,7 @@ const categoryLoadData = async () => {
 
 const categorySaveData = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) throw new Error("Sign in is required to save records.");
+  await categoryEnsureAccountActive();
   if (!categoryHasAccess()) throw new Error("Your category subscription is not active.");
   const { error } = await CATEGORY_SUPABASE.from("app_data").upsert({
     user_id: categoryUser.id,
@@ -816,6 +836,13 @@ const initCategoryTools = () => {
         }, 0);
       }
     });
+    window.setInterval(() => {
+      if (!categoryUser) return;
+      categoryEnsureAccountActive().catch((error) => {
+        const status = document.getElementById("categoryAccountStatus");
+        if (status) status.textContent = `Account access could not be verified: ${error.message || "Cloud service error."}`;
+      });
+    }, 60000);
   }
 };
 

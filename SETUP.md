@@ -39,7 +39,9 @@ and transaction reference match the JazzCash payment history.
 ### 1.2 Run the SQL
 
 1. Supabase dashboard → **SQL Editor** → **New query**
-2. Open `supabase/setup.sql`, paste it, press **Run**
+2. Open the latest `supabase/setup.sql`, paste the entire file, press **Run**.
+   Re-run the full file when deploying schema/policy updates; it is designed to
+   be repeatable and does not delete existing customer or category records.
 
 This creates:
 
@@ -55,6 +57,11 @@ This creates:
 - `public.category_subscriptions` — active/revoked, expiry-based access per user and category
 - `public.subscription_requests` — private payment requests for customer and admin review
 - CEO-only functions to atomically approve or reject a payment request
+- A CEO-only account directory covering owners, category subscribers and site customers,
+  with block/unblock controls and explicitly confirmed permanent deletion
+- Account-access checks enforced by row-level security, not only by the browser UI
+- CEO-only cloud category summaries and a read-only, selected-account/category
+  record viewer
 - `public.site_profile` — the owner photo shown to every visitor (anyone can read
   it, only an admin can write it)
 - `public.business_ad_requests` — private registration and payment-review data
@@ -72,6 +79,20 @@ Re-run this setup SQL after deploying the subscription flow. New category
 accounts cannot submit payment requests until the new tables and policies exist.
 The updated setup also removes old client-side password hashes from synced
 profile JSON without deleting the profile details.
+
+After running the latest setup SQL, **Super Admin → Accounts** lists cloud
+accounts and their owner categories, active subscriptions, pending payment
+categories and blocked status. Blocking preserves records and prevents
+account data access; restoring access re-enables it. Permanent deletion is a
+separate action that requires entering the account email and removes the
+account's authentication record and linked app data, subscriptions, payment
+requests and reviews.
+
+**Super Admin → Business Data** shows no tenant records until an account and
+category are selected. The resulting view is read-only. Overview and Reports
+use cross-account cloud totals rather than data stored in the CEO's browser.
+Payments remain manual: check JazzCash before approving subscription requests
+or marking a business-ad payment as received.
 
 Existing Owner/User accounts created by the old browser-only login need a
 one-time re-registration using the same mobile number and a new password. Their

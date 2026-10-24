@@ -13,9 +13,17 @@ create table if not exists public.admins (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null unique references auth.users(id) on delete cascade,
   email      text not null,
+  full_name  text,
+  mobile     text,
   role       text not null default 'ceo',
   created_at timestamptz not null default now()
 );
+
+alter table public.admins add column if not exists full_name text;
+alter table public.admins add column if not exists mobile text;
+
+create unique index if not exists admins_single_ceo
+  on public.admins (role) where role = 'ceo';
 
 alter table public.admins enable row level security;
 
@@ -50,6 +58,130 @@ $$;
 
 revoke all on function public.is_oms_admin() from public;
 grant execute on function public.is_oms_admin() to anon, authenticated;
+
+create table if not exists public.oms_ceo_bootstrap_state (
+  singleton   boolean primary key default true check (singleton),
+  consumed_at timestamptz
+);
+
+insert into public.oms_ceo_bootstrap_state (singleton, consumed_at)
+values (true, null)
+on conflict (singleton) do nothing;
+
+alter table public.oms_ceo_bootstrap_state enable row level security;
+revoke all on table public.oms_ceo_bootstrap_state from public, anon, authenticated;
+grant all on table public.oms_ceo_bootstrap_state to service_role;
+
+create or replace function public.oms_ceo_setup_available()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.oms_ceo_bootstrap_state s
+    where s.singleton and s.consumed_at is null
+      and not exists (select 1 from public.admins a where a.role = 'ceo')
+  );
+$$;
+
+revoke all on function public.oms_ceo_setup_available() from public;
+grant execute on function public.oms_ceo_setup_available() to anon, authenticated, service_role;
+
+create or replace function public.complete_oms_ceo_bootstrap(
+  p_user_id uuid,
+  p_email text,
+  p_name text,
+  p_mobile text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  setup_state public.oms_ceo_bootstrap_state%rowtype;
+begin
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'Only the trusted CEO setup service can complete bootstrap';
+  end if;
+
+  select * into setup_state
+  from public.oms_ceo_bootstrap_state
+  where singleton
+  for update;
+
+  if not found or setup_state.consumed_at is not null
+    or exists (select 1 from public.admins where role = 'ceo')
+  then
+    raise exception 'One-time CEO setup has already been used';
+  end if;
+  if p_user_id is null or p_email is null
+    or p_name is null or char_length(trim(p_name)) not between 3 and 80
+    or p_mobile is null or p_mobile !~ '^03[0-9]{9}$'
+  then
+    raise exception 'Invalid CEO account details';
+  end if;
+
+  insert into public.admins (user_id, email, full_name, mobile, role)
+  values (p_user_id, lower(trim(p_email)), trim(p_name), p_mobile, 'ceo');
+
+  update public.oms_ceo_bootstrap_state
+  set consumed_at = now()
+  where singleton;
+end;
+$$;
+
+revoke all on function public.complete_oms_ceo_bootstrap(uuid, text, text, text) from public, anon, authenticated;
+grant execute on function public.complete_oms_ceo_bootstrap(uuid, text, text, text) to service_role;
+
+create or replace function public.update_oms_ceo_profile(p_name text, p_mobile text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null or not public.is_oms_admin() then
+    raise exception 'Only the signed-in CEO can update this profile';
+  end if;
+  if p_name is null or char_length(trim(p_name)) not between 3 and 80
+    or p_mobile is null or p_mobile !~ '^03[0-9]{9}$'
+  then
+    raise exception 'Enter a valid name and Pakistani mobile number';
+  end if;
+
+  update public.admins
+  set full_name = trim(p_name), mobile = p_mobile
+  where user_id = auth.uid() and role = 'ceo';
+end;
+$$;
+
+revoke all on function public.update_oms_ceo_profile(text, text) from public;
+grant execute on function public.update_oms_ceo_profile(text, text) to authenticated;
+
+create or replace function public.sync_oms_ceo_email()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if new.email is distinct from old.email then
+    update public.admins set email = new.email
+    where user_id = new.id and role = 'ceo';
+  end if;
+  return new;
+end;
+$$;
+
+revoke all on function public.sync_oms_ceo_email() from public, anon, authenticated;
+
+drop trigger if exists sync_oms_ceo_email on auth.users;
+create trigger sync_oms_ceo_email
+  after update of email on auth.users
+  for each row execute function public.sync_oms_ceo_email();
 
 -- ------------------------------------------------------------
 -- 2. Account profiles and public reviews

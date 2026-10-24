@@ -25,13 +25,16 @@ and transaction reference match the JazzCash payment history.
 
 ## 1. Supabase (one time)
 
-### 1.1 Turn off email confirmation
+### 1.1 Configure CEO email authentication and recovery
 
-1. Supabase dashboard → **Authentication** → **Email**
-2. Turn **Confirm email** OFF
-
-Accounts are keyed by mobile number, so the app signs in with
-`mobile@bms.app` as the email. Confirmation links would block that.
+1. Supabase dashboard → **Authentication → Providers → Email**. Keep **Confirm
+   email** OFF because Owner/Customer and category accounts use internal
+   mobile-number aliases. The CEO is created server-side as email-confirmed
+   only after the private setup details and secret are verified.
+2. In **Authentication → URL Configuration**, set the production site URL and
+   add `https://onlinemanagement.site/**` to the allowed redirect URLs.
+3. Configure a trusted SMTP provider under **Authentication → SMTP Settings**
+   so CEO password-recovery messages reach the real email reliably.
 
 ### 1.2 Run the SQL
 
@@ -40,7 +43,12 @@ Accounts are keyed by mobile number, so the app signs in with
 
 This creates:
 
-- `public.admins` — the CEO table (with RLS, so a user can only read their own row)
+- `public.admins` — the CEO table (with RLS, so a user can only read their own row;
+  a unique index guarantees at most one CEO)
+- A private one-time bootstrap marker prevents creating another CEO after the
+  first claim, even if that account is later removed.
+- A server-side CEO availability check and CEO profile/email-management
+  functions. The one-time account is created only by the private Edge Function.
 - `public.customer_profiles` and `public.owner_profiles` — account profiles linked to Supabase Auth
 - `public.site_reviews` — public reviews with signed-in author and CEO-delete policies
 - A CEO-only function for changing owner category access
@@ -71,38 +79,73 @@ old local account is not proof of identity and cannot be securely migrated.
 Any profile or review data kept only in that browser remains there until the
 CEO imports eligible legacy reviews during a CEO sign-in.
 
-The old browser-only CEO login is also retired. Its local password record is
-removed; create or use a Supabase Auth account for the CEO mobile number, then
-complete the CEO activation step below. Existing Supabase CEO accounts remain
-usable.
+The old mobile-alias CEO login and manual admin-row activation are retired.
+Owner/Customer and category accounts keep their existing mobile-alias login.
 
 Owner/User and category accounts use the same mobile-number login (`mobile@bms.app`),
 so someone who already has a category account can finish an Owner/User profile
 by choosing **Create Account** and entering the same mobile number and password.
 This setup does not verify phone-number ownership: configure a Supabase SMS OTP
-provider before treating a mobile number as verified. Password recovery is not
-self-service because the login email is an internal alias; verify the account
-holder through a separate support process before any manual reset.
+provider before treating a mobile number as verified.
 
-### 1.3 Make your own account the CEO
+### 1.3 Deploy private CEO setup and replace the old account
 
-In the same SQL editor, run this with **your own** email (your mobile number
-plus `@bms.app`):
+This permanently deletes the old CEO's Supabase Auth user and rows cascaded
+from that user (including their CEO profile, category subscriptions, and
+user-owned records). It does not delete other users' accounts or records. Some
+authored reviews may remain with the author reference cleared. This cannot be
+undone.
 
-```sql
-insert into public.admins (user_id, email, role)
-select id, email, 'ceo' from auth.users where email = '03042954627@bms.app'
-on conflict (user_id) do nothing;
-```
+1. In Supabase dashboard → **Authentication → Users**, find only the old CEO
+   account and choose **Delete user**. Verify the email before confirming.
+2. Apply the updated `supabase/setup.sql` in the SQL Editor. Deleting the old
+   CEO first clears the previous admin row before the single-CEO constraint is
+   installed.
+3. Deploy the Edge Function from this repository using the Supabase CLI:
 
-Check it worked:
+   ```powershell
+   supabase login
+   supabase link --project-ref YOUR_PROJECT_REF
+   supabase functions deploy ceo-bootstrap
+   ```
 
-```sql
-select user_id, email, role from public.admins;
-```
+   The checked-in `supabase/config.toml` disables JWT verification only for this
+   one-time setup endpoint, because no user session exists before the CEO is
+   created. The endpoint independently checks the exact origin, private setup
+   secret, configured identity, and the database's one-time claim marker.
 
-> If the insert returns 0 rows, the account does not exist yet. Open the site,
-> sign up with that mobile number first, then run the insert again.
+4. In Supabase dashboard → **Edge Functions → Secrets**, set these private
+   values. The CEO name, email, and mobile must be entered again exactly in the
+   website's one-time setup form. Use a cryptographically random secret of at
+   least 32 characters. Do not put the secret in site code, Git, screenshots,
+   or chat. Supabase supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to
+   the Edge Function automatically.
+
+   - `CEO_APP_ORIGIN` = `https://onlinemanagement.site`
+   - `CEO_SETUP_EMAIL` = the one permitted CEO email
+   - `CEO_SETUP_NAME` = the exact CEO name
+   - `CEO_SETUP_MOBILE` = the exact 11-digit number, e.g. `03XXXXXXXXX`
+   - `CEO_SETUP_SECRET` = the private random setup secret
+
+5. Deploy the site. Open **Owner Account → Create the one-time CEO account**.
+   Enter the exact configured name, email, and phone, the private setup secret,
+   and choose a strong password. The Edge Function checks the values, creates
+   the Auth user, and grants CEO access once. The secret is never stored in
+   browser storage or the database.
+6. Sign out and sign in with the CEO email and password to verify access.
+   Confirm that the Super Admin and Business Admin panels open.
+
+If setup is unavailable, confirm that the old CEO auth user was deleted, the
+Edge Function is deployed, and its private secrets are configured. Never
+manually insert an `admins` row to bypass the one-time claim.
+
+Password recovery is available from the CEO login screen. It requires the
+configured Supabase SMTP provider and the production redirect URL above. Make
+sure the deployed domain is allow-listed before testing recovery.
+
+After login, **CEO Account Settings** lets the CEO change name, email, phone, or
+password. It requires the current password; email changes take effect after
+confirmation at the new address.
 
 ### 1.4 Reviewing JazzCash payments
 

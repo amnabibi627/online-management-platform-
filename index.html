@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261024b" />
+  <link rel="stylesheet" href="styles.css?v=20261024c" />
 </head>
 <body>
 
@@ -1369,40 +1369,77 @@
       <!-- CEO Login Screen -->
       <div id="ceoLogin">
         <h3 id="ceoLoginTitle">CEO Account Login</h3>
-        <p class="modal-sub" id="ceoLoginSub">Login to the CEO master account of Online Management Site.</p>
+        <p class="modal-sub" id="ceoLoginSub">Sign in to manage the Online Management Site.</p>
 
         <form id="ceoLoginForm" novalidate>
           <div id="ceoSignupExtra" hidden>
             <div class="field">
-              <label for="ceoName">Full Name</label>
-              <input type="text" id="ceoName" placeholder="e.g. Amna Bibi" />
+              <label for="ceoSetupName">Full Name</label>
+              <input type="text" id="ceoSetupName" placeholder="Your full name" autocomplete="name" />
               <span class="field-error" id="ceoErrName"></span>
+            </div>
+            <div class="field">
+              <label for="ceoSetupEmail">Email</label>
+              <input type="email" id="ceoSetupEmail" placeholder="you@example.com" autocomplete="email" />
+              <span class="field-error" id="ceoErrEmail"></span>
+            </div>
+            <div class="field">
+              <label for="ceoSetupMobile">Mobile Number</label>
+              <input type="tel" id="ceoSetupMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+              <span class="field-error" id="ceoErrSetupMobile"></span>
+            </div>
+            <div class="field">
+              <label for="ceoSecretCode">One-time Setup Secret Code</label>
+              <input type="password" id="ceoSecretCode" placeholder="Enter the private setup code" autocomplete="off" minlength="32" maxlength="256" />
+              <span class="field-error" id="ceoErrSecret"></span>
             </div>
           </div>
 
           <div class="field">
-            <label for="ceoMobile">Mobile Number</label>
-            <input type="tel" id="ceoMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" />
-            <span class="field-error" id="ceoErrMobile"></span>
+            <label for="ceoLoginEmail">Email</label>
+            <input type="email" id="ceoLoginEmail" placeholder="you@example.com" autocomplete="username" />
+            <span class="field-error" id="ceoErrLoginEmail"></span>
           </div>
 
           <div class="field">
             <label for="ceoCode">Password</label>
-            <input type="password" id="ceoCode" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
+            <input type="password" id="ceoCode" placeholder="Enter your password" maxlength="72" autocomplete="current-password" />
             <span class="field-error" id="ceoErrCode"></span>
           </div>
 
           <button class="btn btn-primary btn-block" type="submit" id="ceoLoginSubmit">Login</button>
         </form>
+        <p class="user-switch"><a href="#" id="ceoModeToggle">Create the one-time CEO account</a></p>
+        <p class="user-switch"><a href="#" id="ceoForgotPassword">Forgot password?</a></p>
 
-        <!-- One-time activation steps (shown after the account is created) -->
-        <div id="ceoSetupHint" class="ceo-setup-hint" hidden></div>
+        <form id="ceoPasswordRecoveryForm" hidden novalidate>
+          <div class="field">
+            <label for="ceoRecoveryPassword">New password</label>
+            <input type="password" id="ceoRecoveryPassword" name="newPassword" autocomplete="new-password" minlength="8" maxlength="72" required />
+          </div>
+          <div class="field">
+            <label for="ceoRecoveryConfirm">Confirm new password</label>
+            <input type="password" id="ceoRecoveryConfirm" name="confirmPassword" autocomplete="new-password" minlength="8" maxlength="72" required />
+          </div>
+          <button class="btn btn-primary btn-block" type="submit">Save new password</button>
+        </form>
+
       </div>
 
       <!-- CEO Panel (after login) -->
       <div id="ceoPanel" hidden>
         <h3 id="ceoPanelName">Amna Bibi</h3>
         <p class="modal-sub">Founder &amp; CEO of Online Management Site</p>
+        <form id="ceoAccountSettings" class="ceo-account-settings" novalidate>
+          <h4>CEO Account Settings</h4>
+          <label>Current password<input type="password" name="currentPassword" autocomplete="current-password" required /></label>
+          <label>Name<input type="text" name="name" autocomplete="name" minlength="3" maxlength="80" required /></label>
+          <label>Email<input type="email" name="email" autocomplete="email" required /></label>
+          <label>Mobile number<input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" maxlength="13" required /></label>
+          <label>New password <span>(leave blank to keep current)</span><input type="password" name="newPassword" autocomplete="new-password" minlength="8" maxlength="72" /></label>
+          <button class="btn btn-outline btn-block" type="submit">Verify and update account</button>
+          <p class="admin-hint">Changes require your current password. Email updates may require confirming the new email from your inbox.</p>
+        </form>
 
         <div class="ceo-stats">
           <div class="ceo-stat"><span>Categories</span><strong id="ceoCatCount">8</strong></div>
@@ -1459,7 +1496,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261024b"></script>
+  <script src="script.js?v=20261024c"></script>
   <script src="liveads.js?v=20261024b"></script>
   <script src="ui.js?v=20261023H"></script>
 

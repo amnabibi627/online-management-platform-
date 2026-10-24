@@ -66,6 +66,18 @@ const isCloudAdmin = async () => {
   }
 };
 
+const loadCeoProfile = async () => {
+  if (!sb || !cloudUser) return null;
+  const { data, error } = await sb
+    .from(ADMIN_TABLE)
+    .select("full_name,mobile,email")
+    .eq("user_id", cloudUser.id)
+    .eq("role", "ceo")
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+};
+
 // ===== Security: login throttling (brute force guard) =====
 const ATTEMPT_WINDOW = 60 * 1000;
 const ATTEMPT_MAX = 5;
@@ -244,10 +256,13 @@ const cloudRestore = async () => {
     // The database decides, via the admins table (RLS limited to own row).
     const admin = await isCloudAdmin();
     if (admin) {
+      const profile = await loadCeoProfile();
       const meta = cloudUser.user_metadata || {};
-      const stored = store.get("ceoAccount", null);
-      ceoUser = stored || { name: meta.name || "CEO", mobile: meta.mobile || "", email: cloudUser.email || "" };
-      ceoUser.email = cloudUser.email || ceoUser.email || "";
+      ceoUser = {
+        name: profile?.full_name || meta.name || "CEO",
+        mobile: profile?.mobile || meta.mobile || "",
+        email: cloudUser.email || "",
+      };
       store.set("ceoAccount", ceoUser);
       setCeoSession(true);
     } else {
@@ -265,7 +280,7 @@ const cloudRestore = async () => {
 
 const authErrMsg = (error) => {
   const m = (error && error.message) || "";
-  if (/invalid login credentials/i.test(m)) return "Mobile number ya secret code ghalat hai.";
+  if (/invalid login credentials/i.test(m)) return "The email/mobile number or password is incorrect.";
   if (/email_not_confirmed|not confirmed/i.test(m)) return "Supabase mein 'Confirm email' band karein (Authentication → Email).";
   if (/rate limit|too many/i.test(m)) return "Bohat zyada tries — thori der baad dobara try karein.";
   if (/fetch|network|failed to fetch/i.test(m)) return "Internet nahi mil raha — local mode mein kaam jaari hai.";
@@ -965,9 +980,11 @@ const store = {
   remove(key) { try { localStorage.removeItem(key); } catch {} cloudDrop(key); },
 };
 
-let ceoUser = store.get("ceoAccount", null);
+let ceoUser = null;
 let ceoLoggedIn = false;
 let ceoMode = false;
+let ceoSetupAvailable = false;
+let ceoSetupMode = false;
 let removedKeys = store.get("removedKeys", []);
 let customCats = store.get("customCats", []);
 
@@ -980,11 +997,17 @@ const ceoPanel = document.getElementById("ceoPanel");
 const ceoLoginForm = document.getElementById("ceoLoginForm");
 const ceoSignupExtra = document.getElementById("ceoSignupExtra");
 const ceoLoginSubmit = document.getElementById("ceoLoginSubmit");
-const ceoNameInput = document.getElementById("ceoName");
-const ceoMobileInput = document.getElementById("ceoMobile");
+const ceoNameInput = document.getElementById("ceoSetupName");
+const ceoSetupEmailInput = document.getElementById("ceoSetupEmail");
+const ceoMobileInput = document.getElementById("ceoSetupMobile");
+const ceoSecretInput = document.getElementById("ceoSecretCode");
+const ceoLoginEmailInput = document.getElementById("ceoLoginEmail");
 const ceoCodeInput = document.getElementById("ceoCode");
 const ceoErrName = document.getElementById("ceoErrName");
-const ceoErrMobile = document.getElementById("ceoErrMobile");
+const ceoErrEmail = document.getElementById("ceoErrEmail");
+const ceoErrMobile = document.getElementById("ceoErrSetupMobile");
+const ceoErrLoginEmail = document.getElementById("ceoErrLoginEmail");
+const ceoErrSecret = document.getElementById("ceoErrSecret");
 const ceoErrCode = document.getElementById("ceoErrCode");
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
@@ -1032,49 +1055,58 @@ const updateCeoStats = () => {
   document.getElementById("ceoAccessInfo").textContent = ceoMode ? "Full (CEO)" : owner ? "Owner restricted" : "Open";
 };
 
-const setCeoLoginMode = () => {
-  const isNew = !ceoUser;
-  document.getElementById("ceoLoginTitle").textContent = isNew ? "Create CEO Account" : "CEO Account Login";
-  document.getElementById("ceoLoginSub").textContent = isNew
-    ? "One-time setup. Pick a strong password — nobody else can guess it."
-    : "Login with your registered mobile number and password.";
-  ceoSignupExtra.hidden = !isNew;
-  ceoLoginSubmit.textContent = isNew ? "Create Account" : "Login";
+const setCeoLoginMode = (createAccount = false) => {
+  ceoSetupMode = createAccount && ceoSetupAvailable;
+  document.getElementById("ceoLoginTitle").textContent = ceoSetupMode ? "Create CEO Account" : "CEO Account Login";
+  document.getElementById("ceoLoginSub").textContent = ceoSetupMode
+    ? "One-time secure setup. Your email, name, and phone must match the private setup configuration."
+    : "Sign in with the CEO email and password.";
+  ceoSignupExtra.hidden = !ceoSetupMode;
+  ceoLoginSubmit.textContent = ceoSetupMode ? "Create and Verify Account" : "Login";
+  document.getElementById("ceoLoginEmail").closest(".field").hidden = ceoSetupMode;
+  document.getElementById("ceoModeToggle").hidden = !ceoSetupAvailable;
+  document.getElementById("ceoModeToggle").textContent = ceoSetupMode
+    ? "Already have an account? Login"
+    : "Create the one-time CEO account";
+  document.getElementById("ceoForgotPassword").hidden = ceoSetupMode;
   ceoErrName.textContent = "";
+  ceoErrEmail.textContent = "";
   ceoErrMobile.textContent = "";
+  ceoErrLoginEmail.textContent = "";
+  ceoErrSecret.textContent = "";
   ceoErrCode.textContent = "";
   ceoNameInput.classList.remove("invalid");
+  ceoSetupEmailInput.classList.remove("invalid");
   ceoMobileInput.classList.remove("invalid");
+  ceoLoginEmailInput.classList.remove("invalid");
+  ceoSecretInput.classList.remove("invalid");
   ceoCodeInput.classList.remove("invalid");
   ceoLoginForm.reset();
+  ceoLoginForm.hidden = false;
   ceoLogin.hidden = false;
   ceoPanel.hidden = true;
-  const hint = document.getElementById("ceoSetupHint");
-  if (hint) hint.hidden = true;
-};
-
-// SECURITY: shows the one-time steps that activate the CEO account in the
-// database. Without the admins row the account is just a normal user.
-const showCeoSetupHint = (email) => {
-  const hint = document.getElementById("ceoSetupHint");
-  if (!hint) return;
-  hint.hidden = false;
-  hint.innerHTML =
-    `<strong>One last step — activate CEO access</strong>` +
-    `<p>Your account is created. Now open Supabase &rarr; <b>SQL Editor</b> &rarr; New query &rarr; paste this and Run:</p>` +
-    `<code class="ceo-setup-sql">insert into public.admins (user_id, email, role)<br />` +
-    `select id, email, 'ceo' from auth.users where email = '${escHtml(email)}'<br />` +
-    `on conflict (user_id) do nothing;</code>` +
-    `<p>Then close this box and log in. Full steps are in <b>SETUP.md</b>.</p>`;
+  document.getElementById("ceoPasswordRecoveryForm").hidden = true;
 };
 
 const showCeoPanel = () => {
   ceoLogin.hidden = true;
   ceoPanel.hidden = false;
-  const hint = document.getElementById("ceoSetupHint");
-  if (hint) hint.hidden = true;
   document.getElementById("ceoPanelName").textContent = ceoUser.name;
+  const settings = document.getElementById("ceoAccountSettings");
+  settings.elements.name.value = ceoUser.name || "";
+  settings.elements.email.value = ceoUser.email || "";
+  settings.elements.mobile.value = ceoUser.mobile || "";
+  settings.elements.currentPassword.value = "";
+  settings.elements.newPassword.value = "";
   updateCeoStats();
+};
+
+const refreshCeoSetupAvailability = async () => {
+  if (!sb) throw new Error("CEO setup requires a Supabase connection.");
+  const { data, error } = await sb.rpc("oms_ceo_setup_available");
+  if (error) throw error;
+  ceoSetupAvailable = data === true;
+  document.getElementById("ceoModeToggle").hidden = !ceoSetupAvailable;
 };
 
 const openCeoModal = () => {
@@ -1082,6 +1114,13 @@ const openCeoModal = () => {
   else setCeoLoginMode();
   ceoModal.classList.add("open");
   ceoModal.setAttribute("aria-hidden", "false");
+  if (!ceoLoggedIn) {
+    refreshCeoSetupAvailability()
+      .then(() => setCeoLoginMode())
+      .catch((error) => {
+        showToast(`CEO setup status could not be checked. Apply the latest Supabase setup SQL. ${error.message || ""}`, true);
+      });
+  }
 };
 
 const setCeoSession = (value) => {
@@ -1103,75 +1142,107 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  if (!ceoUser) {
-    // ---------- CREATE the CEO account (first time only) ----------
-    const name = ceoNameInput.value.trim();
-    const mobile = normMobile(ceoMobileInput.value);
-    const code = ceoCodeInput.value.trim();
-    let ok = true;
-    if (name.length < 3) { ceoErrName.textContent = "Enter your full name (min 3 letters)."; ceoNameInput.classList.add("invalid"); ok = false; }
-    else { ceoErrName.textContent = ""; ceoNameInput.classList.remove("invalid"); }
-    if (!MOBILE_RE.test(mobile)) { ceoErrMobile.textContent = "Enter a valid number, e.g. 03123456789."; ceoMobileInput.classList.add("invalid"); ok = false; }
-    else { ceoErrMobile.textContent = ""; ceoMobileInput.classList.remove("invalid"); }
-    if (code.length < 8) { ceoErrCode.textContent = "Choose a strong password (min 8 characters)."; ceoCodeInput.classList.add("invalid"); ok = false; }
-    else { ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid"); }
-    if (!ok) { showToast("Fix the highlighted fields and try again.", true); return; }
-
-    cloudState("syncing", "Creating…");
-    const { data, error } = await sb.auth.signUp({
-      email: cloudEmail(mobile),
-      password: code,
-      options: { data: { name, mobile } }
-    });
-    if (error) {
-      cloudState("error", "Error");
-      if (/already registered|already been registered/i.test(error.message || "")) {
-        ceoUser = { name, mobile, email: cloudEmail(mobile) };
-        store.set("ceoAccount", ceoUser);
-        showToast("Account already exists — Login with mobile + password.", true);
-        setCeoLoginMode();
+  ceoLoginSubmit.disabled = true;
+  try {
+    if (ceoSetupMode) {
+      const name = ceoNameInput.value.trim();
+      const mobile = normMobile(ceoMobileInput.value);
+      const email = ceoSetupEmailInput.value.trim().toLowerCase();
+      const secret = ceoSecretInput.value;
+      const password = ceoCodeInput.value;
+      let valid = true;
+      if (name.length < 3 || name.length > 80) {
+        ceoErrName.textContent = "Enter your full name (3–80 characters).";
+        ceoNameInput.classList.add("invalid");
+        valid = false;
       } else {
-        showToast(authErrMsg(error), true);
+        ceoErrName.textContent = "";
+        ceoNameInput.classList.remove("invalid");
       }
-      return;
-    }
-    if (!data.session) {
-      cloudState("error", "Confirm email");
-      showToast("Account ban gaya — email confirmation band karein (Authentication → Email → Confirm email OFF), phir login karein.", true);
-      setCeoLoginMode();
-      return;
-    }
-    cloudUser = data.user;
-    const admin = await isCloudAdmin();
-    ceoUser = { name, mobile, email: cloudEmail(mobile) };
-    store.set("ceoAccount", ceoUser);
-    if (admin) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        ceoErrEmail.textContent = "Enter a valid email address.";
+        ceoSetupEmailInput.classList.add("invalid");
+        valid = false;
+      } else {
+        ceoErrEmail.textContent = "";
+        ceoSetupEmailInput.classList.remove("invalid");
+      }
+      if (!MOBILE_RE.test(mobile)) {
+        ceoErrMobile.textContent = "Enter a valid number, e.g. 03123456789.";
+        ceoMobileInput.classList.add("invalid");
+        valid = false;
+      } else {
+        ceoErrMobile.textContent = "";
+        ceoMobileInput.classList.remove("invalid");
+      }
+      if (!secret || secret.length < 32 || secret.length > 256) {
+        ceoErrSecret.textContent = "Enter the private setup secret (32–256 characters).";
+        ceoSecretInput.classList.add("invalid");
+        valid = false;
+      } else {
+        ceoErrSecret.textContent = "";
+        ceoSecretInput.classList.remove("invalid");
+      }
+      if (password.length < 8 || password.length > 72) {
+        ceoErrCode.textContent = "Choose a password between 8 and 72 characters.";
+        ceoCodeInput.classList.add("invalid");
+        valid = false;
+      } else {
+        ceoErrCode.textContent = "";
+        ceoCodeInput.classList.remove("invalid");
+      }
+      if (!valid) {
+        showToast("Fix the highlighted fields and try again.", true);
+        return;
+      }
+
+      cloudState("syncing", "Creating…");
+      let bootstrapError;
+      try {
+        const result = await sb.functions.invoke("ceo-bootstrap", {
+          body: { email, name, mobile, secret, password },
+        });
+        bootstrapError = result.error;
+      } finally {
+        ceoSecretInput.value = "";
+      }
+      if (bootstrapError) {
+        let message = bootstrapError.message || "CEO setup failed.";
+        try {
+          const details = await bootstrapError.context?.json();
+          if (details?.error) message = details.error;
+        } catch {}
+        throw new Error(message);
+      }
+      const { data, error: loginError } = await sb.auth.signInWithPassword({ email, password });
+      if (loginError) throw new Error(`CEO account was created, but sign-in failed: ${loginError.message}`);
+      cloudUser = data.user;
+      if (!await isCloudAdmin()) {
+        await sb.auth.signOut();
+        cloudUser = null;
+        throw new Error("The account was created but CEO access could not be verified. Contact the site owner.");
+      }
+      ceoLoginForm.reset();
+      ceoUser = { name, mobile, email };
+      store.set("ceoAccount", ceoUser);
       setCeoSession(true);
       showCeoPanel();
-      showToast(`CEO account ready — welcome, ${name}!`);
-      cloudBusy = false;
-      await cloudPushAll();
       cloudState("connected", "Synced ✓");
+      showToast(`CEO account ready — welcome, ${name}!`);
       await migrateLegacyReviews();
       await loadReviews();
-    } else {
-      await sb.auth.signOut();
-      cloudUser = null;
-      cloudState(null, "Not signed in");
-      showCeoSetupHint(cloudEmail(mobile));
-      showToast("Account created! One step left: activate CEO access (see the box below).");
-    }
-  } else {
-    // ---------- LOGIN ----------
-    const mobile = normMobile(ceoMobileInput.value);
-    const code = ceoCodeInput.value.trim();
-    if (!MOBILE_RE.test(mobile)) {
-      ceoErrMobile.textContent = "Enter a valid number, e.g. 03123456789.";
-      ceoMobileInput.classList.add("invalid");
-      showToast("Login failed — invalid mobile number.", true);
       return;
     }
-    if (!code) {
+
+    const email = ceoLoginEmailInput.value.trim().toLowerCase();
+    const password = ceoCodeInput.value;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      ceoErrLoginEmail.textContent = "Enter your registered email address.";
+      ceoLoginEmailInput.classList.add("invalid");
+      showToast("Login failed — enter a valid email.", true);
+      return;
+    }
+    if (!password) {
       ceoErrCode.textContent = "Enter your password.";
       ceoCodeInput.classList.add("invalid");
       showToast("Login failed — password required.", true);
@@ -1186,20 +1257,11 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     }
 
     cloudState("syncing", "Signing in…");
-    const { data, error } = await sb.auth.signInWithPassword({
-      email: cloudEmail(mobile),
-      password: code
-    });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
       cloudState("error", "Error");
       logAttempt("ceo");
-      if (/invalid login credentials/i.test(error.message || "") && ceoUser && mobile !== ceoUser.mobile) {
-        ceoErrMobile.textContent = "This number is not registered in cloud.";
-        ceoMobileInput.classList.add("invalid");
-      } else if (/invalid login credentials/i.test(error.message || "")) {
-        ceoErrCode.textContent = "Wrong password.";
-        ceoCodeInput.classList.add("invalid");
-      }
+      ceoErrCode.textContent = /invalid login credentials/i.test(error.message || "") ? "Email or password is incorrect." : "";
       showToast(authErrMsg(error), true);
       return;
     }
@@ -1216,11 +1278,16 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       return;
     }
     clearAttempts("ceo");
-    ceoErrMobile.textContent = ""; ceoMobileInput.classList.remove("invalid");
+    ceoErrLoginEmail.textContent = ""; ceoLoginEmailInput.classList.remove("invalid");
     ceoErrCode.textContent = ""; ceoCodeInput.classList.remove("invalid");
+    ceoLoginForm.reset();
     const meta = data.user.user_metadata || {};
-    if (!ceoUser) ceoUser = { name: meta.name || "CEO", mobile: meta.mobile || mobile, email: cloudUser.email || "" };
-    ceoUser.email = cloudUser.email || ceoUser.email || "";
+    const profile = await loadCeoProfile();
+    ceoUser = {
+      name: profile?.full_name || meta.name || "CEO",
+      mobile: profile?.mobile || meta.mobile || "",
+      email: cloudUser.email || "",
+    };
     store.set("ceoAccount", ceoUser);
     setCeoSession(true);
     cloudBusy = true;
@@ -1231,6 +1298,109 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     showToast(ok ? `Logged in - cloud data synced. Welcome back, ${ceoUser.name}!` : `Logged in - welcome back, ${ceoUser.name}!`);
     await migrateLegacyReviews();
     await loadReviews();
+  } catch (error) {
+    cloudState("error", "Error");
+    showToast(authErrMsg(error), true);
+  } finally {
+    ceoLoginSubmit.disabled = false;
+  }
+});
+
+document.getElementById("ceoModeToggle").addEventListener("click", (event) => {
+  event.preventDefault();
+  setCeoLoginMode(!ceoSetupMode);
+});
+
+document.getElementById("ceoForgotPassword").addEventListener("click", async (event) => {
+  event.preventDefault();
+  const email = ceoLoginEmailInput.value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    ceoErrLoginEmail.textContent = "Enter your CEO email first.";
+    ceoLoginEmailInput.classList.add("invalid");
+    return;
+  }
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}${window.location.pathname}`,
+    });
+    if (error) throw error;
+    showToast("Password reset instructions were sent if this email is registered.");
+  } catch (error) {
+    showToast(`Password reset could not be requested: ${error.message || "Supabase error."}`, true);
+  }
+});
+
+document.getElementById("ceoPasswordRecoveryForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const password = form.elements.newPassword.value;
+  const confirm = form.elements.confirmPassword.value;
+  if (password.length < 8 || password.length > 72 || password !== confirm) {
+    showToast("Enter matching new passwords (8–72 characters).", true);
+    return;
+  }
+  try {
+    const { error } = await sb.auth.updateUser({ password });
+    if (error) throw error;
+    form.reset();
+    setCeoSession(false);
+    await sb.auth.signOut();
+    cloudUser = null;
+    setCeoLoginMode();
+    showToast("Password updated. Sign in with your new password.");
+  } catch (error) {
+    showToast(`Password could not be updated: ${error.message || "Supabase error."}`, true);
+  }
+});
+
+document.getElementById("ceoAccountSettings").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  if (!sb || !cloudUser || !ceoLoggedIn) return;
+  const form = event.currentTarget;
+  const name = form.elements.name.value.trim();
+  const email = form.elements.email.value.trim().toLowerCase();
+  const mobile = normMobile(form.elements.mobile.value);
+  const currentPassword = form.elements.currentPassword.value;
+  const newPassword = form.elements.newPassword.value;
+  if (name.length < 3 || name.length > 80 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      !MOBILE_RE.test(mobile) || !currentPassword ||
+      (newPassword && (newPassword.length < 8 || newPassword.length > 72))) {
+    showToast("Check the name, email, mobile, current password, and optional new password.", true);
+    return;
+  }
+  const submit = form.querySelector('button[type="submit"]');
+  submit.disabled = true;
+  try {
+    const { error: reauthError } = await sb.auth.signInWithPassword({
+      email: cloudUser.email,
+      password: currentPassword,
+    });
+    if (reauthError) throw new Error("Current password is incorrect.");
+
+    const authChanges = { data: { name, mobile } };
+    if (email !== cloudUser.email) authChanges.email = email;
+    if (newPassword) authChanges.password = newPassword;
+    const { data: updateData, error: updateError } = await sb.auth.updateUser(authChanges);
+    if (updateError) throw updateError;
+    if (updateData.user) cloudUser = updateData.user;
+    const { error: profileError } = await sb.rpc("update_oms_ceo_profile", {
+      p_name: name,
+      p_mobile: mobile,
+    });
+    if (profileError) throw profileError;
+
+    ceoUser = { name, mobile, email: cloudUser.email || email };
+    store.set("ceoAccount", ceoUser);
+    document.getElementById("ceoPanelName").textContent = name;
+    form.elements.currentPassword.value = "";
+    form.elements.newPassword.value = "";
+    showToast(email !== ceoUser.email
+      ? "Profile updated. Confirm the new email using the message sent to that address."
+      : "CEO account details updated.");
+  } catch (error) {
+    showToast(`Account settings were not fully updated: ${error.message || "Supabase error."}`, true);
+  } finally {
+    submit.disabled = false;
   }
 });
 
@@ -4403,6 +4573,21 @@ updateFeatureBadges();
 
 if (sb) {
   sb.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") {
+      setTimeout(() => {
+        ceoLogin.hidden = false;
+        ceoPanel.hidden = true;
+        ceoLoginForm.hidden = true;
+        document.getElementById("ceoModeToggle").hidden = true;
+        document.getElementById("ceoForgotPassword").hidden = true;
+        document.getElementById("ceoPasswordRecoveryForm").hidden = false;
+        document.getElementById("ceoLoginTitle").textContent = "Reset CEO Password";
+        document.getElementById("ceoLoginSub").textContent = "Choose a new password for your CEO account.";
+        ceoModal.classList.add("open");
+        ceoModal.setAttribute("aria-hidden", "false");
+      }, 0);
+      return;
+    }
     if (event !== "SIGNED_OUT") return;
     setTimeout(() => {
       cloudUser = null;

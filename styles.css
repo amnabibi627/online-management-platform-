@@ -276,8 +276,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .hero-title .accent {
   display: block;
-  background: linear-gradient(100deg, #ff8f04 0%, #ff6b00 58%, #ffa500 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  color: #ff8f04;
 }
 
 .hero-subtitle {

@@ -78,8 +78,7 @@
   margin-bottom: 1.1rem; overflow-wrap: anywhere;
 }
 .cat-hero h1 .accent {
-  background: linear-gradient(100deg, #ff8f04 0%, #ff6b00 58%, #ffa500 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  color: #ff8f04;
 }
 
 .cat-hero-copy > p {

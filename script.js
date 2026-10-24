@@ -3778,7 +3778,16 @@ if (regForm) {
           if (finalizeError) throw finalizeError;
           if (result.failures.length) {
             console.error("Some business ad media failed to upload:", result.failures);
-            mediaWarning = " Some media could not be uploaded; only successful files will appear. Contact the owner if you need to add the rest.";
+            const failedPaths = mediaManifest
+              .filter((item) => !result.uploaded.some((uploadedItem) => uploadedItem.path === item.path))
+              .map((item) => item.path);
+            const { error: cleanupError } = await sb.storage.from("business-ad-media").remove(failedPaths);
+            if (cleanupError) {
+              console.error("Could not remove unregistered failed business ad uploads:", cleanupError);
+              mediaWarning = " Some selected files could not be uploaded. Ask the owner to clean up any incomplete uploads before resubmitting media.";
+            } else {
+              mediaWarning = " Some media could not be uploaded; only successful files will appear. Contact the owner if you need to add the rest.";
+            }
           }
         } catch (error) {
           console.error("Business ad media processing failed:", error);

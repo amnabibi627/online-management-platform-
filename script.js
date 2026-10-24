@@ -3781,7 +3781,10 @@ if (regForm) {
             const failedPaths = mediaManifest
               .filter((item) => !result.uploaded.some((uploadedItem) => uploadedItem.path === item.path))
               .map((item) => item.path);
-            const { error: cleanupError } = await sb.storage.from("business-ad-media").remove(failedPaths);
+            const { error: cleanupError } = await sb.rpc("cleanup_pending_business_ad_media", {
+              p_request_id: submission.id,
+              p_paths: failedPaths
+            });
             if (cleanupError) {
               console.error("Could not remove unregistered failed business ad uploads:", cleanupError);
               mediaWarning = " Some selected files could not be uploaded. Ask the owner to clean up any incomplete uploads before resubmitting media.";

@@ -698,7 +698,7 @@ on conflict (id) do update set
 
 grant select, insert on storage.objects to anon, authenticated;
 grant delete on storage.objects to authenticated;
-revoke update, delete on storage.objects from anon;
+revoke update on storage.objects from anon;
 revoke update on storage.objects from authenticated;
 
 create or replace function public.can_upload_business_ad_media(p_name text, p_metadata jsonb)
@@ -788,6 +788,7 @@ create policy "business_ad_media_read_active_or_admin" on storage.objects
 
 drop policy if exists "business_ad_media_delete_pending_or_admin" on storage.objects;
 drop policy if exists "business_ad_media_delete_admin" on storage.objects;
+drop policy if exists "business_ad_media_delete_pending" on storage.objects;
 create policy "business_ad_media_delete_admin" on storage.objects
   for delete to authenticated
   using (
@@ -900,6 +901,40 @@ $$;
 
 revoke all on function public.finalize_business_ad_media(uuid, jsonb) from public;
 grant execute on function public.finalize_business_ad_media(uuid, jsonb) to anon, authenticated;
+
+create or replace function public.cleanup_pending_business_ad_media(p_request_id uuid, p_paths text[])
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_request public.business_ad_requests%rowtype;
+  v_path text;
+begin
+  if p_paths is null or pg_catalog.cardinality(p_paths) > 35 then
+    raise exception 'Invalid media cleanup request';
+  end if;
+  select * into v_request
+  from public.business_ad_requests
+  where id = p_request_id and status = 'pending' and legacy_id is null
+  for update;
+  if not found then raise exception 'Pending business ad request not found'; end if;
+
+  foreach v_path in array p_paths loop
+    if not (v_request.media_files @> pg_catalog.jsonb_build_array(
+      pg_catalog.jsonb_build_object('path', v_path)
+    )) then
+      raise exception 'Media path does not belong to this pending request';
+    end if;
+    delete from storage.objects
+    where bucket_id = 'business-ad-media' and name = v_path;
+  end loop;
+end;
+$$;
+
+revoke all on function public.cleanup_pending_business_ad_media(uuid, text[]) from public;
+grant execute on function public.cleanup_pending_business_ad_media(uuid, text[]) to anon, authenticated;
 
 create or replace function public.delete_business_ad_media_objects()
 returns trigger

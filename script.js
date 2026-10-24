@@ -627,6 +627,8 @@ const userForm = document.getElementById("userForm");
 const userSignupFields = document.getElementById("userSignupFields");
 const userLoginFields = document.getElementById("userLoginFields");
 const userActiveBox = document.getElementById("userActiveBox");
+const userPurpose = document.getElementById("ufPurpose");
+const userSubscriptionFields = document.getElementById("ufSubscriptionFields");
 const userModalTitle = document.getElementById("userModalTitle");
 const userModalSub = document.getElementById("userModalSub");
 const userSubmit = document.getElementById("userSubmit");
@@ -640,11 +642,29 @@ const uFields = {
   city: { input: document.getElementById("ufCity"), err: document.getElementById("ufCityErr") },
   pass: { input: document.getElementById("ufPass"), err: document.getElementById("ufPassErr") },
   pass2: { input: document.getElementById("ufPass2"), err: document.getElementById("ufPass2Err") },
+  subscriptionCategory: { input: document.getElementById("ufSubscriptionCategory"), err: document.getElementById("ufSubscriptionCategoryErr") },
+  subscriptionPlan: { input: document.getElementById("ufSubscriptionPlan"), err: document.getElementById("ufSubscriptionPlanErr") },
+  payerMobile: { input: document.getElementById("ufPayerMobile"), err: document.getElementById("ufPayerMobileErr") },
+  paymentReference: { input: document.getElementById("ufPaymentReference"), err: document.getElementById("ufPaymentReferenceErr") },
   loginMobile: { input: document.getElementById("ufLoginMobile"), err: document.getElementById("ufLoginMobileErr") },
   loginPass: { input: document.getElementById("ufLoginPass"), err: document.getElementById("ufLoginPassErr") },
 };
 
 let userModalMode = "signup"; // "signup" | "login" | "active"
+const USER_SUBSCRIPTION_PLANS = {
+  "1-month": { months: 1, amount: 3000 },
+  "3-month": { months: 3, amount: 9000 },
+  "6-month": { months: 6, amount: 12000 }
+};
+
+if (userPurpose && userSubscriptionFields) {
+  userPurpose.addEventListener("change", () => {
+    const requestsSubscription = userPurpose.value === "subscription";
+    userSubscriptionFields.hidden = !requestsSubscription;
+    userSubmit.textContent = requestsSubscription ? "Create Account & Submit Request" : "Create Account";
+    ["subscriptionCategory", "subscriptionPlan", "payerMobile", "paymentReference"].forEach((key) => setUserError(uFields[key], ""));
+  });
+}
 
 // Show / hide password
 const setUserPassVisibility = (show, isLogin = false) => {
@@ -686,6 +706,8 @@ const openUserModal = (mode) => {
     userForm.hidden = false;
     userSignupFields.hidden = !isSignup;
     userLoginFields.hidden = isSignup;
+    if (userPurpose) userPurpose.value = "community";
+    if (userSubscriptionFields) userSubscriptionFields.hidden = true;
     userSubmit.textContent = isSignup ? "Create Account" : "Login";
     if (userModeToggle) {
       userModeToggle.textContent = isSignup
@@ -758,6 +780,11 @@ if (userForm) {
       const city = String(uFields.city.input.value || "").trim();
       const pass = String(uFields.pass.input.value || "");
       const pass2 = String(uFields.pass2.input.value || "");
+      const subscriptionRequested = userPurpose?.value === "subscription";
+      const category = String(uFields.subscriptionCategory.input.value || "");
+      const plan = String(uFields.subscriptionPlan.input.value || "");
+      const payerMobile = normMobile(uFields.payerMobile.input.value);
+      const paymentReference = String(uFields.paymentReference.input.value || "").trim();
       let ok = true;
 
       if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
@@ -772,6 +799,16 @@ if (userForm) {
       else setUserError(uFields.pass, "");
       if (pass !== pass2) { setUserError(uFields.pass2, "Both passwords must match."); ok = false; }
       else setUserError(uFields.pass2, "");
+      if (subscriptionRequested) {
+        if (!BUILTIN_CATEGORIES.includes(category)) { setUserError(uFields.subscriptionCategory, "Choose a valid business category."); ok = false; }
+        else setUserError(uFields.subscriptionCategory, "");
+        if (!Object.prototype.hasOwnProperty.call(USER_SUBSCRIPTION_PLANS, plan)) { setUserError(uFields.subscriptionPlan, "Choose a subscription plan."); ok = false; }
+        else setUserError(uFields.subscriptionPlan, "");
+        if (!MOBILE_RE.test(payerMobile)) { setUserError(uFields.payerMobile, "Enter a valid JazzCash mobile number."); ok = false; }
+        else setUserError(uFields.payerMobile, "");
+        if (!/^[A-Za-z0-9-]{4,100}$/.test(paymentReference)) { setUserError(uFields.paymentReference, "Enter a valid transaction reference (4–100 letters or numbers)."); ok = false; }
+        else setUserError(uFields.paymentReference, "");
+      }
 
       if (!ok) { showToast("Please fix the highlighted fields.", true); return; }
 
@@ -784,10 +821,26 @@ if (userForm) {
         city
       });
       if (error && !/duplicate key|already exists/i.test(error.message || "")) throw error;
+      if (subscriptionRequested) {
+        const request = await sb.from("subscription_requests").insert({
+          user_id: authUser.id,
+          category,
+          plan,
+          amount: USER_SUBSCRIPTION_PLANS[plan].amount,
+          account_name: name,
+          account_mobile: mobile,
+          payment_reference: paymentReference,
+          payer_mobile: payerMobile,
+          status: "pending"
+        });
+        if (request.error) throw request.error;
+      }
       const profiles = await refreshAccountProfiles(authUser);
       if (!profiles.customer) throw new Error("Account was created but its customer profile could not be loaded. Please sign in again.");
       closeUserModal();
-      showToast(`Account ready. Welcome, ${profiles.customer.name}!`);
+      showToast(subscriptionRequested
+        ? `Account ready. Your ${category} subscription request was sent for payment verification. Access starts after CEO approval.`
+        : `Account ready. Welcome, ${profiles.customer.name}!`);
       return;
       }
 
@@ -817,6 +870,7 @@ if (userForm) {
       if (userModalMode === "signup") {
         if (/mobile|already registered|duplicate key/i.test(message)) setUserError(uFields.mobile, message);
         else if (/email/i.test(message)) setUserError(uFields.email, message);
+        else if (/payment_reference|subscription request/i.test(message)) setUserError(uFields.paymentReference, /duplicate key|unique/i.test(message) ? "This transaction reference has already been submitted." : message);
         else setUserError(uFields.pass, message);
       } else {
         setUserError(uFields.loginPass, message);

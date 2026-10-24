@@ -21,6 +21,11 @@ Subscriptions**. Approval activates only the requested category; a renewal
 extends its current expiry. Do not approve a request until the amount, sender,
 and transaction reference match the JazzCash payment history.
 
+The homepage **User Sign Up** also offers a paid category subscription request.
+The user selects a category and plan and enters the JazzCash sender mobile and
+transaction reference. This creates a pending request only; it does not grant
+access until the CEO verifies and approves it in Super Admin → Subscriptions.
+
 ---
 
 ## 1. Supabase (one time)

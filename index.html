@@ -1430,16 +1430,28 @@
       <div id="ceoPanel" hidden>
         <h3 id="ceoPanelName">Amna Bibi</h3>
         <p class="modal-sub">Founder &amp; CEO of Online Management Site</p>
-        <form id="ceoAccountSettings" class="ceo-account-settings" novalidate>
-          <h4>CEO Account Settings</h4>
-          <label>Current password<input type="password" name="currentPassword" autocomplete="current-password" required /></label>
-          <label>Name<input type="text" name="name" autocomplete="name" minlength="3" maxlength="80" required /></label>
-          <label>Email<input type="email" name="email" autocomplete="email" required /></label>
-          <label>Mobile number<input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" maxlength="13" required /></label>
-          <label>New password <span>(leave blank to keep current)</span><input type="password" name="newPassword" autocomplete="new-password" minlength="8" maxlength="72" /></label>
-          <button class="btn btn-outline btn-block" type="submit">Verify and update account</button>
-          <p class="admin-hint">Changes require your current password. Email updates may require confirming the new email from your inbox.</p>
-        </form>
+        <button
+          class="btn btn-outline btn-block ceo-settings-toggle"
+          id="ceoSettingsToggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="ceoSettingsPanel"
+        >Account Settings <span aria-hidden="true">⌄</span></button>
+        <section class="ceo-settings-panel" id="ceoSettingsPanel" aria-labelledby="ceoSettingsTitle" hidden>
+          <div class="ceo-settings-heading">
+            <h4 id="ceoSettingsTitle">Manage your account</h4>
+            <p>Update your CEO profile or password securely.</p>
+          </div>
+          <form id="ceoAccountSettings" class="ceo-account-settings" novalidate>
+            <label>Current password<input type="password" name="currentPassword" autocomplete="current-password" required /></label>
+            <label>Full name<input type="text" name="name" autocomplete="name" minlength="3" maxlength="80" required /></label>
+            <label>Email address<input type="email" name="email" autocomplete="email" required /></label>
+            <label>Mobile number<input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" maxlength="13" required /></label>
+            <label>New password <span>Leave blank to keep your current password</span><input type="password" name="newPassword" autocomplete="new-password" minlength="8" maxlength="72" /></label>
+            <button class="btn btn-primary btn-block" type="submit">Save account changes</button>
+            <p class="ceo-settings-note">Your current password is required to save changes. Email updates may need confirmation from your inbox.</p>
+          </form>
+        </section>
 
         <div class="ceo-stats">
           <div class="ceo-stat"><span>Categories</span><strong id="ceoCatCount">8</strong></div>

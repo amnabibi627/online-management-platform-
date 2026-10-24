@@ -1091,6 +1091,10 @@ const setCeoLoginMode = (createAccount = false) => {
 const showCeoPanel = () => {
   ceoLogin.hidden = true;
   ceoPanel.hidden = false;
+  const settingsPanel = document.getElementById("ceoSettingsPanel");
+  const settingsToggle = document.getElementById("ceoSettingsToggle");
+  settingsPanel.hidden = true;
+  settingsToggle.setAttribute("aria-expanded", "false");
   document.getElementById("ceoPanelName").textContent = ceoUser.name;
   const settings = document.getElementById("ceoAccountSettings");
   settings.elements.name.value = ceoUser.name || "";
@@ -1100,6 +1104,14 @@ const showCeoPanel = () => {
   settings.elements.newPassword.value = "";
   updateCeoStats();
 };
+
+document.getElementById("ceoSettingsToggle").addEventListener("click", (event) => {
+  const button = event.currentTarget;
+  const panel = document.getElementById("ceoSettingsPanel");
+  const isExpanded = button.getAttribute("aria-expanded") === "true";
+  button.setAttribute("aria-expanded", String(!isExpanded));
+  panel.hidden = isExpanded;
+});
 
 const refreshCeoSetupAvailability = async () => {
   if (!sb) throw new Error("CEO setup requires a Supabase connection.");

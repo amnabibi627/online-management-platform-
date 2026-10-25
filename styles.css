@@ -212,7 +212,6 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   position: relative; overflow: hidden; padding: 7rem 0 6rem; text-align: center;
   border-bottom: 0;
   background:
-    radial-gradient(900px 480px at 50% -12%, rgba(255, 143, 4, 0.22), transparent 70%),
     linear-gradient(180deg, #0e2431 0%, #102b39 62%, #153747 100%);
   color: #ffffff;
 }
@@ -233,7 +232,6 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-glow {
   position: absolute; inset: -30% -10% auto; height: 720px;
   background:
-    radial-gradient(560px 320px at 28% 30%, rgba(255, 143, 4, 0.28), transparent 70%),
     radial-gradient(520px 300px at 76% 20%, rgba(43, 61, 218, 0.2), transparent 70%);
   pointer-events: none;
 }
@@ -333,7 +331,6 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 /* Owner details: the one dark band on the page */
 .owner-details {
   background:
-    radial-gradient(760px 320px at 78% 0%, rgba(255, 143, 4, 0.25), transparent 72%),
     radial-gradient(620px 280px at 12% 100%, rgba(43, 61, 218, 0.18), transparent 72%),
     linear-gradient(160deg, #0e2431 0%, #153747 100%);
   border-top: 0;
@@ -1645,7 +1642,6 @@ body.detail-open { overflow: hidden; }
   max-width: 880px; margin: 0 auto;
   background:
     radial-gradient(460px 240px at 88% -10%, rgba(43, 61, 218, 0.26), transparent 70%),
-    radial-gradient(420px 260px at 0% 110%, rgba(255, 143, 4, 0.24), transparent 70%),
     linear-gradient(160deg, #153747 0%, #0e2431 100%);
   border: 0;
   border-radius: 24px; padding: 2.8rem 2.4rem;
@@ -1654,7 +1650,7 @@ body.detail-open { overflow: hidden; }
 }
 .reg-cta-glow {
   position: absolute; top: -120px; right: -120px; width: 320px; height: 320px;
-  background: radial-gradient(circle, rgba(255, 143, 4, 0.18), transparent 68%);
+  background: radial-gradient(circle, rgba(43, 61, 218, 0.18), transparent 68%);
   pointer-events: none;
 }
 .reg-cta-body { position: relative; text-align: center; }

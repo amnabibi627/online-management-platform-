@@ -1127,8 +1127,8 @@ body.detail-open { overflow: hidden; }
 
 .reviews-bars { display: flex; flex-direction: column; gap: 0.4rem; }
 .rv-bar-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.78rem; color: var(--muted); }
-.rv-bar-lbl { width: 38px; font-weight: 600; white-space: nowrap; }
-.rv-bar-track { flex: 1; height: 7px; border-radius: 999px; background: #ffffff; border: 1px solid #ff8f04; overflow: hidden; }
+.rv-bar-lbl { width: 38px; font-weight: 600; white-space: nowrap; color: #ff8f04; }
+.rv-bar-track { flex: 1; height: 7px; border-radius: 999px; background: #ffffff; border: none; overflow: hidden; }
 .rv-bar-fill { display: block; height: 100%; border-radius: 999px; background: #ff8f04; transition: width 0.35s ease; }
 .rv-bar-val { width: 26px; text-align: right; font-weight: 700; color: var(--ink); }
 

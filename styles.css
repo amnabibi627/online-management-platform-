@@ -224,9 +224,8 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero {
   position: relative; overflow: hidden; padding: 7rem 0 6rem; text-align: center;
   border-bottom: 0;
-  background:
-    linear-gradient(180deg, #0e2431 0%, #102b39 62%, #153747 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: #000000;
 }
 
 /* faint blueprint grid so the hero reads as a different surface from the page */
@@ -307,14 +306,14 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-actions { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
 
 .hero-actions .btn-outline {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.24);
+  background: #ffffff;
+  color: #000000;
+  border-color: rgba(0, 0, 0, 0.25);
 }
 .hero-actions .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.42);
-  color: #ffffff;
+  background: #f7f7f7;
+  border-color: rgba(0, 0, 0, 0.4);
+  color: #000000;
 }
 
 /* ---------- Sections ---------- */

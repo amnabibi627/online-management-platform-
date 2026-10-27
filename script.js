@@ -4475,17 +4475,7 @@ const closeRegModal = () => {
 };
 
 openRegFormBtn?.addEventListener("click", openRegModal);
-const openRegFormCard = document.getElementById("openRegFormCard");
-openRegFormCard?.addEventListener("click", (e) => {
-  if (e.target.closest("#openRegForm")) return;
-  openRegModal();
-});
-openRegFormCard?.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    openRegModal();
-  }
-});
+document.getElementById("openRegFormTop")?.addEventListener("click", openRegModal);
 regModalClose?.addEventListener("click", closeRegModal);
 regModal?.addEventListener("click", (e) => {
   if (e.target === regModal) closeRegModal();

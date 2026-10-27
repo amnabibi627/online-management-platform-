@@ -1161,8 +1161,8 @@ body.detail-open { overflow: hidden; }
   background: none; border: 0;
   cursor: pointer; padding: 0 0.08rem;
   font-size: 1.75rem; line-height: 1; color: #ffffff;
-  -webkit-text-stroke: 1px #000000;
-  text-stroke: 1px #000000;
+  -webkit-text-stroke: 1px #ff8f04;
+  text-stroke: 1px #ff8f04;
   transition: color 0.15s, transform 0.15s;
 }
 .star-picker .star:hover { transform: scale(1.12); }

@@ -457,8 +457,8 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   gap: 0.4rem;
   padding: 0.9rem 1rem;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(255, 143, 4, 0.4);
+  background: rgba(255, 143, 4, 0.08);
 }
 
 .hero-dashboard-label {

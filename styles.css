@@ -358,20 +358,21 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .hero-btn-ghost {
-  background: transparent;
-  color: #000000;
+  background: #ff8f04;
+  color: #ffffff;
   border: 1px solid #ff8f04;
 }
 
 .hero-btn-ghost:hover {
-  background: rgba(255, 143, 4, 0.08);
+  background: #f57c00;
+  border-color: #f57c00;
 }
 
 .hero-btn-ghost:focus,
 .hero-btn-ghost:active {
-  background: #ff8f04;
+  background: #e06c00;
   color: #ffffff;
-  border-color: #ff8f04;
+  border-color: #e06c00;
 }
 
 .hero-stats-grid {

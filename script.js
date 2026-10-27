@@ -377,6 +377,14 @@ const setActiveLink = () => {
   navLinks[0].classList.add("active");
 };
 
+navLinks.forEach((link) => {
+  link.addEventListener("click", (e) => {
+    navLinks.forEach((l) => l.classList.remove("active"));
+    link.classList.add("active");
+    if (mainNav.classList.contains("open")) setNavOpen(false);
+  });
+});
+
 window.addEventListener("scroll", setActiveLink, { passive: true });
 setActiveLink();
 

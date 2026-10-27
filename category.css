@@ -168,9 +168,7 @@
 
 /* ---------- Feature grid ---------- */
 .cat-features {
-  background:
-    radial-gradient(700px 260px at 50% 0%, rgba(0, 0, 0, 0.06), transparent 70%),
-    var(--bg);
+  background: #ffffff;
   border-top: 1px solid var(--border);
   padding: 5.5rem 0;
 }

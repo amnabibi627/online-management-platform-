@@ -1122,7 +1122,7 @@ body.detail-open { overflow: hidden; }
 }
 .reviews-score { text-align: center; }
 .reviews-avg { font-size: 3.2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); line-height: 1; }
-.reviews-stars-static { color: #ff8f04; font-size: 1.2rem; letter-spacing: 0.12em; margin: 0.45rem 0 0.3rem; -webkit-text-stroke: 0.5px #ff8f04; }
+.reviews-stars-static { color: #ff8f04; font-size: 1.2rem; letter-spacing: 0.12em; margin: 0.45rem 0 0.3rem; }
 .reviews-count { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
 
 .reviews-bars { display: flex; flex-direction: column; gap: 0.4rem; }

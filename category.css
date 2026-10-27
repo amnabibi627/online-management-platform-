@@ -1,5 +1,5 @@
-/* ============================================================
-   category.css — styles for the individual business category pages
+﻿/* ============================================================
+   category.css â€” styles for the individual business category pages
    (clinic.html, academy.html, restaurant.html, ...)
    Loads after styles.css and only adds new class names.
    ============================================================ */
@@ -33,7 +33,7 @@
   position: relative; overflow: hidden;
   padding: 4.6rem 0 5rem;
   background:
-    radial-gradient(680px 420px at 84% 15%, rgba(43, 61, 218, 0.28), transparent 72%),
+    radial-gradient(680px 420px at 84% 15%, rgba(0, 0, 0, 0.28), transparent 72%),
     radial-gradient(680px 420px at 8% 105%, rgba(255, 143, 4, 0.2), transparent 70%),
     linear-gradient(145deg, #0e2431 0%, #102b39 55%, #153747 100%);
   color: #ffffff;
@@ -169,7 +169,7 @@
 /* ---------- Feature grid ---------- */
 .cat-features {
   background:
-    radial-gradient(700px 260px at 50% 0%, rgba(43, 61, 218, 0.06), transparent 70%),
+    radial-gradient(700px 260px at 50% 0%, rgba(0, 0, 0, 0.06), transparent 70%),
     var(--bg);
   border-top: 1px solid var(--border);
   padding: 5.5rem 0;
@@ -195,7 +195,7 @@
 }
 .cat-feature::before {
   content: ""; position: absolute; inset: 0 0 auto; height: 3px;
-  background: linear-gradient(90deg, #ff8f04, #2b3dda);
+  background: linear-gradient(90deg, #ff8f04, #000000);
   opacity: 0; transition: opacity 0.2s ease;
 }
 .cat-feature:hover {
@@ -215,7 +215,7 @@
 .cat-feature:nth-child(3n + 2) .cat-feature-icon {
   background: linear-gradient(135deg, #eef0ff, #f5f6ff);
   border-color: #dfe3ff;
-  box-shadow: 0 6px 14px rgba(43, 61, 218, 0.08);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 .cat-feature h3 {
   font-size: 1rem; font-weight: 700; letter-spacing: -0.01em;
@@ -223,13 +223,13 @@
 }
 .cat-feature p { font-size: 0.89rem; color: var(--muted); line-height: 1.62; }
 .cat-tool-card:focus-visible {
-  outline: 3px solid rgba(43, 61, 218, 0.5);
+  outline: 3px solid rgba(0, 0, 0, 0.5);
   outline-offset: 3px;
 }
 .cat-tool-open {
   display: inline-flex; align-items: center; gap: 0.45rem;
   margin-top: auto; padding-top: 1.15rem;
-  color: #2b3dda; font-size: 0.82rem; font-weight: 700;
+  color: #000000; font-size: 0.82rem; font-weight: 700;
 }
 
 .category-account-bar {
@@ -262,7 +262,7 @@
   font-size: 1.6rem; line-height: 1; cursor: pointer;
 }
 .category-workspace-eyebrow {
-  margin: 0 3rem 0.4rem 0; color: #2b3dda; font-size: 0.72rem;
+  margin: 0 3rem 0.4rem 0; color: #000000; font-size: 0.72rem;
   font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
 }
 .category-workspace h2, .category-auth-panel h2 {
@@ -285,7 +285,7 @@
 .category-workspace tr:last-child td { border-bottom: 0; }
 .category-row-actions { white-space: nowrap; }
 .category-row-actions button, .category-auth-switch button {
-  padding: 0.35rem 0.5rem; border: 0; color: #2b3dda; background: transparent;
+  padding: 0.35rem 0.5rem; border: 0; color: #000000; background: transparent;
   font: inherit; font-weight: 700; cursor: pointer;
 }
 .category-row-actions button:last-child { color: #b42318; }
@@ -315,7 +315,7 @@
 .category-record-fields textarea { resize: vertical; }
 .category-record-fields input:focus, .category-record-fields select:focus,
 .category-record-fields textarea:focus, .category-auth-form input:focus {
-  outline: 3px solid rgba(43, 61, 218, 0.14); border-color: #2b3dda;
+  outline: 3px solid rgba(0, 0, 0, 0.14); border-color: #000000;
 }
 .category-auth-form { display: grid; gap: 0.95rem; margin-top: 1.3rem; }
 .category-auth-form .btn { width: 100%; }
@@ -409,9 +409,9 @@
 .cat-plan .btn { margin-top: auto; width: 100%; text-align: center; }
 .cat-plan button.btn { cursor: pointer; font: inherit; font-weight: 700; }
 .cat-plan.popular .btn-primary {
-  background: #ffffff; color: #2b3dda; box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.7);
+  background: #ffffff; color: #000000; box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.7);
 }
-.cat-plan.popular .btn-primary:hover { background: #f1f5fb; color: #2b3dda; }
+.cat-plan.popular .btn-primary:hover { background: #f1f5fb; color: #000000; }
 
 /* ---------- Related categories ---------- */
 .cat-related {
@@ -506,3 +506,4 @@
   .cat-back-btn, .cat-feature, .cat-plan, .cat-related-card { transition: none; }
   .cat-feature:hover, .cat-plan:hover, .cat-related-card:hover { transform: none; }
 }
+

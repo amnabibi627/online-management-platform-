@@ -1746,7 +1746,8 @@ body.detail-open { overflow: hidden; }
 }
 
 @media (max-width: 600px) {
-  .container { width: 94%; max-width: 100%; overflow-x: hidden; }
+  html, body { overflow-x: hidden; }
+  .container { width: 92%; max-width: 100%; }
 
   .header-inner { padding: 0.75rem 0; }
   .brand-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
@@ -1754,12 +1755,16 @@ body.detail-open { overflow: hidden; }
   .brand-info { display: none; }
   .brand-profile { gap: 0; }
 
-  .hero { padding: 2.6rem 0 2rem; overflow-x: hidden; }
+  .hero { padding: 2.4rem 0 2rem; overflow-x: hidden; }
   .hero-grid { grid-template-columns: 1fr; gap: 1.6rem; text-align: center; }
   .hero-col { align-items: center; width: 100%; }
-  .hero-title { font-size: clamp(1.7rem, 8.5vw, 2.4rem); line-height: 1.16; text-align: center; width: 100%; }
+  .hero-title { font-size: clamp(1.6rem, 9vw, 2.3rem); line-height: 1.18; text-align: center; width: 100%; word-break: break-word; }
+  .hero-title .hero-title-plain { font-size: 0.78em; }
+  .hero-title .accent { display: block; }
   .hero-heading-line { white-space: normal; display: block; }
-  .hero-text { font-size: 0.97rem; text-align: center; margin-left: auto; margin-right: auto; max-width: 100%; }
+  .hero-text { font-size: 0.96rem; text-align: center; margin-left: auto; margin-right: auto; max-width: 100%; }
+  .hero-ctas { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.6rem; width: 100%; }
+  .hero-btn { flex: 0 1 auto; min-width: 130px; }
   .hero-ctas { flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; gap: 0.7rem; }
   .hero-btn { flex: 0 1 auto; width: auto; min-width: 140px; }
   .hero-dashboard-card { width: 100%; margin: 0 auto; }

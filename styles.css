@@ -1021,7 +1021,7 @@ body.detail-open { overflow: hidden; }
 .owner-profile-name { font-size: 1.62rem; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 0.2rem; }
 .owner-profile-role {
   font-size: 0.95rem; font-weight: 600; letter-spacing: normal; text-transform: none;
-  color: #ff8f04; margin-bottom: 0.95rem;
+  color: #ff6f00; margin-bottom: 0.95rem;
 }
 .owner-profile-bio { color: var(--muted); font-size: 0.96rem; line-height: 1.7; margin-bottom: 1.1rem; max-width: 62ch; }
 .owner-profile-skills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.3rem; }

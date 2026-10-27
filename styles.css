@@ -479,9 +479,12 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 @media (max-width: 1080px) {
+  .hero {
+    padding: 4.2rem 0 3.8rem;
+  }
   .hero-row {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 2.8rem;
   }
   .hero-col-left {
     text-align: center;
@@ -497,8 +500,53 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   .hero-ctas {
     justify-content: center;
   }
-  .hero-stats-grid {
-    justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 3.8rem 0 3.4rem;
+  }
+  .hero-heading {
+    font-size: clamp(2.1rem, 8vw, 3.2rem);
+  }
+  .hero-text {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+  .hero-ctas {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.8rem;
+  }
+  .hero-btn {
+    width: min(320px, 100%);
+  }
+  .hero-dashboard-card {
+    width: 100%;
+  }
+  .hero-dashboard-body {
+    padding: 1.2rem;
+  }
+  .hero-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero {
+    padding: 3.4rem 0 3rem;
+  }
+  .hero-container {
+    width: min(94%, 1180px);
+  }
+  .hero-heading {
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+  }
+  .hero-dashboard-header {
+    padding: 0.7rem 0.9rem;
+  }
+  .hero-dashboard-body {
+    padding: 1rem;
   }
 }
 

@@ -2875,6 +2875,65 @@ body.detail-open { overflow: hidden; }
 .to-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
 .to-top:hover { background: var(--pink); }
 
+/* ---------- Footer ---------- */
+.site-footer {
+  background: #0f172a;
+  color: #e2e8f0;
+  margin-top: 4rem;
+  padding: 3rem 0 1.5rem;
+}
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+.footer-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+}
+.footer-tagline {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.footer-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.8rem;
+}
+.footer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-list a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+.footer-list a:hover {
+  color: #ff8f04;
+}
+.footer-bottom {
+  border-top: 1px solid rgba(148, 163, 184, 0.3);
+  padding-top: 1.2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
 /* ---- Subtle reveal on scroll (only when JS is running) ---- */
 html.js .reveal { opacity: 0; transform: translateY(18px); }
 html.js .reveal.in {

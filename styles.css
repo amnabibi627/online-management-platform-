@@ -279,12 +279,17 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .hero-heading {
-  font-size: clamp(2.1rem, 4.2vw, 3.6rem);
-  line-height: 1.06;
+  font-size: clamp(1.9rem, 3.8vw, 3.4rem);
+  line-height: 1.08;
   font-weight: 800;
   letter-spacing: -0.01em;
   margin-bottom: 1rem;
   color: #000000;
+}
+
+.hero-heading-line {
+  white-space: nowrap;
+  display: inline-block;
 }
 
 .hero-heading-accent {
@@ -483,8 +488,65 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
     padding: 4.2rem 0 3.8rem;
   }
   .hero-row {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .hero-col-left {
+    text-align: left;
+    align-items: flex-start;
+  }
+  .hero-col-right {
+    align-items: flex-end;
+  }
+  .hero-text {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .hero-ctas {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 3.8rem 0 3.4rem;
+  }
+  .hero-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hero-heading {
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+  }
+  .hero-heading-line {
+    white-space: nowrap;
+  }
+  .hero-text {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+  .hero-ctas {
+    flex-direction: row;
+    width: auto;
+    gap: 0.8rem;
+  }
+  .hero-btn {
+    width: auto;
+  }
+  .hero-dashboard-card {
+    width: 100%;
+  }
+  .hero-dashboard-body {
+    padding: 1.2rem;
+  }
+  .hero-dashboard-grid {
     grid-template-columns: 1fr;
-    gap: 2.8rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-row {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
   }
   .hero-col-left {
     text-align: center;
@@ -499,36 +561,14 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   }
   .hero-ctas {
     justify-content: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero {
-    padding: 3.8rem 0 3.4rem;
-  }
-  .hero-heading {
-    font-size: clamp(2.1rem, 8vw, 3.2rem);
-  }
-  .hero-text {
-    font-size: 1rem;
-    line-height: 1.8;
-  }
-  .hero-ctas {
     flex-direction: column;
     width: 100%;
-    gap: 0.8rem;
   }
   .hero-btn {
     width: min(320px, 100%);
   }
-  .hero-dashboard-card {
-    width: 100%;
-  }
-  .hero-dashboard-body {
-    padding: 1.2rem;
-  }
-  .hero-dashboard-grid {
-    grid-template-columns: 1fr;
+  .hero-heading-line {
+    white-space: normal;
   }
 }
 

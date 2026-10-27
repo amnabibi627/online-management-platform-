@@ -1733,7 +1733,7 @@ body.detail-open { overflow: hidden; }
 
   .section { padding: 3.6rem 0; }
   .section-title { font-size: 1.5rem; }
-  .section-subtitle { font-size: 0.95rem; }
+  .section-subtitle { font-size: 0.95rem; white-space: normal; }
   .industries .section-title, .portals .section-title { white-space: normal; }
   .industry-grid, .detail-grid { grid-template-columns: 1fr; gap: 1rem; }
   .industry-card { padding: 1.4rem 1.2rem; }

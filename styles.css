@@ -106,8 +106,22 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .brand-name {
-  font-family: "Inter", sans-serif; font-weight: 700; font-size: 1.02rem;
-  letter-spacing: -0.01em; color: #000000;
+  font-family: "Inter", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: #000000;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.brand-name-strong {
+  font-weight: 800;
+  font-size: 1.08rem;
+}
+.brand-name-light {
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: #1f2937;
 }
 .brand.small { font-size: 0.95rem; }
 

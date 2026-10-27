@@ -325,48 +325,43 @@ const navLinks = [...mainNav.querySelectorAll(".nav-link")];
 
 const setActiveLink = () => {
   const headerHeight = document.querySelector(".site-header")?.offsetHeight || 80;
-  const scrollPos = window.scrollY + headerHeight + 120;
+  const scrollPos = window.scrollY + headerHeight + 150;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-  navLinks.forEach((link) => {
-    link.classList.remove("active");
-  });
-
-  if (window.scrollY < 50) {
+  if (window.scrollY < 40) {
+    navLinks.forEach((l) => l.classList.remove("active"));
     const homeLink = navLinks.find((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       return href === "top" || href === "home";
     });
-    if (homeLink) {
-      homeLink.classList.add("active");
-      return;
-    }
+    if (homeLink) homeLink.classList.add("active");
+    return;
   }
 
-  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 5) {
+  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 10) {
+    navLinks.forEach((l) => l.classList.remove("active"));
     const reviewsLink = navLinks.find((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       return href === "reviews";
     });
-    if (reviewsLink) {
-      reviewsLink.classList.add("active");
-      return;
-    }
+    if (reviewsLink) reviewsLink.classList.add("active");
+    return;
   }
 
-  let current = null;
+  let currentId = null;
   sections.forEach((section) => {
     const top = section.getBoundingClientRect().top + window.scrollY;
     if (scrollPos >= top) {
-      current = section.id;
+      currentId = section.id;
     }
   });
 
-  if (current) {
+  if (currentId) {
+    navLinks.forEach((l) => l.classList.remove("active"));
     let matched = false;
     navLinks.forEach((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
-      if (href === current) {
+      if (href === currentId) {
         link.classList.add("active");
         matched = true;
       }
@@ -374,6 +369,7 @@ const setActiveLink = () => {
     if (matched) return;
   }
 
+  navLinks.forEach((l) => l.classList.remove("active"));
   navLinks[0].classList.add("active");
 };
 

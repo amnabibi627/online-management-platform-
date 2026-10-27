@@ -262,7 +262,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .hero-title {
   font-size: clamp(2.4rem, 5vw, 4rem);
-  line-height: 1.12;
+  line-height: 1.08;
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 1rem;

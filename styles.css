@@ -357,6 +357,19 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   background: #f8fafc;
 }
 
+.hero-btn-ghost {
+  background: transparent;
+  color: #000000;
+  border: 1px solid var(--border-strong);
+}
+
+.hero-btn-ghost:focus,
+.hero-btn-ghost:active {
+  background: #ff8f04;
+  color: #ffffff;
+  border-color: #ff8f04;
+}
+
 .hero-stats-grid {
   display: flex;
   flex-direction: row;

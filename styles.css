@@ -144,9 +144,9 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .nav-link:hover { color: #000000; background: rgba(0, 0, 0, 0.07); }
 .nav-link.active {
   color: #ffffff;
-  background: #000000;
+  background: #ff8f04;
   font-weight: 600;
-  box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 6px 16px -6px rgba(255, 143, 4, 0.42);
 }
 
 @media (max-width: 1150px) {
@@ -1092,8 +1092,8 @@ body.detail-open { overflow: hidden; }
   }
   .nav-link:hover { color: var(--ink); background: #f7f9fc; }
   .nav-link.active {
-    background: #f7f9fc;
-    color: var(--ink);
+    background: #ff8f04;
+    color: #ffffff;
     box-shadow: none;
     font-weight: 600;
   }

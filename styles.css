@@ -1122,13 +1122,13 @@ body.detail-open { overflow: hidden; }
 }
 .reviews-score { text-align: center; }
 .reviews-avg { font-size: 3.2rem; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); line-height: 1; }
-.reviews-stars-static { color: var(--amber); font-size: 1.2rem; letter-spacing: 0.12em; margin: 0.45rem 0 0.3rem; }
+.reviews-stars-static { color: #ff8f04; font-size: 1.2rem; letter-spacing: 0.12em; margin: 0.45rem 0 0.3rem; -webkit-text-stroke: 0.5px #ff8f04; }
 .reviews-count { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
 
 .reviews-bars { display: flex; flex-direction: column; gap: 0.4rem; }
 .rv-bar-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.78rem; color: var(--muted); }
 .rv-bar-lbl { width: 38px; font-weight: 600; white-space: nowrap; }
-.rv-bar-track { flex: 1; height: 7px; border-radius: 999px; background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.1); overflow: hidden; }
+.rv-bar-track { flex: 1; height: 7px; border-radius: 999px; background: #ffffff; border: 1px solid #ff8f04; overflow: hidden; }
 .rv-bar-fill { display: block; height: 100%; border-radius: 999px; background: #ff8f04; transition: width 0.35s ease; }
 .rv-bar-val { width: 26px; text-align: right; font-weight: 700; color: var(--ink); }
 

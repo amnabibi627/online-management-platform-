@@ -324,34 +324,54 @@ const sections = [...document.querySelectorAll("section[id], #reviews")];
 const navLinks = [...mainNav.querySelectorAll(".nav-link")];
 
 const setActiveLink = () => {
-  const scrollPos = window.scrollY + 160;
+  const scrollPos = window.scrollY + 180;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  let current = "home";
-
-  if (window.scrollY + window.innerHeight >= docHeight - 10) {
-    current = "reviews";
-  } else {
-    sections.forEach((section) => {
-      const top = section.getBoundingClientRect().top + window.scrollY;
-      if (scrollPos >= top) current = section.id;
-    });
-  }
 
   navLinks.forEach((link) => {
     link.classList.remove("active");
   });
 
-  let matched = false;
-  navLinks.forEach((link) => {
-    const href = (link.getAttribute("href") || "").replace("#", "");
-    if (href === current || (current === "home" && href === "top")) {
-      link.classList.add("active");
-      matched = true;
+  if (window.scrollY < 80) {
+    const homeLink = navLinks.find((link) => {
+      const href = (link.getAttribute("href") || "").replace("#", "");
+      return href === "top" || href === "home";
+    });
+    if (homeLink) {
+      homeLink.classList.add("active");
+      return;
     }
+  }
+
+  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 20) {
+    const reviewsLink = navLinks.find((link) => {
+      const href = (link.getAttribute("href") || "").replace("#", "");
+      return href === "reviews";
+    });
+    if (reviewsLink) {
+      reviewsLink.classList.add("active");
+      return;
+    }
+  }
+
+  let current = null;
+  sections.forEach((section) => {
+    const top = section.getBoundingClientRect().top + window.scrollY;
+    if (scrollPos >= top) current = section.id;
   });
 
+  let matched = false;
+  if (current) {
+    navLinks.forEach((link) => {
+      const href = (link.getAttribute("href") || "").replace("#", "");
+      if (href === current) {
+        link.classList.add("active");
+        matched = true;
+      }
+    });
+  }
+
   if (!matched && navLinks.length) {
-    navLinks[navLinks.length - 1].classList.add("active");
+    navLinks[0].classList.add("active");
   }
 };
 

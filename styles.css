@@ -1130,6 +1130,10 @@ body.detail-open { overflow: hidden; }
 .rv-bar-lbl { width: 38px; font-weight: 600; white-space: nowrap; color: var(--ink); }
 .rv-bar-track { flex: 1; height: 7px; border-radius: 999px; background: #ffffff; border: 1px solid #d1d5db; overflow: hidden; }
 .rv-bar-fill { display: block; height: 100%; border-radius: 999px; background: #ff8f04; transition: width 0.35s ease; }
+
+.reviews-bars .rv-bar-row:first-child .rv-bar-track {
+  border: 1px solid #ff8f04;
+}
 .rv-bar-val { width: 26px; text-align: right; font-weight: 700; color: var(--ink); }
 
 /* Form (right column card) */

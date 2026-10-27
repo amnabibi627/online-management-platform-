@@ -1158,10 +1158,12 @@ body.detail-open { overflow: hidden; }
 
 .star-picker { display: flex; align-items: center; gap: 0.15rem; }
 .star-picker .star {
-  background: none; border: 1px solid #000000; border-radius: 6px;
-  cursor: pointer; padding: 0.15rem 0.25rem;
+  background: none; border: 0;
+  cursor: pointer; padding: 0 0.08rem;
   font-size: 1.75rem; line-height: 1; color: #ffffff;
-  transition: color 0.15s, transform 0.15s, border-color 0.15s;
+  -webkit-text-stroke: 1px #000000;
+  text-stroke: 1px #000000;
+  transition: color 0.15s, transform 0.15s;
 }
 .star-picker .star:hover { transform: scale(1.12); }
 .star-picker .star.on { color: #f59e0b; }

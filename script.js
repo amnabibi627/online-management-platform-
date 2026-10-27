@@ -4475,7 +4475,7 @@ const closeRegModal = () => {
 };
 
 openRegFormBtn?.addEventListener("click", openRegModal);
-document.getElementById("openRegFormTop")?.addEventListener("click", openRegModal);
+document.getElementById("openRegFormHero")?.addEventListener("click", openRegModal);
 regModalClose?.addEventListener("click", closeRegModal);
 regModal?.addEventListener("click", (e) => {
   if (e.target === regModal) closeRegModal();

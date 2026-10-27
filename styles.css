@@ -222,7 +222,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 /* ---------- Hero ---------- */
 .hero {
-  position: relative; overflow: hidden; padding: 5.6rem 0 4.8rem;
+  position: relative; overflow: hidden; padding: 4.8rem 0 4rem;
   border-bottom: 1px solid var(--border);
   background: #ffffff;
   color: #000000;
@@ -238,7 +238,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-split {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(2.5rem, 7vw, 5rem);
+  gap: clamp(2rem, 6vw, 3.8rem);
   align-items: center;
 }
 
@@ -261,8 +261,8 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .hero-title {
-  font-size: clamp(2.4rem, 5vw, 4rem);
-  line-height: 1.06;
+  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  line-height: 1.08;
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
@@ -318,11 +318,11 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .hero-preview {
-  width: min(520px, 100%);
+  width: min(480px, 100%);
   border-radius: 16px;
   border: 1px solid var(--border);
   background: #ffffff;
-  box-shadow: 0 60px 120px -80px rgba(15, 23, 42, 0.8);
+  box-shadow: 0 50px 100px -70px rgba(15, 23, 42, 0.8);
   overflow: hidden;
 }
 

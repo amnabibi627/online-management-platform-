@@ -4,24 +4,24 @@
   --pink-dark: #fc8c05;
   --pink-light: #ff6b00;
 
-  --navy: #0e2431;
-  --navy-800: #112f3e;
-  --navy-700: #1b4051;
-  --slate: #0e2431;
+  --navy: #000000;
+  --navy-800: #000000;
+  --navy-700: #000000;
+  --slate: #000000;
 
   --sky: #000000;
   --cyan: #000000;
   --amber: #ff8f04;
 
   /* ---- Surfaces ---- */
-  --bg: #f7f7f7;
+  --bg: #ffffff;
   --card: #ffffff;
-  --border: #e7e7e7;
-  --border-strong: #d3d8dd;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
 
   /* ---- Text ---- */
-  --ink: #202020;
-  --muted: #5b6670;
+  --ink: #000000;
+  --muted: #4b5563;
 
   /* ---- Status ---- */
   --success: #059669;
@@ -30,8 +30,8 @@
 
   --radius: 16px;
   --radius-lg: 22px;
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px -12px rgba(15, 23, 42, 0.16);
-  --shadow-lg: 0 2px 4px rgba(15, 23, 42, 0.04), 0 32px 64px -24px rgba(15, 23, 42, 0.28);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 8px 24px -12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 1px 2px rgba(0, 0, 0, 0.02), 0 24px 48px -24px rgba(0, 0, 0, 0.12);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -325,11 +325,9 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   border-top: 1px solid var(--border);
 }
 
-/* Industries: pale canvas + soft top highlight */
+/* Industries: white canvas */
 .industries {
-  background:
-    radial-gradient(700px 260px at 50% 0%, rgba(0, 0, 0, 0.06), transparent 70%),
-    var(--bg);
+  background: #ffffff;
   border-top: 1px solid var(--border);
 }
 
@@ -340,23 +338,19 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   border-bottom: 1px solid var(--border);
 }
 
-/* Owner details: the one dark band on the page */
+/* Owner details: white band */
 .owner-details {
-  background:
-    radial-gradient(620px 280px at 12% 100%, rgba(0, 0, 0, 0.18), transparent 72%),
-    linear-gradient(160deg, #0e2431 0%, #153747 100%);
-  border-top: 0;
-  color: #ffffff;
+  background: #ffffff;
+  border-top: 1px solid var(--border);
+  color: #000000;
 }
-.owner-details .section-title { color: #ffffff; }
-.owner-details .section-subtitle { color: rgba(255, 255, 255, 0.62); }
+.owner-details .section-title { color: #000000; }
+.owner-details .section-subtitle { color: var(--muted); }
 .owner-details .accent { color: #ff8f04; }
 
-/* Reviews: pale canvas again, mirroring the industries band */
+/* Reviews: white canvas */
 .reviews-section {
-  background:
-    radial-gradient(700px 260px at 50% 0%, rgba(0, 0, 0, 0.06), transparent 70%),
-    var(--bg);
+  background: #ffffff;
   border-top: 1px solid var(--border);
 }
 

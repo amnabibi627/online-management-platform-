@@ -325,43 +325,42 @@ const navLinks = [...mainNav.querySelectorAll(".nav-link")];
 
 const setActiveLink = () => {
   const headerHeight = document.querySelector(".site-header")?.offsetHeight || 80;
-  const scrollPos = window.scrollY + headerHeight + 150;
+  const pos = window.scrollY + headerHeight + 200;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-  if (window.scrollY < 40) {
-    navLinks.forEach((l) => l.classList.remove("active"));
+  navLinks.forEach((l) => l.classList.remove("active"));
+
+  if (window.scrollY < 60) {
     const homeLink = navLinks.find((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       return href === "top" || href === "home";
     });
-    if (homeLink) homeLink.classList.add("active");
-    return;
+    if (homeLink) { homeLink.classList.add("active"); return; }
   }
 
-  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 10) {
-    navLinks.forEach((l) => l.classList.remove("active"));
+  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 15) {
     const reviewsLink = navLinks.find((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       return href === "reviews";
     });
-    if (reviewsLink) reviewsLink.classList.add("active");
-    return;
+    if (reviewsLink) { reviewsLink.classList.add("active"); return; }
   }
 
-  let currentId = null;
+  let best = null;
+  let bestTop = -Infinity;
   sections.forEach((section) => {
     const top = section.getBoundingClientRect().top + window.scrollY;
-    if (scrollPos >= top) {
-      currentId = section.id;
+    if (pos >= top && top > bestTop) {
+      bestTop = top;
+      best = section.id;
     }
   });
 
-  if (currentId) {
-    navLinks.forEach((l) => l.classList.remove("active"));
+  if (best) {
     let matched = false;
     navLinks.forEach((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
-      if (href === currentId) {
+      if (href === best) {
         link.classList.add("active");
         matched = true;
       }
@@ -369,15 +368,30 @@ const setActiveLink = () => {
     if (matched) return;
   }
 
-  navLinks.forEach((l) => l.classList.remove("active"));
   navLinks[0].classList.add("active");
 };
 
 navLinks.forEach((link) => {
   link.addEventListener("click", (e) => {
+    e.preventDefault();
     navLinks.forEach((l) => l.classList.remove("active"));
     link.classList.add("active");
+    const href = link.getAttribute("href");
+    if (href && href.startsWith("#")) {
+      const targetId = href === "#top" ? "top" : href.substring(1);
+      if (href === "#top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const target = document.getElementById(targetId);
+        if (target) {
+          const headerHeight = document.querySelector(".site-header")?.offsetHeight || 80;
+          const top = target.getBoundingClientRect().top + window.pageYOffset - headerHeight - 10;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
+      }
+    }
     if (mainNav.classList.contains("open")) setNavOpen(false);
+    setTimeout(setActiveLink, 400);
   });
 });
 

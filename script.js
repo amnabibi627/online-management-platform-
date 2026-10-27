@@ -1586,6 +1586,14 @@ if (userSignupHeaderBtn) {
     }
   });
 }
+const userSignupHeroBtn = document.getElementById("userSignupHero");
+if (userSignupHeroBtn) {
+  userSignupHeroBtn.addEventListener("click", () => {
+    if (typeof openUserModal === "function") {
+      openUserModal(currentUser ? "active" : "signup");
+    }
+  });
+}
 if (ceoSignupBtn) {
   ceoSignupBtn.addEventListener("click", () => {
     if (typeof openCeoModal === "function") {

@@ -804,7 +804,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .portals .section-head { max-width: 100%; }
 .portals .section-title { white-space: nowrap; }
-.section-subtitle { color: var(--muted); font-size: 1.03rem; line-height: 1.7; white-space: normal; }
+.section-subtitle { color: var(--muted); font-size: 1.03rem; line-height: 1.7; white-space: nowrap; }
 
 /* ---------- Industries ---------- */
 .industry-grid {

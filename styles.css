@@ -1133,6 +1133,10 @@ body.detail-open { overflow: hidden; }
 
 .reviews-bars .rv-bar-row:first-child .rv-bar-track {
   border: 1px solid #ff8f04;
+  background: #ff8f04;
+}
+.reviews-bars .rv-bar-row:first-child .rv-bar-fill {
+  background: #ff8f04;
 }
 .rv-bar-val { width: 26px; text-align: right; font-weight: 700; color: var(--ink); }
 

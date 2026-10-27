@@ -324,21 +324,35 @@ const sections = [...document.querySelectorAll("section[id], #reviews")];
 const navLinks = [...mainNav.querySelectorAll(".nav-link")];
 
 const setActiveLink = () => {
-  const scrollPos = window.scrollY + 140;
+  const scrollPos = window.scrollY + 160;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
   let current = "home";
-  sections.forEach((section) => {
-    const top = section.getBoundingClientRect().top + window.scrollY;
-    if (scrollPos >= top) current = section.id;
+
+  if (window.scrollY + window.innerHeight >= docHeight - 10) {
+    current = "reviews";
+  } else {
+    sections.forEach((section) => {
+      const top = section.getBoundingClientRect().top + window.scrollY;
+      if (scrollPos >= top) current = section.id;
+    });
+  }
+
+  navLinks.forEach((link) => {
+    link.classList.remove("active");
   });
+
   let matched = false;
   navLinks.forEach((link) => {
-    const href = link.getAttribute("href").replace("#", "");
-    const on = href === current || (current === "home" && href === "top");
-    if (on) matched = true;
-    link.classList.toggle("active", on);
+    const href = (link.getAttribute("href") || "").replace("#", "");
+    if (href === current || (current === "home" && href === "top")) {
+      link.classList.add("active");
+      matched = true;
+    }
   });
-  // Sections that are not in the nav (Guides) keep the last nav link highlighted.
-  if (!matched && navLinks.length) navLinks[navLinks.length - 1].classList.add("active");
+
+  if (!matched && navLinks.length) {
+    navLinks[navLinks.length - 1].classList.add("active");
+  }
 };
 
 window.addEventListener("scroll", setActiveLink, { passive: true });

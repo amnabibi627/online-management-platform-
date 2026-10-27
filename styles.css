@@ -414,7 +414,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   gap: 0.8rem;
   padding: 0.8rem 1rem;
   background: rgba(255, 143, 4, 0.08);
-  border-bottom: 1px solid #000000;
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .hero-dashboard-dots {
@@ -457,7 +457,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   gap: 0.4rem;
   padding: 0.9rem 1rem;
   border-radius: 12px;
-  border: 1px solid #000000;
+  border: 1px solid var(--border-strong);
   background: rgba(255, 143, 4, 0.08);
 }
 

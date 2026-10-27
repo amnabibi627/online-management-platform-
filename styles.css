@@ -128,7 +128,7 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .nav-link {
   text-decoration: none;
-  color: var(--navy);
+  color: #000000;
   font-weight: 500;
   font-size: 0.88rem;
   padding: 0.5rem 0.95rem;

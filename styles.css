@@ -1773,8 +1773,8 @@ body.detail-open { overflow: hidden; }
   .hero-heading { font-size: clamp(1.4rem, 9.5vw, 2.2rem) !important; line-height: 1.22; word-break: break-word; overflow-wrap: anywhere; hyphens: auto; white-space: normal; }
   .hero-heading-line { display: block !important; white-space: normal !important; word-break: break-word; overflow-wrap: anywhere; }
   .hero-text { font-size: 0.96rem; word-break: break-word; overflow-wrap: break-word; }
-  .hero-ctas { flex-direction: row; flex-wrap: nowrap; gap: 0.5rem; justify-content: center; width: 100%; }
-  .hero-btn { flex: 1 1 0; min-width: 0; font-size: 0.88rem; padding: 0.6rem 0.8rem; text-align: center; white-space: nowrap; }
+  .hero-ctas { flex-direction: row; flex-wrap: nowrap; gap: 0.4rem; justify-content: space-between; width: 100%; align-items: stretch; }
+  .hero-btn { flex: 1 1 50%; min-width: 0; font-size: 0.85rem; padding: 0.6rem 0.5rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hero-ctas { flex-direction: row; flex-wrap: wrap; justify-content: center; width: 100%; gap: 0.7rem; }
   .hero-btn { flex: 0 1 auto; width: auto; min-width: 140px; }
   .hero-dashboard-card { width: 100%; margin: 0 auto; }

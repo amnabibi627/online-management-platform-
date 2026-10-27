@@ -219,9 +219,9 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .btn-outline {
-  background: #ffffff; color: var(--ink); border-color: var(--border-strong);
+  background: #ffffff; color: var(--ink); border-color: #ff8f04;
 }
-.btn-outline:hover { background: #f7f9fd; border-color: #a9b8cd; color: var(--ink); }
+.btn-outline:hover { background: rgba(255, 143, 4, 0.08); border-color: #f57c00; color: var(--ink); }
 
 .site-header .btn-outline {
   color: var(--navy);

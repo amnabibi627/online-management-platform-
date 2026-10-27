@@ -92,13 +92,13 @@
   margin-top: 1.7rem;
 }
 .cat-hero-actions .btn-outline {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.24);
+  background: #ff8f04;
+  border-color: #ff8f04;
   color: #ffffff;
 }
 .cat-hero-actions .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.13);
-  border-color: rgba(255, 255, 255, 0.42);
+  background: #f57c00;
+  border-color: #f57c00;
   color: #ffffff;
 }
 
@@ -409,9 +409,9 @@
 .cat-plan .btn { margin-top: auto; width: 100%; text-align: center; }
 .cat-plan button.btn { cursor: pointer; font: inherit; font-weight: 700; }
 .cat-plan.popular .btn-primary {
-  background: #ffffff; color: #000000; box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.7);
+  background: #ff8f04; color: #ffffff; border-color: #ff8f04; box-shadow: 0 16px 30px -18px rgba(255, 143, 4, 0.7);
 }
-.cat-plan.popular .btn-primary:hover { background: #f1f5fb; color: #000000; }
+.cat-plan.popular .btn-primary:hover { background: #f57c00; color: #ffffff; border-color: #f57c00; }
 
 /* ---------- Related categories ---------- */
 .cat-related {

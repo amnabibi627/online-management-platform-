@@ -227,6 +227,13 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
   background: #ffffff;
   color: #000000;
 }
+.hero::before,
+.hero::after {
+  display: none !important;
+}
+.hero-glow {
+  display: none !important;
+}
 
 /* faint blueprint grid so the hero reads as a different surface from the page */
 .hero::before {
@@ -329,6 +336,9 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .industries {
   background: #ffffff;
   border-top: 1px solid var(--border);
+}
+.industries::before {
+  display: none !important;
 }
 
 /* Business ads: clean white, framed by a strong navy CTA card */

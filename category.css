@@ -33,9 +33,9 @@
   position: relative; overflow: hidden;
   padding: 4.6rem 0 5rem;
   background:
-    radial-gradient(680px 420px at 84% 15%, rgba(0, 0, 0, 0.28), transparent 72%),
-    radial-gradient(680px 420px at 8% 105%, rgba(255, 143, 4, 0.2), transparent 70%),
-    linear-gradient(145deg, #0e2431 0%, #102b39 55%, #153747 100%);
+    radial-gradient(680px 420px at 84% 15%, rgba(255, 143, 4, 0.15), transparent 72%),
+    radial-gradient(680px 420px at 8% 105%, rgba(255, 143, 4, 0.18), transparent 70%),
+    linear-gradient(145deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
   color: #ffffff;
 }
 .cat-hero::before {
@@ -359,10 +359,10 @@
 .cat-plan:hover { transform: translateY(-5px); box-shadow: 0 26px 48px -32px rgba(14, 36, 49, 0.38); border-color: #d7dff1; }
 .cat-plan.popular {
   background:
-    radial-gradient(360px 200px at 88% 0%, rgba(255, 143, 4, 0.2), transparent 70%),
-    linear-gradient(160deg, #153747, #0e2431);
-  border: 1px solid rgba(255, 143, 4, 0.34); color: #ffffff;
-  box-shadow: 0 28px 55px -34px rgba(14, 36, 49, 0.72);
+    radial-gradient(360px 200px at 88% 0%, rgba(255, 143, 4, 0.25), transparent 70%),
+    linear-gradient(160deg, #0f172a, #1e293b);
+  border: 1px solid rgba(255, 143, 4, 0.6); color: #ffffff;
+  box-shadow: 0 28px 55px -34px rgba(255, 143, 4, 0.5);
   transform: translateY(-7px);
 }
 .cat-plan-tag {

@@ -1727,10 +1727,15 @@ body.detail-open { overflow: hidden; }
   .brand-info .brand-accent { font-size: 0.68rem; }
   .brand-name { font-size: 0.95rem; }
 
-  .hero { padding: 4.5rem 0 3.5rem; }
+  .hero { padding: 4rem 0 3rem; }
+  .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hero-heading-line { white-space: normal; }
+  .hero-ctas { flex-wrap: wrap; }
+  .hero-btn { flex: 1 1 220px; text-align: center; }
+  .hero-dashboard-card { width: 100%; }
   .hero-badge { font-size: 0.72rem; padding: 0.45rem 1rem; letter-spacing: 0.08em; }
 
-  .section { padding: 4.5rem 0; }
+  .section { padding: 4rem 0; }
   .section-head { margin-bottom: 2.2rem; }
 
   .promo-banner { padding: 2.2rem 1.8rem; }
@@ -1745,14 +1750,22 @@ body.detail-open { overflow: hidden; }
   .brand-info { display: none; }
   .brand-profile { gap: 0; }
 
-  .hero { padding: 3.4rem 0 2.8rem; }
+  .hero { padding: 3rem 0 2.5rem; }
+  .hero-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .hero-title { font-size: clamp(2rem, 8vw, 2.8rem); line-height: 1.12; }
+  .hero-heading-line { white-space: normal; }
+  .hero-text { font-size: 0.98rem; }
+  .hero-ctas { flex-direction: column; width: 100%; }
+  .hero-btn { width: 100%; flex: 1 1 auto; }
+  .hero-dashboard-header { justify-content: center; }
+  .hero-dashboard-grid { grid-template-columns: 1fr; }
+  .hero-dashboard-body { padding: 1rem; }
   .hero-badge { font-size: 0.66rem; padding: 0.4rem 0.9rem; margin-bottom: 1rem; }
-  .hero-title { line-height: 1.15; margin-bottom: 1rem; }
   .hero-subtitle { font-size: 0.98rem; margin-bottom: 1.7rem; }
   .hero-actions { flex-direction: column; }
   .hero-actions .btn { width: 100%; }
 
-  .section { padding: 3.6rem 0; }
+  .section { padding: 3.2rem 0; }
   .section-title { font-size: 1.5rem; }
   .section-subtitle { font-size: 0.95rem; white-space: normal; }
   .industries .section-title, .portals .section-title { white-space: normal; }

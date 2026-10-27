@@ -324,14 +324,15 @@ const sections = [...document.querySelectorAll("section[id], #reviews")];
 const navLinks = [...mainNav.querySelectorAll(".nav-link")];
 
 const setActiveLink = () => {
-  const scrollPos = window.scrollY + 180;
+  const headerHeight = document.querySelector(".site-header")?.offsetHeight || 80;
+  const scrollPos = window.scrollY + headerHeight + 120;
   const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
   navLinks.forEach((link) => {
     link.classList.remove("active");
   });
 
-  if (window.scrollY < 80) {
+  if (window.scrollY < 50) {
     const homeLink = navLinks.find((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       return href === "top" || href === "home";
@@ -342,7 +343,7 @@ const setActiveLink = () => {
     }
   }
 
-  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 20) {
+  if (docHeight > 0 && window.scrollY + window.innerHeight >= docHeight - 5) {
     const reviewsLink = navLinks.find((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       return href === "reviews";
@@ -356,11 +357,13 @@ const setActiveLink = () => {
   let current = null;
   sections.forEach((section) => {
     const top = section.getBoundingClientRect().top + window.scrollY;
-    if (scrollPos >= top) current = section.id;
+    if (scrollPos >= top) {
+      current = section.id;
+    }
   });
 
-  let matched = false;
   if (current) {
+    let matched = false;
     navLinks.forEach((link) => {
       const href = (link.getAttribute("href") || "").replace("#", "");
       if (href === current) {
@@ -368,11 +371,10 @@ const setActiveLink = () => {
         matched = true;
       }
     });
+    if (matched) return;
   }
 
-  if (!matched && navLinks.length) {
-    navLinks[0].classList.add("active");
-  }
+  navLinks[0].classList.add("active");
 };
 
 window.addEventListener("scroll", setActiveLink, { passive: true });

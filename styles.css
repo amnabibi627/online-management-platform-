@@ -708,9 +708,11 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .hero-title {
-  font-size: clamp(2.3rem, 5.4vw, 4rem);
-  font-weight: 800; line-height: 1.1; letter-spacing: -0.025em;
+  font-size: clamp(1.8rem, 7vw, 4rem);
+  font-weight: 800; line-height: 1.12; letter-spacing: -0.025em;
   max-width: 100%; margin: 0 auto 1.4rem; color: #ffffff;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .hero-title .hero-title-plain {
   display: block;
@@ -725,6 +727,8 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-title .accent {
   display: block;
   color: #ff8f04;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .hero-subtitle {

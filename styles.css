@@ -360,7 +360,11 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 .hero-btn-ghost {
   background: transparent;
   color: #000000;
-  border: 1px solid var(--border-strong);
+  border: 1px solid #ff8f04;
+}
+
+.hero-btn-ghost:hover {
+  background: rgba(255, 143, 4, 0.08);
 }
 
 .hero-btn-ghost:focus,

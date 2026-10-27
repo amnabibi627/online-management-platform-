@@ -4484,6 +4484,21 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && regModal?.classList.contains("open")) closeRegModal();
 });
 
+const toggleReviewsBtn = document.getElementById("toggleReviewsBtn");
+const reviewListEl = document.getElementById("reviewList");
+if (toggleReviewsBtn && reviewListEl) {
+  toggleReviewsBtn.addEventListener("click", () => {
+    const isHidden = reviewListEl.hasAttribute("hidden");
+    if (isHidden) {
+      reviewListEl.removeAttribute("hidden");
+      toggleReviewsBtn.textContent = "Hide Ratings & Comments";
+    } else {
+      reviewListEl.setAttribute("hidden", "");
+      toggleReviewsBtn.textContent = "View Ratings & Comments";
+    }
+  });
+}
+
 // --- Submitted registrations list ---
 const fmtRegDate = (v) => {
   const d = v ? new Date(v) : null;

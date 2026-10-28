@@ -4492,6 +4492,12 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && regModal?.classList.contains("open")) closeRegModal();
 });
 
+// Open the business registration form when arriving from category pages (#open-reg-form)
+if (regModal && window.location.hash === "#open-reg-form") {
+  openRegModal();
+  history.replaceState(null, "", window.location.pathname + window.location.search);
+}
+
 const toggleReviewsBtn = document.getElementById("toggleReviewsBtn");
 const reviewListEl = document.getElementById("reviewList");
 if (toggleReviewsBtn && reviewListEl) {

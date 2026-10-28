@@ -628,6 +628,8 @@ const initCategoryTools = () => {
     if (event.target.closest("[data-auth-close]")) closeCategoryAuth();
     const planButton = event.target.closest("[data-subscription-plan]");
     if (planButton) showCategoryAuth(planButton.dataset.subscriptionPlan, categoryUser ? "request" : "signup");
+    const heroSignup = event.target.closest("#categoryHeroSignup");
+    if (heroSignup) showCategoryAuth("3-month", categoryUser ? "request" : "signup");
     if (event.target.closest("#categoryLogin")) showCategorySignIn();
     if (event.target.closest("[data-auth-plans]")) {
       closeCategoryAuth();

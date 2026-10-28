@@ -1149,12 +1149,11 @@ body.detail-open { overflow: hidden; }
 .reviews-bars { display: flex; flex-direction: column; gap: 0.4rem; }
 .rv-bar-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.78rem; color: var(--muted); }
 .rv-bar-lbl { width: 38px; font-weight: 600; white-space: nowrap; color: var(--ink); }
-.rv-bar-track { flex: 1; height: 7px; border-radius: 999px; background: #ffffff; border: 1px solid #d1d5db; overflow: hidden; }
+.rv-bar-track { flex: 1; height: 7px; border-radius: 18px; background: #ffffff; border: 1px dashed #cfd8e6; overflow: hidden; }
 .rv-bar-fill { display: block; height: 100%; border-radius: 999px; background: #ff8f04; transition: width 0.35s ease; }
 
 .reviews-bars .rv-bar-row:first-child .rv-bar-track {
-  border: 1px solid #ff8f04;
-  background: #ff8f04;
+  border: 1px dashed #cfd8e6;
 }
 .reviews-bars .rv-bar-row:first-child .rv-bar-fill {
   background: #ff8f04;

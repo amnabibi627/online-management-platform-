@@ -32,21 +32,13 @@
 .cat-hero {
   position: relative; overflow: hidden;
   padding: 4.6rem 0 5rem;
-  background:
-    radial-gradient(680px 420px at 84% 15%, rgba(255, 143, 4, 0.15), transparent 72%),
-    radial-gradient(680px 420px at 8% 105%, rgba(255, 143, 4, 0.18), transparent 70%),
-    linear-gradient(145deg, #0f172a 0%, #1e293b 55%, #0f172a 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: var(--ink);
 }
 .cat-hero::before {
   content: "";
   position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse at 65% 35%, #000 0%, transparent 74%);
-  -webkit-mask-image: radial-gradient(ellipse at 65% 35%, #000 0%, transparent 74%);
+  background-image: none;
   pointer-events: none;
 }
 
@@ -82,7 +74,7 @@
 }
 
 .cat-hero-copy > p {
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--muted);
   font-size: 1.02rem; line-height: 1.8;
   max-width: 56ch;
 }
@@ -109,7 +101,7 @@
 }
 .cat-hero-points li {
   position: relative; padding-left: 1.3rem;
-  font-size: 0.82rem; color: rgba(255, 255, 255, 0.76);
+  font-size: 0.82rem; color: var(--muted);
 }
 .cat-hero-points li::before {
   content: "\2713"; position: absolute; left: 0; top: 0;
@@ -120,7 +112,7 @@
 .cat-hero-card {
   position: relative; isolation: isolate; overflow: hidden;
   background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--border);
   border-radius: 26px;
   padding: 2rem;
   color: #202020;

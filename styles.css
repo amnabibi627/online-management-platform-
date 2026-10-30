@@ -4832,3 +4832,346 @@ html.js .reveal.in {
   text-align: center;
   white-space: nowrap;
 }
+
+
+/* ============================================================
+   Exact Device Mockup with Live Website Screens
+   ============================================================ */
+.hero-devices-stage {
+  position: relative;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  aspect-ratio: 725 / 423;
+  user-select: none;
+  background: #ffffff;
+}
+
+.hero-stage-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  z-index: 1;
+  pointer-events: none;
+  background: #ffffff;
+}
+
+/* 1. Website Desktop View Inside Laptop Screen */
+.stage-laptop-screen {
+  position: absolute;
+  left: 20.55%;
+  top: 15.37%;
+  width: 54.34%;
+  height: 63.59%;
+  background: #ffffff;
+  overflow: hidden;
+  z-index: 2;
+  border-radius: 2px;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.1);
+}
+
+/* Minimal Desktop Browser Chrome */
+.stage-browser-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f1f5f9;
+  border-bottom: 0.5px solid #e2e8f0;
+  padding: 1cqw 2cqw;
+  height: 5.5cqw;
+  box-sizing: border-box;
+}
+
+.stage-browser-dots {
+  display: flex;
+  gap: 1cqw;
+}
+.stage-browser-dots span {
+  width: 1.6cqw;
+  height: 1.6cqw;
+  border-radius: 50%;
+  display: inline-block;
+}
+.stage-browser-dots span:nth-child(1) { background: #ef4444; }
+.stage-browser-dots span:nth-child(2) { background: #f59e0b; }
+.stage-browser-dots span:nth-child(3) { background: #10b981; }
+
+.stage-browser-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 1cqw;
+  background: #ffffff;
+  padding: 0.4cqw 2cqw;
+  border-radius: 3px 3px 0 0;
+  border: 0.5px solid #e2e8f0;
+  border-bottom: none;
+}
+.stage-tab-favicon {
+  font-size: 2cqw;
+  line-height: 1;
+}
+.stage-tab-title {
+  font-size: 1.8cqw;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+}
+
+/* Desktop Header Inside Laptop */
+.stage-laptop-screen .mock-header {
+  padding: 1.5cqw 2cqw;
+  border-bottom: 0.5px solid #f1f5f9;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stage-laptop-screen .mock-brand {
+  font-size: 2.8cqw;
+  font-weight: 800;
+  color: #0f172a;
+}
+.stage-laptop-screen .mock-accent {
+  color: #ff8f04;
+}
+
+.stage-laptop-screen .mock-nav {
+  display: flex;
+  gap: 1.8cqw;
+}
+.stage-laptop-screen .mock-nav-item {
+  font-size: 2.2cqw;
+  font-weight: 600;
+  color: #475569;
+}
+.stage-laptop-screen .mock-nav-item.is-active {
+  color: #ff8f04;
+}
+
+.stage-laptop-screen .mock-signup-btn {
+  font-size: 2.2cqw;
+  font-weight: 700;
+  padding: 0.8cqw 1.8cqw;
+  border-radius: 999px;
+  background: #ff8f04;
+  color: #ffffff;
+}
+
+/* Desktop Hero Inside Laptop */
+.stage-laptop-screen .mock-hero {
+  padding: 1.8cqw 2.5cqw 1cqw;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stage-laptop-screen .mock-hero-badge {
+  display: inline-block;
+  font-size: 1.9cqw;
+  font-weight: 700;
+  color: #c2410c;
+  background: #ffedd5;
+  border: 0.5px solid #fdba74;
+  padding: 0.4cqw 1.2cqw;
+  border-radius: 999px;
+  width: fit-content;
+  margin-bottom: 0.6cqw;
+}
+
+.stage-laptop-screen .mock-hero-heading {
+  font-size: 4.4cqw;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #0f172a;
+  margin: 0 0 0.6cqw;
+}
+.stage-laptop-screen .mock-accent-text {
+  color: #ff8f04;
+  display: block;
+}
+
+.stage-laptop-screen .mock-hero-sub {
+  font-size: 2.2cqw;
+  color: #64748b;
+  line-height: 1.35;
+  margin: 0 0 1.2cqw;
+  max-width: 82%;
+}
+
+.stage-laptop-screen .mock-primary-btn {
+  display: inline-block;
+  font-size: 2.3cqw;
+  font-weight: 700;
+  padding: 0.8cqw 2cqw;
+  border-radius: 999px;
+  background: #ff8f04;
+  color: #ffffff;
+  width: fit-content;
+  box-shadow: 0 1px 3px rgba(255, 143, 4, 0.35);
+}
+
+.stage-laptop-screen .mock-categories-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.2cqw;
+  margin-top: 1.5cqw;
+}
+
+.stage-laptop-screen .mock-cat-card {
+  padding: 1cqw 0.6cqw;
+  background: #f8fafc;
+  border: 0.5px solid #e2e8f0;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.stage-laptop-screen .mock-cat-icon {
+  font-size: 3cqw;
+  display: block;
+}
+
+.stage-laptop-screen .mock-cat-name {
+  font-size: 1.9cqw;
+  font-weight: 600;
+  color: #334155;
+  display: block;
+  white-space: nowrap;
+}
+
+/* 2. Website Mobile View Inside Smartphone Screen */
+.stage-phone-screen {
+  position: absolute;
+  left: 71.31%;
+  top: 37.35%;
+  width: 12.55%;
+  height: 49.17%;
+  background: #ffffff;
+  overflow: hidden;
+  z-index: 10;
+  border-radius: 8px;
+  box-shadow:
+    -2px 0 6px rgba(0, 0, 0, 0.22),
+    inset 1px 0 2px rgba(255, 255, 255, 0.7),
+    inset -1px 0 2px rgba(255, 255, 255, 0.7);
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  padding: 0.8cqw 1.6cqw 1.8cqw;
+}
+
+.stage-phone-punchhole {
+  width: 5cqw;
+  height: 5cqw;
+  border-radius: 50%;
+  background: #000000;
+  margin: 0.4cqw auto 0.8cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-punchhole-dot {
+  width: 1.8cqw;
+  height: 1.8cqw;
+  border-radius: 50%;
+  background: #0284c7;
+}
+
+.stage-phone-screen .phone-site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4cqw 0 1.2cqw;
+  border-bottom: 0.5px solid #f1f5f9;
+}
+
+.stage-phone-screen .phone-brand {
+  font-size: 5.6cqw;
+  font-weight: 800;
+  color: #0f172a;
+}
+.stage-phone-screen .phone-brand-hi {
+  color: #ff8f04;
+}
+
+.stage-phone-screen .phone-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+}
+
+.stage-phone-screen .phone-mini-signup {
+  font-size: 4.8cqw;
+  font-weight: 700;
+  padding: 0.4cqw 1.2cqw;
+  border-radius: 999px;
+  background: #ff8f04;
+  color: #ffffff;
+}
+
+.stage-phone-screen .phone-hamburger {
+  font-size: 5cqw;
+  color: #334155;
+}
+
+.stage-phone-screen .phone-site-hero {
+  padding: 1.5cqw 0;
+  flex: 1;
+}
+
+.stage-phone-screen .phone-hero-h1 {
+  font-size: 6.8cqw;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #0f172a;
+  margin-bottom: 1cqw;
+}
+
+.stage-phone-screen .phone-accent-text {
+  color: #ff8f04;
+  display: block;
+}
+
+.stage-phone-screen .phone-hero-sub {
+  font-size: 4.6cqw;
+  color: #64748b;
+  line-height: 1.3;
+  margin: 0 0 1.8cqw;
+}
+
+.stage-phone-screen .phone-hero-btn {
+  font-size: 5.2cqw;
+  font-weight: 700;
+  padding: 1cqw 1.8cqw;
+  border-radius: 999px;
+  background: #ff8f04;
+  color: #ffffff;
+  text-align: center;
+}
+
+.stage-phone-screen .phone-cat-chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2cqw;
+  margin-top: auto;
+}
+
+.stage-phone-screen .phone-chip {
+  font-size: 4.6cqw;
+  font-weight: 600;
+  padding: 0.8cqw 0.5cqw;
+  background: #f8fafc;
+  border: 0.5px solid #e2e8f0;
+  border-radius: 3px;
+  text-align: center;
+  white-space: nowrap;
+}

@@ -239,11 +239,14 @@ const fillCategoryHero = () => {
   const icon = document.getElementById("catIcon");
   if (icon) icon.textContent = CURRENT.icon;
 
-  const toolsPoint = document.getElementById("catToolsPoint");
-  if (toolsPoint) toolsPoint.textContent = `${CURRENT.features.length} tools in one place`;
-
   const toolsStat = document.getElementById("catToolsStat");
   if (toolsStat) toolsStat.textContent = String(CURRENT.features.length);
+
+  const heroCardTitle = document.querySelector(".cat-hero-card h2");
+  if (heroCardTitle) heroCardTitle.textContent = `${CURRENT.short} Portal`;
+
+  const heroCardDesc = document.querySelector(".cat-hero-card > p");
+  if (heroCardDesc) heroCardDesc.textContent = `Every tool below is part of the ${CURRENT.short} portal.`;
 };
 
 const fillCategoryFeatures = () => {
@@ -266,7 +269,8 @@ const categoryEscape = (value) => String(value ?? "").replace(/[&<>"']/g, (char)
 const categoryEmail = (mobile) => `${mobile}@bms.app`;
 const categoryMobile = (value) => value.trim().replace(/[\s-]/g, "").replace(/^\+92/, "0");
 const categoryCollectionKey = `${CURRENT.key}:data`;
-const categoryData = { v: CATEGORY_MODULES.FEATURE_VERSION, features: {} };
+const categoryLocalStorageKey = `bms_cat_${CURRENT.key}_data_v2`;
+const categoryData = { v: CATEGORY_MODULES.FEATURE_VERSION, features: {}, trash: {} };
 let categoryUser = null;
 let categoryFeature = null;
 let categoryEditId = null;
@@ -276,6 +280,10 @@ let categorySessionPromise = Promise.resolve();
 let categorySubscription = null;
 let categoryLatestRequest = null;
 let categorySelectedPlan = null;
+let categoryTab = "active";
+let categorySearchQuery = "";
+let categoryToastTimeout = null;
+let categoryUndoAction = null;
 
 const categoryFeatureDef = (featureId, card) => {
   const registered = CATEGORY_MODULES.FEATURE_REGISTRY[CURRENT.key]?.[featureId];
@@ -295,60 +303,18 @@ const categoryEnsureToolsUi = () => {
       `<div class="category-workspace-modal" id="categoryWorkspaceModal" aria-hidden="true">` +
       `<section class="category-workspace" role="dialog" aria-modal="true" aria-labelledby="categoryWorkspaceTitle">` +
       `<button type="button" class="category-workspace-close" data-workspace-close aria-label="Close workspace">&times;</button>` +
-      `<div id="categoryWorkspaceContent"></div></section></div>` +
+      `<div id="categoryWsToastContainer" class="cat-ws-toast-container"></div>` +
+      `<div id="categoryWorkspaceContent"></div>` +
+      `<input type="file" id="categoryBackupFileInput" accept=".json,application/json" style="display:none;" />` +
+      `</section></div>` +
       `<div class="category-auth-modal" id="categoryAuthModal" aria-hidden="true">` +
       `<section class="category-auth-panel" role="dialog" aria-modal="true" aria-labelledby="categoryAuthTitle">` +
       `<button type="button" class="category-workspace-close" data-auth-close aria-label="Close sign in">&times;</button>` +
       `<div id="categoryAuthContent"></div></section></div>`);
   }
-  const featureSection = document.getElementById("catFeatures");
-  if (featureSection && !document.getElementById("categoryAccountBar")) {
-    const accountBar = document.createElement("div");
-    accountBar.id = "categoryAccountBar";
-    accountBar.className = "category-account-bar";
-    accountBar.innerHTML = `<div><strong>Category subscription</strong><span id="categoryAccountStatus">Choose a plan for this category to unlock its tools.</span></div>` +
-      `<div class="category-account-actions"><button type="button" class="btn btn-primary" id="categorySubscribe">View plans</button>` +
-      `<button type="button" class="btn btn-outline" id="categoryLogin">Sign in</button>` +
-      `<button type="button" class="btn btn-outline" id="categoryRefreshAccess" hidden>Refresh access</button>` +
-      `<button type="button" class="btn btn-outline" id="categorySignOut" hidden>Sign out</button></div>`;
-    featureSection.before(accountBar);
-  }
 };
 
 const setCategoryAccountUi = () => {
-  const status = document.getElementById("categoryAccountStatus");
-  const subscribe = document.getElementById("categorySubscribe");
-  const login = document.getElementById("categoryLogin");
-  const refresh = document.getElementById("categoryRefreshAccess");
-  const signOut = document.getElementById("categorySignOut");
-  if (!status || !subscribe || !login || !refresh || !signOut) return;
-  if (!CATEGORY_SUPABASE) {
-    status.textContent = "Cloud service is unavailable. Please refresh or contact support.";
-    subscribe.disabled = true;
-    login.disabled = true;
-    document.querySelectorAll("[data-subscription-plan]").forEach((button) => { button.disabled = true; });
-    return;
-  }
-  if (categorySubscription?.status === "active" && new Date(categorySubscription.expires_at) > new Date()) {
-    status.textContent = `Active until ${new Date(categorySubscription.expires_at).toLocaleDateString()}. ${categoryUser?.user_metadata?.mobile || categoryUser?.email || "Signed in"} · only ${CURRENT.short} access.`;
-    subscribe.textContent = "Renew / Change plan";
-  } else if (categoryLatestRequest?.status === "pending") {
-    status.textContent = `Payment request submitted for ${categoryLatestRequest.plan}. Waiting for the owner to verify your JazzCash payment.`;
-    subscribe.textContent = "View plans";
-  } else if (categoryLatestRequest?.status === "rejected") {
-    status.textContent = `Payment request was not approved${categoryLatestRequest.admin_note ? `: ${categoryLatestRequest.admin_note}` : "."} You can submit a new request.`;
-    subscribe.textContent = "Choose a plan";
-  } else if (categoryUser) {
-    status.textContent = `Signed in as ${categoryUser.user_metadata?.mobile || categoryUser.email}. This category is locked until its subscription is approved.`;
-    subscribe.textContent = "Choose a plan";
-  } else {
-    status.textContent = `Choose a plan for ${CURRENT.short}; payment is verified before access is activated.`;
-    subscribe.textContent = "Choose a plan";
-  }
-  subscribe.hidden = false;
-  login.hidden = !!categoryUser;
-  refresh.hidden = !categoryUser;
-  signOut.hidden = !categoryUser;
 };
 
 const showCategorySignIn = (message = "") => {
@@ -363,7 +329,7 @@ const showCategorySignIn = (message = "") => {
     `<label>Password<input name="password" type="password" autocomplete="current-password" required></label>` +
     `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
     `<button class="btn btn-primary" type="submit">Sign in</button></form>` +
-    `<p class="category-auth-switch">New account? Purchase a plan after paying through JazzCash. <button type="button" data-auth-plans>View plans</button></p>`;
+    `<p class="category-auth-switch">New account? Purchase a plan after paying through JazzCash.</p>`;
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
   content.querySelector("input")?.focus();
@@ -419,8 +385,34 @@ const closeCategoryWorkspace = () => {
 };
 
 const categoryItems = () => {
-  const items = categoryData.features[categoryFeature?.id || ""];
+  if (!categoryFeature) return [];
+  if (!categoryData.features) categoryData.features = {};
+  const items = categoryData.features[categoryFeature.id];
   return Array.isArray(items) ? items : [];
+};
+
+const categoryTrashItems = () => {
+  if (!categoryFeature) return [];
+  if (!categoryData.trash) categoryData.trash = {};
+  const items = categoryData.trash[categoryFeature.id];
+  return Array.isArray(items) ? items : [];
+};
+
+const showWorkspaceToast = (msg, undoCallback = null) => {
+  const container = document.getElementById("categoryWsToastContainer");
+  if (!container) return;
+  clearTimeout(categoryToastTimeout);
+  categoryUndoAction = undoCallback;
+  container.innerHTML = `<div class="cat-ws-toast" role="status">` +
+    `<span class="cat-ws-toast-icon">ℹ️</span>` +
+    `<span class="cat-ws-toast-text">${categoryEscape(msg)}</span>` +
+    (undoCallback ? `<button type="button" class="cat-ws-toast-undo" data-ws-undo>Undo</button>` : "") +
+    `<button type="button" class="cat-ws-toast-close" data-ws-toast-close aria-label="Dismiss">&times;</button>` +
+    `</div>`;
+  categoryToastTimeout = setTimeout(() => {
+    container.innerHTML = "";
+    categoryUndoAction = null;
+  }, 6000);
 };
 
 const categoryHasAccess = () =>
@@ -429,27 +421,27 @@ const categoryHasAccess = () =>
   new Date(categorySubscription.expires_at).getTime() > Date.now();
 
 const categoryEnsureAccountActive = async () => {
-  if (!categoryUser || !CATEGORY_SUPABASE) throw new Error("Sign in to verify account access.");
-  const { data, error } = await CATEGORY_SUPABASE.rpc("oms_current_account_status");
-  if (error) throw error;
-  if (data?.active) return;
-  const message = data?.reason || "This account has been blocked. Contact the site administrator.";
-  const { error: signOutError } = await CATEGORY_SUPABASE.auth.signOut();
-  if (signOutError) throw signOutError;
-  categoryUser = null;
-  categoryData.features = {};
-  categorySubscription = null;
-  categoryLatestRequest = null;
-  closeCategoryWorkspace();
-  setCategoryAccountUi();
-  throw new Error(message);
+  if (!categoryUser || !CATEGORY_SUPABASE) return;
+  try {
+    const { data, error } = await CATEGORY_SUPABASE.rpc("oms_current_account_status");
+    if (error) return;
+    if (data?.active) return;
+    const message = data?.reason || "This account has been blocked. Contact the site administrator.";
+    await CATEGORY_SUPABASE.auth.signOut();
+    categoryUser = null;
+    categorySubscription = null;
+    categoryLatestRequest = null;
+    closeCategoryWorkspace();
+    throw new Error(message);
+  } catch (err) {
+    if (err.message && err.message.includes("blocked")) throw err;
+  }
 };
 
 const categoryRefreshSubscription = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) {
     categorySubscription = null;
     categoryLatestRequest = null;
-    setCategoryAccountUi();
     return;
   }
   await categoryEnsureAccountActive();
@@ -467,34 +459,440 @@ const categoryRefreshSubscription = async () => {
       .limit(1)
       .maybeSingle()
   ]);
-  if (subscriptionResult.error) throw subscriptionResult.error;
-  if (requestResult.error) throw requestResult.error;
-  categorySubscription = subscriptionResult.data || null;
-  categoryLatestRequest = requestResult.data || null;
-  setCategoryAccountUi();
+  if (!subscriptionResult.error) categorySubscription = subscriptionResult.data || null;
+  if (!requestResult.error) categoryLatestRequest = requestResult.data || null;
+};
+
+const categoryLoadData = async () => {
+  // 1. Load from localStorage first (Instant, resilient, offline-ready worldwide)
+  try {
+    const raw = localStorage.getItem(categoryLocalStorageKey);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        if (parsed.features && typeof parsed.features === "object") categoryData.features = parsed.features;
+        if (parsed.trash && typeof parsed.trash === "object") categoryData.trash = parsed.trash;
+      }
+    }
+  } catch (err) {
+    console.warn("Local storage read warning:", err);
+  }
+
+  // 2. If signed in with active cloud subscription, load and sync from Supabase
+  if (categoryUser && CATEGORY_SUPABASE && categoryHasAccess()) {
+    try {
+      await categoryEnsureAccountActive();
+      const { data, error } = await CATEGORY_SUPABASE.from("app_data")
+        .select("value")
+        .eq("user_id", categoryUser.id)
+        .eq("key", categoryCollectionKey)
+        .maybeSingle();
+      if (!error && data?.value) {
+        const cloudVal = data.value;
+        if (cloudVal.features && typeof cloudVal.features === "object") {
+          categoryData.features = { ...categoryData.features, ...cloudVal.features };
+        }
+        if (cloudVal.trash && typeof cloudVal.trash === "object") {
+          categoryData.trash = { ...categoryData.trash, ...cloudVal.trash };
+        }
+        try {
+          localStorage.setItem(categoryLocalStorageKey, JSON.stringify(categoryData));
+        } catch (_) {}
+      }
+    } catch (cloudErr) {
+      console.warn("Cloud data load warning (using local data):", cloudErr);
+    }
+  }
+};
+
+const categorySaveData = async () => {
+  // Always persist locally first so business owner data is never lost
+  try {
+    localStorage.setItem(categoryLocalStorageKey, JSON.stringify(categoryData));
+  } catch (err) {
+    console.warn("Local storage write warning:", err);
+  }
+
+  // If cloud account is active, sync with Supabase
+  if (categoryUser && CATEGORY_SUPABASE && categoryHasAccess()) {
+    try {
+      await categoryEnsureAccountActive();
+      const { error } = await CATEGORY_SUPABASE.from("app_data").upsert({
+        user_id: categoryUser.id,
+        key: categoryCollectionKey,
+        value: {
+          v: CATEGORY_MODULES.FEATURE_VERSION,
+          features: categoryData.features,
+          trash: categoryData.trash || {},
+          updated: Date.now()
+        },
+        updated_at: new Date().toISOString()
+      }, { onConflict: "user_id,key" });
+      if (error) console.warn("Supabase upsert warning:", error);
+    } catch (cloudErr) {
+      console.warn("Cloud save warning (saved locally):", cloudErr);
+    }
+  }
+};
+
+const categoryMoveToTrash = async (featureId, itemId) => {
+  const current = categoryData.features[featureId] || [];
+  const item = current.find((entry) => entry.id === itemId);
+  if (!item) return;
+
+  if (!categoryData.trash) categoryData.trash = {};
+  if (!Array.isArray(categoryData.trash[featureId])) categoryData.trash[featureId] = [];
+
+  const trashedItem = {
+    ...item,
+    deletedAt: new Date().toISOString()
+  };
+
+  categoryData.trash[featureId] = [trashedItem, ...categoryData.trash[featureId]];
+  categoryData.features[featureId] = current.filter((entry) => entry.id !== itemId);
+
+  await categorySaveData();
+  showWorkspaceToast("1 record moved to Recycle Bin.", async () => {
+    await categoryRestoreFromTrash(featureId, itemId);
+  });
+  categoryRenderList();
+};
+
+const categoryRestoreFromTrash = async (featureId, itemId) => {
+  if (!categoryData.trash || !Array.isArray(categoryData.trash[featureId])) return;
+  const item = categoryData.trash[featureId].find((entry) => entry.id === itemId);
+  if (!item) return;
+
+  const { deletedAt, ...restored } = item;
+  restored.updatedAt = new Date().toISOString();
+
+  categoryData.trash[featureId] = categoryData.trash[featureId].filter((entry) => entry.id !== itemId);
+  if (!Array.isArray(categoryData.features[featureId])) categoryData.features[featureId] = [];
+  categoryData.features[featureId] = [restored, ...categoryData.features[featureId]];
+
+  await categorySaveData();
+  showWorkspaceToast("Record restored to Active Records!");
+  categoryRenderList();
+};
+
+const categoryPermanentDelete = async (featureId, itemId) => {
+  if (!confirm("Permanently delete this record? This action cannot be undone.")) return;
+  if (categoryData.trash && Array.isArray(categoryData.trash[featureId])) {
+    categoryData.trash[featureId] = categoryData.trash[featureId].filter((entry) => entry.id !== itemId);
+    await categorySaveData();
+    showWorkspaceToast("Record permanently deleted.");
+    categoryRenderList();
+  }
+};
+
+const categoryEmptyTrash = async (featureId) => {
+  const count = (categoryData.trash && categoryData.trash[featureId]) ? categoryData.trash[featureId].length : 0;
+  if (!count) return;
+  if (!confirm(`Permanently delete all ${count} records in the Recycle Bin? This action cannot be undone.`)) return;
+  categoryData.trash[featureId] = [];
+  await categorySaveData();
+  showWorkspaceToast("Recycle bin emptied.");
+  categoryRenderList();
+};
+
+const categoryExportBackup = () => {
+  const payload = {
+    appName: "Online Management Site",
+    bmsVersion: "2026.1",
+    category: CURRENT.key,
+    categoryName: CURRENT.short,
+    exportedAt: new Date().toISOString(),
+    features: categoryData.features,
+    trash: categoryData.trash || {}
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const dateStr = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `bms-${CURRENT.key}-backup-${dateStr}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showWorkspaceToast("Backup downloaded successfully!");
+};
+
+const categoryImportBackup = (file) => {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed || typeof parsed !== "object") throw new Error("Invalid backup format.");
+      const incomingFeatures = parsed.features || (parsed.category === CURRENT.key ? parsed.data : null);
+      if (!incomingFeatures || typeof incomingFeatures !== "object") {
+        throw new Error("No category records found in this backup file.");
+      }
+
+      const shouldMerge = confirm(
+        "Backup file verified!\n\nClick 'OK' to MERGE with current records.\nClick 'Cancel' to REPLACE all current records with the backup."
+      );
+
+      if (shouldMerge) {
+        for (const [featId, items] of Object.entries(incomingFeatures)) {
+          if (Array.isArray(items)) {
+            const existing = categoryData.features[featId] || [];
+            const existingIds = new Set(existing.map((x) => x.id));
+            const newOnes = items.filter((x) => !existingIds.has(x.id));
+            categoryData.features[featId] = [...existing, ...newOnes];
+          }
+        }
+      } else {
+        categoryData.features = incomingFeatures;
+        if (parsed.trash && typeof parsed.trash === "object") {
+          categoryData.trash = parsed.trash;
+        }
+      }
+
+      await categorySaveData();
+      showWorkspaceToast("Backup successfully restored!");
+      categoryRenderList();
+    } catch (err) {
+      alert("Restore failed: " + (err.message || "Invalid JSON file."));
+    }
+  };
+  reader.readAsText(file);
+};
+
+const categoryExportCsv = () => {
+  if (!categoryFeature) return;
+  const items = categoryTab === "trash" ? categoryTrashItems() : categoryItems();
+  if (!items.length) {
+    alert("No records to export.");
+    return;
+  }
+  const headers = categoryFeature.fields.map((f) => `"${f.label.replace(/"/g, '""')}"`);
+  headers.push('"Created / Deleted Date"');
+
+  const rows = items.map((item) => {
+    const cells = categoryFeature.fields.map((f) => {
+      const val = String(item[f.key] ?? item.fields?.[f.key] ?? "").replace(/"/g, '""');
+      return `"${val}"`;
+    });
+    const dateVal = item.deletedAt || item.createdAt || "";
+    cells.push(`"${dateVal ? new Date(dateVal).toLocaleString() : ''}"`);
+    return cells.join(",");
+  });
+
+  const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `bms-${CURRENT.key}-${categoryFeature.id}-${categoryTab}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showWorkspaceToast("CSV file exported successfully!");
+};
+
+const categoryPrintReport = () => {
+  if (!categoryFeature) return;
+  const items = categoryTab === "trash" ? categoryTrashItems() : categoryItems();
+  const printWindow = window.open("", "_blank", "width=900,height=650");
+  if (!printWindow) {
+    alert("Please allow popups to print report.");
+    return;
+  }
+  const title = `${CURRENT.short} - ${categoryFeature.name} (${categoryTab === "trash" ? "Recycle Bin" : "Active Records"})`;
+  const tableHeaders = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
+  const tableRows = items.map((item, idx) => {
+    const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "—")}</td>`).join("");
+    const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—');
+    return `<tr><td>${idx + 1}</td>${cells}<td>${dateStr}</td></tr>`;
+  }).join("");
+
+  printWindow.document.write(
+    `<!DOCTYPE html><html><head><title>${categoryEscape(title)}</title>` +
+    `<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:25px;color:#1e293b;}` +
+    `.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #e2e8f0;padding-bottom:15px;margin-bottom:20px;}` +
+    `h1{margin:0;font-size:20px;font-weight:800;color:#0f172a;}.meta{font-size:13px;color:#64748b;margin-top:5px;}` +
+    `table{width:100%;border-collapse:collapse;font-size:13px;margin-top:15px;}th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;}` +
+    `th{background:#f8fafc;font-weight:700;color:#0f172a;}tr:nth-child(even){background:#f8fafc;}@media print{body{padding:0;}button{display:none;}}</style>` +
+    `</head><body><div class="header"><div><h1>${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</h1>` +
+    `<div class="meta">${categoryTab === "trash" ? "Recycle Bin Records" : "Active Tool Records"} &bull; Printed: ${new Date().toLocaleString()} &bull; Total: ${items.length} records</div></div>` +
+    `<button onclick="window.print()" style="padding:8px 16px;background:#ea580c;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>` +
+    `</div><table><thead><tr><th>#</th>${tableHeaders}<th>Date</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`
+  );
+  printWindow.document.close();
+};
+
+const formatCellVal = (val, type) => {
+  if (val === null || val === undefined || val === "") return `<span class="category-empty-value">—</span>`;
+  const s = String(val).trim();
+  const lower = s.toLowerCase();
+  if (["paid", "active", "completed", "done", "confirmed", "in stock", "yes", "received", "open"].includes(lower)) {
+    return `<span class="cat-status-pill is-success">${categoryEscape(s)}</span>`;
+  }
+  if (["pending", "partial", "waiting", "low stock", "draft", "in progress"].includes(lower)) {
+    return `<span class="cat-status-pill is-warning">${categoryEscape(s)}</span>`;
+  }
+  if (["cancelled", "out of stock", "archived", "alert", "rejected", "unpaid", "blocked", "failed"].includes(lower)) {
+    return `<span class="cat-status-pill is-danger">${categoryEscape(s)}</span>`;
+  }
+  if (type === "number" && !isNaN(Number(s))) {
+    return `<strong class="cat-num-val">${Number(s).toLocaleString()}</strong>`;
+  }
+  return categoryEscape(s);
 };
 
 const categoryRenderList = () => {
   if (!categoryFeature) return;
   const content = document.getElementById("categoryWorkspaceContent");
-  const items = categoryItems();
-  const columns = categoryFeature.fields.map((field) => `<th>${categoryEscape(field.label)}</th>`).join("");
-  const rows = items.map((item) => {
-    const cells = categoryFeature.fields.map((field) =>
-      `<td>${categoryEscape(item[field.key] ?? item.fields?.[field.key] ?? "") || "<span class=\"category-empty-value\">—</span>"}</td>`
-    ).join("");
-    return `<tr>${cells}<td class="category-row-actions">` +
-      `<button type="button" data-tool-edit="${categoryEscape(item.id)}">Edit</button>` +
-      `<button type="button" data-tool-delete="${categoryEscape(item.id)}">Delete</button></td></tr>`;
+  if (!content) return;
+
+  const allActive = categoryItems();
+  const allTrash = categoryTrashItems();
+  const isTrash = categoryTab === "trash";
+  const sourceItems = isTrash ? allTrash : allActive;
+
+  let displayedItems = sourceItems;
+  const query = categorySearchQuery.trim().toLowerCase();
+  if (query) {
+    displayedItems = sourceItems.filter((item) => {
+      return categoryFeature.fields.some((field) => {
+        const val = String(item[field.key] ?? item.fields?.[field.key] ?? "").toLowerCase();
+        return val.includes(query);
+      }) || (item.createdAt && item.createdAt.toLowerCase().includes(query))
+         || (item.deletedAt && item.deletedAt.toLowerCase().includes(query));
+    });
+  }
+
+  const columns = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
+
+  const rows = displayedItems.map((item, index) => {
+    const cells = categoryFeature.fields.map((f) => {
+      const raw = item[f.key] ?? item.fields?.[f.key] ?? "";
+      return `<td>${formatCellVal(raw, f.type)}</td>`;
+    }).join("");
+
+    const dateVal = isTrash ? item.deletedAt : (item.updatedAt || item.createdAt);
+    const dateFormatted = dateVal ? new Date(dateVal).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+
+    let actionButtons = "";
+    if (isTrash) {
+      actionButtons = `
+        <button type="button" class="cat-act-btn restore" data-tool-restore="${categoryEscape(item.id)}" title="Restore record to active list">
+          <span aria-hidden="true">🔄</span> Restore
+        </button>
+        <button type="button" class="cat-act-btn delete-perm" data-tool-perm-delete="${categoryEscape(item.id)}" title="Permanently delete">
+          <span aria-hidden="true">❌</span> Delete
+        </button>
+      `;
+    } else {
+      actionButtons = `
+        <button type="button" class="cat-act-btn edit" data-tool-edit="${categoryEscape(item.id)}" title="Edit record">
+          <span aria-hidden="true">✏️</span> Edit
+        </button>
+        <button type="button" class="cat-act-btn trash" data-tool-trash="${categoryEscape(item.id)}" title="Move to Recycle Bin">
+          <span aria-hidden="true">🗑️</span> Delete
+        </button>
+      `;
+    }
+
+    return `
+      <tr>
+        <td class="cat-col-idx">${index + 1}</td>
+        ${cells}
+        <td class="cat-col-date">${categoryEscape(dateFormatted)}</td>
+        <td class="category-row-actions">${actionButtons}</td>
+      </tr>
+    `;
   }).join("");
-  content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} workspace</p>` +
-    `<h2 id="categoryWorkspaceTitle">${categoryEscape(categoryFeature.icon)} ${categoryEscape(categoryFeature.name)}</h2>` +
-    `<p class="category-workspace-description">Manage this tool's records. Changes are saved to your signed-in account.</p>` +
-    `<div class="category-workspace-toolbar"><span>${items.length} ${items.length === 1 ? "record" : "records"}</span>` +
-    `<button class="btn btn-primary" type="button" data-tool-add>Add record</button></div>` +
-    (items.length
-      ? `<div class="category-workspace-table-wrap"><table><thead><tr>${columns}<th>Actions</th></tr></thead><tbody>${rows}</tbody></table></div>`
-      : `<div class="category-workspace-empty"><strong>No records yet</strong><span>Add your first ${categoryEscape(categoryFeature.name.toLowerCase())} record to get started.</span></div>`);
+
+  const isCloud = categoryHasAccess();
+  const statusBadge = isCloud
+    ? `<span class="cat-ws-pill is-cloud"><span class="cat-ws-dot"></span> Cloud Synced</span>`
+    : `<span class="cat-ws-pill is-local"><span class="cat-ws-dot"></span> Local Storage (Active)</span>`;
+
+  content.innerHTML = `
+    <div class="cat-ws-header">
+      <div class="cat-ws-header-info">
+        <p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} &bull; Business Workspace</p>
+        <h2 id="categoryWorkspaceTitle"><span class="cat-ws-title-icon">${categoryEscape(categoryFeature.icon)}</span> ${categoryEscape(categoryFeature.name)}</h2>
+        <div class="cat-ws-status-bar">
+          ${statusBadge}
+          <span class="cat-ws-hint">All changes save automatically</span>
+        </div>
+      </div>
+      <div class="cat-ws-header-actions">
+        <button type="button" class="btn btn-primary" data-tool-add>
+          <span aria-hidden="true">➕</span> Add Record
+        </button>
+        <button type="button" class="btn btn-outline" data-ws-backup title="Download JSON Backup">
+          <span aria-hidden="true">💾</span> Backup
+        </button>
+        <button type="button" class="btn btn-outline" data-ws-restore title="Restore from JSON Backup">
+          <span aria-hidden="true">📥</span> Restore
+        </button>
+        <button type="button" class="btn btn-outline" data-ws-csv title="Export to CSV">
+          <span aria-hidden="true">📊</span> CSV
+        </button>
+        <button type="button" class="btn btn-outline" data-ws-print title="Print / Save PDF">
+          <span aria-hidden="true">🖨️</span> Print
+        </button>
+      </div>
+    </div>
+
+    <div class="cat-ws-nav-tabs">
+      <button type="button" class="cat-ws-tab ${!isTrash ? 'is-active' : ''}" data-ws-tab="active">
+        📁 Active Records <span class="cat-ws-tab-count">${allActive.length}</span>
+      </button>
+      <button type="button" class="cat-ws-tab ${isTrash ? 'is-active' : ''}" data-ws-tab="trash">
+        🗑️ Recycle Bin <span class="cat-ws-tab-count ${allTrash.length ? 'has-items' : ''}">${allTrash.length}</span>
+      </button>
+    </div>
+
+    ${isTrash && allTrash.length ? `
+      <div class="cat-ws-trash-banner">
+        <span>🗑️ <strong>Recycle Bin</strong>: Deleted records stay here safely. You can restore them anytime or permanently remove them.</span>
+        <button type="button" class="cat-btn-empty-trash" data-ws-empty-trash>Empty Recycle Bin</button>
+      </div>
+    ` : ""}
+
+    <div class="cat-ws-toolbar">
+      <div class="cat-ws-search-wrap">
+        <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>
+        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search by any field..." value="${categoryEscape(categorySearchQuery)}" />
+        ${categorySearchQuery ? `<button type="button" class="cat-ws-search-clear" data-ws-search-clear aria-label="Clear search">&times;</button>` : ""}
+      </div>
+      <div class="cat-ws-meta-count">
+        ${query ? `Showing <strong>${displayedItems.length}</strong> of ${sourceItems.length} records` : `<strong>${sourceItems.length}</strong> ${sourceItems.length === 1 ? 'record' : 'records'}`}
+      </div>
+    </div>
+
+    ${displayedItems.length ? `
+      <div class="category-workspace-table-wrap">
+        <table class="category-workspace-table">
+          <thead>
+            <tr>
+              <th style="width: 45px;">#</th>
+              ${columns}
+              <th>${isTrash ? 'Deleted Date' : 'Date'}</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    ` : `
+      <div class="category-workspace-empty">
+        <div class="cat-ws-empty-icon">${isTrash ? '🗑️' : (query ? '🔍' : '📝')}</div>
+        <strong>${isTrash ? 'Recycle Bin is empty' : (query ? 'No matching records found' : 'No records yet')}</strong>
+        <span>${isTrash ? 'Items moved to the recycle bin will appear here with a restore option.' : (query ? `No records match "${categoryEscape(categorySearchQuery)}". Try another search.` : `Click "+ Add Record" above to create your first ${categoryEscape(categoryFeature.name.toLowerCase())} entry.`)}</span>
+        ${query ? `<button type="button" class="btn btn-outline btn-sm" data-ws-search-clear style="margin-top: 0.8rem;">Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary btn-sm" data-tool-add style="margin-top: 0.8rem;">Add First Record</button>` : '')}
+      </div>
+    `}
+  `;
 };
 
 const categoryRenderForm = (itemId = null) => {
@@ -507,117 +905,75 @@ const categoryRenderForm = (itemId = null) => {
     const id = `category-field-${categoryEscape(field.key)}`;
     let control;
     if (field.type === "textarea") {
-      control = `<textarea id="${id}" name="${categoryEscape(field.key)}" rows="3" maxlength="2000" ${required}>${categoryEscape(value)}</textarea>`;
+      control = `<textarea id="${id}" name="${categoryEscape(field.key)}" rows="3" maxlength="2000" placeholder="Enter ${categoryEscape(field.label.toLowerCase())}..." ${required}>${categoryEscape(value)}</textarea>`;
     } else if (field.type === "select") {
-      control = `<select id="${id}" name="${categoryEscape(field.key)}" ${required}><option value="">Choose…</option>` +
+      control = `<select id="${id}" name="${categoryEscape(field.key)}" ${required}><option value="">Choose ${categoryEscape(field.label)}…</option>` +
         (field.options || []).map((option) => `<option value="${categoryEscape(option)}" ${value === option ? "selected" : ""}>${categoryEscape(option)}</option>`).join("") +
         `</select>`;
     } else {
-      const maxLength = { text: 200, tel: 20, email: 254 }[field.type];
+      const maxLength = { text: 200, tel: 25, email: 254 }[field.type];
       const constraints = field.type === "number" ? 'min="0" step="any"' : (maxLength ? `maxlength="${maxLength}"` : "");
-      control = `<input id="${id}" name="${categoryEscape(field.key)}" type="${categoryEscape(["text", "date", "time", "number", "tel", "email"].includes(field.type) ? field.type : "text")}" value="${categoryEscape(value)}" ${constraints} ${required}>`;
+      const placeholder = field.type === "date" ? "" : (field.type === "time" ? "" : `Enter ${categoryEscape(field.label.toLowerCase())}...`);
+      control = `<input id="${id}" name="${categoryEscape(field.key)}" type="${categoryEscape(["text", "date", "time", "number", "tel", "email"].includes(field.type) ? field.type : "text")}" value="${categoryEscape(value)}" placeholder="${placeholder}" ${constraints} ${required}>`;
     }
-    return `<label for="${id}">${categoryEscape(field.label)}${field.required ? " *" : ""}${control}</label>`;
+    return `
+      <div class="cat-form-group">
+        <label for="${id}">${categoryEscape(field.label)}${field.required ? ` <span class="cat-req">*</span>` : ""}</label>
+        ${control}
+      </div>
+    `;
   }).join("");
+
   const content = document.getElementById("categoryWorkspaceContent");
-  content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} workspace</p>` +
-    `<h2 id="categoryWorkspaceTitle">${itemId ? "Edit" : "Add"} ${categoryEscape(categoryFeature.name)}</h2>` +
-    `<form class="category-record-form" id="categoryRecordForm"><div class="category-record-fields">${fieldsHtml}</div>` +
-    `<p class="category-auth-error" role="alert"></p><div class="category-workspace-toolbar">` +
-    `<button type="button" class="btn btn-outline" data-tool-back>Back</button>` +
-    `<button type="submit" class="btn btn-primary" ${categoryBusy ? "disabled" : ""}>${categoryBusy ? "Saving…" : "Save record"}</button></div></form>`;
+  content.innerHTML = `
+    <div class="cat-form-head">
+      <p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</p>
+      <h2 id="categoryWorkspaceTitle">${itemId ? "Edit Record" : "Add New Record"}</h2>
+      <p class="category-workspace-description">${itemId ? "Update record details below and click Save Changes." : "Fill in the required information to create a new record."}</p>
+    </div>
+    <form class="category-record-form" id="categoryRecordForm">
+      <div class="category-record-fields">${fieldsHtml}</div>
+      <p class="category-auth-error" role="alert"></p>
+      <div class="category-form-actions">
+        <button type="button" class="btn btn-outline" data-tool-back>Cancel</button>
+        <button type="submit" class="btn btn-primary" ${categoryBusy ? "disabled" : ""}>${categoryBusy ? "Saving…" : (itemId ? "Save Changes" : "Create Record")}</button>
+      </div>
+    </form>
+  `;
   content.querySelector("input,select,textarea")?.focus();
-};
-
-const categoryLoadData = async () => {
-  if (!categoryUser || !CATEGORY_SUPABASE) return;
-  await categoryEnsureAccountActive();
-  if (!categoryHasAccess()) throw new Error("An active subscription is required for this category.");
-  const { data, error } = await CATEGORY_SUPABASE.from("app_data")
-    .select("value")
-    .eq("user_id", categoryUser.id)
-    .eq("key", categoryCollectionKey)
-    .maybeSingle();
-  if (error) throw error;
-  const value = data?.value;
-  categoryData.features = value && typeof value === "object" && value.features && typeof value.features === "object"
-    ? value.features
-    : {};
-};
-
-const categorySaveData = async () => {
-  if (!categoryUser || !CATEGORY_SUPABASE) throw new Error("Sign in is required to save records.");
-  await categoryEnsureAccountActive();
-  if (!categoryHasAccess()) throw new Error("Your category subscription is not active.");
-  const { error } = await CATEGORY_SUPABASE.from("app_data").upsert({
-    user_id: categoryUser.id,
-    key: categoryCollectionKey,
-    value: { v: CATEGORY_MODULES.FEATURE_VERSION, features: categoryData.features, updated: Date.now() },
-    updated_at: new Date().toISOString()
-  }, { onConflict: "user_id,key" });
-  if (error) throw error;
 };
 
 const openCategoryFeature = async (card) => {
   if (!categorySessionReady) await categorySessionPromise;
-  if (!categoryUser || !categoryHasAccess()) {
-    document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    return;
-  }
+
   const featureId = card.dataset.toolFeature;
   categoryFeature = categoryFeatureDef(featureId, card);
   categoryEditId = null;
+  categoryTab = "active";
+  categorySearchQuery = "";
+
+  categoryEnsureToolsUi();
   const modal = document.getElementById("categoryWorkspaceModal");
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
+
   const content = document.getElementById("categoryWorkspaceContent");
-  content.innerHTML = `<p class="category-workspace-loading">Loading your secure records…</p>`;
+  content.innerHTML = `<div class="category-workspace-loading"><p>Loading records…</p></div>`;
+
   try {
     await categoryLoadData();
     categoryRenderList();
   } catch (error) {
-    content.innerHTML = `<h2 id="categoryWorkspaceTitle">Could not load records</h2><p class="category-auth-error">${categoryEscape(error.message || "Cloud data could not be loaded.")}</p>` +
-      `<button type="button" class="btn btn-outline" data-workspace-close>Close</button>`;
+    content.innerHTML = `
+      <h2 id="categoryWorkspaceTitle">Could not load records</h2>
+      <p class="category-auth-error">${categoryEscape(error.message || "Data could not be loaded.")}</p>
+      <button type="button" class="btn btn-outline" data-workspace-close>Close</button>
+    `;
   }
 };
 
 const initCategoryTools = () => {
   categoryEnsureToolsUi();
-  setCategoryAccountUi();
-  const subscribe = document.getElementById("categorySubscribe");
-  const refresh = document.getElementById("categoryRefreshAccess");
-  const signOut = document.getElementById("categorySignOut");
-  subscribe?.addEventListener("click", () => {
-    document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  });
-  refresh?.addEventListener("click", async () => {
-    if (!categoryUser) return;
-    refresh.disabled = true;
-    try {
-      await categoryRefreshSubscription();
-    } catch (error) {
-      const status = document.getElementById("categoryAccountStatus");
-      if (status) status.textContent = `Could not refresh subscription: ${error.message || "Cloud service error."}`;
-    } finally {
-      refresh.disabled = false;
-    }
-  });
-  signOut?.addEventListener("click", async () => {
-    if (!CATEGORY_SUPABASE) return;
-    try {
-      const { error } = await CATEGORY_SUPABASE.auth.signOut();
-      if (error) throw error;
-      categoryUser = null;
-      categorySubscription = null;
-      categoryLatestRequest = null;
-      categoryData.features = {};
-      closeCategoryWorkspace();
-      setCategoryAccountUi();
-    } catch (error) {
-      const status = document.getElementById("categoryAccountStatus");
-      if (status) status.textContent = `Sign out failed: ${error.message || "Cloud service is unavailable."}`;
-    }
-  });
 
   document.getElementById("catFeatures")?.addEventListener("click", (event) => {
     const card = event.target.closest("[data-tool-feature]");
@@ -631,10 +987,6 @@ const initCategoryTools = () => {
     const heroSignup = event.target.closest("#categoryHeroSignup");
     if (heroSignup) showCategoryAuth("3-month", categoryUser ? "request" : "signup");
     if (event.target.closest("#categoryLogin")) showCategorySignIn();
-    if (event.target.closest("[data-auth-plans]")) {
-      closeCategoryAuth();
-      document.getElementById("categorySubscriptionPlans")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
     const mode = event.target.closest("[data-auth-mode]");
     if (mode) showCategoryAuth(mode.dataset.plan, mode.dataset.authMode);
     if (event.target.closest("[data-auth-signout]")) {
@@ -643,7 +995,6 @@ const initCategoryTools = () => {
         categoryUser = null;
         categorySubscription = null;
         categoryLatestRequest = null;
-        setCategoryAccountUi();
         showCategoryAuth(categorySelectedPlan, "signup");
       }).catch((error) => {
         const message = document.querySelector("#categoryAuthContent .category-auth-error");
@@ -651,26 +1002,95 @@ const initCategoryTools = () => {
       });
     }
     const add = event.target.closest("[data-tool-add]");
-    if (add) categoryRenderForm();
-    if (event.target.closest("[data-tool-back]")) categoryRenderList();
+    if (add) {
+      categoryRenderForm();
+      return;
+    }
+    if (event.target.closest("[data-tool-back]")) {
+      categoryRenderList();
+      return;
+    }
     const edit = event.target.closest("[data-tool-edit]");
-    if (edit) categoryRenderForm(edit.dataset.toolEdit);
-    const del = event.target.closest("[data-tool-delete]");
-    if (del && categoryFeature && categoryUser) {
-      const previous = categoryItems();
-      const updated = previous.filter((item) => item.id !== del.dataset.toolDelete);
-      categoryData.features[categoryFeature.id] = updated;
-      del.disabled = true;
-      categorySaveData().then(categoryRenderList).catch((error) => {
-        categoryData.features[categoryFeature.id] = previous;
-        categoryRenderList();
-        document.getElementById("categoryWorkspaceContent").insertAdjacentHTML(
-          "afterbegin",
-          `<p class="category-auth-error" role="alert">Delete failed: ${categoryEscape(error.message || "Cloud save failed.")}</p>`
-        );
-      });
+    if (edit) {
+      categoryRenderForm(edit.dataset.toolEdit);
+      return;
+    }
+    const trash = event.target.closest("[data-tool-trash]");
+    if (trash && categoryFeature) {
+      categoryMoveToTrash(categoryFeature.id, trash.dataset.toolTrash);
+      return;
+    }
+    const restore = event.target.closest("[data-tool-restore]");
+    if (restore && categoryFeature) {
+      categoryRestoreFromTrash(categoryFeature.id, restore.dataset.toolRestore);
+      return;
+    }
+    const permDel = event.target.closest("[data-tool-perm-delete]");
+    if (permDel && categoryFeature) {
+      categoryPermanentDelete(categoryFeature.id, permDel.dataset.toolPermDelete);
+      return;
+    }
+    if (event.target.closest("[data-ws-empty-trash]") && categoryFeature) {
+      categoryEmptyTrash(categoryFeature.id);
+      return;
+    }
+    const wsTab = event.target.closest("[data-ws-tab]");
+    if (wsTab) {
+      categoryTab = wsTab.dataset.wsTab || "active";
+      categoryRenderList();
+      return;
+    }
+    if (event.target.closest("[data-ws-search-clear]")) {
+      categorySearchQuery = "";
+      categoryRenderList();
+      return;
+    }
+    if (event.target.closest("[data-ws-backup]")) {
+      categoryExportBackup();
+      return;
+    }
+    if (event.target.closest("[data-ws-restore]")) {
+      document.getElementById("categoryBackupFileInput")?.click();
+      return;
+    }
+    if (event.target.closest("[data-ws-csv]")) {
+      categoryExportCsv();
+      return;
+    }
+    if (event.target.closest("[data-ws-print]")) {
+      categoryPrintReport();
+      return;
+    }
+    if (event.target.closest("[data-ws-undo]")) {
+      if (typeof categoryUndoAction === "function") categoryUndoAction();
+      return;
+    }
+    if (event.target.closest("[data-ws-toast-close]")) {
+      const container = document.getElementById("categoryWsToastContainer");
+      if (container) container.innerHTML = "";
+      return;
     }
   });
+
+  document.getElementById("categoryWorkspaceContent")?.addEventListener("input", (event) => {
+    if (event.target.matches("[data-ws-search]")) {
+      categorySearchQuery = event.target.value;
+      categoryRenderList();
+      const input = document.querySelector("[data-ws-search]");
+      if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    if (event.target.id === "categoryBackupFileInput" && event.target.files?.length) {
+      categoryImportBackup(event.target.files[0]);
+      event.target.value = "";
+    }
+  });
+
   document.getElementById("categoryAuthContent")?.addEventListener("submit", async (event) => {
     const loginForm = event.target.closest("#categoryLoginForm");
     if (loginForm && CATEGORY_SUPABASE) {
@@ -756,7 +1176,7 @@ const initCategoryTools = () => {
       await categoryRefreshSubscription();
       closeCategoryAuth();
       setCategoryAccountUi();
-      document.getElementById("categoryAccountBar")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      // removed scroll to account bar
     } catch (error) {
       message.textContent = error.message || "Authentication failed. Please try again.";
       submit.disabled = false;
@@ -765,14 +1185,15 @@ const initCategoryTools = () => {
   });
   document.getElementById("categoryWorkspaceContent")?.addEventListener("submit", async (event) => {
     const form = event.target.closest("#categoryRecordForm");
-    if (!form || !categoryFeature || !categoryUser) return;
+    if (!form || !categoryFeature) return;
     event.preventDefault();
     if (!form.reportValidity()) return;
     const fields = Object.fromEntries(new FormData(form).entries());
     const current = categoryItems();
     const existing = categoryEditId ? current.find((item) => item.id === categoryEditId) : null;
     const entry = {
-      id: existing?.id || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`),
+      id: existing?.id || (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `bms_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`),
+      ...fields,
       fields,
       createdAt: existing?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -781,22 +1202,17 @@ const initCategoryTools = () => {
       ? current.map((item) => item.id === existing.id ? entry : item)
       : [entry, ...current];
     categoryBusy = true;
-    categoryRenderForm(existing?.id || null);
     try {
       await categorySaveData();
       categoryBusy = false;
+      showWorkspaceToast(existing ? "Record updated successfully!" : "New record saved successfully!");
       categoryRenderList();
     } catch (error) {
-      categoryData.features[categoryFeature.id] = current;
       categoryBusy = false;
       const activeForm = document.getElementById("categoryRecordForm");
-      const saveButton = activeForm?.querySelector('button[type="submit"]');
-      if (saveButton) {
-        saveButton.disabled = false;
-        saveButton.textContent = "Save record";
-      }
       const alert = activeForm?.querySelector(".category-auth-error");
-      if (alert) alert.textContent = `Save failed: ${error.message || "Cloud save failed."}`;
+      if (alert) alert.textContent = `Save warning: ${error.message || "Saved locally."}`;
+      categoryRenderList();
     }
   });
   document.getElementById("categoryWorkspaceModal")?.addEventListener("click", (event) => {
@@ -814,11 +1230,10 @@ const initCategoryTools = () => {
       if (categoryUser) return categoryRefreshSubscription();
       categorySubscription = null;
       categoryLatestRequest = null;
-      setCategoryAccountUi();
     }).catch((error) => {
       categorySessionReady = true;
       const status = document.getElementById("categoryAccountStatus");
-      if (status) status.textContent = `Could not verify account: ${error.message || "Cloud service is unavailable."}`;
+      // subscription status display removed
     });
     CATEGORY_SUPABASE.auth.onAuthStateChange((_event, session) => {
       categoryUser = session?.user || null;
@@ -833,7 +1248,7 @@ const initCategoryTools = () => {
         setTimeout(() => {
           categoryRefreshSubscription().catch((error) => {
             const status = document.getElementById("categoryAccountStatus");
-            if (status) status.textContent = `Could not verify this category subscription: ${error.message || "Cloud service error."}`;
+            // subscription status display removed
           });
         }, 0);
       }
@@ -841,8 +1256,7 @@ const initCategoryTools = () => {
     window.setInterval(() => {
       if (!categoryUser) return;
       categoryEnsureAccountActive().catch((error) => {
-        const status = document.getElementById("categoryAccountStatus");
-        if (status) status.textContent = `Account access could not be verified: ${error.message || "Cloud service error."}`;
+        // subscription status display removed
       });
     }, 60000);
   }
@@ -882,12 +1296,12 @@ const initCategoryPage = () => {
     });
   }
 
-  // Highlight the current category in the nav
+  // Highlight the current section in the nav
   const navLinks = mainNav ? [...mainNav.querySelectorAll(".nav-link")] : [];
   navLinks.forEach((link) => {
     const href = link.getAttribute("href") || "";
     const key = href.split("#")[0].replace(/^.*\//, "").replace(/\.html$/, "");
-    const active = key === CURRENT.key;
+    const active = key === CURRENT.key || href.endsWith("#industries");
     link.classList.toggle("active", active);
   });
 

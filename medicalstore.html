@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20261024h" />
-  <link rel="stylesheet" href="category.css?v=20261024B" />
+  <link rel="stylesheet" href="category.css?v=20261030E" />
 </head>
 <body data-category="medicalstore">
 
@@ -30,21 +30,28 @@
   <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
   <header class="site-header" id="top">
-    <div class="container header-inner">
-      <a href="index.html#industries" class="cat-back-btn">&larr; Back to Categories</a>
+    <div class="header-container">
+      <div class="header-inner">
+        <a href="index.html#industries" class="cat-back-btn">&larr; Back to Categories</a>
 
-      <nav class="main-nav" id="mainNav" aria-label="Main navigation">
-        <a href="index.html#top" class="nav-link">Home Page</a>
-        <a href="index.html#industries" class="nav-link">Select Categories</a>
-        <a href="index.html#business-registration" class="nav-link">Register Business</a>
-        <a href="index.html#owner-details" class="nav-link">Owner Details</a>
-        <a href="index.html#reviews" class="nav-link">Rating &amp; Comments</a>
-      </nav>
+        <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+          <a href="index.html#top" class="nav-link">Home Page</a>
+          <a href="index.html#industries" class="nav-link active">Select Categories</a>
+          <a href="index.html#business-registration" class="nav-link">Register Business</a>
+          <a href="index.html#owner-details" class="nav-link">Owner Details</a>
+          <a href="index.html#reviews" class="nav-link">Rating &amp; Comments</a>
+        </nav>
 
-      <div class="header-actions">
-        <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
-          <span></span><span></span><span></span>
-        </button>
+        <div class="header-actions">
+          <a href="index.html#top" class="brand brand-profile">
+            <span class="brand-info">
+              <span class="brand-name">Online <span class="brand-highlight">Management</span> Site</span>
+            </span>
+          </a>
+          <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -61,21 +68,39 @@
             <button type="button" class="btn btn-primary btn-lg" id="categoryHeroSignup">Sign Up</button>
             <a href="index.html#open-reg-form" class="btn btn-outline btn-lg">Register Your Business</a>
           </div>
-          <ul class="cat-hero-points">
-            <li id="catToolsPoint">12 tools in one place</li>
-            <li>Works on mobile and desktop</li>
-            <li>Direct owner support</li>
-          </ul>
         </div>
 
         <aside class="cat-hero-card">
-          <div class="cat-hero-icon" id="catIcon" aria-hidden="true">💊</div>
+          <div class="cat-hero-card-top">
+            <div class="cat-hero-icon-wrap">
+              <span class="cat-hero-icon" id="catIcon" aria-hidden="true">💊</span>
+            </div>
+            <span class="cat-hero-badge"><span class="cat-badge-dot"></span>Category Overview</span>
+          </div>
           <h2>Medical Store Portal</h2>
           <p>Every tool below is part of the Medical Store portal.</p>
           <div class="cat-hero-stats">
-            <div><strong id="catToolsStat">12</strong><span>Tools</span></div>
-            <div><strong>3</strong><span>Subscription Plans</span></div>
-            <div><strong>1</strong><span>Dashboard</span></div>
+            <div class="cat-hero-stat is-highlight">
+              <span class="cat-stat-icon" aria-hidden="true">🛠️</span>
+              <strong id="catToolsStat">12</strong>
+              <span>Tools</span>
+            </div>
+            <div class="cat-hero-stat">
+              <span class="cat-stat-icon" aria-hidden="true">💎</span>
+              <strong>3</strong>
+              <span>Plans</span>
+            </div>
+            <div class="cat-hero-stat">
+              <span class="cat-stat-icon" aria-hidden="true">📊</span>
+              <strong>1</strong>
+              <span>Dashboard</span>
+            </div>
+          </div>
+          <div class="cat-hero-card-footer">
+            <span class="cat-hero-status-pill">
+              <span class="cat-pulse-dot"></span> Active Portal
+            </span>
+            <span class="cat-hero-version">Cloud 2026</span>
           </div>
         </aside>
       </div>
@@ -153,60 +178,11 @@
       </div>
     </section>
 
-    <!-- ========== PLANS ========== -->
-    <section class="cat-plans" id="categorySubscriptionPlans">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">Choose Your <span class="accent">Management Plan</span></h2>
-          <p class="section-subtitle">Subscribe to this category only. Each category has its own separate access and subscription.</p>
-        </div>
-
-        <div class="cat-plan-grid">
-          <div class="cat-plan">
-            <span class="cat-plan-tag">1 Month</span>
-            <strong class="cat-plan-price">3,000 <em>PKR</em></strong>
-            <span class="cat-plan-days">One category · 1 month</span>
-            <ul>
-              <li>Full access to every Medical Store tool</li>
-              <li>Secure account and cloud-saved records</li>
-              <li>Access starts after payment approval</li>
-            </ul>
-            <button type="button" class="btn btn-outline" data-subscription-plan="1-month">Choose 1 Month</button>
-          </div>
-
-          <div class="cat-plan popular">
-            <span class="cat-plan-tag">3 Months</span>
-            <strong class="cat-plan-price">9,000 <em>PKR</em></strong>
-            <span class="cat-plan-days">One category · 3 months</span>
-            <ul>
-              <li>Full access to every Medical Store tool</li>
-              <li>Secure account and cloud-saved records</li>
-              <li>Access starts after payment approval</li>
-            </ul>
-            <button type="button" class="btn btn-primary" data-subscription-plan="3-month">Choose 3 Months</button>
-          </div>
-
-          <div class="cat-plan">
-            <span class="cat-plan-tag">Best Value</span>
-            <strong class="cat-plan-price">12,000 <em>PKR</em></strong>
-            <span class="cat-plan-days">One category · 6 months</span>
-            <ul>
-              <li>Full access to every Medical Store tool</li>
-              <li>Secure account and cloud-saved records</li>
-              <li>Access starts after payment approval</li>
-            </ul>
-            <button type="button" class="btn btn-outline" data-subscription-plan="6-month">Choose 6 Months</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- ========== RELATED CATEGORIES ========== -->
     <section class="cat-related">
       <div class="container">
         <div class="cat-related-head">
           <h2 class="section-title">Other <span class="accent">Categories</span></h2>
-          <a href="index.html#industries" class="cat-view-all">View all categories &rarr;</a>
         </div>
         <div class="cat-related-grid" id="catRelated">
           <a class="cat-related-card" href="clinic.html">
@@ -277,7 +253,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="category.js?v=20261028A"></script>
+  <script src="category.js?v=20261030B"></script>
   <script src="ui.js?v=20261023J"></script>
 
 </body>

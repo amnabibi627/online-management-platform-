@@ -396,11 +396,12 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 }
 
 .hero-text {
-  max-width: 580px;
-  margin: 0 0 1.9rem;
-  color: #475569;
-  font-size: clamp(1rem, 1.4vw, 1.08rem);
-  line-height: 1.75;
+  max-width: 620px;
+  margin: 0 0 2rem;
+  color: #334155;
+  font-size: clamp(1.06rem, 1.55vw, 1.2rem);
+  line-height: 1.8;
+  font-weight: 450;
 }
 
 .hero-ctas {

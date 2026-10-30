@@ -4122,3 +4122,314 @@ html.js .reveal.in {
     width: 88%;
   }
 }
+
+
+/* ============================================================
+   Website Preview Inside Laptop & Smartphone Devices
+   ============================================================ */
+/* Laptop Browser Bar */
+.browser-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.35rem 0.7rem;
+}
+
+.browser-dots {
+  display: flex;
+  gap: 4px;
+}
+.browser-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.browser-dots span:nth-child(1) { background: #ef4444; }
+.browser-dots span:nth-child(2) { background: #f59e0b; }
+.browser-dots span:nth-child(3) { background: #10b981; }
+
+.browser-address-bar {
+  flex: 1;
+  max-width: 250px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.64rem;
+  color: #475569;
+  font-family: monospace;
+}
+.browser-lock { font-size: 0.6rem; }
+.browser-url { font-size: 0.62rem; font-weight: 600; color: #334155; }
+.browser-refresh { font-size: 0.66rem; color: #94a3b8; }
+
+.browser-actions {
+  display: flex;
+  align-items: center;
+}
+.browser-tab-live {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+}
+
+/* Laptop Inner Webpage Content */
+.laptop-site-viewport {
+  background: #ffffff;
+  padding: 0.55rem 0.75rem 0.8rem;
+  overflow: hidden;
+}
+
+.mock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.5rem;
+}
+
+.mock-brand {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+}
+.mock-brand .mock-accent {
+  color: #ff8f04;
+  font-weight: 900;
+}
+
+.mock-nav {
+  display: flex;
+  gap: 0.35rem;
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: #475569;
+}
+.mock-nav-item.is-active {
+  color: #ff8f04;
+  font-weight: 700;
+}
+
+.mock-signup-btn {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff8f04, #ea580c);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.mock-hero {
+  text-align: center;
+  padding: 0.15rem 0;
+}
+
+.mock-hero-badge {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #ea580c;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  margin-bottom: 0.3rem;
+}
+
+.mock-hero-heading {
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+.mock-hero-heading .mock-lead {
+  display: block;
+  color: #0f172a;
+}
+.mock-hero-heading .mock-accent-text {
+  display: block;
+  color: #ff8f04;
+}
+
+.mock-hero-sub {
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1.25;
+  margin: 0 auto 0.45rem;
+  max-width: 280px;
+}
+
+.mock-cta-row {
+  margin-bottom: 0.6rem;
+}
+.mock-primary-btn {
+  display: inline-block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(255, 143, 4, 0.35);
+}
+
+.mock-categories-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+}
+
+.mock-cat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.3rem 0.15rem;
+  text-align: center;
+}
+.mock-cat-icon {
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 0.1rem;
+}
+.mock-cat-name {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #334155;
+  display: block;
+}
+
+/* Smartphone Inner Webpage Content */
+.phone-site-viewport {
+  padding: 0.45rem 0.5rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.phone-browser-bar {
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 0.14rem 0.4rem;
+  font-size: 0.54rem;
+  color: #475569;
+  text-align: center;
+  font-family: monospace;
+  border: 1px solid #e2e8f0;
+}
+.phone-lock { font-size: 0.5rem; }
+.phone-url { font-weight: 600; }
+
+.phone-site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.phone-brand {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.phone-brand-hi {
+  color: #ff8f04;
+}
+.phone-hamburger {
+  font-size: 0.7rem;
+  color: #334155;
+  line-height: 1;
+}
+
+.phone-site-hero {
+  text-align: center;
+  padding: 0.15rem 0;
+}
+
+.phone-hero-pill {
+  display: inline-block;
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 0.08rem 0.35rem;
+  margin-bottom: 0.2rem;
+}
+
+.phone-hero-h1 {
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+.phone-accent-text {
+  display: block;
+  color: #ff8f04;
+}
+
+.phone-hero-btn {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.18rem 0.55rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(255, 143, 4, 0.3);
+}
+
+.phone-cat-chips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem;
+}
+
+.phone-chip {
+  font-size: 0.54rem;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  padding: 0.2rem 0.25rem;
+  text-align: center;
+}
+
+.phone-live-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.54rem;
+  font-weight: 700;
+  color: #047857;
+  margin-top: 0.15rem;
+}
+.phone-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: heroPulse 1.8s infinite;
+}

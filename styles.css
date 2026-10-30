@@ -10,7 +10,7 @@
   --slate: #000000;
 
   --sky: #000000;
-  --cyan: #000000;
+  --cyan: #ff8f04;
   --amber: #ff8f04;
 
   /* ---- Surfaces ---- */
@@ -218,6 +218,7 @@ h1, h2, h3, h4, .brand {
   border: 1px solid #ff8f04 !important;
   box-shadow: 0 4px 14px -3px rgba(255, 143, 4, 0.45);
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
   transition: all 0.2s ease;
   white-space: nowrap !important;
   text-decoration: none !important;
@@ -433,6 +434,7 @@ h1, h2, h3, h4, .brand {
   font-size: 0.96rem;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
 }
 
 .hero-btn-primary-action {
@@ -901,6 +903,7 @@ h1, h2, h3, h4, .brand {
   border-radius: 999px;
   padding: 0.28rem 0.65rem;
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
   white-space: nowrap;
   transition: all 0.18s ease;
   line-height: 1;
@@ -1386,14 +1389,16 @@ h1, h2, h3, h4, .brand {
   box-shadow: 0 10px 40px -30px rgba(255, 143, 4, 0.6);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
 }
+.industry-card:focus,
 .industry-card:focus-visible {
-  outline: 3px solid var(--cyan);
+  outline: 3px solid #ff8f04;
   outline-offset: 3px;
 }
 .industry-card::before {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
-  background: linear-gradient(90deg, var(--pink), var(--cyan));
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+  background: linear-gradient(90deg, #ff8f04, #ffb356);
   opacity: 0; transition: opacity 0.2s ease;
 }
 .industry-card::after {
@@ -1407,6 +1412,8 @@ h1, h2, h3, h4, .brand {
   border-color: #ff8f04;
 }
 .industry-card:hover::before,
+.industry-card:focus::before,
+.industry-card:active::before,
 .industry-card:hover::after { opacity: 1; }
 .industry-card:hover::after { transform: translateX(0); }
 
@@ -1732,7 +1739,8 @@ body.detail-open { overflow: hidden; }
 .star-picker { display: flex; align-items: center; gap: 0.15rem; }
 .star-picker .star {
   background: none; border: 0;
-  cursor: pointer; padding: 0 0.08rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2); padding: 0 0.08rem;
   font-size: 1.75rem; line-height: 1; color: #ffffff;
   -webkit-text-stroke: 1px #ff8f04;
   text-stroke: 1px #ff8f04;
@@ -1976,6 +1984,7 @@ body.detail-open { overflow: hidden; }
   font-size: 0.8rem;
   color: var(--muted);
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
   margin: 0.4rem 0 1rem;
   text-align: left;
   line-height: 1.45;
@@ -1986,6 +1995,7 @@ body.detail-open { overflow: hidden; }
   margin: 0;
   flex: 0 0 auto;
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
   accent-color: var(--pink, #ff8f04);
 }
 
@@ -2126,6 +2136,7 @@ body.detail-open { overflow: hidden; }
   background: #f8fafc;
   border: 1px solid var(--border);
   cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
   padding: 0.45rem;
   border-radius: 8px;
   align-items: center;
@@ -3050,7 +3061,8 @@ body.detail-open { overflow: hidden; }
 
 .biz-ad-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.4rem 0 1.1rem; }
 .biz-ad-filter {
-  cursor: pointer; font-family: inherit; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2); font-family: inherit; font-size: 0.82rem; font-weight: 600;
   padding: 0.45rem 0.95rem; border-radius: 999px;
   border: 1.5px solid var(--border); background: #ffffff; color: var(--muted);
   transition: all 0.18s;
@@ -3105,7 +3117,8 @@ body.detail-open { overflow: hidden; }
 
 .biz-ad-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
 .biz-ad-btn {
-  cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2); font-family: inherit; font-size: 0.8rem; font-weight: 700;
   padding: 0.5rem 0.9rem; border-radius: 9px;
   border: 1.5px solid var(--border); background: #ffffff; color: var(--ink);
   transition: all 0.18s;
@@ -3483,7 +3496,7 @@ body.detail-open { overflow: hidden; }
 /* ---- Reading progress bar ---- */
 .scroll-progress {
   position: fixed; top: 0; left: 0; height: 3px; width: 0;
-  background: linear-gradient(90deg, var(--pink), var(--cyan));
+  background: linear-gradient(90deg, #ff8f04, #ffb356);
   z-index: 400; pointer-events: none;
 }
 
@@ -3541,7 +3554,8 @@ body.detail-open { overflow: hidden; }
   background: var(--navy); color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 18px 34px -18px rgba(15, 23, 42, 0.85);
-  cursor: pointer; font-size: 1rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2); font-size: 1rem;
   opacity: 0; visibility: hidden; transform: translateY(12px);
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s, background 0.2s;
 }

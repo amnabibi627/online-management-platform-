@@ -3674,43 +3674,39 @@ html.js .reveal.in {
   animation: heroPulse 1.8s infinite ease-in-out;
 }
 
-/* ----- 1. LAPTOP FRAME (MacBook Pro Space Gray Aluminum) ----- */
+/* ----- 1. ULTRABOOK LAPTOP (Matching User's Image) ----- */
 .device-laptop {
   position: relative;
-  width: 92%;
+  width: 88%;
   margin-right: auto;
   z-index: 2;
   transition: transform 0.3s ease;
 }
 
 .laptop-lid {
-  border-radius: 15px 15px 3px 3px;
-  background: linear-gradient(150deg, #2b3240 0%, #171b24 50%, #0d1017 100%);
-  padding: 7px 7px 9px 7px;
-  border: 1px solid #090c12;
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
-    0 25px 60px -10px rgba(0, 0, 0, 0.5);
+  border-radius: 9px 9px 2px 2px;
+  background: #000000;
+  padding: 4px 4px 0 4px;
+  border: 1px solid #1e293b;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.45);
   position: relative;
 }
 
 .laptop-cam {
-  width: 6px;
-  height: 6px;
+  width: 4.5px;
+  height: 4.5px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #38bdf8 15%, #0284c7 35%, #050b14 90%);
-  margin: 1px auto 5px;
-  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.95), 0 0 1px rgba(255, 255, 255, 0.3);
+  margin: 1px auto 3px;
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.95);
   position: relative;
 }
 
 .laptop-screen {
-  border-radius: 6px;
+  border-radius: 3px;
   background: #ffffff;
   overflow: hidden;
-  border: 1px solid #1e293b;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+  border: 1px solid #000000;
   position: relative;
 }
 
@@ -3722,32 +3718,52 @@ html.js .reveal.in {
   left: 0;
   right: 0;
   height: 48%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.02) 42%, rgba(255, 255, 255, 0) 65%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 42%, rgba(255, 255, 255, 0) 65%);
   pointer-events: none;
   z-index: 10;
 }
 
+/* Laptop Bottom Bezel Chin with Brand Name */
+.laptop-display-chin {
+  height: 14px;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #111827;
+}
+
+.laptop-chin-logo {
+  color: #e2e8f0;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  opacity: 0.9;
+}
+
+/* Laptop Unibody Silver Aluminum Base */
 .laptop-base {
-  height: 12px;
-  width: calc(100% + 28px);
-  margin: 0 -14px;
-  background: linear-gradient(180deg, #475569 0%, #334155 30%, #1e293b 80%, #0f172a 100%);
-  border-radius: 0 0 14px 14px;
+  height: 11px;
+  width: calc(100% + 22px);
+  margin: 0 -11px;
+  background: linear-gradient(180deg, #f1f5f9 0%, #cbd5e1 35%, #94a3b8 80%, #64748b 100%);
+  border-radius: 0 0 12px 12px;
   position: relative;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.48);
+  border-top: 1.5px solid #ffffff;
   box-shadow:
-    0 24px 50px -10px rgba(15, 23, 42, 0.42),
-    0 8px 18px -4px rgba(15, 23, 42, 0.28),
-    inset 0 -1.5px 2px rgba(0, 0, 0, 0.6);
+    0 22px 48px -8px rgba(15, 23, 42, 0.38),
+    0 8px 18px -4px rgba(15, 23, 42, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.45);
 }
 
 .laptop-notch {
-  width: 66px;
-  height: 4.5px;
-  background: #0b0f17;
+  width: 58px;
+  height: 3.5px;
+  background: #64748b;
   margin: 0 auto;
-  border-radius: 0 0 6px 6px;
-  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-radius: 0 0 4px 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 /* Laptop Software App Screen */
@@ -3930,65 +3946,62 @@ html.js .reveal.in {
   box-shadow: 0 2px 6px rgba(255, 143, 4, 0.3);
 }
 
-/* ----- 2. SMARTPHONE DEVICE (iPhone 16 Pro Titanium Mockup) ----- */
+/* ----- 2. CURVED SCREEN SMARTPHONE (Matching User's Image Standing on Right) ----- */
 .device-phone {
   position: absolute;
-  right: -12px;
-  bottom: -6px;
-  width: 184px;
-  border-radius: 36px;
-  background: #0f172a;
-  padding: 4px;
+  right: -10px;
+  bottom: 0px;
+  width: 156px;
+  border-radius: 26px;
+  background: #000000;
+  padding: 3px;
   box-shadow:
-    0 0 0 1.5px #64748b,
-    0 0 0 3px #1e293b,
-    0 0 0 4.5px rgba(255, 255, 255, 0.16),
-    0 32px 70px -12px rgba(0, 0, 0, 0.65),
-    -14px 20px 35px -8px rgba(0, 0, 0, 0.4);
+    0 0 0 1px #94a3b8,
+    0 0 0 2px #334155,
+    0 24px 50px -8px rgba(0, 0, 0, 0.55),
+    -10px 14px 28px -4px rgba(0, 0, 0, 0.35);
   z-index: 10;
   animation: phoneFloat 3.8s ease-in-out infinite alternate;
 }
 
 @keyframes phoneFloat {
   0% { transform: translateY(0); }
-  100% { transform: translateY(-7px); }
+  100% { transform: translateY(-6px); }
 }
 
-/* iPhone Hardware Side Buttons */
-.device-phone::before {
-  content: "";
-  position: absolute;
-  left: -4.5px;
-  top: 48px;
-  width: 3px;
-  height: 16px;
-  background: #64748b;
-  border-radius: 2px 0 0 2px;
-  box-shadow:
-    0 26px 0 0 #64748b, /* Volume Up */
-    0 52px 0 0 #64748b; /* Volume Down */
-}
-
-.device-phone::after {
-  content: "";
-  position: absolute;
-  right: -4.5px;
-  top: 64px;
-  width: 3px;
-  height: 38px;
-  background: #64748b;
-  border-radius: 0 2px 2px 0;
-}
-
-/* iPhone OLED Display */
+/* Smartphone Curved OLED Display */
 .phone-screen {
   position: relative;
-  border-radius: 32px;
+  border-radius: 23px;
   background: #ffffff;
-  padding: 0.35rem 0.5rem 0.6rem;
+  padding: 0.32rem 0.45rem 0.55rem;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    inset 2px 0 3px rgba(255, 255, 255, 0.6),
+    inset -2px 0 3px rgba(255, 255, 255, 0.6);
+}
+
+/* Centered Pinhole Punch-Hole Camera (Honor 70 Style) */
+.phone-punchhole {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: #000000;
+  margin: 1px auto 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), inset 0 0 1px rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 8;
+}
+
+.punchhole-dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #38bdf8 30%, #0369a1 80%);
 }
 
 /* Glass Screen Glare Overlay */
@@ -4002,37 +4015,6 @@ html.js .reveal.in {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0) 70%);
   pointer-events: none;
   z-index: 12;
-}
-
-/* iPhone Dynamic Island Inside Display */
-.phone-dynamic-island {
-  width: 52px;
-  height: 11px;
-  background: #000000;
-  border-radius: 999px;
-  margin: 1px auto 5px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 6px;
-  gap: 3px;
-  box-shadow: inset 0 0 1px rgba(255, 255, 255, 0.35);
-  position: relative;
-  z-index: 8;
-}
-
-.phone-island-cam {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #38bdf8 20%, #0284c7 40%, #000 90%);
-}
-
-.phone-island-sensor {
-  width: 2.5px;
-  height: 2.5px;
-  border-radius: 50%;
-  background: #1e293b;
 }
 
 .phone-topbar {
@@ -4161,32 +4143,23 @@ html.js .reveal.in {
     padding: 0.28rem 0.65rem;
   }
   .device-laptop {
-    width: 88%;
+    width: 86%;
   }
   .device-phone {
-    width: 142px;
+    width: 130px;
     right: -4px;
-    bottom: -6px;
-    padding: 3.5px;
-    border-radius: 26px;
-  }
-  .device-phone::before {
-    top: 36px;
-    height: 12px;
-    box-shadow: 0 20px 0 0 #64748b, 0 40px 0 0 #64748b;
-  }
-  .device-phone::after {
-    top: 48px;
-    height: 28px;
+    bottom: 0px;
+    padding: 2.5px;
+    border-radius: 22px;
   }
   .phone-screen {
-    border-radius: 23px;
-    padding: 0.3rem 0.42rem 0.5rem;
+    border-radius: 19px;
+    padding: 0.28rem 0.38rem 0.45rem;
   }
-  .phone-dynamic-island {
-    width: 42px;
-    height: 9px;
-    margin: 1px auto 4px;
+  .phone-punchhole {
+    width: 5px;
+    height: 5px;
+    margin: 1px auto 3px;
   }
   .phone-stat-num {
     font-size: 0.92rem;

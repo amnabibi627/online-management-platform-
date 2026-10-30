@@ -315,6 +315,16 @@ mainNav.querySelectorAll(".nav-link").forEach((link) => {
   link.addEventListener("click", () => setNavOpen(false));
 });
 
+// Smart Hub Category Pill click
+document.querySelectorAll(".hub-cat-pill").forEach((pill) => {
+  pill.addEventListener("click", () => {
+    document.querySelectorAll(".hub-cat-pill").forEach((p) => p.classList.remove("is-active"));
+    pill.classList.add("is-active");
+    const indSec = document.getElementById("industries");
+    if (indSec) indSec.scrollIntoView({ behavior: "smooth" });
+  });
+});
+
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && mainNav.classList.contains("open")) setNavOpen(false);
 });

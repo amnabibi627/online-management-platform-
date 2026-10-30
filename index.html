@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261030H" />
+  <link rel="stylesheet" href="styles.css?v=20261030K" />
 </head>
 <body>
 
@@ -75,56 +75,139 @@
             </div>
           </div>
           <div class="hero-col hero-col-right">
-            <div class="hero-dashboard-card">
-              <div class="hero-dashboard-header">
-                <div class="hero-dashboard-dots" aria-hidden="true">
-                  <span></span><span></span><span></span>
-                </div>
-                <div class="hero-dashboard-title">Dashboard Overview</div>
-                <div class="hero-dashboard-badge"><span class="hero-pulse-dot"></span> Live</div>
+            <!-- Modern Multi-Device Showcase: Laptop + Smartphone with Live Sync -->
+            <div class="device-showcase-wrap" aria-label="Software running simultaneously on Laptop and Smartphone with real-time cloud sync">
+              
+              <!-- Floating Live Sync Badge -->
+              <div class="device-sync-badge">
+                <span class="device-sync-pulse"></span>
+                <span class="device-sync-icon">🔄</span>
+                <span class="device-sync-text"><strong>Live Sync:</strong> PC &bull; Mobile &bull; Tablet</span>
               </div>
-              <div class="hero-dashboard-body">
-                <div class="hero-dashboard-grid">
-                  <div class="hero-dashboard-metric is-primary">
-                    <div class="hero-metric-top">
-                      <div class="hero-metric-icon">💰</div>
-                      <span class="hero-metric-trend up">&uarr; 14.8%</span>
+
+              <!-- LAPTOP DEVICE MOCKUP -->
+              <div class="device-laptop">
+                <div class="laptop-lid">
+                  <!-- Laptop Camera Notch -->
+                  <div class="laptop-cam" aria-hidden="true"></div>
+                  <!-- Laptop Screen Content -->
+                  <div class="laptop-screen">
+                    <!-- Software Top App Bar -->
+                    <div class="app-topbar">
+                      <div class="app-dots" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                      </div>
+                      <div class="app-title">
+                        <span class="app-title-icon">🏪</span>
+                        <span class="app-title-name">Business POS &bull; Invoicing</span>
+                      </div>
+                      <div class="app-status">
+                        <span class="app-status-dot"></span> Live Sync
+                      </div>
                     </div>
-                    <div class="hero-dashboard-label">Today's Sales</div>
-                    <div class="hero-dashboard-value">Rs. 42,850</div>
-                  </div>
-                  <div class="hero-dashboard-metric">
-                    <div class="hero-metric-top">
-                      <div class="hero-metric-icon">📅</div>
-                      <span class="hero-metric-pill">Today</span>
+
+                    <!-- Software Work Area: Clean POS & Invoice Screen -->
+                    <div class="app-body">
+                      <!-- Active Invoice Header -->
+                      <div class="pos-header">
+                        <div class="pos-inv-info">
+                          <span class="pos-badge">Invoice #1042</span>
+                          <span class="pos-date">Customer: Walk-in Client</span>
+                        </div>
+                        <div class="pos-cat-pill">General Store / Pharmacy</div>
+                      </div>
+
+                      <!-- Cart Table -->
+                      <div class="pos-table">
+                        <div class="pos-row pos-head">
+                          <span>Item</span>
+                          <span>Qty</span>
+                          <span>Price</span>
+                          <span>Total</span>
+                        </div>
+                        <div class="pos-row">
+                          <span class="pos-item-name">Panadol Extra Strip</span>
+                          <span>2</span>
+                          <span>Rs. 80</span>
+                          <strong>Rs. 160</strong>
+                        </div>
+                        <div class="pos-row">
+                          <span class="pos-item-name">Brufen 400mg Box</span>
+                          <span>1</span>
+                          <span>Rs. 120</span>
+                          <strong>Rs. 120</strong>
+                        </div>
+                        <div class="pos-row">
+                          <span class="pos-item-name">Surgical Mask (5 pcs)</span>
+                          <span>1</span>
+                          <span>Rs. 100</span>
+                          <strong>Rs. 100</strong>
+                        </div>
+                      </div>
+
+                      <!-- POS Summary Footer -->
+                      <div class="pos-summary">
+                        <div class="pos-total-wrap">
+                          <span class="pos-total-label">Total Amount:</span>
+                          <span class="pos-total-val">Rs. 380</span>
+                        </div>
+                        <div class="pos-actions">
+                          <span class="pos-btn pos-btn-paid">&check; Paid</span>
+                          <span class="pos-btn pos-btn-print">&#128424; Print Bill</span>
+                        </div>
+                      </div>
                     </div>
-                    <div class="hero-dashboard-label">Appointments</div>
-                    <div class="hero-dashboard-value">18</div>
-                  </div>
-                  <div class="hero-dashboard-metric">
-                    <div class="hero-metric-top">
-                      <div class="hero-metric-icon">👥</div>
-                      <span class="hero-metric-trend up">&uarr; +32</span>
-                    </div>
-                    <div class="hero-dashboard-label">Total Customers</div>
-                    <div class="hero-dashboard-value">1,248</div>
-                  </div>
-                  <div class="hero-dashboard-metric is-alert">
-                    <div class="hero-metric-top">
-                      <div class="hero-metric-icon">📦</div>
-                      <span class="hero-metric-pill alert">Alert</span>
-                    </div>
-                    <div class="hero-dashboard-label">Low Stock Items</div>
-                    <div class="hero-dashboard-value">6</div>
                   </div>
                 </div>
-                <div class="hero-dashboard-footer">
-                  <div class="hero-footer-status">
-                    <span class="hero-status-indicator"></span>
-                    <span>All services running smoothly &bull; Real-time Cloud Sync</span>
+                <!-- Laptop Base / Keyboard deck & notch -->
+                <div class="laptop-base">
+                  <div class="laptop-notch" aria-hidden="true"></div>
+                </div>
+              </div>
+
+              <!-- SMARTPHONE DEVICE (Overlapping Laptop Front-Right) -->
+              <div class="device-phone">
+                <!-- Phone Speaker / Dynamic Island -->
+                <div class="phone-notch">
+                  <span class="phone-cam"></span>
+                </div>
+                
+                <!-- Phone Screen -->
+                <div class="phone-screen">
+                  <div class="phone-topbar">
+                    <span class="phone-time">12:30</span>
+                    <span class="phone-battery">&#9889; 100%</span>
+                  </div>
+
+                  <!-- Live Sync Notification on Phone -->
+                  <div class="phone-sync-banner">
+                    <span class="phone-sync-dot"></span>
+                    <span>Sync: Bill #1042 Recorded</span>
+                  </div>
+
+                  <!-- Mobile Software Cards -->
+                  <div class="phone-stat-card">
+                    <div class="phone-stat-label">Today's Sales</div>
+                    <div class="phone-stat-num">Rs. 42,850</div>
+                    <div class="phone-stat-sub">&uarr; 18 Bills Processed</div>
+                  </div>
+
+                  <div class="phone-recent-item">
+                    <div class="phone-recent-icon">📦</div>
+                    <div class="phone-recent-info">
+                      <div class="phone-recent-title">Stock Updated</div>
+                      <div class="phone-recent-sub">Cloud Backup Safe</div>
+                    </div>
+                    <span class="phone-check">&check;</span>
+                  </div>
+
+                  <div class="phone-action-btn">
+                    <span>Quick New Bill</span>
+                    <span class="phone-btn-plus">+</span>
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -1553,7 +1636,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261030E"></script>
+  <script src="script.js?v=20261030J"></script>
   <script src="liveads.js?v=20261024b"></script>
   <script src="ui.js?v=20261023H"></script>
 

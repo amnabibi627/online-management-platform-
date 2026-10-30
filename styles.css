@@ -2745,9 +2745,9 @@ body.detail-open { overflow: hidden; }
 .ads-combo-reg .reg-cta-list { justify-content: flex-start; margin-left: 0; margin-right: 0; }
 .ads-combo-reg .reg-cta-plans { justify-content: flex-start; }
 .ads-combo-live {
-  background: #ffffff; border: 1px solid var(--border);
+  background: rgba(255, 143, 4, 0.06); border: 1px solid rgba(255, 143, 4, 0.4);
   border-radius: 24px; padding: 1.9rem 1.7rem;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 24px 48px -32px rgba(15, 23, 42, 0.3);
+  box-shadow: 0 10px 40px -30px rgba(255, 143, 4, 0.6);
 }
 .ads-combo-title { font-size: 1.28rem; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
 .ads-combo-sub { font-size: 0.88rem; color: var(--muted); margin: 0.3rem 0 0.2rem; }
@@ -2757,8 +2757,8 @@ body.detail-open { overflow: hidden; }
 }
 .ads-combo-live .live-ads-empty {
   margin-top: 1.6rem; padding: 2.6rem 1.2rem;
-  border: 1px dashed #cfd8e6; border-radius: 18px;
-  background: linear-gradient(180deg, #fbfcfe, #f4f7fc);
+  border: 1px dashed rgba(255, 143, 4, 0.4); border-radius: 18px;
+  background: rgba(255, 143, 4, 0.04);
   font-size: 0.9rem; font-weight: 500;
 }
 .ads-combo-live .live-ads-empty::before {
@@ -3160,19 +3160,19 @@ body.detail-open { overflow: hidden; }
   margin-top: 1.8rem;
 }
 .fiverr-card {
-  background: #ffffff;
-  border: 1px solid var(--border);
+  background: rgba(255, 143, 4, 0.06);
+  border: 1px solid rgba(255, 143, 4, 0.4);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 28px rgba(30, 41, 59, 0.06);
+  box-shadow: 0 10px 40px -30px rgba(255, 143, 4, 0.6);
   display: flex;
   flex-direction: column;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 .fiverr-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.12);
-  border-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 24px 48px -24px rgba(255, 143, 4, 0.4);
+  border-color: #ff8f04;
 }
 .fiverr-cover {
   height: 110px;
@@ -3299,15 +3299,17 @@ body.detail-open { overflow: hidden; }
 }
 .fiverr-gig-card {
   background: #ffffff;
-  border: 1px solid #e3e8f0;
+  border: 1px solid rgba(255, 143, 4, 0.4);
   border-radius: 16px;
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 40px -30px rgba(255, 143, 4, 0.6);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 .fiverr-gig-card:hover {
-  box-shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.4);
+  box-shadow: 0 24px 48px -24px rgba(255, 143, 4, 0.5);
+  border-color: #ff8f04;
   transform: translateY(-3px);
 }
 .fiverr-gig-thumb {

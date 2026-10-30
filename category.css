@@ -528,17 +528,14 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
 
 /* Workspace Header */
 .cat-ws-header {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.4rem; padding-bottom: 1.2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.2rem; flex-wrap: wrap; margin-bottom: 1.3rem; padding-bottom: 1.1rem;
   border-bottom: 1px solid #edf2f7;
 }
-.cat-ws-header-info { min-width: min(100%, 320px); }
-.category-workspace-eyebrow {
-  margin: 0 0 0.35rem 0; color: #ff8f04; font-size: 0.72rem;
-  font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
-}
+.cat-ws-header-info { display: flex; align-items: center; }
+.category-workspace-eyebrow { display: none; }
 .cat-ws-header h2 {
-  margin: 0 0 0.45rem 0; color: #0f172a; font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  margin: 0; color: #0f172a; font-size: clamp(1.4rem, 2.5vw, 1.85rem);
   font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 0.6rem;
 }
 .cat-ws-title-icon { font-size: 1.7rem; }

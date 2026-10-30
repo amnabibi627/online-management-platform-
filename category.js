@@ -807,20 +807,10 @@ const categoryRenderList = () => {
     `;
   }).join("");
 
-  const isCloud = categoryHasAccess();
-  const statusBadge = isCloud
-    ? `<span class="cat-ws-pill is-cloud"><span class="cat-ws-dot"></span> Cloud Synced</span>`
-    : `<span class="cat-ws-pill is-local"><span class="cat-ws-dot"></span> Local Storage (Active)</span>`;
-
   content.innerHTML = `
     <div class="cat-ws-header">
       <div class="cat-ws-header-info">
-        <p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} &bull; Business Workspace</p>
         <h2 id="categoryWorkspaceTitle"><span class="cat-ws-title-icon">${categoryEscape(categoryFeature.icon)}</span> ${categoryEscape(categoryFeature.name)}</h2>
-        <div class="cat-ws-status-bar">
-          ${statusBadge}
-          <span class="cat-ws-hint">All changes save automatically</span>
-        </div>
       </div>
       <div class="cat-ws-header-actions">
         <button type="button" class="btn btn-primary" data-tool-add>
@@ -967,7 +957,6 @@ const categoryRenderForm = (itemId = null) => {
   const content = document.getElementById("categoryWorkspaceContent");
   content.innerHTML = `
     <div class="cat-form-head">
-      <p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</p>
       <h2 id="categoryWorkspaceTitle">${itemId ? "Edit Record" : "Add New Record"}</h2>
       <p class="category-workspace-description">${itemId ? "Update record details below and click Save Changes." : "Fill in the required information to create a new record."}</p>
     </div>

@@ -4584,6 +4584,12 @@ const closeRegModal = () => {
 
 openRegFormBtn?.addEventListener("click", openRegModal);
 document.getElementById("openRegFormHero")?.addEventListener("click", openRegModal);
+document.getElementById("openPlansHero")?.addEventListener("click", () => {
+  openRegModal();
+  setTimeout(() => {
+    document.getElementById("planGrid")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, 100);
+});
 regModalClose?.addEventListener("click", closeRegModal);
 regModal?.addEventListener("click", (e) => {
   if (e.target === regModal) closeRegModal();

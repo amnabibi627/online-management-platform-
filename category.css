@@ -19,11 +19,9 @@
 body[data-category] .header-inner { gap: 0.5rem !important; }
 body[data-category] .cat-back-btn { flex-shrink: 0; white-space: nowrap; }
 body[data-category] .header-actions { gap: 0.6rem; }
-body[data-category] .header-actions .brand { margin-right: 0.2rem; }
 
 /* Not enough room for back link + full nav + brand on medium screens */
 @media (min-width: 901px) and (max-width: 1320px) {
-  body[data-category] .header-actions .brand { display: none !important; }
 }
 
 /* Slightly tighter nav so the back link still fits below 1100px */
@@ -33,7 +31,6 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
 
 /* Very small screens: keep only the back link and the menu button */
 @media (max-width: 600px) {
-  body[data-category] .header-actions .brand { display: none !important; }
 }
 
 /* ---------- Breadcrumbs ---------- */

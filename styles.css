@@ -4433,3 +4433,30 @@ html.js .reveal.in {
   background: #10b981;
   animation: heroPulse 1.8s infinite;
 }
+
+
+.phone-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.phone-mini-signup {
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  line-height: 1;
+}
+.phone-hero-sub {
+  font-size: 0.52rem;
+  color: #64748b;
+  line-height: 1.25;
+  margin: 0 0 0.3rem;
+}
+.mock-categories-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 0.25rem !important;
+}

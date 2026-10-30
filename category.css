@@ -1122,3 +1122,20 @@ body[data-category] .header-actions { gap: 0.6rem; }
   .cat-feature:hover, .cat-plan:hover, .cat-related-card:hover { transform: none; }
 }
 
+
+
+/* ---------- Category Hero Laptop Device Image ---------- */
+.cat-hero-image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.cat-hero-devices-img {
+  width: 100%;
+  max-width: 580px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.08));
+}

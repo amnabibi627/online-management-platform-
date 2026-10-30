@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   /* ---- Brand ---- */
   --pink: #ff8f04;
   --pink-dark: #ff8f04;
@@ -4978,4 +4978,40 @@ select {
 .cat-hero-card::before,
 .hero-dashboard-card::before {
   display: none !important;
+}
+
+
+/* ============================================================
+   SECURITY & ANTI-COPY PROTECTION
+   ============================================================ */
+html, body {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"],
+.allow-select,
+.owner-phone,
+.owner-email,
+.receipt-box,
+.receipt-body {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+img, picture, svg {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
 }

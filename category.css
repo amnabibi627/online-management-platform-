@@ -587,40 +587,83 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
   border-color: #cbd5e1; background: #f8fafc; color: #0f172a; transform: translateY(-2px);
 }
 
-/* Nav Tabs: Active vs Recycle Bin */
-.cat-ws-nav-tabs {
-  display: flex; align-items: center; gap: 0.5rem;
-  background: #f1f5f9; padding: 0.35rem; border-radius: 14px;
-  width: fit-content; margin-bottom: 1.15rem;
+/* Unified Manage Data Dropdown */
+.cat-ws-dropdown {
+  position: relative;
+  display: inline-block;
 }
-.cat-ws-tab {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  padding: 0.5rem 1rem; border-radius: 10px; border: 0;
-  background: transparent; color: #64748b; font-size: 0.84rem; font-weight: 700;
-  cursor: pointer; transition: all 0.18s ease;
+.cat-ws-dropdown-btn {
+  display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;
 }
-.cat-ws-tab:hover { color: #0f172a; }
-.cat-ws-tab.is-active {
-  background: #ffffff; color: #0f172a;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+.cat-caret {
+  font-size: 0.72rem; transition: transform 0.2s ease; display: inline-block;
 }
-.cat-ws-tab-count {
-  display: inline-block; padding: 0.12rem 0.5rem; border-radius: 999px;
-  font-size: 0.72rem; font-weight: 800; background: #e2e8f0; color: #475569;
+.cat-ws-dropdown-btn[aria-expanded="true"] .cat-caret {
+  transform: rotate(180deg);
 }
-.cat-ws-tab.is-active .cat-ws-tab-count { background: #ffedd5; color: #ea580c; }
-.cat-ws-tab-count.has-items { background: #fee2e2; color: #dc2626; }
+.cat-ws-dropdown-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  width: 280px; max-width: calc(100vw - 2rem);
+  background: #ffffff; border: 1px solid #e2e8f0; border-radius: 18px;
+  box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.18), 0 4px 16px rgba(15, 23, 42, 0.05);
+  padding: 0.6rem; z-index: 200; display: none;
+  animation: catMenuPop 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cat-ws-dropdown-menu.is-open { display: block; }
+@keyframes catMenuPop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cat-ws-menu-header {
+  padding: 0.45rem 0.65rem 0.25rem; font-size: 0.66rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8;
+}
+.cat-ws-menu-divider {
+  height: 1px; background: #f1f5f9; margin: 0.4rem 0.2rem;
+}
+.cat-ws-menu-item {
+  width: 100%; display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.6rem 0.75rem; border: 0; background: transparent;
+  border-radius: 12px; text-align: left; cursor: pointer;
+  transition: all 0.15s ease; font: inherit; color: #1e293b;
+}
+.cat-ws-menu-item:hover {
+  background: #f8fafc; transform: translateX(2px);
+}
+.cat-menu-icon {
+  font-size: 1.25rem; line-height: 1; flex-shrink: 0;
+}
+.cat-menu-text {
+  display: flex; flex-direction: column; gap: 0.1rem;
+}
+.cat-menu-text strong {
+  font-size: 0.84rem; font-weight: 700; color: #0f172a; line-height: 1.2;
+}
+.cat-menu-text small {
+  font-size: 0.73rem; color: #64748b; line-height: 1.25;
+}
 
 /* Recycle Bin Alert Banner */
 .cat-ws-trash-banner {
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   background: #fffbeb; border: 1px solid #fef3c7; border-radius: 14px;
-  padding: 0.85rem 1.1rem; margin-bottom: 1.2rem; font-size: 0.84rem; color: #92400e;
+  padding: 0.85rem 1.15rem; margin-bottom: 1.2rem; font-size: 0.84rem; color: #92400e;
   flex-wrap: wrap;
+}
+.cat-ws-trash-banner-actions {
+  display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+}
+.cat-btn-back-active {
+  background: #ffffff; border: 1px solid #d97706; color: #b45309;
+  border-radius: 9px; padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s ease;
+}
+.cat-btn-back-active:hover {
+  background: #fef3c7;
 }
 .cat-btn-empty-trash {
   background: #ffffff; border: 1px solid #fca5a5; color: #dc2626;
-  border-radius: 8px; padding: 0.35rem 0.85rem; font-size: 0.78rem; font-weight: 700;
+  border-radius: 9px; padding: 0.4rem 0.85rem; font-size: 0.78rem; font-weight: 700;
   cursor: pointer; transition: all 0.15s ease;
 }
 .cat-btn-empty-trash:hover {
@@ -630,18 +673,18 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
 /* Toolbar & Real-time Search */
 .cat-ws-toolbar {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 1rem; flex-wrap: wrap; margin-bottom: 1.1rem;
+  gap: 1rem; flex-wrap: wrap; margin-bottom: 1.15rem;
 }
 .cat-ws-search-wrap {
   position: relative; display: flex; align-items: center;
-  width: min(100%, 360px);
+  width: min(100%, 340px);
 }
 .cat-ws-search-icon {
   position: absolute; left: 0.85rem; color: #94a3b8; font-size: 0.95rem; pointer-events: none;
 }
 .cat-ws-search-input {
   width: 100%; padding: 0.65rem 2.2rem 0.65rem 2.4rem;
-  border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc;
+  border: 1.5px solid #e2e8f0; border-radius: 12px; background: #f8fafc;
   color: #0f172a; font-size: 0.86rem; transition: all 0.2s ease;
 }
 .cat-ws-search-input:focus {
@@ -653,7 +696,37 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
   color: #94a3b8; font-size: 1.2rem; cursor: pointer; padding: 0; line-height: 1;
 }
 .cat-ws-search-clear:hover { color: #0f172a; }
-.cat-ws-meta-count { font-size: 0.82rem; color: #64748b; margin-left: auto; }
+
+/* Segmented View Switcher in Toolbar */
+.cat-ws-toolbar-right {
+  display: flex; align-items: center; gap: 0.9rem; margin-left: auto; flex-wrap: wrap;
+}
+.cat-ws-view-tabs {
+  display: inline-flex; align-items: center; gap: 0.25rem;
+  background: #f1f5f9; padding: 0.25rem; border-radius: 12px;
+}
+.cat-ws-view-tab {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.42rem 0.8rem; border-radius: 9px; border: 0;
+  background: transparent; color: #64748b; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; transition: all 0.16s ease;
+}
+.cat-ws-view-tab:hover { color: #0f172a; }
+.cat-ws-view-tab.is-active {
+  background: #ffffff; color: #0f172a;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+.cat-ws-badge {
+  display: inline-block; padding: 0.1rem 0.45rem; border-radius: 999px;
+  font-size: 0.68rem; font-weight: 800; background: #e2e8f0; color: #475569;
+}
+.cat-ws-view-tab.is-active .cat-ws-badge {
+  background: #ffedd5; color: #ea580c;
+}
+.cat-ws-view-tab.has-trash .cat-ws-badge {
+  background: #fee2e2; color: #dc2626;
+}
+.cat-ws-meta-count { font-size: 0.82rem; color: #64748b; white-space: nowrap; }
 
 /* Modern Records Table */
 .category-workspace-table-wrap {
@@ -931,41 +1004,59 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
   }
   .cat-ws-header-actions {
     width: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 0.5rem;
+    display: flex;
+    gap: 0.6rem;
     margin-left: 0;
   }
   .cat-ws-header-actions .btn {
+    flex: 1;
     justify-content: center;
+  }
+  .cat-ws-dropdown {
+    flex: 1;
+  }
+  .cat-ws-dropdown .btn {
     width: 100%;
   }
-  .cat-ws-nav-tabs {
+  .cat-ws-dropdown-menu {
+    right: 0;
     width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    text-align: center;
-  }
-  .cat-ws-tab {
-    justify-content: center;
+    min-width: 270px;
   }
   .cat-ws-toolbar {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.8rem;
   }
   .cat-ws-search-wrap {
     width: 100%;
   }
-  .cat-ws-meta-count {
+  .cat-ws-toolbar-right {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
     margin-left: 0;
-    text-align: right;
+  }
+  .cat-ws-view-tabs {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    text-align: center;
+  }
+  .cat-ws-view-tab {
+    justify-content: center;
   }
   .cat-ws-trash-banner {
     flex-direction: column;
     align-items: flex-start;
   }
-  .cat-btn-empty-trash {
+  .cat-ws-trash-banner-actions {
     width: 100%;
+  }
+  .cat-ws-trash-banner-actions .cat-btn-back-active,
+  .cat-ws-trash-banner-actions .cat-btn-empty-trash {
+    flex: 1;
+    text-align: center;
   }
 }
 

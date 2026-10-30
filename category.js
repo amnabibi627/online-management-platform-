@@ -826,34 +826,61 @@ const categoryRenderList = () => {
         <button type="button" class="btn btn-primary" data-tool-add>
           <span aria-hidden="true">➕</span> Add Record
         </button>
-        <button type="button" class="btn btn-outline" data-ws-backup title="Download JSON Backup">
-          <span aria-hidden="true">💾</span> Backup
-        </button>
-        <button type="button" class="btn btn-outline" data-ws-restore title="Restore from JSON Backup">
-          <span aria-hidden="true">📥</span> Restore
-        </button>
-        <button type="button" class="btn btn-outline" data-ws-csv title="Export to CSV">
-          <span aria-hidden="true">📊</span> CSV
-        </button>
-        <button type="button" class="btn btn-outline" data-ws-print title="Print / Save PDF">
-          <span aria-hidden="true">🖨️</span> Print
-        </button>
+        <div class="cat-ws-dropdown">
+          <button type="button" class="btn btn-outline cat-ws-dropdown-btn" data-ws-menu-toggle aria-expanded="false" title="Data Backup, Restore, Export & Tools">
+            <span aria-hidden="true">⚙️</span> Manage Data <span class="cat-caret">▾</span>
+          </button>
+          <div class="cat-ws-dropdown-menu" id="catWsDataMenu">
+            <div class="cat-ws-menu-header">Data Backup & Recovery</div>
+            <button type="button" class="cat-ws-menu-item" data-ws-backup>
+              <span class="cat-menu-icon" aria-hidden="true">💾</span>
+              <div class="cat-menu-text">
+                <strong>Export Backup</strong>
+                <small>Download full data file (JSON)</small>
+              </div>
+            </button>
+            <button type="button" class="cat-ws-menu-item" data-ws-restore>
+              <span class="cat-menu-icon" aria-hidden="true">📥</span>
+              <div class="cat-menu-text">
+                <strong>Restore Backup</strong>
+                <small>Upload and import JSON backup</small>
+              </div>
+            </button>
+            <button type="button" class="cat-ws-menu-item" data-ws-tab="${isTrash ? 'active' : 'trash'}">
+              <span class="cat-menu-icon" aria-hidden="true">${isTrash ? '📋' : '🗑️'}</span>
+              <div class="cat-menu-text">
+                <strong>${isTrash ? 'View Active Records' : 'Open Recycle Bin'}</strong>
+                <small>${isTrash ? `Switch to ${allActive.length} active records` : `${allTrash.length} deleted items safely kept`}</small>
+              </div>
+            </button>
+            <div class="cat-ws-menu-divider"></div>
+            <div class="cat-ws-menu-header">Export & Reports</div>
+            <button type="button" class="cat-ws-menu-item" data-ws-csv>
+              <span class="cat-menu-icon" aria-hidden="true">📊</span>
+              <div class="cat-menu-text">
+                <strong>Export CSV</strong>
+                <small>Compatible with Excel / Sheets</small>
+              </div>
+            </button>
+            <button type="button" class="cat-ws-menu-item" data-ws-print>
+              <span class="cat-menu-icon" aria-hidden="true">🖨️</span>
+              <div class="cat-menu-text">
+                <strong>Print / PDF Report</strong>
+                <small>Clean print-ready layout</small>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="cat-ws-nav-tabs">
-      <button type="button" class="cat-ws-tab ${!isTrash ? 'is-active' : ''}" data-ws-tab="active">
-        📁 Active Records <span class="cat-ws-tab-count">${allActive.length}</span>
-      </button>
-      <button type="button" class="cat-ws-tab ${isTrash ? 'is-active' : ''}" data-ws-tab="trash">
-        🗑️ Recycle Bin <span class="cat-ws-tab-count ${allTrash.length ? 'has-items' : ''}">${allTrash.length}</span>
-      </button>
-    </div>
-
-    ${isTrash && allTrash.length ? `
+    ${isTrash ? `
       <div class="cat-ws-trash-banner">
-        <span>🗑️ <strong>Recycle Bin</strong>: Deleted records stay here safely. You can restore them anytime or permanently remove them.</span>
-        <button type="button" class="cat-btn-empty-trash" data-ws-empty-trash>Empty Recycle Bin</button>
+        <span>🗑️ <strong>Recycle Bin View (${allTrash.length})</strong> — Deleted records can be restored anytime or deleted permanently.</span>
+        <div class="cat-ws-trash-banner-actions">
+          <button type="button" class="cat-btn-back-active" data-ws-tab="active">← Back to Active Records</button>
+          ${allTrash.length ? `<button type="button" class="cat-btn-empty-trash" data-ws-empty-trash>Empty Trash</button>` : ''}
+        </div>
       </div>
     ` : ""}
 
@@ -863,8 +890,21 @@ const categoryRenderList = () => {
         <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search by any field..." value="${categoryEscape(categorySearchQuery)}" />
         ${categorySearchQuery ? `<button type="button" class="cat-ws-search-clear" data-ws-search-clear aria-label="Clear search">&times;</button>` : ""}
       </div>
-      <div class="cat-ws-meta-count">
-        ${query ? `Showing <strong>${displayedItems.length}</strong> of ${sourceItems.length} records` : `<strong>${sourceItems.length}</strong> ${sourceItems.length === 1 ? 'record' : 'records'}`}
+
+      <div class="cat-ws-toolbar-right">
+        <div class="cat-ws-view-tabs" role="tablist">
+          <button type="button" class="cat-ws-view-tab ${!isTrash ? 'is-active' : ''}" data-ws-tab="active" title="View Active Records">
+            <span>📋 Active</span>
+            <span class="cat-ws-badge">${allActive.length}</span>
+          </button>
+          <button type="button" class="cat-ws-view-tab ${isTrash ? 'is-active' : ''} ${allTrash.length ? 'has-trash' : ''}" data-ws-tab="trash" title="View Recycle Bin (Deleted items)">
+            <span>🗑️ Recycle Bin</span>
+            <span class="cat-ws-badge">${allTrash.length}</span>
+          </button>
+        </div>
+        <div class="cat-ws-meta-count">
+          ${query ? `<strong>${displayedItems.length}</strong> of ${sourceItems.length}` : `<strong>${sourceItems.length}</strong> ${sourceItems.length === 1 ? 'item' : 'items'}`}
+        </div>
       </div>
     </div>
 
@@ -1001,6 +1041,24 @@ const initCategoryTools = () => {
         if (message) message.textContent = `Could not switch accounts: ${error.message || "Cloud service error."}`;
       });
     }
+    const menuToggle = event.target.closest("[data-ws-menu-toggle]");
+    if (menuToggle) {
+      const menu = document.getElementById("catWsDataMenu");
+      if (menu) {
+        const isOpen = menu.classList.toggle("is-open");
+        menuToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      }
+      return;
+    }
+    if (!event.target.closest(".cat-ws-dropdown")) {
+      const menu = document.getElementById("catWsDataMenu");
+      if (menu && menu.classList.contains("is-open")) {
+        menu.classList.remove("is-open");
+        const toggle = document.querySelector("[data-ws-menu-toggle]");
+        if (toggle) toggle.setAttribute("aria-expanded", "false");
+      }
+    }
+
     const add = event.target.closest("[data-tool-add]");
     if (add) {
       categoryRenderForm();
@@ -1040,24 +1098,37 @@ const initCategoryTools = () => {
       categoryRenderList();
       return;
     }
+    const closeDataMenu = () => {
+      const menu = document.getElementById("catWsDataMenu");
+      if (menu && menu.classList.contains("is-open")) {
+        menu.classList.remove("is-open");
+        const toggle = document.querySelector("[data-ws-menu-toggle]");
+        if (toggle) toggle.setAttribute("aria-expanded", "false");
+      }
+    };
+
     if (event.target.closest("[data-ws-search-clear]")) {
       categorySearchQuery = "";
       categoryRenderList();
       return;
     }
     if (event.target.closest("[data-ws-backup]")) {
+      closeDataMenu();
       categoryExportBackup();
       return;
     }
     if (event.target.closest("[data-ws-restore]")) {
+      closeDataMenu();
       document.getElementById("categoryBackupFileInput")?.click();
       return;
     }
     if (event.target.closest("[data-ws-csv]")) {
+      closeDataMenu();
       categoryExportCsv();
       return;
     }
     if (event.target.closest("[data-ws-print]")) {
+      closeDataMenu();
       categoryPrintReport();
       return;
     }

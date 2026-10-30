@@ -4530,3 +4530,29 @@ html.js .reveal.in {
   grid-template-columns: repeat(6, 1fr) !important;
   gap: 0.25rem !important;
 }
+
+/* ============================================================
+   Hero Devices Image (Exact Laptop + Smartphone Picture)
+   ============================================================ */
+.hero-image-wrap {
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.hero-devices-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.14));
+  transition: transform 0.3s ease;
+}
+
+.hero-devices-img:hover {
+  transform: translateY(-4px) scale(1.01);
+}

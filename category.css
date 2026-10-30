@@ -303,7 +303,7 @@ body[data-category] .header-actions { gap: 0.6rem; }
   font-size: 1.15rem;
   margin-bottom: 0.3rem;
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+  filter: none;
 }
 
 .cat-hero-stat strong {
@@ -1133,6 +1133,9 @@ body[data-category] .header-actions { gap: 0.6rem; }
   justify-content: center;
   align-items: center;
   width: 100%;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 .cat-hero-devices-img {
   width: 100%;
@@ -1140,7 +1143,10 @@ body[data-category] .header-actions { gap: 0.6rem; }
   height: auto;
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.08));
+  background: transparent !important;
+  filter: none !important;
+  box-shadow: none !important;
+  transition: none;
 }
 
 /* Category pages pure white background and no shadow behind boxes

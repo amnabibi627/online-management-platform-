@@ -727,7 +727,7 @@ const setUserPassVisibility = (show, isLogin = false) => {
   const ids = isLogin ? ["ufLoginPass"] : ["ufPass", "ufPass2"];
   ids.forEach((id) => {
     const el = document.getElementById(id);
-    if (el) el.type = show ? "text" : "password";
+    if (el) el.type = "text";
   });
 };
 

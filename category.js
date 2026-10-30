@@ -455,7 +455,7 @@ const showCategoryTrialModal = () => {
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Password *</label>
-        <input name="password" type="password" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="password" type="text" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <p class="category-auth-error" role="alert" style="color:#ef4444; font-size:0.8rem; margin:0.2rem 0 0; min-height:1rem;"></p>
       <button class="btn btn-primary" type="submit" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff; cursor:pointer;">
@@ -569,7 +569,7 @@ const showCategorySignIn = (message = "") => {
     `<p class="category-auth-copy">An active subscription is required for this category. Other categories require their own separate subscription.</p>` +
     `<form id="categoryLoginForm" class="category-auth-form">` +
     `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
-    `<label>Password<input name="password" type="password" autocomplete="current-password" required></label>` +
+    `<label>Password<input name="password" type="text" autocomplete="current-password" required></label>` +
     `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
     `<button class="btn btn-primary" type="submit">Sign in</button></form>` +
     `<p class="category-auth-switch">New account? Purchase a plan after paying through JazzCash.</p>`;
@@ -598,7 +598,7 @@ const showCategoryAuth = (planId = categorySelectedPlan, mode = "signup", messag
     `<form id="categoryAuthForm" class="category-auth-form">` +
     (!alreadySignedIn && signup ? `<label>Full name<input name="name" type="text" autocomplete="name" required minlength="3" maxlength="80"></label>` : "") +
     (alreadySignedIn ? "" : `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
-    `<label>Password<input name="password" type="password" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>`) +
+    `<label>Password<input name="password" type="text" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>`) +
     `<label>JazzCash sender mobile<input name="payerMobile" type="tel" inputmode="tel" required placeholder="Number used to send payment"></label>` +
     `<label>JazzCash transaction / reference ID<input name="paymentReference" type="text" required maxlength="100" autocomplete="off" placeholder="Enter the transaction ID from your receipt"></label>` +
     `<label class="category-subscription-ack"><input name="categoryOnly" type="checkbox" required> I understand this purchase activates only ${categoryEscape(CURRENT.short)}.</label>` +

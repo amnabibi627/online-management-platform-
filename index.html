@@ -1234,12 +1234,12 @@
             <div class="form-row">
               <div class="field">
                 <label for="ufPass">Password <em>*</em></label>
-                <input type="password" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
+                <input type="text" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
                 <span class="field-error" id="ufPassErr"></span>
               </div>
               <div class="field">
                 <label for="ufPass2">Confirm Password <em>*</em></label>
-                <input type="password" id="ufPass2" placeholder="Type it again" maxlength="64" autocomplete="new-password" />
+                <input type="text" id="ufPass2" placeholder="Type it again" maxlength="64" autocomplete="new-password" />
                 <span class="field-error" id="ufPass2Err"></span>
               </div>
             </div>
@@ -1294,11 +1294,6 @@
                 </div>
               </div>
             </div>
-
-            <label class="user-check" for="ufShowPass">
-              <input type="checkbox" id="ufShowPass" />
-              <span>Show password</span>
-            </label>
           </div>
 
           <!-- Login fields -->
@@ -1310,14 +1305,9 @@
             </div>
             <div class="field">
               <label for="ufLoginPass">Password <em>*</em></label>
-              <input type="password" id="ufLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
+              <input type="text" id="ufLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
               <span class="field-error" id="ufLoginPassErr"></span>
             </div>
-
-            <label class="user-check" for="ufShowPassLogin">
-              <input type="checkbox" id="ufShowPassLogin" />
-              <span>Show password</span>
-            </label>
           </div>
 
           <button type="submit" class="btn btn-primary btn-block" id="userSubmit">🚀 Start 5-Day Free Trial</button>
@@ -1575,7 +1565,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261030C"></script>
+  <script src="script.js?v=20261030D"></script>
   <script src="liveads.js?v=20261024b"></script>
   <script src="ui.js?v=20261023H"></script>
 

@@ -197,6 +197,31 @@ h1, h2, h3, h4, .brand { font-family: "Inter", sans-serif; }
 
 .header-actions .btn { padding: 0.6rem 1.35rem; font-size: 0.9rem; }
 
+.header-signup-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem;
+  padding: 0.52rem 1.25rem !important;
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #ff8f04 0%, #f57c00 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #ff8f04 !important;
+  box-shadow: 0 4px 14px -3px rgba(255, 143, 4, 0.45);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.header-signup-btn:hover {
+  background: linear-gradient(135deg, #f57c00 0%, #ea580c 100%) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px -3px rgba(255, 143, 4, 0.6);
+  color: #ffffff !important;
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-block; text-decoration: none; cursor: pointer;

@@ -412,6 +412,8 @@ h1, h2, h3, h4, .brand {
   font-weight: 400;
   letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
+  text-align: justify !important;
+  text-justify: inter-word !important;
 }
 
 .hero-ctas {
@@ -1027,6 +1029,8 @@ h1, h2, h3, h4, .brand {
   .hero-text {
     margin-left: 0;
     margin-right: 0;
+  text-align: justify !important;
+  text-justify: inter-word !important;
   }
   .hero-ctas {
     justify-content: flex-start;
@@ -1065,7 +1069,7 @@ h1, h2, h3, h4, .brand {
     display: block !important;
   }
   .hero-text {
-    text-align: center !important;
+  text-align: justify !important;
     font-size: 0.96rem;
     line-height: 1.65;
     max-width: 520px;
@@ -1126,6 +1130,8 @@ h1, h2, h3, h4, .brand {
   .hero-text {
     font-size: 0.9rem;
     margin-bottom: 1.1rem !important;
+  text-align: justify !important;
+  text-justify: inter-word !important;
   }
   .hero-dashboard-card {
     border-radius: 16px;
@@ -1596,7 +1602,7 @@ body.detail-open { overflow: hidden; }
   font-size: 0.95rem; font-weight: 600; letter-spacing: normal; text-transform: none;
   color: #ff6f00; margin-bottom: 0.95rem;
 }
-.owner-profile-bio { color: var(--muted); font-size: 0.98rem; line-height: 1.75; margin-bottom: 1.25rem; width: 100%; max-width: 100%; }
+.owner-profile-bio { color: var(--muted); font-size: 0.98rem; line-height: 1.75; margin-bottom: 1.25rem; width: 100%; max-width: 100%; text-align: justify; text-justify: inter-word; }
 .owner-profile-skills { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.3rem; }
 .owner-profile-skills span {
   background: rgba(255, 143, 4, 0.08); border: 1px solid rgba(255, 143, 4, 0.35); color: #c25e00;
@@ -2189,27 +2195,34 @@ body.detail-open { overflow: hidden; }
 /* ---------- Mobile nav ---------- */
 .nav-toggle {
   display: none;
-  background: #f8fafc;
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: 1.5px solid #ff8f04;
   cursor: pointer;
   -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2);
-  padding: 0.45rem;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;
+  box-sizing: border-box;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease;
+  gap: 4.5px;
+  transition: all 0.2s ease;
 }
-.nav-toggle:hover {
-  background: #f1f5f9;
+.nav-toggle:hover,
+.nav-toggle:active {
+  background: rgba(255, 143, 4, 0.08);
 }
 .nav-toggle span {
   display: block;
   width: 20px;
   height: 2px;
-  background: var(--navy);
-  margin: 4px 0;
+  background: #000000;
   border-radius: 2px;
-  transition: 0.2s;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
 @media (max-width: 900px) {
@@ -2263,6 +2276,36 @@ body.detail-open { overflow: hidden; }
   }
   .nav-toggle {
     display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4.5px !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    border: 1.5px solid #ff8f04 !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
+  }
+  .nav-toggle span {
+    display: block !important;
+    width: 20px !important;
+    height: 2px !important;
+    background: #000000 !important;
+    border-radius: 2px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg) !important;
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0 !important;
+    transform: scaleX(0) !important;
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg) !important;
   }
   .header-inner {
     position: relative;
@@ -2462,7 +2505,7 @@ body.detail-open { overflow: hidden; }
   .header-actions { gap: 0.45rem !important; margin-left: auto; }
   .header-actions .btn,
   .header-signup-btn { padding: 0.42rem 0.8rem !important; font-size: 0.78rem !important; font-weight: 700 !important; }
-  .nav-toggle { width: 36px; height: 36px; padding: 0.35rem; }
+  .nav-toggle { width: 40px !important; height: 40px !important; padding: 0 !important; }
 
   .hero-badge { font-size: 0.66rem; padding: 0.4rem 0.9rem; margin-bottom: 1rem; }
   .hero-subtitle { font-size: 0.98rem; margin-bottom: 1.7rem; }

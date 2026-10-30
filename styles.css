@@ -1,8 +1,8 @@
 :root {
   /* ---- Brand ---- */
   --pink: #ff8f04;
-  --pink-dark: #fc8c05;
-  --pink-light: #ff6b00;
+  --pink-dark: #ff8f04;
+  --pink-light: #ff8f04;
 
   --navy: #000000;
   --navy-800: #000000;
@@ -213,7 +213,7 @@ h1, h2, h3, h4, .brand {
   font-size: 0.86rem !important;
   font-weight: 700 !important;
   border-radius: 999px !important;
-  background: linear-gradient(135deg, #ff8f04 0%, #f57c00 100%) !important;
+  background: #ff8f04 !important;
   color: #ffffff !important;
   border: 1px solid #ff8f04 !important;
   box-shadow: 0 4px 14px -3px rgba(255, 143, 4, 0.45);
@@ -225,7 +225,7 @@ h1, h2, h3, h4, .brand {
 }
 
 .header-signup-btn:hover {
-  background: linear-gradient(135deg, #f57c00 0%, #ea580c 100%) !important;
+  background: #ff8f04 !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 18px -3px rgba(255, 143, 4, 0.6);
   color: #ffffff !important;
@@ -255,7 +255,7 @@ h1, h2, h3, h4, .brand {
 .btn-outline {
   background: #ffffff; color: var(--ink); border-color: #ff8f04;
 }
-.btn-outline:hover { background: rgba(255, 143, 4, 0.08); border-color: #f57c00; color: var(--ink); }
+.btn-outline:hover { background: rgba(255, 143, 4, 0.08); border-color: #ff8f04; color: var(--ink); }
 
 .site-header .btn-outline {
   color: var(--navy);
@@ -396,7 +396,7 @@ h1, h2, h3, h4, .brand {
 .hero-heading-accent {
   display: inline-block;
   color: #ff8f04;
-  background: linear-gradient(135deg, #ff8f04 0%, #ea580c 100%);
+  background: #ff8f04;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   position: relative;
@@ -438,7 +438,7 @@ h1, h2, h3, h4, .brand {
 }
 
 .hero-btn-primary-action {
-  background: linear-gradient(135deg, #ff8f04 0%, #f57c00 100%);
+  background: #ff8f04;
   color: #ffffff;
   border: 1px solid #ff8f04;
   box-shadow: 0 12px 28px -8px rgba(255, 143, 4, 0.55);
@@ -446,7 +446,7 @@ h1, h2, h3, h4, .brand {
 }
 
 .hero-btn-primary-action:hover {
-  background: linear-gradient(135deg, #f57c00 0%, #ea580c 100%);
+  background: #ff8f04;
   transform: translateY(-2px);
   box-shadow: 0 16px 34px -8px rgba(255, 143, 4, 0.65);
   color: #ffffff;
@@ -528,8 +528,8 @@ h1, h2, h3, h4, .brand {
 }
 
 .hero-btn-ghost:hover {
-  background: #f57c00;
-  border-color: #f57c00;
+  background: #ff8f04;
+  border-color: #ff8f04;
 }
 
 .hero-btn-ghost:focus,
@@ -806,7 +806,7 @@ h1, h2, h3, h4, .brand {
 }
 
 .hero-dashboard-metric.is-primary .hero-dashboard-value {
-  color: #ea580c;
+  color: #ff8f04;
 }
 
 .hero-dashboard-metric.is-alert .hero-dashboard-value {
@@ -1257,7 +1257,7 @@ h1, h2, h3, h4, .brand {
 .hero-badge-mark {
   display: grid; place-items: center;
   width: 2rem; height: 2rem; border-radius: 50%;
-  background: linear-gradient(135deg, #ff8f04, #ffc266);
+  background: #ff8f04;
   color: #071426; font-size: 0.62rem; font-weight: 900;
   letter-spacing: -0.04em;
   box-shadow: 0 0 18px rgba(255, 143, 4, 0.32);
@@ -1397,8 +1397,8 @@ h1, h2, h3, h4, .brand {
   outline-offset: 3px;
 }
 .industry-card::before {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
-  background: linear-gradient(90deg, #ff8f04, #ffb356);
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: #ff8f04;
   opacity: 0; transition: opacity 0.2s ease;
 }
 .industry-card::after {
@@ -3496,7 +3496,7 @@ body.detail-open { overflow: hidden; }
 /* ---- Reading progress bar ---- */
 .scroll-progress {
   position: fixed; top: 0; left: 0; height: 3px; width: 0;
-  background: linear-gradient(90deg, #ff8f04, #ffb356);
+  background: #ff8f04;
   z-index: 400; pointer-events: none;
 }
 
@@ -3860,7 +3860,7 @@ html.js .reveal.in {
 .pos-badge {
   font-size: 0.7rem;
   font-weight: 800;
-  color: #c2410c;
+  color: #ff8f04;
   background: #ffedd5;
   padding: 0.15rem 0.4rem;
   border-radius: 5px;
@@ -3965,7 +3965,7 @@ html.js .reveal.in {
 .pos-btn-print {
   background: #ff8f04;
   color: #ffffff;
-  border: 1px solid #ea580c;
+  border: 1px solid #ff8f04;
   box-shadow: 0 2px 6px rgba(255, 143, 4, 0.3);
 }
 
@@ -4091,7 +4091,7 @@ html.js .reveal.in {
 .phone-stat-num {
   font-size: 1.05rem;
   font-weight: 900;
-  color: #ea580c;
+  color: #ff8f04;
   line-height: 1.15;
 }
 
@@ -4144,7 +4144,7 @@ html.js .reveal.in {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #ff8f04, #f57c00);
+  background: #ff8f04;
   color: #ffffff;
   border-radius: 7px;
   padding: 0.3rem 0.55rem;
@@ -4322,7 +4322,7 @@ html.js .reveal.in {
   font-size: 0.58rem;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(135deg, #ff8f04, #ea580c);
+  background: #ff8f04;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
   white-space: nowrap;
@@ -4337,7 +4337,7 @@ html.js .reveal.in {
   display: inline-block;
   font-size: 0.55rem;
   font-weight: 700;
-  color: #ea580c;
+  color: #ff8f04;
   background: #fff7ed;
   border: 1px solid #fed7aa;
   border-radius: 999px;

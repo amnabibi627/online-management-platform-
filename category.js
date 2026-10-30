@@ -464,7 +464,7 @@ const showCategoryTrialModal = () => {
     </form>
 
     <div style="margin-top:1rem; text-align:center;">
-      <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ea580c; font-size:0.84rem; font-weight:600; cursor:pointer;">
+      <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ff8f04; font-size:0.84rem; font-weight:600; cursor:pointer;">
         Already have an account? Sign in here
       </button>
     </div>
@@ -502,7 +502,7 @@ const showCategoryTrialRequiredModal = () => {
         🚀 Start 5-Day Free Trial
       </button>
       <div style="margin-top:0.85rem;">
-        <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ea580c; font-size:0.82rem; font-weight:600; cursor:pointer;">
+        <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ff8f04; font-size:0.82rem; font-weight:600; cursor:pointer;">
           Already have an account? Sign in
         </button>
       </div>
@@ -531,9 +531,9 @@ const showCategorySubscriptionPaywall = () => {
       <div style="border:1.5px solid #ff8f04; border-radius:12px; padding:0.85rem 1rem; background:#fff7ed; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="3-month">
         <div>
           <strong style="display:block; font-size:0.95rem; color:#0f172a;">3 Months (Best Value)</strong>
-          <span style="font-size:0.78rem; color:#ea580c; font-weight:600;">Full category access</span>
+          <span style="font-size:0.78rem; color:#ff8f04; font-weight:600;">Full category access</span>
         </div>
-        <div style="font-size:1.15rem; font-weight:800; color:#ea580c;">PKR 9,000</div>
+        <div style="font-size:1.15rem; font-weight:800; color:#ff8f04;">PKR 9,000</div>
       </div>
       <div style="border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem 1rem; background:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="1-month">
         <div>
@@ -957,7 +957,7 @@ const categoryPrintReport = () => {
     `th{background:#f8fafc;font-weight:700;color:#0f172a;}tr:nth-child(even){background:#f8fafc;}@media print{body{padding:0;}button{display:none;}}</style>` +
     `</head><body><div class="header"><div><h1>${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</h1>` +
     `<div class="meta">${categoryTab === "trash" ? "Recycle Bin Records" : "Active Tool Records"} &bull; Printed: ${new Date().toLocaleString()} &bull; Total: ${items.length} records</div></div>` +
-    `<button onclick="window.print()" style="padding:8px 16px;background:#ea580c;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>` +
+    `<button onclick="window.print()" style="padding:8px 16px;background:#ff8f04;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>` +
     `</div><table><thead><tr><th>#</th>${tableHeaders}<th>Date</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`
   );
   printWindow.document.close();

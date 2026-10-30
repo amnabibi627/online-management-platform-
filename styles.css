@@ -2757,8 +2757,9 @@ body.detail-open { overflow: hidden; }
 }
 .ads-combo-live .live-ads-empty {
   margin-top: 1.6rem; padding: 2.6rem 1.2rem;
-  border: 1px dashed rgba(255, 143, 4, 0.4); border-radius: 18px;
-  background: rgba(255, 143, 4, 0.04);
+  border: 1px dashed rgba(255, 143, 4, 0.45); border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px -6px rgba(0, 0, 0, 0.05);
   font-size: 0.9rem; font-weight: 500;
 }
 .ads-combo-live .live-ads-empty::before {

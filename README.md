@@ -1,61 +1,61 @@
 # Business Management System
 
-All-in-one business management web app — a static HTML/CSS/JavaScript site.
+All-in-one business management web app: a static HTML/CSS/JavaScript site.
 Category workspaces, homepage Owner/User accounts, business-ad requests/listings,
 and the cashbook use Supabase; some presentation settings and local-only tools
 still rely on browser storage.
 
 ## Features
 
-- **CEO access** — Supabase Auth login with server-side admin-role verification
-- **Owner accounts** — sign up with a business category, restricted access to that category only
-- **8 industry categories** — Clinic, Academy, Restaurant, General Store, Beauty Salon,
-  Petrol Pump, Medical Store, Laboratory — each with 12 working CRUD modules
-- **Custom categories** — CEO can add new categories with generic modules
-- **Feature modules** — add, edit, delete entries with per-feature validation
+- **CEO access**: Supabase Auth login with server-side admin-role verification
+- **Owner accounts**: sign up with a business category, restricted access to that category only
+- **8 industry categories**: Clinic, Academy, Restaurant, General Store, Beauty Salon,
+  Petrol Pump, Medical Store, Laboratory: each with 12 working CRUD modules
+- **Custom categories**: CEO can add new categories with generic modules
+- **Feature modules**: add, edit, delete entries with per-feature validation
 - **Entry count badges** on every feature card
-- **Per-category "All Data" sheet** — Excel-like view of every saved entry with search,
+- **Per-category "All Data" sheet**: Excel-like view of every saved entry with search,
   row-level edit/delete and CSV export
-- **Owner profile** — header + profile photo (DP) upload, bio, contact links
+- **Owner profile**: header + profile photo (DP) upload, bio, contact links
   (Facebook, Instagram, TikTok, WhatsApp, Email) and an embedded portfolio viewer.
   The photo is resized to 512 px and stored in three places (localStorage,
   IndexedDB and the cloud), so it can no longer disappear on its own. When the
   CEO is signed in it is also published to `site_profile`, which is the copy
   every visitor sees
-- **User accounts** — a real "User Sign Up" page in the header (separate from the
+- **User accounts**: a real "User Sign Up" page in the header (separate from the
   Owner Account button). Users fill in full name, mobile, email, city, password
   and confirm password, then sign in to post ratings and comments. Signing in
-  does not fill the review name for you — every reviewer types the public name
+  does not fill the review name for you: every reviewer types the public name
   they want shown, and clicking the "Your Name" box no longer jumps to signup
-- **Ratings & comments** — only signed-in users can post a 1–5 star rating and a
+- **Ratings & comments**: only signed-in users can post a 1–5 star rating and a
   comment; average score and star distribution shown live. Reviews are public on
   the landing page for every visitor to read. A user can delete only their own
   review; the CEO (site owner) can delete any review and reply to any review,
   with replies visible to everyone
-- **Business registration** — a "Register Your Business" card opens a compact
+- **Business registration**: a "Register Your Business" card opens a compact
   modal form with three paid plans (15 days / PKR 2,500, 30 days / PKR 5,000,
   1 year / PKR 60,000) picked inside the form. Requests are saved in Supabase;
   owner and payment details are private. Payment is manually verified by the
   CEO before the listing can be activated. WhatsApp opens with a request
   reference for payment follow-up
-- **Business Ads panel** (CEO only) — review every registration, confirm the
+- **Business Ads panel** (CEO only): review every registration, confirm the
   payment, then activate the ad. Server-side CEO-only operations enforce this
   order. Expiry is set from the plan (15 days / 30 days / 1 year), with extend,
   stop, re-activate and delete actions
-- **Running Business Ads** — a public section that lists every activated ad in
+- **Running Business Ads**: a public section that lists every activated ad in
   card format with public business details, social links and WhatsApp contact.
   Listings are shared across devices and automatically hidden after expiry.
   Photos and MP4/WebM videos are stored privately and become viewable only
   after payment verification and CEO activation (up to 30 photos at 5 MB each
   and 5 videos at 25 MB each)
-- **Cashbook** — explicit per-account, per-category income and expense entries
+- **Cashbook**: explicit per-account, per-category income and expense entries
   stored in Supabase. Received/paid totals, receivables, unpaid expenses and
   net cash are reported separately; operational feature records are never
   guessed to be financial transactions
-- **Category subscriptions** — each category requires its own subscription:
+- **Category subscriptions**: each category requires its own subscription:
   PKR 3,000/month, PKR 9,000/3 months, or PKR 12,000/6 months. JazzCash
   payments are manually checked by the CEO before access is approved
-- **Category workspace cloud storage** — Supabase Auth and per-account cloud
+- **Category workspace cloud storage**: Supabase Auth and per-account cloud
   data for subscribed category workspaces
 
 ## Files
@@ -75,7 +75,7 @@ still rely on browser storage.
 
 ## Running
 
-Just open `index.html` in a browser — no build step, no dependencies.
+Just open `index.html` in a browser: no build step, no dependencies.
 
 The app loads Supabase from a CDN. Home-page features that use `localStorage`
 remain available on that browser without a connection. Category workspace

@@ -1,5 +1,5 @@
 /* ============================================================
-   ui.js — small page-level interactions
+   ui.js: small page-level interactions
    Scroll progress, back-to-top, CTA wiring, reveal on scroll.
    Runs after the DOM because the tag sits at the end of <body>.
    ============================================================ */

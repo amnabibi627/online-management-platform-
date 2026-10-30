@@ -1,5 +1,5 @@
 /* ============================================================
-   category.js — renders the individual business category pages
+   category.js: renders the individual business category pages
    (clinic.html, academy.html, restaurant.html, ...)
    Loaded ONLY on the dedicated category pages.
    ============================================================ */
@@ -9,9 +9,9 @@ const CATEGORY_SITE_URL = "https://onlinemanagement.site";
 const CATEGORY_MODULES = window.OMS_FEATURE_MODULES;
 const CATEGORY_SUPABASE = CATEGORY_MODULES.supabaseClient;
 const CATEGORY_SUBSCRIPTION_PLANS = {
-  "1-month": { label: "1 Month", months: 1, price: 3000 },
-  "3-month": { label: "3 Months", months: 3, price: 9000 },
-  "6-month": { label: "6 Months", months: 6, price: 12000 }
+  "1-month": { label: "1 Month", months: 1, price: 2000 },
+  "3-month": { label: "3 Months", months: 3, price: 6000 },
+  "1-year": { label: "1 Year", months: 12, price: 20000 }
 };
 
 const CATEGORIES = {
@@ -21,7 +21,7 @@ const CATEGORIES = {
     icon: "🩺",
     sub: "Patients, appointments & billing",
     h1: 'Clinic <span class="accent">Management</span>',
-    desc: "Patient records, smart appointments, OPD tokens, digital prescriptions, billing and lab reports — everything your clinic needs, in one place.",
+    desc: "Patient records, smart appointments, OPD tokens, digital prescriptions, billing and lab reports: everything your clinic needs, in one place.",
     meta: "Online Management Site gives clinics patient records, smart appointments, OPD tokens, digital prescriptions, billing and reports in one simple portal.",
     features: [
       { id: "patient-records", name: "Patient Records", icon: "📁", desc: "Save medical history, allergies and past visits of every patient in one place." },
@@ -44,7 +44,7 @@ const CATEGORIES = {
     icon: "🎓",
     sub: "Students, fees & exams",
     h1: 'Academy <span class="accent">Management</span>',
-    desc: "Students, courses, timetables, attendance, exams and fee automation — run your academy smoothly from one place.",
+    desc: "Students, courses, timetables, attendance, exams and fee automation: run your academy smoothly from one place.",
     meta: "Online Management Site gives academies student management, course tracking, fee automation and exam tools in one simple portal.",
     features: [
       { id: "student-profiles", name: "Student Profiles", icon: "👨‍🎓", desc: "Admission details, contacts and complete learning history of every student." },
@@ -67,12 +67,12 @@ const CATEGORIES = {
     icon: "🍽️",
     sub: "POS, kitchen & tables",
     h1: 'Restaurant <span class="accent">Management</span>',
-    desc: "POS, live kitchen orders, table management, menu and inventory — your restaurant runs on rails.",
+    desc: "POS, live kitchen orders, table management, menu and inventory: your restaurant runs on rails.",
     meta: "Online Management Site gives restaurants a dynamic POS, live kitchen, table management and inventory tools in one simple portal.",
     features: [
       { id: "dynamic-pos", name: "Dynamic POS", icon: "🧾", desc: "Fast billing with split bills, discounts and quick item search." },
       { id: "live-kitchen-orders", name: "Live Kitchen Orders", icon: "👨‍🍳", desc: "Orders appear instantly on the kitchen screen with status updates." },
-      { id: "table-management", name: "Table Management", icon: "🪑", desc: "Floor map with live table status — free, occupied and reserved." },
+      { id: "table-management", name: "Table Management", icon: "🪑", desc: "Floor map with live table status: free, occupied and reserved." },
       { id: "menu-management", name: "Menu Management", icon: "🍔", desc: "Add dishes, categories, prices, images and daily specials." },
       { id: "order-types", name: "Order Types", icon: "🛵", desc: "Handle dine-in, takeaway and delivery from one screen." },
       { id: "staff-and-waiters", name: "Staff & Waiters", icon: "🧑‍🍳", desc: "Waiter assignments, shifts and table-wise order ownership." },
@@ -90,7 +90,7 @@ const CATEGORIES = {
     icon: "🏪",
     sub: "Billing, stock & khata",
     h1: 'General Store <span class="accent">Management</span>',
-    desc: "Billing, real-time inventory, suppliers and customer khata — complete control over your general store.",
+    desc: "Billing, real-time inventory, suppliers and customer khata: complete control over your general store.",
     meta: "Online Management Site gives general stores billing, real-time inventory, supplier tracking and POS tools in one simple portal.",
     features: [
       { id: "dynamic-pos", name: "Dynamic POS", icon: "🧾", desc: "Fast counter billing with quick item search and repeat bills." },
@@ -113,10 +113,10 @@ const CATEGORIES = {
     icon: "💇",
     sub: "Bookings, stylists & clients",
     h1: 'Beauty Salon <span class="accent">Management</span>',
-    desc: "Online bookings, stylist assignments, client logs and packages — your salon, organized beautifully.",
+    desc: "Online bookings, stylist assignments, client logs and packages: your salon, organized beautifully.",
     meta: "Online Management Site gives beauty salons online bookings, stylist management and client logs in one simple portal.",
     features: [
-      { id: "online-bookings", name: "Online Bookings", icon: "📅", desc: "Clients book their slots online — no calls, no double booking." },
+      { id: "online-bookings", name: "Online Bookings", icon: "📅", desc: "Clients book their slots online: no calls, no double booking." },
       { id: "stylist-bookings", name: "Stylist Bookings", icon: "🧑‍🎨", desc: "Assign bookings to stylists based on availability and skill." },
       { id: "appointment-calendar", name: "Appointment Calendar", icon: "🗓️", desc: "Day and week view of every appointment in one screen." },
       { id: "service-menu", name: "Service Menu", icon: "✂️", desc: "Services with prices, duration and required products." },
@@ -136,7 +136,7 @@ const CATEGORIES = {
     icon: "⛽",
     sub: "Dispensers, shifts & sales",
     h1: 'Petrol Pump <span class="accent">Management</span>',
-    desc: "Dispensers, shifts, nozzle readings, tank stock and sales reports — full control of your petrol pump.",
+    desc: "Dispensers, shifts, nozzle readings, tank stock and sales reports: full control of your petrol pump.",
     meta: "Online Management Site gives petrol pumps dispenser tracking, shift management and sales reporting in one simple portal.",
     features: [
       { id: "dispenser-tracking", name: "Dispenser Tracking", icon: "⛽", desc: "Live status and readings of every dispenser and nozzle." },
@@ -159,7 +159,7 @@ const CATEGORIES = {
     icon: "💊",
     sub: "Prescriptions, stock & billing",
     h1: 'Medical Store <span class="accent">Management</span>',
-    desc: "Digital prescriptions, batch stock, expiry alerts and fast POS billing — your pharmacy, fully digital.",
+    desc: "Digital prescriptions, batch stock, expiry alerts and fast POS billing: your pharmacy, fully digital.",
     meta: "Online Management Site gives medical stores digital prescriptions, batch stock and POS billing in one simple portal.",
     features: [
       { id: "digital-prescriptions", name: "Digital Prescriptions", icon: "📝", desc: "Receive and save doctor prescriptions against every patient." },
@@ -182,12 +182,12 @@ const CATEGORIES = {
     icon: "🔬",
     sub: "Tests, samples & reports",
     h1: 'Laboratory <span class="accent">Management</span>',
-    desc: "Test catalog, sample tracking, digital reports and delivery — your lab, fully paperless.",
+    desc: "Test catalog, sample tracking, digital reports and delivery: your lab, fully paperless.",
     meta: "Online Management Site gives laboratories test catalogs, sample tracking and digital reports in one simple portal.",
     features: [
       { id: "test-catalog", name: "Test Catalog", icon: "📋", desc: "All tests with prices, departments and normal ranges." },
       { id: "sample-collection", name: "Sample Collection", icon: "🧪", desc: "Unique sample ID for every patient with barcode labels." },
-      { id: "sample-tracking", name: "Sample Tracking", icon: "📍", desc: "Live status — collected, processing, completed and verified." },
+      { id: "sample-tracking", name: "Sample Tracking", icon: "📍", desc: "Live status: collected, processing, completed and verified." },
       { id: "digital-reports", name: "Digital Reports", icon: "📑", desc: "Create reports with values, remarks and printable PDF format." },
       { id: "report-delivery", name: "Report Delivery", icon: "📤", desc: "Send reports by SMS, email or WhatsApp instantly." },
       { id: "patient-profiles", name: "Patient Profiles", icon: "🧑‍⚕️", desc: "Past reports and value comparison over time in one view." },
@@ -392,7 +392,7 @@ const showCategoryTrialModal = () => {
 
   if (categoryUser || (trial && trial.isActive) || hasSub) {
     const userName = categoryUser?.user_metadata?.name || trial?.name || "Business Owner";
-    const userMobile = categoryUser?.user_metadata?.mobile || trial?.mobile || "—";
+    const userMobile = categoryUser?.user_metadata?.mobile || trial?.mobile || "N/A";
     const daysLeft = trial ? trial.daysLeft : 0;
 
     content.innerHTML = `
@@ -404,7 +404,7 @@ const showCategoryTrialModal = () => {
             ? '💎 Active Pro Subscription'
             : (trial && trial.isActive
                 ? `🟢 5-Day Free Trial (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`
-                : '⚠️ Free Trial Expired — Subscription Needed')}
+                : '⚠️ Free Trial Expired: Subscription Needed')}
         </div>
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; text-align:left; margin-bottom:1.2rem;">
           <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;">Name</div>
@@ -533,26 +533,26 @@ const showCategorySubscriptionPaywall = () => {
           <strong style="display:block; font-size:0.95rem; color:#0f172a;">3 Months (Best Value)</strong>
           <span style="font-size:0.78rem; color:#ff8f04; font-weight:600;">Full category access</span>
         </div>
-        <div style="font-size:1.15rem; font-weight:800; color:#ff8f04;">PKR 9,000</div>
+        <div style="font-size:1.15rem; font-weight:800; color:#ff8f04;">PKR 6,000</div>
       </div>
       <div style="border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem 1rem; background:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="1-month">
         <div>
           <strong style="display:block; font-size:0.95rem; color:#0f172a;">1 Month</strong>
           <span style="font-size:0.78rem; color:#64748b;">Standard access</span>
         </div>
-        <div style="font-size:1.1rem; font-weight:800; color:#0f172a;">PKR 3,000</div>
+        <div style="font-size:1.1rem; font-weight:800; color:#0f172a;">PKR 2,000</div>
       </div>
-      <div style="border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem 1rem; background:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="6-month">
+      <div style="border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem 1rem; background:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="1-year">
         <div>
-          <strong style="display:block; font-size:0.95rem; color:#0f172a;">6 Months (Pro)</strong>
+          <strong style="display:block; font-size:0.95rem; color:#0f172a;">Yearly (Pro)</strong>
           <span style="font-size:0.78rem; color:#64748b;">Extended access</span>
         </div>
-        <div style="font-size:1.1rem; font-weight:800; color:#0f172a;">PKR 12,000</div>
+        <div style="font-size:1.1rem; font-weight:800; color:#0f172a;">PKR 20,000</div>
       </div>
     </div>
 
     <button type="button" class="btn btn-primary" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-pay-selected="3-month">
-      Continue with 3 Months (PKR 9,000) &rarr;
+      Continue with 3 Months (PKR 6,000) &rarr;
     </button>
   `;
   modal.classList.add("open");
@@ -943,8 +943,8 @@ const categoryPrintReport = () => {
   const title = `${CURRENT.short} - ${categoryFeature.name} (${categoryTab === "trash" ? "Recycle Bin" : "Active Records"})`;
   const tableHeaders = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
   const tableRows = items.map((item, idx) => {
-    const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "—")}</td>`).join("");
-    const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '—');
+    const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "N/A")}</td>`).join("");
+    const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A');
     return `<tr><td>${idx + 1}</td>${cells}<td>${dateStr}</td></tr>`;
   }).join("");
 
@@ -964,7 +964,7 @@ const categoryPrintReport = () => {
 };
 
 const formatCellVal = (val, type) => {
-  if (val === null || val === undefined || val === "") return `<span class="category-empty-value">—</span>`;
+  if (val === null || val === undefined || val === "") return `<span class="category-empty-value">N/A</span>`;
   const s = String(val).trim();
   const lower = s.toLowerCase();
   if (["paid", "active", "completed", "done", "confirmed", "in stock", "yes", "received", "open"].includes(lower)) {
@@ -1013,7 +1013,7 @@ const categoryRenderList = () => {
     }).join("");
 
     const dateVal = isTrash ? item.deletedAt : (item.updatedAt || item.createdAt);
-    const dateFormatted = dateVal ? new Date(dateVal).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+    const dateFormatted = dateVal ? new Date(dateVal).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "N/A";
 
     let actionButtons = "";
     if (isTrash) {
@@ -1117,7 +1117,7 @@ const categoryRenderList = () => {
 
     ${isTrash ? `
       <div class="cat-ws-trash-banner">
-        <span>🗑️ <strong>Recycle Bin View (${allTrash.length})</strong> — Deleted records can be restored anytime or deleted permanently.</span>
+        <span>🗑️ <strong>Recycle Bin View (${allTrash.length})</strong>: Deleted records can be restored anytime or deleted permanently.</span>
         <div class="cat-ws-trash-banner-actions">
           <button type="button" class="cat-btn-back-active" data-ws-tab="active">← Back to Active Records</button>
           ${allTrash.length ? `<button type="button" class="cat-btn-empty-trash" data-ws-empty-trash>Empty Trash</button>` : ''}

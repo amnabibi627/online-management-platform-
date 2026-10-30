@@ -529,10 +529,11 @@ create table if not exists public.subscription_requests (
     'clinic', 'academy', 'restaurant', 'generalstore',
     'beautysalon', 'petrolpump', 'medicalstore', 'laboratory'
   )),
-  plan              text not null check (plan in ('1-month', '3-month', '6-month')),
+  plan              text not null check (plan in ('1-month', '3-month', '6-month', '1-year', 'yearly')),
   amount            integer not null check (
-    (plan = '1-month' and amount = 3000) or
-    (plan = '3-month' and amount = 9000) or
+    (plan = '1-month' and amount = 2000) or
+    (plan = '3-month' and amount = 6000) or
+    (plan in ('1-year', 'yearly') and amount = 20000) or
     (plan = '6-month' and amount = 12000)
   ),
   account_name      text not null,
@@ -613,6 +614,8 @@ begin
     when '1-month' then 1
     when '3-month' then 3
     when '6-month' then 6
+    when '1-year' then 12
+    when 'yearly' then 12
   end;
 
   insert into public.category_subscriptions

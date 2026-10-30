@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Online Management Site — All-in-One Smart Platform</title>
+  <title>Online Management Site: All-in-One Smart Platform</title>
   <meta name="description" content="Online Management Site is a simple all-in-one business platform. Register your business, run a paid ad and reach real customers across Pakistan." />
   <meta name="theme-color" content="#ffffff" />
   <link rel="canonical" href="https://onlinemanagement.site/" />
@@ -11,14 +11,14 @@
   <link rel="apple-touch-icon" href="favicon.svg" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Online Management Site" />
-  <meta property="og:title" content="Online Management Site — All-in-One Smart Platform" />
+  <meta property="og:title" content="Online Management Site: All-in-One Smart Platform" />
   <meta property="og:description" content="Register your business, run a paid ad and reach real customers across Pakistan." />
   <meta property="og:url" content="https://onlinemanagement.site/" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261030OrangeOpenPortal" />
+  <link rel="stylesheet" href="styles.css?v=20261030OrangeBoxesRestored" />
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           </div>
           <div class="hero-col hero-col-right">
             <div class="hero-image-wrap">
-              <img src="devices.png?v=20261030BoxShape" alt="Online Management Site open on Laptop" class="hero-devices-img" width="725" height="423" loading="eager" />
+              <img src="devices.png?v=20261030WarmOrangeCards" alt="Online Management Site open on Laptop" class="hero-devices-img" width="725" height="423" loading="eager" />
             </div>
           </div>
         </div>
@@ -341,7 +341,7 @@
           <div class="detail-card" data-category="restaurant" data-feature="table-management">
             <div class="detail-card-icon">🪑</div>
             <h4>Table Management</h4>
-            <p>Floor map with live table status — free, occupied and reserved.</p>
+            <p>Floor map with live table status: free, occupied and reserved.</p>
           </div>
           <div class="detail-card" data-category="restaurant" data-feature="menu-management">
             <div class="detail-card-icon">🍔</div>
@@ -489,7 +489,7 @@
           <div class="detail-card" data-category="beautysalon" data-feature="online-bookings">
             <div class="detail-card-icon">📅</div>
             <h4>Online Bookings</h4>
-            <p>Clients book their slots online — no calls, no double booking.</p>
+            <p>Clients book their slots online: no calls, no double booking.</p>
           </div>
           <div class="detail-card" data-category="beautysalon" data-feature="stylist-bookings">
             <div class="detail-card-icon">🧑‍🎨</div>
@@ -657,7 +657,7 @@
           <div class="detail-card" data-category="laboratory" data-feature="sample-tracking">
             <div class="detail-card-icon">📍</div>
             <h4>Sample Tracking</h4>
-            <p>Live status — collected, processing, completed and verified.</p>
+            <p>Live status: collected, processing, completed and verified.</p>
           </div>
           <div class="detail-card" data-category="laboratory" data-feature="digital-reports">
             <div class="detail-card-icon">📑</div>
@@ -998,6 +998,144 @@
       </div>
     </div>
 
+    
+    <!-- ========== SUBSCRIPTION PLANS PURCHASE MODAL ========== -->
+    <div class="reg-modal subscription-modal" id="subscriptionModal" aria-hidden="true">
+      <div class="reg-modal-box subscription-modal-box" role="dialog" aria-modal="true" aria-labelledby="subModalTitle">
+        <button class="reg-modal-close" type="button" id="subModalClose" aria-label="Close">&times;</button>
+
+        <div class="reg-modal-head">
+          <span class="sub-modal-eyebrow">💎 Category Access Portal</span>
+          <h3 class="reg-form-title-modal" id="subModalTitle">Subscription Plans</h3>
+          <p class="reg-modal-sub">Choose a duration, select your business category, and submit your JazzCash payment. Once approved by the owner, your portal access becomes active.</p>
+        </div>
+
+        <form class="reg-form sub-purchase-form" id="subPurchaseForm" novalidate>
+          <!-- 1. Choose Plan -->
+          <h3 class="reg-form-title">1. Choose Your Plan</h3>
+          <div class="sub-plan-grid" id="subPlanGrid">
+            <button type="button" class="sub-plan-card" data-sub-plan="1-month" data-sub-price="2000" data-sub-label="1 Month">
+              <span class="sub-plan-badge">Standard</span>
+              <span class="sub-plan-name">1 Month</span>
+              <span class="sub-plan-price"><strong>2,000</strong> PKR</span>
+              <span class="sub-plan-desc">30 days category access</span>
+            </button>
+            <button type="button" class="sub-plan-card featured selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
+              <span class="sub-plan-badge badge-popular">Popular</span>
+              <span class="sub-plan-name">3 Months</span>
+              <span class="sub-plan-price"><strong>6,000</strong> PKR</span>
+              <span class="sub-plan-desc">90 days category access</span>
+            </button>
+            <button type="button" class="sub-plan-card" data-sub-plan="1-year" data-sub-price="20000" data-sub-label="Yearly">
+              <span class="sub-plan-badge badge-pro">Pro Value</span>
+              <span class="sub-plan-name">Yearly</span>
+              <span class="sub-plan-price"><strong>20,000</strong> PKR</span>
+              <span class="sub-plan-desc">365 days full access</span>
+            </button>
+          </div>
+          <input type="hidden" id="subSelectedPlan" name="subSelectedPlan" value="3-month" />
+
+          <!-- 2. Select Category -->
+          <h3 class="reg-form-title">2. Select Business Category</h3>
+          <div class="field">
+            <label for="subCategorySelect">Category to Unlock <em>*</em></label>
+            <select id="subCategorySelect" name="subCategorySelect" required>
+              <option value="">Choose a category</option>
+              <option value="clinic">Clinic Management</option>
+              <option value="academy">Academy Management</option>
+              <option value="restaurant">Restaurant Management</option>
+              <option value="generalstore">General Store Management</option>
+              <option value="beautysalon">Beauty Salon Management</option>
+              <option value="petrolpump">Petrol Pump Management</option>
+              <option value="medicalstore">Medical Store Management</option>
+              <option value="laboratory">Laboratory Management</option>
+            </select>
+            <span class="field-error" id="subCategorySelectErr"></span>
+          </div>
+
+          <!-- 3. Account Details -->
+          <h3 class="reg-form-title">3. Your Account Details</h3>
+          <div class="reg-grid">
+            <div class="field">
+              <label for="subFullName">Full Name <em>*</em></label>
+              <input type="text" id="subFullName" name="subFullName" placeholder="Your name or business name" maxlength="60" required />
+              <span class="field-error" id="subFullNameErr"></span>
+            </div>
+            <div class="field">
+              <label for="subAccountMobile">Account Mobile Number <em>*</em></label>
+              <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="03XXXXXXXXX" maxlength="13" inputmode="numeric" required />
+              <span class="field-error" id="subAccountMobileErr"></span>
+            </div>
+          </div>
+          <div class="reg-grid">
+            <div class="field">
+              <label for="subCityName">City <em>*</em></label>
+              <input type="text" id="subCityName" name="subCityName" placeholder="e.g. Lahore, Karachi" maxlength="40" required />
+              <span class="field-error" id="subCityNameErr"></span>
+            </div>
+            <div class="field">
+              <label for="subPassword">Create Password <em>*</em></label>
+              <input type="text" id="subPassword" name="subPassword" placeholder="Min 8 characters" maxlength="64" required />
+              <span class="field-error" id="subPasswordErr"></span>
+            </div>
+          </div>
+
+          <!-- 4. JazzCash Payment Box -->
+          <h3 class="reg-form-title">4. JazzCash Payment</h3>
+          <div class="sub-jazzcash-box">
+            <div class="sub-jazzcash-head">
+              <span class="sub-jazzcash-icon">&#128241;</span>
+              <div>
+                <strong>Send Payment via JazzCash</strong>
+                <p>Transfer the exact plan amount to the official JazzCash account below:</p>
+              </div>
+            </div>
+            <div class="sub-jazzcash-details">
+              <div class="sub-jc-col">
+                <span class="sub-jc-label">JazzCash Account Mobile</span>
+                <strong class="sub-jc-value">0304 295 4627</strong>
+              </div>
+              <div class="sub-jc-col">
+                <span class="sub-jc-label">Account Title</span>
+                <strong class="sub-jc-value">Amna Bibi</strong>
+              </div>
+              <div class="sub-jc-col">
+                <span class="sub-jc-label">Amount Due</span>
+                <strong class="sub-jc-value sub-jc-amount" id="subAmountDue">PKR 6,000</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Payment Verification Fields -->
+          <div class="reg-grid">
+            <div class="field">
+              <label for="subPayerMobile">JazzCash Sender Mobile Number <em>*</em></label>
+              <input type="tel" id="subPayerMobile" name="subPayerMobile" placeholder="Number used to send payment" maxlength="13" inputmode="numeric" required />
+              <span class="field-error" id="subPayerMobileErr"></span>
+            </div>
+            <div class="field">
+              <label for="subTxId">Transaction ID / TID (from SMS) <em>*</em></label>
+              <input type="text" id="subTxId" name="subTxId" placeholder="Enter JazzCash TID" maxlength="60" required />
+              <span class="field-error" id="subTxIdErr"></span>
+            </div>
+          </div>
+
+          <div class="sub-approval-notice">
+            <span class="sub-notice-icon">â³</span>
+            <div>
+              <strong>Owner Approval Notice:</strong>
+              <p>After you submit, the site owner will verify the transaction on JazzCash. Once confirmed, your subscription will be activated automatically.</p>
+            </div>
+          </div>
+
+          <div class="reg-actions">
+            <button type="submit" class="btn btn-primary btn-lg" id="subSubmitBtn">Submit Subscription Request (PKR 6,000)</button>
+            <button type="button" class="btn btn-outline btn-lg" id="subCancelBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- ========== OWNER DETAILS ========== -->
     <section class="section owner-details" id="owner-details">
       <div class="container owner-inner">
@@ -1015,10 +1153,11 @@
           <input type="file" id="ownerAvatarInput" accept="image/*" hidden />
           <div class="owner-profile-body">
             <h3 class="owner-profile-name" style="color:#000000;">Amna Bibi</h3>
-            <p class="owner-profile-role">Founder &amp; CEO</p>
+            <p class="owner-profile-role">Founder &amp; CEO: Online Management Site</p>
             <p class="owner-profile-bio">
-              I built Online Management Site to replace paper registers with simple digital tools that save time for every business.
+              Hi, I'm Amna Bibi, Founder &amp; CEO of Online Management Site. I created this platform with a clear mission: to provide Pakistan's entrepreneurs with reliable, all-in-one business software that saves time and maximizes profit. We combine modern technology with dedicated local support to help your business thrive in the digital age.
             </p>
+
             <div class="owner-profile-actions">
               <button type="button" class="btn btn-primary btn-lg" id="contactOwnerToggle" aria-expanded="false" aria-controls="ownerSocials">Contact Owner</button>
               <button type="button" class="btn btn-outline btn-lg" id="portfolioToggle" aria-expanded="false" aria-controls="ownerPortfolio">View Portfolio</button>
@@ -1044,7 +1183,7 @@
             <!-- Portfolio preview (opens inside the app) -->
             <div class="portfolio-panel" id="ownerPortfolio" hidden>
               <div class="portfolio-head">
-                <span class="portfolio-title">🌐 Amna Bibi — Portfolio</span>
+                <span class="portfolio-title">🌐 Amna Bibi: Portfolio</span>
                 <div class="portfolio-head-actions">
                   <a href="https://amna-bi-bi.vercel.app/" target="_blank" rel="noopener" class="portfolio-link">Open in new tab ↗</a>
                   <button type="button" class="portfolio-close" id="portfolioClose" aria-label="Close portfolio">&times;</button>
@@ -1063,6 +1202,7 @@
             <button type="button" class="btn btn-outline" id="ceoBtn">CEO Account</button>
           </div>
         </div>
+
 
       </div>
     </section>
@@ -1146,9 +1286,9 @@
             </div>
           </div>
           <div class="ceo-stats" style="margin-bottom:1rem;">
-            <div class="ceo-stat"><span>Name</span><strong id="userActiveName">—</strong></div>
-            <div class="ceo-stat"><span>Mobile</span><strong id="userActiveMobile">—</strong></div>
-            <div class="ceo-stat"><span>City</span><strong id="userActiveCity">—</strong></div>
+            <div class="ceo-stat"><span>Name</span><strong id="userActiveName">N/A</strong></div>
+            <div class="ceo-stat"><span>Mobile</span><strong id="userActiveMobile">N/A</strong></div>
+            <div class="ceo-stat"><span>City</span><strong id="userActiveCity">N/A</strong></div>
           </div>
           <div id="userActiveUpgradeCta" style="margin-bottom:0.75rem;" hidden>
             <a href="#industries" class="btn btn-primary btn-block" id="userUpgradeBtn" style="text-decoration:none; text-align:center;">Choose Category Subscription</a>
@@ -1215,9 +1355,9 @@
                   <label for="ufSubscriptionPlan">Subscription plan <em>*</em></label>
                   <select id="ufSubscriptionPlan">
                     <option value="">Choose a plan</option>
-                    <option value="1-month">1 Month — PKR 3,000</option>
-                    <option value="3-month">3 Months — PKR 9,000</option>
-                    <option value="6-month">6 Months — PKR 12,000</option>
+                    <option value="1-month">1 Month (PKR 2,000)</option>
+                    <option value="3-month">3 Months (PKR 6,000)</option>
+                    <option value="1-year">1 Year (PKR 20,000)</option>
                   </select>
                   <span class="field-error" id="ufSubscriptionPlanErr"></span>
                 </div>
@@ -1277,9 +1417,9 @@
       <!-- Active Owner View (when already signed in) -->
       <div id="ownerActiveBox" hidden>
         <div class="ceo-stats" style="margin-bottom:1rem;">
-          <div class="ceo-stat"><span>Owner</span><strong id="ownerActiveName">—</strong></div>
-          <div class="ceo-stat"><span>Mobile</span><strong id="ownerActiveMobile">—</strong></div>
-          <div class="ceo-stat"><span>Category</span><strong id="ownerActiveCategory">—</strong></div>
+          <div class="ceo-stat"><span>Owner</span><strong id="ownerActiveName">N/A</strong></div>
+          <div class="ceo-stat"><span>Mobile</span><strong id="ownerActiveMobile">N/A</strong></div>
+          <div class="ceo-stat"><span>Category</span><strong id="ownerActiveCategory">N/A</strong></div>
         </div>
         <div class="ceo-actions">
           <button type="button" class="btn btn-primary" id="ownerGoCategory">Open Category</button>
@@ -1319,7 +1459,7 @@
           <div class="field">
             <label for="ofCategory">Select Your Category</label>
             <select id="ofCategory">
-              <option value="">— Choose a category —</option>
+              <option value="">Choose a category</option>
               <option value="clinic">Clinic</option>
               <option value="academy">Academy</option>
               <option value="restaurant">Restaurant</option>
@@ -1454,7 +1594,7 @@
 
         <div class="ceo-stats">
           <div class="ceo-stat"><span>Categories</span><strong id="ceoCatCount">8</strong></div>
-          <div class="ceo-stat"><span>Owners</span><strong id="ceoOwnerInfo">—</strong></div>
+          <div class="ceo-stat"><span>Owners</span><strong id="ceoOwnerInfo">N/A</strong></div>
           <div class="ceo-stat"><span>Access</span><strong id="ceoAccessInfo">Full (CEO)</strong></div>
         </div>
 
@@ -1507,7 +1647,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261030TwoButtons"></script>
+  <script src="script.js?v=20261030SubscriptionPlans"></script>
   <script src="liveads.js?v=20261024b"></script>
   <script src="ui.js?v=20261023H"></script>
 

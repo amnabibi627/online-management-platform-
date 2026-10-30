@@ -1,6 +1,6 @@
 # Setup Guide
 
-Online Management Site — `https://onlinemanagement.site`
+Online Management Site: `https://onlinemanagement.site`
 
 Static site (HTML / CSS / JS). Cloudflare Pages host. Supabase Auth and
 row-level-secured tables for category accounts, Owner/User accounts and reviews.
@@ -50,33 +50,33 @@ access until the CEO verifies and approves it in Super Admin → Subscriptions.
 
 This creates:
 
-- `public.admins` — the CEO table (with RLS, so a user can only read their own row;
+- `public.admins`: the CEO table (with RLS, so a user can only read their own row;
   a unique index guarantees at most one CEO)
 - A private one-time CEO bootstrap marker and database functions that compare
   the provided details against the configured identity and a stored secret hash.
 - A server-side CEO availability check and CEO profile/email-management
   functions. No Edge Function deployment or service-role key is needed.
-- `public.customer_profiles` and `public.owner_profiles` — account profiles linked to Supabase Auth
-- `public.site_reviews` — public reviews with typed display names, own-review
+- `public.customer_profiles` and `public.owner_profiles`: account profiles linked to Supabase Auth
+- `public.site_reviews`: public reviews with typed display names, own-review
   delete, CEO delete and CEO owner replies
 - A CEO-only function for changing owner category access
-- `public.category_subscriptions` — active/revoked, expiry-based access per user and category
-- `public.subscription_requests` — private payment requests for customer and admin review
+- `public.category_subscriptions`: active/revoked, expiry-based access per user and category
+- `public.subscription_requests`: private payment requests for customer and admin review
 - CEO-only functions to atomically approve or reject a payment request
 - A CEO-only account directory covering owners, category subscribers and site customers,
   with block/unblock controls and explicitly confirmed permanent deletion
 - Account-access checks enforced by row-level security, not only by the browser UI
 - CEO-only cloud category summaries and a read-only, selected-account/category
   record viewer
-- `public.site_profile` — the owner photo shown to every visitor (anyone can read
+- `public.site_profile`: the owner photo shown to every visitor (anyone can read
   it, only an admin can write it)
-- `public.business_ad_requests` — private registration and payment-review data
-- `public.business_ads` — public, unexpired listings only
+- `public.business_ad_requests`: private registration and payment-review data
+- `public.business_ads`: public, unexpired listings only
 - A private `business-ad-media` Storage bucket with restricted upload policies
   and size/type validation
 - CEO-only business-ad functions for payment verification, activation, extension,
   stopping and deletion
-- `public.financial_transactions` — explicit owner cashbook entries, protected
+- `public.financial_transactions`: explicit owner cashbook entries, protected
   by per-user and per-category row-level security
 - locks down `public.app_data` so category records also require an active
   subscription for that category (and the anonymous role cannot insert anything)
@@ -278,9 +278,9 @@ or automatically imported.
 The photo in the header circle is kept in three places, so it cannot disappear
 on its own:
 
-- `localStorage` — fast, on the device that picked it
-- IndexedDB `oms_media` — survives a cleared cache or a full `localStorage`
-- Supabase `app_data` row `ownerAvatar` — follows the owner to other devices
+- `localStorage`: fast, on the device that picked it
+- IndexedDB `oms_media`: survives a cleared cache or a full `localStorage`
+- Supabase `app_data` row `ownerAvatar`: follows the owner to other devices
 
 When the CEO is signed in, the photo is also written to `public.site_profile`.
 That is the copy every visitor sees, so run the SQL from section 1.2 to create
@@ -299,7 +299,7 @@ Things that still need a manual action once:
 - **Delete the test auth user** `sec-audit-probe-20261021@bms.app`
   (Supabase → Authentication → Users → delete)
 - **Delete the sample Pages project** named `my-site` if it is not being used
-- **Check the CSP console** — after adding `https://static.cloudflareinsights.com`
+- **Check the CSP console**: after adding `https://static.cloudflareinsights.com`
   to `script-src` the Cloudflare analytics beacon loads without errors
 
 ---

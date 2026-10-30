@@ -295,8 +295,8 @@ const authErrMsg = (error) => {
   const m = (error && error.message) || "";
   if (/invalid login credentials/i.test(m)) return "The email/mobile number or password is incorrect.";
   if (/email_not_confirmed|not confirmed/i.test(m)) return "Supabase mein 'Confirm email' band karein (Authentication → Email).";
-  if (/rate limit|too many/i.test(m)) return "Bohat zyada tries — thori der baad dobara try karein.";
-  if (/fetch|network|failed to fetch/i.test(m)) return "Internet nahi mil raha — local mode mein kaam jaari hai.";
+  if (/rate limit|too many/i.test(m)) return "Bohat zyada tries: thori der baad dobara try karein.";
+  if (/fetch|network|failed to fetch/i.test(m)) return "Internet nahi mil raha: local mode mein kaam jaari hai.";
   return "Login failed: " + m;
 };
 
@@ -408,7 +408,7 @@ navLinks.forEach((link) => {
 window.addEventListener("scroll", setActiveLink, { passive: true });
 setActiveLink();
 
-// Category detail views (event delegation — works for CEO-added cards too)
+// Category detail views (event delegation: works for CEO-added cards too)
 const getDetail = (card) => document.getElementById(`${card.dataset.detail}Detail`);
 
 const closeDetail = (detail) => {
@@ -427,7 +427,7 @@ industryGrid.addEventListener("click", (e) => {
   if (!card || card.matches("a[href]")) return;
 
   if (!ceoMode && owner && !ownerAllowedCats(owner).includes(card.dataset.detail)) {
-    showToast(`Access denied — your owner account does not have ${labelFor(card.dataset.detail)} access.`, true);
+    showToast(`Access denied: your owner account does not have ${labelFor(card.dataset.detail)} access.`, true);
     return;
   }
 
@@ -490,7 +490,7 @@ document.querySelectorAll(".portal-card:not([data-portal='owner'])").forEach((ca
 
   button.addEventListener("click", () => {
     if (registered.has(portal)) {
-      showToast(`${label} Login — redirecting to the ${label} portal...`);
+      showToast(`${label} Login: redirecting to the ${label} portal...`);
     } else {
       registered.add(portal);
       button.textContent = `${label} Login`;
@@ -656,9 +656,9 @@ const openOwnerModal = (mode) => {
     const loginPassField = document.getElementById("loginPassField");
     if (loginPassField) loginPassField.hidden = true;
     if (ownerActiveName) ownerActiveName.textContent = owner.name || "Owner";
-    if (ownerActiveMobile) ownerActiveMobile.textContent = owner.mobile || "—";
+    if (ownerActiveMobile) ownerActiveMobile.textContent = owner.mobile || "N/A";
     const allowed = ownerAllowedCats(owner);
-    if (ownerActiveCategory) ownerActiveCategory.textContent = allowed.map(labelFor).join(", ") || labelFor(owner.category) || "—";
+    if (ownerActiveCategory) ownerActiveCategory.textContent = allowed.map(labelFor).join(", ") || labelFor(owner.category) || "N/A";
   } else {
     const isSignup = ownerModalMode === "signup";
     ownerModalTitle.textContent = isSignup ? "Owner Sign Up" : "Owner Login";
@@ -718,9 +718,9 @@ const uFields = {
 
 let userModalMode = "signup"; // "signup" | "login" | "active"
 const USER_SUBSCRIPTION_PLANS = {
-  "1-month": { months: 1, amount: 3000 },
-  "3-month": { months: 3, amount: 9000 },
-  "6-month": { months: 6, amount: 12000 }
+  "1-month": { months: 1, amount: 2000 },
+  "3-month": { months: 3, amount: 6000 },
+  "1-year": { months: 12, amount: 20000 }
 };
 
 if (userPurpose && userSubscriptionFields) {
@@ -846,8 +846,8 @@ const openUserModal = (mode) => {
     const mb = document.getElementById("userActiveMobile");
     const ct = document.getElementById("userActiveCity");
     if (nm) nm.textContent = (currentUser && currentUser.name) || (trial && trial.name) || "User";
-    if (mb) mb.textContent = (currentUser && currentUser.mobile) || (trial && trial.mobile) || "—";
-    if (ct) ct.textContent = (currentUser && currentUser.city) || (trial && trial.city) || "—";
+    if (mb) mb.textContent = (currentUser && currentUser.mobile) || (trial && trial.mobile) || "N/A";
+    if (ct) ct.textContent = (currentUser && currentUser.city) || (trial && trial.city) || "N/A";
   } else {
     const isSignup = userModalMode === "signup";
     userModalTitle.textContent = isSignup ? "Start 5-Day Free Trial" : "Welcome Back";
@@ -983,12 +983,12 @@ if (userForm) {
       const pass = String(uFields.loginPass.input.value || "");
       if (!MOBILE_RE.test(mobile)) {
         setUserError(uFields.loginMobile, "Enter a valid number, e.g. 03123456789.");
-        showToast("Login failed — invalid mobile number.", true);
+        showToast("Login failed: invalid mobile number.", true);
         return;
       }
       if (!pass) {
         setUserError(uFields.loginPass, "Enter your password.");
-        showToast("Login failed — password required.", true);
+        showToast("Login failed: password required.", true);
         return;
       }
 
@@ -1066,7 +1066,7 @@ const validateSignup = () => {
   const ageNum = Number(age);
   if (!age || !Number.isInteger(ageNum) || ageNum < 18 || ageNum > 100) { setError(fields.age, "Age must be between 18 and 100."); ok = false; } else setError(fields.age, "");
   if (city.length < 2) { setError(fields.city, "Enter your city."); ok = false; } else setError(fields.city, "");
-  if (!category) { setError(fields.category, "Select one category — you will only get access to it."); ok = false; } else setError(fields.category, "");
+  if (!category) { setError(fields.category, "Select one category: you will only get access to it."); ok = false; } else setError(fields.category, "");
   if (pass.length < 8) { setError(fields.pass, "Choose a password (min 8 characters)."); ok = false; } else setError(fields.pass, "");
 
   if (!ok) return null;
@@ -1128,7 +1128,7 @@ ownerForm.addEventListener("submit", async (e) => {
   try {
     if (ownerModalMode === "signup") {
       const data = await validateSignup();
-      if (!data) { showToast("Signup failed — please fix the fields.", true); return; }
+      if (!data) { showToast("Signup failed: please fix the fields.", true); return; }
       const authUser = await createOrResumeAuthAccount(data.mobile, data.pass, { name: data.name, mobile: data.mobile });
       const { error } = await sb.from("owner_profiles").insert({
         user_id: authUser.id,
@@ -1150,12 +1150,12 @@ ownerForm.addEventListener("submit", async (e) => {
     const pass = fields.loginPass.input.value;
     if (!MOBILE_RE.test(mobile)) {
       setError(fields.loginMobile, "Enter a valid mobile number, e.g. 03123456789.");
-      showToast("Login failed — invalid mobile number.", true);
+      showToast("Login failed: invalid mobile number.", true);
       return;
     }
     if (!pass) {
       setError(fields.loginPass, "Enter your password.");
-      showToast("Login failed — password required.", true);
+      showToast("Login failed: password required.", true);
       return;
     }
     const authUser = await signInWithMobile(mobile, pass);
@@ -1164,7 +1164,7 @@ ownerForm.addEventListener("submit", async (e) => {
     setError(fields.loginMobile, "");
     setError(fields.loginPass, "");
     closeOwnerModal();
-    showToast(`Logged in — welcome back, ${owner.name}!`);
+    showToast(`Logged in: welcome back, ${owner.name}!`);
   } catch (error) {
     const message = error.message || "Owner account request failed.";
     if (ownerModalMode === "signup") {
@@ -1476,7 +1476,7 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       setCeoSession(true);
       showCeoPanel();
       cloudState("connected", "Synced ✓");
-      showToast(`CEO account ready — welcome, ${name}!`);
+      showToast(`CEO account ready: welcome, ${name}!`);
       await migrateLegacyReviews();
       await loadReviews();
       return;
@@ -1487,13 +1487,13 @@ ceoLoginForm.addEventListener("submit", async (e) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       ceoErrLoginEmail.textContent = "Enter your registered email address.";
       ceoLoginEmailInput.classList.add("invalid");
-      showToast("Login failed — enter a valid email.", true);
+      showToast("Login failed: enter a valid email.", true);
       return;
     }
     if (!password) {
       ceoErrCode.textContent = "Enter your password.";
       ceoCodeInput.classList.add("invalid");
-      showToast("Login failed — password required.", true);
+      showToast("Login failed: password required.", true);
       return;
     }
     const blocked = rateMsg("ceo");
@@ -1521,7 +1521,7 @@ ceoLoginForm.addEventListener("submit", async (e) => {
       cloudState("error", "Not CEO");
       ceoErrCode.textContent = "This account is not registered as the CEO account.";
       ceoCodeInput.classList.add("invalid");
-      showToast("Access denied — this account is not the CEO account.", true);
+      showToast("Access denied: this account is not the CEO account.", true);
       logAttempt("ceo");
       return;
     }
@@ -1805,7 +1805,7 @@ const closeFeaturePanel = () => {
 
 const openFeaturePanel = (catKey, featureId, itemId, card) => {
   if (!ceoMode && owner && !ownerAllowedCats(owner).includes(catKey)) {
-    showToast(`Access denied — your owner account does not have ${labelFor(catKey)} access.`, true);
+    showToast(`Access denied: your owner account does not have ${labelFor(catKey)} access.`, true);
     return;
   }
   featureCtx = { catKey, featureId, def: getFeatureDef(catKey, featureId, card) };
@@ -1827,7 +1827,7 @@ const renderFeatureList = () => {
   } else {
     const head = fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
     const rows = items.map((it) => {
-      const tds = fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+      const tds = fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>N/A</span>"}</td>`).join("");
       return `<tr>${tds}<td class="f-act-cell"><div class="f-actions">
         <button type="button" class="f-btn edit" data-f-edit="${escHtml(it.id)}">Edit</button>
         <button type="button" class="f-btn del" data-f-del="${escHtml(it.id)}">Delete</button>
@@ -1857,7 +1857,7 @@ const renderFeatureForm = (itemId) => {
     let control;
     if (f.type === "select") {
       control = `<select name="${f.key}"${f.required ? " data-required" : ""}>
-        <option value="">— Select —</option>
+        <option value="">Select</option>
         ${(f.options || []).map((o) => `<option value="${escHtml(o)}"${String(val) === o ? " selected" : ""}>${escHtml(o)}</option>`).join("")}
       </select>`;
     } else if (f.type === "textarea") {
@@ -2007,7 +2007,7 @@ const exportSheetCsv = (catKey) => {
   a.download = `${slugify(catName) || catKey}-data-${new Date().toISOString().slice(0, 10)}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
-  showToast("CSV downloaded — opens in Excel like a sheet.");
+  showToast("CSV downloaded: opens in Excel like a sheet.");
 };
 
 const renderDataBrowser = (catKey) => {
@@ -2024,7 +2024,7 @@ const renderDataBrowser = (catKey) => {
     const entries = col.features[fid];
     const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
     const rows = entries.map((it) => {
-      const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+      const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>N/A</span>"}</td>`).join("");
       const hay = (def.name + " " + Object.values(it).join(" ")).toLowerCase();
       return `<tr data-sheet-row data-search="${escHtml(hay)}">${tds}<td class="f-act-cell"><div class="f-actions">` +
         `<button type="button" class="f-btn edit" data-s-edit="${escHtml(fid)}" data-s-id="${escHtml(it.id)}">Edit</button>` +
@@ -2042,11 +2042,11 @@ const renderDataBrowser = (catKey) => {
     `<button type="button" class="modal-close" data-d-close aria-label="Close">&times;</button>` +
     `<div class="feature-head">` +
     `<div class="feature-title"><span class="feature-icon">${catIcon}</span>` +
-    `<div><h3>${escHtml(catName)} — All Data</h3><p class="feature-sub">${total} saved ${total === 1 ? "entry" : "entries"} in ${featureIds.length} ${featureIds.length === 1 ? "section" : "sections"} · sheet view</p></div></div>` +
+    `<div><h3>${escHtml(catName)}: All Data</h3><p class="feature-sub">${total} saved ${total === 1 ? "entry" : "entries"} in ${featureIds.length} ${featureIds.length === 1 ? "section" : "sections"} · sheet view</p></div></div>` +
     `<div class="data-head-actions">` +
     `<button type="button" class="btn btn-outline" data-d-export>⬇ Export CSV</button></div></div>` +
-    `<div class="data-search"><input type="search" id="dataSearch" placeholder="Search ${escHtml(catName)} data — name, amount, date…" /></div>` +
-    (sections || `<div class="f-empty">No saved data in <strong>${escHtml(catName)}</strong> yet. Click any feature card and press <strong>+ Add New</strong> — entries appear here.</div>`);
+    `<div class="data-search"><input type="search" id="dataSearch" placeholder="Search ${escHtml(catName)} data: name, amount, date…" /></div>` +
+    (sections || `<div class="f-empty">No saved data in <strong>${escHtml(catName)}</strong> yet. Click any feature card and press <strong>+ Add New</strong>: entries appear here.</div>`);
 
   dataModal.classList.add("open");
   dataModal.setAttribute("aria-hidden", "false");
@@ -2184,7 +2184,7 @@ const initFeatureModules = () => {
   BUILTIN_CATEGORIES.concat(customCats.map((c) => c.key)).forEach(readCollection);
 };
 
-// ===== Super Admin Panel (CEO only) — professional full-control console =====
+// ===== Super Admin Panel (CEO only): professional full-control console =====
 // All 8 categories always stay in the system. Categories are NEVER removable
 // from here; CEO only controls per-owner access (grant/revoke) and views data.
 const adminModal = document.getElementById("adminModal");
@@ -2252,7 +2252,7 @@ const loadCloudOwnerProfiles = async () => {
 const adminOwnerList = () => adminAllOwners();
 const fmtDate = (v) => {
   const d = v ? new Date(v) : null;
-  if (!d || isNaN(d.getTime())) return "—";
+  if (!d || isNaN(d.getTime())) return "";
   return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
 };
 
@@ -2313,35 +2313,57 @@ const renderAdminSubscriptions = () =>
   `<p class="admin-hint">Open the JazzCash app and verify the sender, amount and transaction reference in your received payments before approving. Approval activates only the category and duration on that request.</p>` +
   `<div id="adminSubscriptionRequestList"><div class="admin-empty">Loading payment requests…</div></div>`;
 
+const getLocalSubscriptionRequests = () => {
+  try {
+    return JSON.parse(localStorage.getItem("oms_subscription_requests") || "[]");
+  } catch (_) { return []; }
+};
+const setLocalSubscriptionRequests = (list) => {
+  localStorage.setItem("oms_subscription_requests", JSON.stringify(list));
+};
+
 const loadAdminSubscriptionRequests = async () => {
   const list = document.getElementById("adminSubscriptionRequestList");
-  if (!list || !sb || !cloudUser) return;
+  if (!list) return;
+
   const data = [];
-  const pageSize = 500;
-  for (let offset = 0; ; offset += pageSize) {
-    const result = await sb.from("subscription_requests")
-      .select("id,user_id,category,plan,amount,account_name,account_mobile,payment_reference,payer_mobile,status,admin_note,created_at")
-      .order("created_at", { ascending: false })
-      .range(offset, offset + pageSize - 1);
-    if (result.error) {
-      list.innerHTML = `<div class="admin-note">Could not load subscription requests: ${escHtml(result.error.message)}. Confirm that the latest Supabase setup SQL has been applied.</div>`;
-      return;
-    }
-    data.push(...(result.data || []));
-    if (!result.data || result.data.length < pageSize) break;
+  const localList = getLocalSubscriptionRequests();
+  data.push(...localList);
+
+  if (sb && cloudUser) {
+    try {
+      const pageSize = 500;
+      for (let offset = 0; ; offset += pageSize) {
+        const result = await sb.from("subscription_requests")
+          .select("id,user_id,category,plan,amount,account_name,account_mobile,payment_reference,payer_mobile,status,admin_note,created_at")
+          .order("created_at", { ascending: false })
+          .range(offset, offset + pageSize - 1);
+        if (result.error) break;
+        (result.data || []).forEach((item) => {
+          if (!data.some((d) => d.id === item.id || (d.payment_reference && d.payment_reference === item.payment_reference))) {
+            data.push(item);
+          }
+        });
+        if (!result.data || result.data.length < pageSize) break;
+      }
+    } catch (_) {}
   }
+
   if (!data.length) {
     list.innerHTML = `<div class="admin-empty">No subscription payment requests yet.</div>`;
     return;
   }
+
+  data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
   const categoryNames = Object.fromEntries(BUILTIN_CATEGORIES.map((key) => [key, catMeta(key)]));
   list.innerHTML = data.map((request) => {
-    const meta = categoryNames[request.category] || { icon: "📁", name: request.category };
+    const meta = categoryNames[request.category] || { icon: "ðŸ“", name: request.category };
     const plan = CATEGORY_PLAN_INFO[request.plan] || { label: request.plan };
     const account = adminAccounts.find((item) => item.user_id === request.user_id);
     return `<article class="admin-subscription-request">` +
-      `<div class="admin-subscription-request-head"><div><strong>${escHtml(meta.icon)} ${escHtml(meta.name)} · ${escHtml(plan.label)}</strong>` +
-      `<span>${escHtml(request.account_name)} · account ${escHtml(request.account_mobile)}${account ? ` · ${escHtml(account.email)}` : ""}</span></div>` +
+      `<div class="admin-subscription-request-head"><div><strong>${escHtml(meta.icon)} ${escHtml(meta.name)} Â· ${escHtml(plan.label)}</strong>` +
+      `<span>${escHtml(request.account_name)} Â· account ${escHtml(request.account_mobile)}${account ? ` Â· ${escHtml(account.email)}` : ""}</span></div>` +
       `<span class="admin-pill ${request.status === "approved" ? "ok" : request.status === "rejected" ? "off" : ""}">${escHtml(request.status)}</span></div>` +
       `<div class="admin-subscription-request-details"><span><b>Amount</b> PKR ${rupees(request.amount)}</span>` +
       `<span><b>JazzCash sender</b> ${escHtml(request.payer_mobile)}</span>` +
@@ -2355,27 +2377,50 @@ const loadAdminSubscriptionRequests = async () => {
   }).join("");
 };
 
-const CATEGORY_PLAN_INFO = {
-  "1-month": { label: "1 Month" },
-  "3-month": { label: "3 Months" },
-  "6-month": { label: "6 Months" }
-};
-
 const reviewSubscriptionRequest = async (requestId, approve) => {
-  if (!sb || !cloudUser || !await isCloudAdmin()) {
-    showToast("Only the authenticated site CEO can review subscription payments.", true);
-    return;
-  }
   const rejectNote = approve ? null : window.prompt("Optional reason for rejecting this payment request:");
   if (!approve && rejectNote === null) return;
-  const result = approve
-    ? await sb.rpc("admin_approve_subscription_request", { p_request_id: requestId })
-    : await sb.rpc("admin_reject_subscription_request", { p_request_id: requestId, p_note: rejectNote });
-  if (result.error) {
-    showToast(`Subscription request could not be ${approve ? "approved" : "rejected"}: ${result.error.message}`, true);
-    return;
+
+  // Local request update
+  const localList = getLocalSubscriptionRequests();
+  const req = localList.find((r) => r.id === requestId);
+  if (req) {
+    req.status = approve ? "approved" : "rejected";
+    if (rejectNote) req.admin_note = rejectNote;
+    req.reviewed_at = new Date().toISOString();
+    setLocalSubscriptionRequests(localList);
+
+    if (approve) {
+      const months = req.plan === "1-month" ? 1 : req.plan === "3-month" ? 3 : 12;
+      const activeSubs = JSON.parse(localStorage.getItem("oms_active_subscriptions") || "{}");
+      const subKey = (req.account_mobile || "") + "_" + (req.category || "");
+      activeSubs[subKey] = {
+        category: req.category,
+        plan: req.plan,
+        amount: req.amount,
+        status: "active",
+        mobile: req.account_mobile,
+        started_at: Date.now(),
+        expires_at: Date.now() + months * 30 * 24 * 60 * 60 * 1000
+      };
+      localStorage.setItem("oms_active_subscriptions", JSON.stringify(activeSubs));
+    }
   }
-  showToast(approve ? "Payment approved. Category access is now active." : "Payment request rejected.");
+
+  // Supabase RPC if connected
+  if (sb && cloudUser) {
+    try {
+      if (approve) {
+        await sb.rpc("admin_approve_subscription_request", { p_request_id: requestId });
+      } else {
+        await sb.rpc("admin_reject_subscription_request", { p_request_id: requestId, p_note: rejectNote });
+      }
+    } catch (e) {
+      console.warn("Cloud approve notice:", e);
+    }
+  }
+
+  showToast(approve ? "Payment approved. Category subscription is now active." : "Payment request rejected.");
   await loadAdminSubscriptionRequests();
 };
 
@@ -2427,7 +2472,7 @@ const renderAdminData = () => {
       const head = def.fields.map((field) => `<th>${escHtml(field.label)}</th>`).join("");
       const rows = entries.map((item) => {
         const tds = def.fields.map((field) =>
-          `<td>${escHtml(String(item?.[field.key] ?? item?.fields?.[field.key] ?? "")) || "<span class='f-muted'>—</span>"}</td>`
+          `<td>${escHtml(String(item?.[field.key] ?? item?.fields?.[field.key] ?? "")) || "<span class='f-muted'>N/A</span>"}</td>`
         ).join("");
         return `<tr>${tds}</tr>`;
       }).join("");
@@ -2469,10 +2514,10 @@ const renderAdminAccounts = () => {
       `<span>${escHtml(types)} · Sign-in: ${escHtml(account.email)} · Contact: ${escHtml(contactEmail)}</span></div>` +
       `<span class="admin-pill ${account.blocked ? "off" : "ok"}">${account.blocked ? "Blocked" : "Active"}</span></div>` +
       `<div class="admin-account-details">` +
-      `<span><b>Mobile</b>${escHtml(account.mobile || "—")}</span>` +
-      `<span><b>City</b>${escHtml(account.city || "—")}</span>` +
+      `<span><b>Mobile</b>${escHtml(account.mobile || "N/A")}</span>` +
+      `<span><b>City</b>${escHtml(account.city || "N/A")}</span>` +
       `<span><b>Registered</b>${fmtDate(account.created_at)}</span>` +
-      `<span><b>Owner categories</b>${escHtml((account.owner_categories || []).map((key) => catMeta(key).name).join(", ") || "—")}</span>` +
+      `<span><b>Owner categories</b>${escHtml((account.owner_categories || []).map((key) => catMeta(key).name).join(", ") || "N/A")}</span>` +
       `<span><b>Active subscriptions</b>${escHtml(activeCategories || "None")}</span>` +
       `<span><b>Pending payments</b>${escHtml(pendingCategories || "None")}</span>` +
       `</div>` +
@@ -2591,7 +2636,7 @@ const renderAdminSettings = () => {
     `<div class="admin-setting-row"><div><div class="admin-setting-name">CEO full access</div>` +
     `<div class="admin-setting-sub">CEO can open every category and manage owners</div></div>` +
     `<button type="button" class="admin-ghost-btn" data-admin-tab="owners">Manage</button></div>` +
-    `<p class="admin-hint">Category removal is disabled by design — the full category set is always available.</p>`;
+    `<p class="admin-hint">Category removal is disabled by design: the full category set is always available.</p>`;
 };
 
 const renderAdminPanel = () => {
@@ -2949,7 +2994,7 @@ const ownerScopeBar = () => {
 const renderOwnerAdminOverview = () => {
   const keys = ownerAdminCat === "all" ? ownerScopeKeys() : [ownerAdminCat];
   const led = ownerScopeLedger();
-  const ownersName = ceoMode ? "CEO (full access)" : owner ? owner.name : "—";
+  const ownersName = ceoMode ? "CEO (full access)" : owner ? owner.name : "N/A";
 
   const catCards = keys.map((k) => {
     const m = catMeta(k);
@@ -3107,7 +3152,7 @@ const renderOwnerAdminData = () => {
       const entries = col.features[fid];
       const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
       const rows = entries.map((it) => {
-        const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+        const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>N/A</span>"}</td>`).join("");
         return `<tr>${tds}</tr>`;
       }).join("");
       return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +
@@ -3133,7 +3178,7 @@ const renderOwnerAdminPanel = () => {
   ownerAdminPanel.innerHTML =
     `<button type="button" class="modal-close" data-owner-admin-close aria-label="Close">&times;</button>` +
     `<div class="feature-head"><div class="feature-title"><span class="feature-icon">🔐</span>` +
-    `<div><h3>Business Admin Panel</h3><p class="feature-sub">${escHtml(ceoMode ? "CEO — full access" : owner ? owner.name + " · Owner" : "Owner")} · cashbook, reports, analytics &amp; management tools</p></div></div></div>` +
+    `<div><h3>Business Admin Panel</h3><p class="feature-sub">${escHtml(ceoMode ? "CEO: full access" : owner ? owner.name + " · Owner" : "Owner")} · cashbook, reports, analytics &amp; management tools</p></div></div></div>` +
     body;
 };
 
@@ -3246,7 +3291,7 @@ const closeCategoryAdmin = () => {
 
 const openCategoryAdmin = async (key) => {
   if (!canAccessCat(key)) {
-    showToast(`Access denied — you don't have ${labelFor(key)} access.`, true);
+    showToast(`Access denied: you don't have ${labelFor(key)} access.`, true);
     return;
   }
   catAdminKey = key;
@@ -3317,14 +3362,14 @@ const renderCatAdminOverview = () => {
     `<button type="button" class="btn btn-outline" data-cat-admin-data>🗂️ View All Data</button>` +
     `<button type="button" class="btn btn-outline" data-cat-admin-close2>✕ Close</button>` +
     `</div>` +
-    `<div class="admin-section-title">🧩 ${m.icon} ${escHtml(m.name)} — feature performance</div>` +
+    `<div class="admin-section-title">🧩 ${m.icon} ${escHtml(m.name)}: feature performance</div>` +
     (featRows || `<div class="admin-empty">No entries yet in ${escHtml(m.name)}. Open a feature card and add your first record.</div>`);
 };
 
 const renderCatAdminReports = () => {
   const l = categoryLedger(catAdminKey);
   return catAdminTabsHtml() +
-    `<div class="admin-section-title">💰 Cashbook report — ${escHtml(catMeta(catAdminKey).name)}</div>` +
+    `<div class="admin-section-title">💰 Cashbook report: ${escHtml(catMeta(catAdminKey).name)}</div>` +
     `<p class="admin-note">Net cash includes settled income less paid expenses. Pending amounts are shown separately and are not included in net cash.</p>` +
     `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
     `<th>Transactions</th><th>Income</th><th>Received</th><th>Receivable</th><th>Expenses</th><th>Paid</th><th>Unpaid</th><th>Net cash</th>` +
@@ -3381,7 +3426,7 @@ const renderCatAdminTop = () => {
     `<td>${escHtml(it.def.name)}</td><td>${fmtDate(it.at)}</td></tr>`
   ).join("");
   return catAdminTabsHtml() +
-    `<div class="admin-section-title">🕒 10 most recently updated records — ${escHtml(catMeta(catAdminKey).name)}</div>` +
+    `<div class="admin-section-title">🕒 10 most recently updated records: ${escHtml(catMeta(catAdminKey).name)}</div>` +
     `<div class="f-table-wrap"><table class="f-table admin-report-table"><thead><tr>` +
     `<th>#</th><th>Record</th><th>Feature</th><th>Updated</th>` +
     `</tr></thead><tbody>${rows || `<tr><td colspan="4" class="f-muted">No records yet.</td></tr>`}</tbody></table></div>`;
@@ -3396,7 +3441,7 @@ const renderCatAdminData = () => {
     const entries = col.features[fid];
     const head = def.fields.map((f) => `<th>${escHtml(f.label)}</th>`).join("");
     const rows = entries.map((it) => {
-      const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>—</span>"}</td>`).join("");
+      const tds = def.fields.map((f) => `<td>${escHtml(String((it[f.key] ?? (it.fields && it.fields[f.key])) ?? "")) || "<span class='f-muted'>N/A</span>"}</td>`).join("");
       return `<tr>${tds}</tr>`;
     }).join("");
     return `<div class="sheet-section"><div class="sheet-sec-head"><span class="sheet-sec-icon">${def.icon}</span>` +
@@ -3705,7 +3750,7 @@ if (portfolioToggle && ownerPortfolio && portfolioFrame) {
         portfolioLoader.hidden = false;
         portfolioLoader.textContent = "Loading portfolio…";
       }
-      // Some hosts block embedding (CSP / X-Frame-Options) — fall back to opening in a new tab.
+      // Some hosts block embedding (CSP / X-Frame-Options): fall back to opening in a new tab.
       setTimeout(() => {
         if (frameReady || !portfolioLoader) return;
         portfolioLoader.textContent = "";
@@ -4584,12 +4629,7 @@ const closeRegModal = () => {
 
 openRegFormBtn?.addEventListener("click", openRegModal);
 document.getElementById("openRegFormHero")?.addEventListener("click", openRegModal);
-document.getElementById("openPlansHero")?.addEventListener("click", () => {
-  openRegModal();
-  setTimeout(() => {
-    document.getElementById("planGrid")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, 100);
-});
+
 regModalClose?.addEventListener("click", closeRegModal);
 regModal?.addEventListener("click", (e) => {
   if (e.target === regModal) closeRegModal();
@@ -5076,7 +5116,7 @@ document.addEventListener("keydown", (e) => {
 renderRegistrations();
 
 // ===== Init: apply saved removals, rebuild custom categories =====
-// Core categories are permanent — strip any builtin keys out of removedKeys.
+// Core categories are permanent: strip any builtin keys out of removedKeys.
 const sanitizeRemovedKeys = () => {
   const cleaned = (store.get("removedKeys", []) || []).filter((k) => !BUILTIN_CATEGORIES.includes(k));
   if (cleaned.length !== removedKeys.length) store.set("removedKeys", cleaned);
@@ -5132,7 +5172,7 @@ updateFeatureBadges();
       updateCeoStats();
       restoreOwnerAvatar();
       if (ceoLoggedIn && ceoUser) showCeoPanel();
-      showToast(`Cloud data synced — welcome back, ${ceoUser.name}!`);
+      showToast(`Cloud data synced: welcome back, ${ceoUser.name}!`);
     }
   } catch (e) {
     console.warn("Cloud init failed:", e);
@@ -5178,5 +5218,167 @@ if (sb) {
         showToast(`Account state could not be cleared: ${error.message || "Cloud service error."}`, true);
       });
     }, 0);
+  });
+}
+
+
+// ===== SUBSCRIPTION PLANS PURCHASE MODAL LOGIC =====
+const subscriptionModal = document.getElementById("subscriptionModal");
+const subModalClose = document.getElementById("subModalClose");
+const subCancelBtn = document.getElementById("subCancelBtn");
+const subPurchaseForm = document.getElementById("subPurchaseForm");
+const subSelectedPlanInput = document.getElementById("subSelectedPlan");
+const subCategorySelect = document.getElementById("subCategorySelect");
+const subAmountDue = document.getElementById("subAmountDue");
+const subSubmitBtn = document.getElementById("subSubmitBtn");
+const subPlanCards = document.querySelectorAll(".sub-plan-card");
+
+const SUB_PRICES = {
+  "1-month": { label: "1 Month", price: 2000, months: 1 },
+  "3-month": { label: "3 Months", price: 6000, months: 3 },
+  "1-year": { label: "Yearly", price: 20000, months: 12 }
+};
+
+const selectSubPlan = (planId) => {
+  const p = SUB_PRICES[planId] || SUB_PRICES["3-month"];
+  if (subSelectedPlanInput) subSelectedPlanInput.value = planId;
+  subPlanCards.forEach((c) => {
+    c.classList.toggle("selected", c.dataset.subPlan === planId);
+  });
+  if (subAmountDue) subAmountDue.textContent = "PKR " + p.price.toLocaleString();
+  if (subSubmitBtn) subSubmitBtn.textContent = "Submit Subscription Request (PKR " + p.price.toLocaleString() + ")";
+};
+
+subPlanCards.forEach((c) => {
+  c.addEventListener("click", () => selectSubPlan(c.dataset.subPlan));
+});
+
+const openSubscriptionModal = (categoryKey = "", planId = "3-month") => {
+  if (!subscriptionModal) return;
+  selectSubPlan(planId);
+  if (categoryKey && subCategorySelect) {
+    subCategorySelect.value = categoryKey;
+  }
+  subscriptionModal.classList.add("open");
+  subscriptionModal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+};
+
+const closeSubscriptionModal = () => {
+  if (!subscriptionModal) return;
+  subscriptionModal.classList.remove("open");
+  subscriptionModal.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+};
+
+subModalClose?.addEventListener("click", closeSubscriptionModal);
+subCancelBtn?.addEventListener("click", closeSubscriptionModal);
+subscriptionModal?.addEventListener("click", (e) => {
+  if (e.target === subscriptionModal) closeSubscriptionModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && subscriptionModal?.classList.contains("open")) closeSubscriptionModal();
+});
+
+// Hero button click opens Subscription Modal
+document.getElementById("openPlansHero")?.addEventListener("click", () => {
+  openSubscriptionModal();
+});
+
+// URL hash handling for subscription plans
+if (window.location.hash === "#subscription-plans" || window.location.hash === "#open-subscription-plans") {
+  openSubscriptionModal();
+  history.replaceState(null, "", window.location.pathname + window.location.search);
+}
+
+if (subPurchaseForm) {
+  subPurchaseForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const planId = subSelectedPlanInput?.value || "3-month";
+    const plan = SUB_PRICES[planId] || SUB_PRICES["3-month"];
+    const category = subCategorySelect?.value || "";
+    const name = String(document.getElementById("subFullName")?.value || "").trim();
+    const mobile = normMobile(document.getElementById("subAccountMobile")?.value || "");
+    const city = String(document.getElementById("subCityName")?.value || "").trim();
+    const password = String(document.getElementById("subPassword")?.value || "");
+    const payerMobile = normMobile(document.getElementById("subPayerMobile")?.value || "");
+    const txId = String(document.getElementById("subTxId")?.value || "").trim();
+
+    let valid = true;
+    const setErr = (id, msg) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = msg;
+      if (msg) valid = false;
+    };
+
+    setErr("subCategorySelectErr", category ? "" : "Please select a business category.");
+    setErr("subFullNameErr", name.length >= 3 ? "" : "Enter your full name (min 3 letters).");
+    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid 11-digit mobile number.");
+    setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city.");
+    setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
+    setErr("subPayerMobileErr", MOBILE_RE.test(payerMobile) ? "" : "Enter the mobile number used to send payment.");
+    setErr("subTxIdErr", txId.length >= 4 ? "" : "Enter a valid JazzCash transaction ID (min 4 characters).");
+
+    if (!valid) {
+      showToast("Please fill all required fields correctly.", true);
+      return;
+    }
+
+    subSubmitBtn.disabled = true;
+    subSubmitBtn.textContent = "Submitting request...";
+
+    const reqData = {
+      id: "req_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+      user_id: currentUser ? currentUser.id : "user_" + mobile,
+      category,
+      plan: planId,
+      amount: plan.price,
+      account_name: name,
+      account_mobile: mobile,
+      city,
+      payment_reference: txId,
+      payer_mobile: payerMobile,
+      status: "pending",
+      created_at: new Date().toISOString()
+    };
+
+    // Save locally
+    const localReqs = getLocalSubscriptionRequests();
+    localReqs.unshift(reqData);
+    setLocalSubscriptionRequests(localReqs);
+
+    // Save to Supabase cloud if connected
+    if (sb) {
+      try {
+        let authId = currentUser?.id;
+        if (!authId) {
+          try {
+            const authUser = await createOrResumeAuthAccount(mobile, password, { name, mobile, city });
+            authId = authUser.id;
+          } catch (_) {}
+        }
+        await sb.from("subscription_requests").insert({
+          user_id: authId || reqData.user_id,
+          category,
+          plan: planId,
+          amount: plan.price,
+          account_name: name,
+          account_mobile: mobile,
+          payment_reference: txId,
+          payer_mobile: payerMobile,
+          status: "pending"
+        });
+      } catch (cloudErr) {
+        console.warn("Cloud subscription sync note:", cloudErr);
+      }
+    }
+
+    subSubmitBtn.disabled = false;
+    subSubmitBtn.textContent = "Submit Subscription Request (PKR " + plan.price.toLocaleString() + ")";
+    closeSubscriptionModal();
+    subPurchaseForm.reset();
+    selectSubPlan("3-month");
+
+    showToast("Payment request submitted! The owner will verify JazzCash TID (" + txId + ") and activate your " + category + " subscription.");
   });
 }

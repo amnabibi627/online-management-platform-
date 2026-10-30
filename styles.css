@@ -1,4 +1,4 @@
-﻿:root {
+:root {
   /* ---- Brand ---- */
   --pink: #ff8f04;
   --pink-dark: #fc8c05;
@@ -4545,7 +4545,7 @@ html.js .reveal.in {
    ============================================================ */
 .hero-image-wrap {
   width: 100%;
-  max-width: 580px;
+  max-width: 660px;
   margin: 0 auto;
   display: flex;
   align-items: center;

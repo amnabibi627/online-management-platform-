@@ -921,26 +921,27 @@ if (userForm) {
 
     try {
       if (userModalMode === "signup") {
-        const name = String(uFields.name.input.value || "").trim();
-        const mobile = normMobile(uFields.mobile.input.value);
-        const email = String(uFields.email.input.value || "").trim().toLowerCase();
-        const city = String(uFields.city.input.value || "").trim();
-        const pass = String(uFields.pass.input.value || "");
-        const pass2 = String(uFields.pass2.input.value || "");
+        const name = String(uFields.name.input?.value || "").trim();
+        const mobile = normMobile(uFields.mobile.input?.value || "");
+        const email = String(uFields.email.input?.value || "").trim().toLowerCase() || `${mobile}@oms.app`;
+        const city = String(uFields.city.input?.value || "").trim();
+        const pass = String(uFields.pass.input?.value || "");
+        const termsBox = document.getElementById("ufTerms");
         let ok = true;
 
         if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
         else setUserError(uFields.name, "");
         if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid number, e.g. 03123456789."); ok = false; }
         else setUserError(uFields.mobile, "");
-        if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address."); ok = false; }
-        else setUserError(uFields.email, "");
         if (city.length < 2) { setUserError(uFields.city, "Enter your city."); ok = false; }
         else setUserError(uFields.city, "");
-        if (pass.length < 8) { setUserError(uFields.pass, "Password must be at least 8 characters."); ok = false; }
+        if (pass.length < 8) { setUserError(uFields.pass, "Create a password of at least 8 characters."); ok = false; }
         else setUserError(uFields.pass, "");
-        if (pass !== pass2) { setUserError(uFields.pass2, "Both passwords must match."); ok = false; }
-        else setUserError(uFields.pass2, "");
+
+        if (termsBox && !termsBox.checked) {
+          showToast("Please agree to the Terms of Use and Privacy Policy.", true);
+          return;
+        }
 
         if (!ok) { showToast("Please fix the highlighted fields.", true); return; }
 

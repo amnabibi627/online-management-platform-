@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261030D" />
+  <link rel="stylesheet" href="styles.css?v=20261030E" />
 </head>
 <body>
 
@@ -1220,27 +1220,14 @@
 
             <div class="form-row">
               <div class="field">
-                <label for="ufEmail">Email Address <em>*</em></label>
-                <input type="email" id="ufEmail" placeholder="e.g. ali@example.com" autocomplete="email" maxlength="80" />
-                <span class="field-error" id="ufEmailErr"></span>
-              </div>
-              <div class="field">
                 <label for="ufCity">City <em>*</em></label>
                 <input type="text" id="ufCity" placeholder="e.g. Lahore" autocomplete="address-level2" maxlength="40" />
                 <span class="field-error" id="ufCityErr"></span>
               </div>
-            </div>
-
-            <div class="form-row">
               <div class="field">
-                <label for="ufPass">Password <em>*</em></label>
+                <label for="ufPass">Create Password <em>*</em></label>
                 <input type="text" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
                 <span class="field-error" id="ufPassErr"></span>
-              </div>
-              <div class="field">
-                <label for="ufPass2">Confirm Password <em>*</em></label>
-                <input type="text" id="ufPass2" placeholder="Type it again" maxlength="64" autocomplete="new-password" />
-                <span class="field-error" id="ufPass2Err"></span>
               </div>
             </div>
 
@@ -1310,11 +1297,12 @@
             </div>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block" id="userSubmit">🚀 Start 5-Day Free Trial</button>
+          <label class="user-terms-check" for="ufTerms">
+            <input type="checkbox" id="ufTerms" required checked />
+            <span>By creating an account you agree to the Terms of Use and Privacy Policy.</span>
+          </label>
 
-          <p class="user-terms">
-            By creating an account you agree to the Terms of Use and Privacy Policy.
-          </p>
+          <button type="submit" class="btn btn-primary btn-block" id="userSubmit">🚀 Start 5-Day Free Trial</button>
 
           <p class="user-switch">
             <a href="#" id="userModeToggle">Already have an account? Login here</a>
@@ -1565,7 +1553,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261030D"></script>
+  <script src="script.js?v=20261030E"></script>
   <script src="liveads.js?v=20261024b"></script>
   <script src="ui.js?v=20261023H"></script>
 

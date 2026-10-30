@@ -1780,6 +1780,27 @@ body.detail-open { overflow: hidden; }
   color: #64748b;
 }
 
+
+.user-terms-check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  cursor: pointer;
+  margin: 0.4rem 0 1rem;
+  text-align: left;
+  line-height: 1.45;
+}
+.user-terms-check input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  flex: 0 0 auto;
+  cursor: pointer;
+  accent-color: var(--pink, #ff8f04);
+}
+
 @media (max-width: 760px) {
   .user-modal-box { padding: 1.6rem 1.2rem; }
 }

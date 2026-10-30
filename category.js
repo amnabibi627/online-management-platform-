@@ -446,17 +446,17 @@ const showCategoryTrialModal = () => {
         <input name="mobile" type="tel" placeholder="03XXXXXXXXX" required inputmode="numeric" maxlength="13" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Email Address *</label>
-        <input name="email" type="email" placeholder="e.g. ali@example.com" required maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
-      </div>
-      <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City *</label>
         <input name="city" type="text" placeholder="e.g. Lahore" required maxlength="40" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Password *</label>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Create Password *</label>
         <input name="password" type="text" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
+      <label style="display:flex; align-items:center; gap:0.55rem; font-size:0.78rem; color:#64748b; margin:0.35rem 0 0.2rem; cursor:pointer; text-align:left;">
+        <input name="terms" type="checkbox" required checked style="width:16px; height:16px; flex:0 0 auto; accent-color:#ff8f04;">
+        <span>By creating an account you agree to the Terms of Use and Privacy Policy.</span>
+      </label>
       <p class="category-auth-error" role="alert" style="color:#ef4444; font-size:0.8rem; margin:0.2rem 0 0; min-height:1rem;"></p>
       <button class="btn btn-primary" type="submit" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff; cursor:pointer;">
         🚀 Start 5-Day Free Trial
@@ -1449,6 +1449,7 @@ const initCategoryTools = () => {
       const email = String(formData.get("email") || "").trim().toLowerCase();
       const city = String(formData.get("city") || "").trim();
       const password = String(formData.get("password") || "");
+      const termsBox = trialForm.querySelector('input[name="terms"]');
       const message = trialForm.querySelector(".category-auth-error");
       const submit = trialForm.querySelector('button[type="submit"]');
 
@@ -1468,6 +1469,12 @@ const initCategoryTools = () => {
       submit.disabled = true;
       submit.textContent = "Starting trial…";
 
+      if (termsBox && !termsBox.checked) {
+        if (message) message.textContent = "Please agree to the Terms of Use and Privacy Policy.";
+        submit.disabled = false;
+        submit.textContent = "🚀 Start 5-Day Free Trial";
+        return;
+      }
       categorySetTrial({ name, mobile, email, city });
 
       if (CATEGORY_SUPABASE) {

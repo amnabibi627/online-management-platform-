@@ -315,6 +315,245 @@ const categoryEnsureToolsUi = () => {
 };
 
 const setCategoryAccountUi = () => {
+  categoryUpdateHeaderBtn();
+};
+
+const categoryGetTrial = () => {
+  try {
+    const raw = localStorage.getItem("bms_user_trial") || localStorage.getItem("oms_trial_account");
+    if (!raw) return null;
+    const t = JSON.parse(raw);
+    if (!t || !t.expiresAt) return null;
+    const now = Date.now();
+    const expires = typeof t.expiresAt === "number" ? t.expiresAt : new Date(t.expiresAt).getTime();
+    const msLeft = expires - now;
+    const daysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
+    const hoursLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60)));
+    return { ...t, isActive: msLeft > 0, daysLeft, hoursLeft, expiresAt: expires };
+  } catch (_) {
+    return null;
+  }
+};
+
+const categorySetTrial = (userData) => {
+  const trial = {
+    name: userData.name || "Business User",
+    mobile: userData.mobile || "",
+    email: userData.email || "",
+    city: userData.city || "",
+    startedAt: Date.now(),
+    expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+    plan: "5_day_free_trial",
+    status: "active"
+  };
+  localStorage.setItem("bms_user_trial", JSON.stringify(trial));
+  localStorage.setItem("oms_trial_account", JSON.stringify(trial));
+  categoryUpdateHeaderBtn();
+  return trial;
+};
+
+const categoryHasActiveSubscription = () =>
+  !!categorySubscription &&
+  categorySubscription.status === "active" &&
+  new Date(categorySubscription.expires_at).getTime() > Date.now();
+
+const categoryHasAccess = () => {
+  if (categoryHasActiveSubscription()) return true;
+  const trial = categoryGetTrial();
+  return !!trial && trial.isActive;
+};
+
+const categoryUpdateHeaderBtn = () => {
+  const btn = document.getElementById("userSignupHeaderBtn");
+  if (!btn) return;
+  const hasSub = categoryHasActiveSubscription();
+  const trial = categoryGetTrial();
+  if (hasSub) {
+    btn.textContent = "💎 Pro Member";
+  } else if (trial && trial.isActive) {
+    btn.textContent = `🟢 5-Day Trial (${trial.daysLeft}d)`;
+  } else if (trial && !trial.isActive) {
+    btn.textContent = "⚠️ Trial Expired";
+  } else if (categoryUser) {
+    btn.textContent = "👤 My Account";
+  } else {
+    btn.textContent = "Sign Up Free";
+  }
+};
+
+const showCategoryTrialModal = () => {
+  const modal = document.getElementById("categoryAuthModal");
+  const content = document.getElementById("categoryAuthContent");
+  if (!modal || !content) return;
+
+  const trial = categoryGetTrial();
+  const hasSub = categoryHasActiveSubscription();
+
+  if (categoryUser || (trial && trial.isActive) || hasSub) {
+    const userName = categoryUser?.user_metadata?.name || trial?.name || "Business Owner";
+    const userMobile = categoryUser?.user_metadata?.mobile || trial?.mobile || "—";
+    const daysLeft = trial ? trial.daysLeft : 0;
+
+    content.innerHTML = `
+      <div style="text-align:center; padding: 0.5rem 0;">
+        <div style="font-size:2.4rem; margin-bottom: 0.4rem;">👤</div>
+        <h2 id="categoryAuthTitle" style="margin:0 0 0.4rem; font-size:1.45rem;">Your Account</h2>
+        <div class="cat-ws-trial-pill ${hasSub ? 'is-pro' : (trial && trial.isActive ? 'is-active' : 'is-expired')}" style="margin-bottom:1.2rem;">
+          ${hasSub
+            ? '💎 Active Pro Subscription'
+            : (trial && trial.isActive
+                ? `🟢 5-Day Free Trial (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`
+                : '⚠️ Free Trial Expired — Subscription Needed')}
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; text-align:left; margin-bottom:1.2rem;">
+          <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;">Name</div>
+          <div style="font-weight:700; color:#0f172a; margin-bottom:0.75rem;">${categoryEscape(userName)}</div>
+          <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;">Mobile</div>
+          <div style="font-weight:700; color:#0f172a;">${categoryEscape(userMobile)}</div>
+        </div>
+        ${!hasSub ? `
+          <button type="button" class="btn btn-primary" style="width:100%; margin-bottom:0.6rem; padding:0.75rem; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-view-paywall>
+            Upgrade / Purchase Subscription
+          </button>
+        ` : ''}
+        <button type="button" class="btn btn-outline" style="width:100%; padding:0.7rem;" data-auth-signout>
+          Logout
+        </button>
+      </div>
+    `;
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    return;
+  }
+
+  content.innerHTML = `
+    <div style="text-align:center; margin-bottom:1.25rem;">
+      <div style="font-size:2.4rem; margin-bottom:0.3rem;">🚀</div>
+      <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Start 5-Day Free Trial</h2>
+      <p style="margin:0; font-size:0.86rem; color:#64748b;">
+        Instant full access to all 8 categories &amp; 96 tools. Zero upfront payment or card needed.
+      </p>
+    </div>
+
+    <form id="categoryTrialForm" class="category-auth-form" style="display:grid; gap:0.75rem;">
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Full Name *</label>
+        <input name="name" type="text" placeholder="e.g. Ali Khan" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile Number *</label>
+        <input name="mobile" type="tel" placeholder="03XXXXXXXXX" required inputmode="numeric" maxlength="13" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Email Address *</label>
+        <input name="email" type="email" placeholder="e.g. ali@example.com" required maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City *</label>
+        <input name="city" type="text" placeholder="e.g. Lahore" required maxlength="40" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Password *</label>
+        <input name="password" type="password" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <p class="category-auth-error" role="alert" style="color:#ef4444; font-size:0.8rem; margin:0.2rem 0 0; min-height:1rem;"></p>
+      <button class="btn btn-primary" type="submit" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff; cursor:pointer;">
+        🚀 Start 5-Day Free Trial
+      </button>
+    </form>
+
+    <div style="margin-top:1rem; text-align:center;">
+      <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ea580c; font-size:0.84rem; font-weight:600; cursor:pointer;">
+        Already have an account? Sign in here
+      </button>
+    </div>
+  `;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+  content.querySelector("input")?.focus();
+};
+
+const showCategoryTrialRequiredModal = () => {
+  const modal = document.getElementById("categoryAuthModal");
+  const content = document.getElementById("categoryAuthContent");
+  if (!modal || !content) return;
+
+  content.innerHTML = `
+    <div style="text-align:center; padding: 0.5rem 0;">
+      <div style="font-size:2.5rem; margin-bottom: 0.4rem;">✨</div>
+      <h2 id="categoryAuthTitle" style="margin:0 0 0.4rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Start 5-Day Free Trial</h2>
+      <p style="margin:0 0 1.25rem; font-size:0.88rem; color:#64748b; line-height:1.5;">
+        To add and save records in <strong>${categoryEscape(CURRENT.short)}</strong>, start your 5-day unlimited free trial. It takes less than 30 seconds!
+      </p>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; text-align:left; margin-bottom:1.25rem;">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.45rem; font-size:0.85rem; color:#0f172a; font-weight:600;">
+          <span style="color:#10b981;">✓</span> 5 days completely free trial
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.45rem; font-size:0.85rem; color:#0f172a; font-weight:600;">
+          <span style="color:#10b981;">✓</span> Add unlimited records in all 8 categories
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:#0f172a; font-weight:600;">
+          <span style="color:#10b981;">✓</span> No credit card or advance payment
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-open-trial-form>
+        🚀 Start 5-Day Free Trial
+      </button>
+      <div style="margin-top:0.85rem;">
+        <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ea580c; font-size:0.82rem; font-weight:600; cursor:pointer;">
+          Already have an account? Sign in
+        </button>
+      </div>
+    </div>
+  `;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+};
+
+const showCategorySubscriptionPaywall = () => {
+  const modal = document.getElementById("categoryAuthModal");
+  const content = document.getElementById("categoryAuthContent");
+  if (!modal || !content) return;
+
+  content.innerHTML = `
+    <div style="text-align:center; margin-bottom:1.2rem;">
+      <div style="font-size:2.3rem; margin-bottom:0.3rem;">🔒</div>
+      <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.4rem; font-weight:800; color:#0f172a;">5-Day Free Trial Ended</h2>
+      <p style="margin:0; font-size:0.86rem; color:#64748b; line-height:1.5;">
+        Your 5-day free trial has expired. To continue adding records to <strong>${categoryEscape(CURRENT.short)}</strong>, choose an affordable subscription below.
+      </p>
+    </div>
+
+    <div style="display:grid; gap:0.6rem; margin-bottom:1.2rem;">
+      <div style="border:1.5px solid #ff8f04; border-radius:12px; padding:0.85rem 1rem; background:#fff7ed; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="3-month">
+        <div>
+          <strong style="display:block; font-size:0.95rem; color:#0f172a;">3 Months (Best Value)</strong>
+          <span style="font-size:0.78rem; color:#ea580c; font-weight:600;">Full category access</span>
+        </div>
+        <div style="font-size:1.15rem; font-weight:800; color:#ea580c;">PKR 9,000</div>
+      </div>
+      <div style="border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem 1rem; background:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="1-month">
+        <div>
+          <strong style="display:block; font-size:0.95rem; color:#0f172a;">1 Month</strong>
+          <span style="font-size:0.78rem; color:#64748b;">Standard access</span>
+        </div>
+        <div style="font-size:1.1rem; font-weight:800; color:#0f172a;">PKR 3,000</div>
+      </div>
+      <div style="border:1px solid #e2e8f0; border-radius:12px; padding:0.85rem 1rem; background:#fff; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" data-select-plan="6-month">
+        <div>
+          <strong style="display:block; font-size:0.95rem; color:#0f172a;">6 Months (Pro)</strong>
+          <span style="font-size:0.78rem; color:#64748b;">Extended access</span>
+        </div>
+        <div style="font-size:1.1rem; font-weight:800; color:#0f172a;">PKR 12,000</div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-primary" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-pay-selected="3-month">
+      Continue with 3 Months (PKR 9,000) &rarr;
+    </button>
+  `;
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
 };
 
 const showCategorySignIn = (message = "") => {
@@ -414,11 +653,6 @@ const showWorkspaceToast = (msg, undoCallback = null) => {
     categoryUndoAction = null;
   }, 6000);
 };
-
-const categoryHasAccess = () =>
-  !!categorySubscription &&
-  categorySubscription.status === "active" &&
-  new Date(categorySubscription.expires_at).getTime() > Date.now();
 
 const categoryEnsureAccountActive = async () => {
   if (!categoryUser || !CATEGORY_SUPABASE) return;
@@ -807,10 +1041,22 @@ const categoryRenderList = () => {
     `;
   }).join("");
 
+  const trial = categoryGetTrial();
+  const hasSub = categoryHasActiveSubscription();
+  let trialBadgeHtml = "";
+  if (hasSub) {
+    trialBadgeHtml = `<span class="cat-ws-trial-pill is-pro">💎 Pro Active</span>`;
+  } else if (trial && trial.isActive) {
+    trialBadgeHtml = `<span class="cat-ws-trial-pill is-active">🟢 5-Day Trial (${trial.daysLeft}d left)</span>`;
+  } else if (trial && !trial.isActive) {
+    trialBadgeHtml = `<span class="cat-ws-trial-pill is-expired" data-action-view-paywall title="Trial ended - click to purchase subscription">⚠️ Trial Expired (Upgrade)</span>`;
+  }
+
   content.innerHTML = `
     <div class="cat-ws-header">
-      <div class="cat-ws-header-info">
+      <div class="cat-ws-header-info" style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
         <h2 id="categoryWorkspaceTitle"><span class="cat-ws-title-icon">${categoryEscape(categoryFeature.icon)}</span> ${categoryEscape(categoryFeature.name)}</h2>
+        ${trialBadgeHtml}
       </div>
       <div class="cat-ws-header-actions">
         <button type="button" class="btn btn-primary" data-tool-add>
@@ -1014,21 +1260,49 @@ const initCategoryTools = () => {
     const planButton = event.target.closest("[data-subscription-plan]");
     if (planButton) showCategoryAuth(planButton.dataset.subscriptionPlan, categoryUser ? "request" : "signup");
     const heroSignup = event.target.closest("#categoryHeroSignup, #userSignupHeaderBtn");
-    if (heroSignup) showCategoryAuth("3-month", categoryUser ? "request" : "signup");
+    if (heroSignup) {
+      showCategoryTrialModal();
+      return;
+    }
+    if (event.target.closest("[data-action-open-trial-form]")) {
+      showCategoryTrialModal();
+      return;
+    }
+    if (event.target.closest("[data-action-view-paywall]")) {
+      showCategorySubscriptionPaywall();
+      return;
+    }
+    if (event.target.closest("[data-action-signin-toggle]")) {
+      showCategorySignIn();
+      return;
+    }
+    const selectPlan = event.target.closest("[data-select-plan]");
+    if (selectPlan) {
+      const planId = selectPlan.dataset.selectPlan;
+      showCategoryAuth(planId, categoryUser ? "request" : "signup");
+      return;
+    }
+    const paySelected = event.target.closest("[data-action-pay-selected]");
+    if (paySelected) {
+      const planId = paySelected.dataset.actionPaySelected || "3-month";
+      showCategoryAuth(planId, categoryUser ? "request" : "signup");
+      return;
+    }
     if (event.target.closest("#categoryLogin")) showCategorySignIn();
     const mode = event.target.closest("[data-auth-mode]");
     if (mode) showCategoryAuth(mode.dataset.plan, mode.dataset.authMode);
     if (event.target.closest("[data-auth-signout]")) {
-      CATEGORY_SUPABASE?.auth.signOut().then(({ error }) => {
-        if (error) throw error;
-        categoryUser = null;
-        categorySubscription = null;
-        categoryLatestRequest = null;
-        showCategoryAuth(categorySelectedPlan, "signup");
-      }).catch((error) => {
-        const message = document.querySelector("#categoryAuthContent .category-auth-error");
-        if (message) message.textContent = `Could not switch accounts: ${error.message || "Cloud service error."}`;
-      });
+      localStorage.removeItem("bms_user_trial");
+      localStorage.removeItem("oms_trial_account");
+      categoryUser = null;
+      categorySubscription = null;
+      categoryLatestRequest = null;
+      categoryUpdateHeaderBtn();
+      CATEGORY_SUPABASE?.auth.signOut().catch(() => {});
+      closeCategoryAuth();
+      showWorkspaceToast("Logged out successfully.");
+      if (categoryFeature) categoryRenderList();
+      return;
     }
     const menuToggle = event.target.closest("[data-ws-menu-toggle]");
     if (menuToggle) {
@@ -1050,7 +1324,16 @@ const initCategoryTools = () => {
 
     const add = event.target.closest("[data-tool-add]");
     if (add) {
-      categoryRenderForm();
+      if (categoryHasAccess()) {
+        categoryRenderForm();
+      } else {
+        const trial = categoryGetTrial();
+        if (!trial && !categoryUser) {
+          showCategoryTrialRequiredModal();
+        } else {
+          showCategorySubscriptionPaywall();
+        }
+      }
       return;
     }
     if (event.target.closest("[data-tool-back]")) {
@@ -1152,6 +1435,59 @@ const initCategoryTools = () => {
   });
 
   document.getElementById("categoryAuthContent")?.addEventListener("submit", async (event) => {
+    const trialForm = event.target.closest("#categoryTrialForm");
+    if (trialForm) {
+      event.preventDefault();
+      const formData = new FormData(trialForm);
+      const name = String(formData.get("name") || "").trim();
+      const mobile = categoryMobile(String(formData.get("mobile") || ""));
+      const email = String(formData.get("email") || "").trim().toLowerCase();
+      const city = String(formData.get("city") || "").trim();
+      const password = String(formData.get("password") || "");
+      const message = trialForm.querySelector(".category-auth-error");
+      const submit = trialForm.querySelector('button[type="submit"]');
+
+      if (name.length < 3) {
+        if (message) message.textContent = "Please enter your full name (minimum 3 characters).";
+        return;
+      }
+      if (!/^\d{7,15}$/.test(mobile)) {
+        if (message) message.textContent = "Please enter a valid mobile number (e.g. 03XXXXXXXXX).";
+        return;
+      }
+      if (password.length < 8) {
+        if (message) message.textContent = "Password must be at least 8 characters.";
+        return;
+      }
+
+      submit.disabled = true;
+      submit.textContent = "Starting trial…";
+
+      categorySetTrial({ name, mobile, email, city });
+
+      if (CATEGORY_SUPABASE) {
+        try {
+          const res = await CATEGORY_SUPABASE.auth.signUp({
+            email: categoryEmail(mobile),
+            password,
+            options: { data: { name, mobile, city, email } }
+          });
+          if (res.data?.user) {
+            categoryUser = res.data.user;
+            categorySessionReady = true;
+          }
+        } catch (cloudErr) {
+          console.warn("Trial cloud register notice (trial active locally):", cloudErr);
+        }
+      }
+
+      closeCategoryAuth();
+      categoryUpdateHeaderBtn();
+      showWorkspaceToast(`🎉 Welcome, ${name}! Your 5-day free trial has started.`);
+      if (categoryFeature) categoryRenderList();
+      return;
+    }
+
     const loginForm = event.target.closest("#categoryLoginForm");
     if (loginForm && CATEGORY_SUPABASE) {
       event.preventDefault();
@@ -1175,7 +1511,13 @@ const initCategoryTools = () => {
         categoryUser = data.user;
         categorySessionReady = true;
         await categoryRefreshSubscription();
+        if (!categoryGetTrial()) {
+          categorySetTrial({ mobile, name: categoryUser.user_metadata?.name || "Business User" });
+        }
+        categoryUpdateHeaderBtn();
         closeCategoryAuth();
+        showWorkspaceToast(`Welcome back, ${categoryUser.user_metadata?.name || 'User'}!`);
+        if (categoryFeature) categoryRenderList();
       } catch (error) {
         message.textContent = error.message || "Sign in failed. Please check your details.";
         submit.disabled = false;
@@ -1376,3 +1718,4 @@ fillCategoryFeatures();
 fillCategoryRelated();
 initCategoryPage();
 initCategoryTools();
+categoryUpdateHeaderBtn();

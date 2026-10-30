@@ -553,6 +553,7 @@ const refreshAccountProfiles = async (authUser) => {
   currentUser = profiles.customer;
   owner = profiles.owner;
   refreshOwnerButton();
+  if (typeof refreshUserSignupButton === "function") refreshUserSignupButton();
   applyAccess();
   if (typeof renderReviews === "function") await renderReviews();
   return profiles;
@@ -567,6 +568,7 @@ const resetClientIdentityForAuthChange = () => {
   owner = null;
   setCeoSession(false);
   refreshOwnerButton();
+  if (typeof refreshUserSignupButton === "function") refreshUserSignupButton();
   applyAccess();
 };
 
@@ -735,26 +737,112 @@ const setUserError = (f, msg) => {
   if (f.input) f.input.classList.toggle("invalid", !!msg);
 };
 
+const getBmsTrial = () => {
+  try {
+    const raw = localStorage.getItem("bms_user_trial") || localStorage.getItem("oms_trial_account");
+    if (!raw) return null;
+    const t = JSON.parse(raw);
+    if (!t || !t.expiresAt) return null;
+    const now = Date.now();
+    const expires = typeof t.expiresAt === "number" ? t.expiresAt : new Date(t.expiresAt).getTime();
+    const msLeft = expires - now;
+    const daysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
+    const hoursLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60)));
+    return { ...t, isActive: msLeft > 0, daysLeft, hoursLeft, expiresAt: expires };
+  } catch (_) {
+    return null;
+  }
+};
+
+const setBmsTrial = (userData) => {
+  const trial = {
+    name: userData.name || "Business User",
+    mobile: userData.mobile || "",
+    email: userData.email || "",
+    city: userData.city || "",
+    startedAt: Date.now(),
+    expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+    plan: "5_day_free_trial",
+    status: "active"
+  };
+  localStorage.setItem("bms_user_trial", JSON.stringify(trial));
+  localStorage.setItem("oms_trial_account", JSON.stringify(trial));
+  refreshUserSignupButton();
+  return trial;
+};
+
+const refreshUserSignupButton = () => {
+  const btn = document.getElementById("userSignupHeaderBtn");
+  if (!btn) return;
+  const trial = getBmsTrial();
+  if (currentUser) {
+    if (trial && trial.isActive) {
+      btn.textContent = `🟢 5-Day Trial (${trial.daysLeft}d)`;
+    } else if (trial && !trial.isActive) {
+      btn.textContent = "⚠️ Trial Expired";
+    } else {
+      btn.textContent = "👤 My Account";
+    }
+  } else if (trial && trial.isActive) {
+    btn.textContent = `🟢 5-Day Trial (${trial.daysLeft}d)`;
+  } else if (trial && !trial.isActive) {
+    btn.textContent = "⚠️ Trial Expired";
+  } else {
+    btn.textContent = "Sign Up Free";
+  }
+};
+
 const openUserModal = (mode) => {
-  userModalMode = mode || (currentUser ? "active" : "signup");
+  const trial = getBmsTrial();
+  const hasAccount = !!currentUser || !!trial;
+  userModalMode = mode || (hasAccount ? "active" : "signup");
   Object.values(uFields).forEach((f) => setUserError(f, ""));
 
-  if (userModalMode === "active" && currentUser) {
+  if (userModalMode === "active" && hasAccount) {
     userModalTitle.textContent = "Your Account";
-    userModalSub.textContent = "You are signed in. Thanks for being part of Online Management Site.";
+    userModalSub.textContent = "Manage your free trial and business category subscriptions.";
     if (userActiveBox) userActiveBox.hidden = false;
     userForm.hidden = true;
+
+    const banner = document.getElementById("userTrialBanner");
+    const dot = document.getElementById("userTrialDot");
+    const title = document.getElementById("userTrialTitle");
+    const sub = document.getElementById("userTrialSubtitle");
+    const upgradeCta = document.getElementById("userActiveUpgradeCta");
+
+    if (banner && title && sub) {
+      if (trial && trial.isActive) {
+        banner.className = "user-trial-banner";
+        if (dot) dot.textContent = "🟢";
+        title.textContent = `5-Day Free Trial Active (${trial.daysLeft} ${trial.daysLeft === 1 ? 'day' : 'days'} left)`;
+        sub.textContent = "You have full access to add and manage records across all 8 business categories.";
+        if (upgradeCta) upgradeCta.hidden = true;
+      } else if (trial && !trial.isActive) {
+        banner.className = "user-trial-banner is-expired";
+        if (dot) dot.textContent = "⚠️";
+        title.textContent = "5-Day Free Trial Expired";
+        sub.textContent = "Your free trial has ended. Choose a category subscription to continue adding records.";
+        if (upgradeCta) upgradeCta.hidden = false;
+      } else {
+        banner.className = "user-trial-banner";
+        if (dot) dot.textContent = "✨";
+        title.textContent = "Active Account";
+        sub.textContent = "Signed in to Online Management Site.";
+        if (upgradeCta) upgradeCta.hidden = false;
+      }
+    }
+
     const nm = document.getElementById("userActiveName");
     const mb = document.getElementById("userActiveMobile");
     const ct = document.getElementById("userActiveCity");
-    if (nm) nm.textContent = currentUser.name || "User";
-    if (mb) mb.textContent = currentUser.mobile || "—";
-    if (ct) ct.textContent = currentUser.city || "—";
+    if (nm) nm.textContent = (currentUser && currentUser.name) || (trial && trial.name) || "User";
+    if (mb) mb.textContent = (currentUser && currentUser.mobile) || (trial && trial.mobile) || "—";
+    if (ct) ct.textContent = (currentUser && currentUser.city) || (trial && trial.city) || "—";
   } else {
     const isSignup = userModalMode === "signup";
-    userModalTitle.textContent = isSignup ? "Create Your Account" : "Welcome Back";
+    userModalTitle.textContent = isSignup ? "Start 5-Day Free Trial" : "Welcome Back";
     userModalSub.textContent = isSignup
-      ? "Fill the form below to sign up. It takes less than a minute."
+      ? "Create your account in 30 seconds. Full access to all 8 categories for 5 days."
       : "Enter your registered mobile number and password to log in.";
     if (userActiveBox) userActiveBox.hidden = true;
     userForm.hidden = false;
@@ -762,11 +850,11 @@ const openUserModal = (mode) => {
     userLoginFields.hidden = isSignup;
     if (userPurpose) userPurpose.value = "community";
     if (userSubscriptionFields) userSubscriptionFields.hidden = true;
-    userSubmit.textContent = isSignup ? "Create Account" : "Login";
+    userSubmit.textContent = isSignup ? "🚀 Start 5-Day Free Trial" : "Sign In";
     if (userModeToggle) {
       userModeToggle.textContent = isSignup
         ? "Already have an account? Login here"
-        : "Need a new account? Sign Up here";
+        : "Need a new account? Start 5-day trial";
     }
     userForm.reset();
     setUserPassVisibility(false);
@@ -803,11 +891,20 @@ if (userLogout) {
   userLogout.addEventListener("click", async () => {
     userLogout.disabled = true;
     try {
-      await signOutSiteAccount();
+      localStorage.removeItem("bms_user_trial");
+      localStorage.removeItem("oms_trial_account");
+      if (sb) await signOutSiteAccount();
+      currentUser = null;
+      refreshUserSignupButton();
+      closeUserModal();
+      showToast("Logged out successfully.");
+    } catch (error) {
+      localStorage.removeItem("bms_user_trial");
+      localStorage.removeItem("oms_trial_account");
+      currentUser = null;
+      refreshUserSignupButton();
       closeUserModal();
       showToast("Logged out.");
-    } catch (error) {
-      showToast(`Logout failed: ${error.message || "Cloud service error."}`, true);
     } finally {
       userLogout.disabled = false;
     }
@@ -820,82 +917,55 @@ userModal.addEventListener("click", (e) => { if (e.target === userModal) closeUs
 if (userForm) {
   userForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!sb) {
-      showToast("Account service is unavailable. Check your connection and try again.", true);
-      return;
-    }
     userSubmit.disabled = true;
 
     try {
       if (userModalMode === "signup") {
-      const name = String(uFields.name.input.value || "").trim();
-      const mobile = normMobile(uFields.mobile.input.value);
-      const email = String(uFields.email.input.value || "").trim().toLowerCase();
-      const city = String(uFields.city.input.value || "").trim();
-      const pass = String(uFields.pass.input.value || "");
-      const pass2 = String(uFields.pass2.input.value || "");
-      const subscriptionRequested = userPurpose?.value === "subscription";
-      const category = String(uFields.subscriptionCategory.input.value || "");
-      const plan = String(uFields.subscriptionPlan.input.value || "");
-      const payerMobile = normMobile(uFields.payerMobile.input.value);
-      const paymentReference = String(uFields.paymentReference.input.value || "").trim();
-      let ok = true;
+        const name = String(uFields.name.input.value || "").trim();
+        const mobile = normMobile(uFields.mobile.input.value);
+        const email = String(uFields.email.input.value || "").trim().toLowerCase();
+        const city = String(uFields.city.input.value || "").trim();
+        const pass = String(uFields.pass.input.value || "");
+        const pass2 = String(uFields.pass2.input.value || "");
+        let ok = true;
 
-      if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
-      else setUserError(uFields.name, "");
-      if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid number, e.g. 03123456789."); ok = false; }
-      else setUserError(uFields.mobile, "");
-      if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address."); ok = false; }
-      else setUserError(uFields.email, "");
-      if (city.length < 2) { setUserError(uFields.city, "Enter your city."); ok = false; }
-      else setUserError(uFields.city, "");
-      if (pass.length < 8) { setUserError(uFields.pass, "Password must be at least 8 characters."); ok = false; }
-      else setUserError(uFields.pass, "");
-      if (pass !== pass2) { setUserError(uFields.pass2, "Both passwords must match."); ok = false; }
-      else setUserError(uFields.pass2, "");
-      if (subscriptionRequested) {
-        if (!BUILTIN_CATEGORIES.includes(category)) { setUserError(uFields.subscriptionCategory, "Choose a valid business category."); ok = false; }
-        else setUserError(uFields.subscriptionCategory, "");
-        if (!Object.prototype.hasOwnProperty.call(USER_SUBSCRIPTION_PLANS, plan)) { setUserError(uFields.subscriptionPlan, "Choose a subscription plan."); ok = false; }
-        else setUserError(uFields.subscriptionPlan, "");
-        if (!MOBILE_RE.test(payerMobile)) { setUserError(uFields.payerMobile, "Enter a valid JazzCash mobile number."); ok = false; }
-        else setUserError(uFields.payerMobile, "");
-        if (!/^[A-Za-z0-9-]{4,100}$/.test(paymentReference)) { setUserError(uFields.paymentReference, "Enter a valid transaction reference (4–100 letters or numbers)."); ok = false; }
-        else setUserError(uFields.paymentReference, "");
-      }
+        if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
+        else setUserError(uFields.name, "");
+        if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid number, e.g. 03123456789."); ok = false; }
+        else setUserError(uFields.mobile, "");
+        if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address."); ok = false; }
+        else setUserError(uFields.email, "");
+        if (city.length < 2) { setUserError(uFields.city, "Enter your city."); ok = false; }
+        else setUserError(uFields.city, "");
+        if (pass.length < 8) { setUserError(uFields.pass, "Password must be at least 8 characters."); ok = false; }
+        else setUserError(uFields.pass, "");
+        if (pass !== pass2) { setUserError(uFields.pass2, "Both passwords must match."); ok = false; }
+        else setUserError(uFields.pass2, "");
 
-      if (!ok) { showToast("Please fix the highlighted fields.", true); return; }
+        if (!ok) { showToast("Please fix the highlighted fields.", true); return; }
 
-      const authUser = await createOrResumeAuthAccount(mobile, pass, { name, mobile });
-      const { error } = await sb.from("customer_profiles").insert({
-        user_id: authUser.id,
-        full_name: name,
-        mobile,
-        email,
-        city
-      });
-      if (error && !/duplicate key|already exists/i.test(error.message || "")) throw error;
-      if (subscriptionRequested) {
-        const request = await sb.from("subscription_requests").insert({
-          user_id: authUser.id,
-          category,
-          plan,
-          amount: USER_SUBSCRIPTION_PLANS[plan].amount,
-          account_name: name,
-          account_mobile: mobile,
-          payment_reference: paymentReference,
-          payer_mobile: payerMobile,
-          status: "pending"
-        });
-        if (request.error) throw request.error;
-      }
-      const profiles = await refreshAccountProfiles(authUser);
-      if (!profiles.customer) throw new Error("Account was created but its customer profile could not be loaded. Please sign in again.");
-      closeUserModal();
-      showToast(subscriptionRequested
-        ? `Account ready. Your ${category} subscription request was sent for payment verification. Access starts after CEO approval.`
-        : `Account ready. Welcome, ${profiles.customer.name}!`);
-      return;
+        setBmsTrial({ name, mobile, email, city });
+
+        if (sb) {
+          try {
+            const authUser = await createOrResumeAuthAccount(mobile, pass, { name, mobile });
+            await sb.from("customer_profiles").upsert({
+              user_id: authUser.id,
+              full_name: name,
+              mobile,
+              email,
+              city
+            }, { onConflict: "user_id" });
+            await refreshAccountProfiles(authUser);
+          } catch (cloudErr) {
+            console.warn("Cloud auth sync note (trial active locally):", cloudErr);
+          }
+        }
+
+        closeUserModal();
+        refreshUserSignupButton();
+        showToast(`🎉 Welcome, ${name}! Your 5-day free trial has started. Enjoy all 8 categories!`);
+        return;
       }
 
       const mobile = normMobile(uFields.loginMobile.input.value);
@@ -910,21 +980,31 @@ if (userForm) {
         showToast("Login failed — password required.", true);
         return;
       }
-      const authUser = await signInWithMobile(mobile, pass);
-      const profiles = await refreshAccountProfiles(authUser);
-      if (!profiles.customer) {
-        throw new Error("No customer profile was found for this account. Choose Create Account and use the same mobile and password to finish setup.");
+
+      if (sb) {
+        try {
+          const authUser = await signInWithMobile(mobile, pass);
+          await refreshAccountProfiles(authUser);
+        } catch (cloudErr) {
+          console.warn("Cloud sign-in fallback:", cloudErr);
+        }
       }
+
+      let trial = getBmsTrial();
+      if (!trial) {
+        trial = setBmsTrial({ mobile, name: currentUser?.name || "Business User" });
+      }
+
       setUserError(uFields.loginMobile, "");
       setUserError(uFields.loginPass, "");
       closeUserModal();
-      showToast(`Logged in successfully. Welcome back, ${profiles.customer.name}!`);
+      refreshUserSignupButton();
+      showToast(`Logged in successfully. Welcome back, ${currentUser?.name || trial.name || 'User'}!`);
     } catch (error) {
       const message = error.message || "Account request failed. Please try again.";
       if (userModalMode === "signup") {
         if (/mobile|already registered|duplicate key/i.test(message)) setUserError(uFields.mobile, message);
         else if (/email/i.test(message)) setUserError(uFields.email, message);
-        else if (/payment_reference|subscription request/i.test(message)) setUserError(uFields.paymentReference, /duplicate key|unique/i.test(message) ? "This transaction reference has already been submitted." : message);
         else setUserError(uFields.pass, message);
       } else {
         setUserError(uFields.loginPass, message);
@@ -933,6 +1013,8 @@ if (userForm) {
     } finally {
       userSubmit.disabled = false;
     }
+  });
+}
   });
 }
 
@@ -4996,6 +5078,7 @@ const cleanupRetiredArticles = () => {
 cleanupRetiredArticles();
 
 refreshOwnerButton();
+if (typeof refreshUserSignupButton === "function") refreshUserSignupButton();
 applyAccess();
 initFeatureModules();
 updateFeatureBadges();

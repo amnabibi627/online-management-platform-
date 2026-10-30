@@ -105,14 +105,17 @@ body[data-category] .header-actions .brand { margin-right: 0.2rem; }
   margin-top: 1.7rem;
 }
 .cat-hero-actions .btn-outline {
-  background: #ff8f04;
-  border-color: #ff8f04;
-  color: #ffffff;
+  background: #ffffff;
+  border: 1.5px solid #ff8f04;
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(255, 143, 4, 0.12);
 }
 .cat-hero-actions .btn-outline:hover {
-  background: #ff8f04;
+  background: rgba(255, 143, 4, 0.08);
   border-color: #ff8f04;
-  color: #ffffff;
+  color: #ff8f04;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(255, 143, 4, 0.25);
 }
 
 .cat-hero-points {

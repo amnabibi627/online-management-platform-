@@ -1273,7 +1273,7 @@ const initCategoryTools = () => {
       showCategoryTrialModal();
       return;
     }
-    if (event.target.closest("[data-action-view-paywall]")) {
+    if (event.target.closest("[data-action-view-paywall], #categoryHeroPlans")) {
       showCategorySubscriptionPaywall();
       return;
     }

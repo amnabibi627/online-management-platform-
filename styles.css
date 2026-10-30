@@ -292,8 +292,8 @@ h1, h2, h3, h4, .brand {
 
 .hero-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(2rem, 6vw, 4rem);
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: clamp(1.8rem, 4vw, 3.2rem);
   align-items: center;
 }
 
@@ -995,7 +995,7 @@ h1, h2, h3, h4, .brand {
     padding: 3.8rem 0 3.2rem;
   }
   .hero-row {
-    grid-template-columns: 1.05fr 0.95fr;
+    grid-template-columns: 0.95fr 1.05fr;
     gap: 1.8rem;
     align-items: center;
   }
@@ -4545,7 +4545,7 @@ html.js .reveal.in {
    ============================================================ */
 .hero-image-wrap {
   width: 100%;
-  max-width: 660px;
+  max-width: 780px;
   margin: 0 auto;
   display: flex;
   align-items: center;

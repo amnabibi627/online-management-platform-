@@ -1015,8 +1015,6 @@ if (userForm) {
     }
   });
 }
-  });
-}
 
 const refreshOwnerButton = () => {
   if (ownerBtn) ownerBtn.textContent = owner ? "Owner Account" : "Owner Sign Up";
@@ -1661,6 +1659,15 @@ const closeCeoModal = () => {
 };
 
 ceoBtn.addEventListener("click", openCeoModal);
+document.addEventListener("click", (e) => {
+  const target = e.target.closest("#userSignupHeaderBtn, .header-signup-btn, #userSignupHero");
+  if (target) {
+    e.preventDefault();
+    if (typeof openUserModal === "function") {
+      openUserModal(currentUser ? "active" : "signup");
+    }
+  }
+});
 if (userSignupHeaderBtn) {
   userSignupHeaderBtn.addEventListener("click", () => {
     if (typeof openUserModal === "function") {

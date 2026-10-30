@@ -1669,7 +1669,7 @@ body.detail-open { overflow: hidden; }
 
 /* ---------- Owner Account Modal ---------- */
 .owner-modal {
-  position: fixed; inset: 0; z-index: 200;
+  position: fixed; inset: 0; z-index: 2500;
   display: none; align-items: center; justify-content: center; padding: 1.2rem;
   background: rgba(30, 41, 59, 0.55); backdrop-filter: blur(4px);
 }

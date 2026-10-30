@@ -382,6 +382,7 @@ const categoryUpdateHeaderBtn = () => {
 };
 
 const showCategoryTrialModal = () => {
+  categoryEnsureToolsUi();
   const modal = document.getElementById("categoryAuthModal");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;
@@ -474,6 +475,7 @@ const showCategoryTrialModal = () => {
 };
 
 const showCategoryTrialRequiredModal = () => {
+  categoryEnsureToolsUi();
   const modal = document.getElementById("categoryAuthModal");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;
@@ -511,6 +513,7 @@ const showCategoryTrialRequiredModal = () => {
 };
 
 const showCategorySubscriptionPaywall = () => {
+  categoryEnsureToolsUi();
   const modal = document.getElementById("categoryAuthModal");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;
@@ -557,6 +560,7 @@ const showCategorySubscriptionPaywall = () => {
 };
 
 const showCategorySignIn = (message = "") => {
+  categoryEnsureToolsUi();
   const modal = document.getElementById("categoryAuthModal");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;
@@ -575,6 +579,7 @@ const showCategorySignIn = (message = "") => {
 };
 
 const showCategoryAuth = (planId = categorySelectedPlan, mode = "signup", message = "") => {
+  categoryEnsureToolsUi();
   const modal = document.getElementById("categoryAuthModal");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;

@@ -4542,6 +4542,8 @@ html.js .reveal.in {
   align-items: center;
   justify-content: center;
   position: relative;
+  background: #ffffff;
+  box-shadow: none !important;
 }
 
 .hero-devices-img {
@@ -4549,10 +4551,8 @@ html.js .reveal.in {
   height: auto;
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(15, 23, 42, 0.14));
-  transition: transform 0.3s ease;
-}
-
-.hero-devices-img:hover {
-  transform: translateY(-4px) scale(1.01);
+  background: #ffffff;
+  filter: none !important;
+  box-shadow: none !important;
+  transition: none;
 }

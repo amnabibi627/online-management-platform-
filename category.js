@@ -271,6 +271,130 @@ const categoryMobile = (value) => value.trim().replace(/[\s-]/g, "").replace(/^\
 const categoryCollectionKey = `${CURRENT.key}:data`;
 const categoryLocalStorageKey = `bms_cat_${CURRENT.key}_data_v2`;
 const categoryData = { v: CATEGORY_MODULES.FEATURE_VERSION, features: {}, trash: {} };
+let categoryIsDemoMode = false;
+
+const getCategoryDemoRecords = (catKey, featId, fields) => {
+  if (catKey === "clinic" && featId === "patient-records") {
+    return [
+      { id: "demo_pat_1", name: "Muhammad Ali", mobile: "03001234567", age: 34, gender: "Male", address: "Main Ferozepur Road, Lahore", blood: "B+", createdAt: "2026-10-28T09:30:00.000Z", updatedAt: "2026-10-30T11:20:00.000Z" },
+      { id: "demo_pat_2", name: "Ayesha Bibi", mobile: "03219876543", age: 28, gender: "Female", address: "Model Town Block C, Lahore", blood: "O+", createdAt: "2026-10-29T10:15:00.000Z", updatedAt: "2026-10-30T14:45:00.000Z" },
+      { id: "demo_pat_3", name: "Tariq Mahmood", mobile: "03335557788", age: 45, gender: "Male", address: "DHA Phase 5, Lahore", blood: "A+", createdAt: "2026-10-30T08:00:00.000Z", updatedAt: "2026-10-31T09:10:00.000Z" }
+    ];
+  }
+  if (catKey === "academy" && featId === "student-profiles") {
+    return [
+      { id: "demo_acad_1", name: "Hamza Tariq", mobile: "03025551234", class: "Matric Science", guardian: "Tariq Mahmood", address: "Johar Town, Lahore", createdAt: "2026-10-25T08:00:00.000Z", updatedAt: "2026-10-29T12:00:00.000Z" },
+      { id: "demo_acad_2", name: "Fatima Noor", mobile: "03138884433", class: "FSc Pre-Medical", guardian: "Noor Muhammad", address: "Gulberg III, Lahore", createdAt: "2026-10-27T09:00:00.000Z", updatedAt: "2026-10-30T10:30:00.000Z" },
+      { id: "demo_acad_3", name: "Zain Ahmed", mobile: "03456789012", class: "ICS Part-1", guardian: "Ahmed Raza", address: "Wapda Town, Lahore", createdAt: "2026-10-28T11:00:00.000Z", updatedAt: "2026-10-31T08:15:00.000Z" }
+    ];
+  }
+  if (catKey === "restaurant" && (featId === "dynamic-pos" || featId === "menu-management")) {
+    if (featId === "menu-management") {
+      return [
+        { id: "demo_rest_m1", dish: "Chicken Karahi Special", category: "Main Course", price: 1850, available: "Yes", createdAt: "2026-10-25T08:00:00.000Z" },
+        { id: "demo_rest_m2", dish: "Mutton Biryani Single", category: "Rice", price: 650, available: "Yes", createdAt: "2026-10-26T09:00:00.000Z" },
+        { id: "demo_rest_m3", dish: "Mint Margarita", category: "Beverages", price: 280, available: "Yes", createdAt: "2026-10-27T10:00:00.000Z" }
+      ];
+    }
+    return [
+      { id: "demo_rest_1", order: "ORD-1082", table: "Table 4", items: "Chicken Karahi (1), Naan (4), Mint Raita (1)", amount: 2150, payment: "Cash", createdAt: "2026-10-31T12:30:00.000Z" },
+      { id: "demo_rest_2", order: "ORD-1083", table: "Table 2", items: "Mutton Biryani (2), Soft Drink (2)", amount: 1540, payment: "Card", createdAt: "2026-10-31T13:10:00.000Z" },
+      { id: "demo_rest_3", order: "ORD-1084", table: "Takeaway", items: "Zinger Burger (3), Large Fries (2)", amount: 1890, payment: "Online", createdAt: "2026-10-31T13:45:00.000Z" }
+    ];
+  }
+  if (catKey === "generalstore" && (featId === "dynamic-pos" || featId === "product-catalog")) {
+    if (featId === "product-catalog") {
+      return [
+        { id: "demo_store_p1", product: "Super Basmati Rice 5kg", category: "Grocery", price: 1650, unit: "Bag", barcode: "896400123456", createdAt: "2026-10-20T08:00:00.000Z" },
+        { id: "demo_store_p2", product: "Cooking Oil 1L Pouch", category: "Edible Oil", price: 520, unit: "Pouch", barcode: "896400654321", createdAt: "2026-10-21T09:00:00.000Z" },
+        { id: "demo_store_p3", product: "Washing Powder 1kg", category: "Detergent", price: 430, unit: "Pack", barcode: "896400789012", createdAt: "2026-10-22T10:00:00.000Z" }
+      ];
+    }
+    return [
+      { id: "demo_store_1", bill: "BILL-5401", items: "Basmati Rice 5kg, Cooking Oil 1L", qty: 2, amount: 2170, payment: "Cash", createdAt: "2026-10-31T11:20:00.000Z" },
+      { id: "demo_store_2", bill: "BILL-5402", items: "Washing Powder 1kg (2), Soap (3)", qty: 5, amount: 1220, payment: "Card", createdAt: "2026-10-31T12:05:00.000Z" },
+      { id: "demo_store_3", bill: "BILL-5403", items: "Tea 900g, Sugar 2kg, Milk Pack (6)", qty: 8, amount: 2840, payment: "Credit", createdAt: "2026-10-31T13:00:00.000Z" }
+    ];
+  }
+  if (catKey === "beautysalon" && (featId === "online-bookings" || featId === "service-menu")) {
+    if (featId === "service-menu") {
+      return [
+        { id: "demo_salon_s1", service: "Bridal Glow Makeup", category: "Makeup", price: 15000, duration: "120 min", createdAt: "2026-10-20T08:00:00.000Z" },
+        { id: "demo_salon_s2", service: "Hydra Facial Deluxe", category: "Skin Care", price: 4500, duration: "60 min", createdAt: "2026-10-21T09:00:00.000Z" },
+        { id: "demo_salon_s3", service: "Keratin Hair Spa", category: "Hair", price: 6000, duration: "90 min", createdAt: "2026-10-22T10:00:00.000Z" }
+      ];
+    }
+    return [
+      { id: "demo_salon_1", client: "Sana Khan", stylist: "Farah", service: "Bridal Glow Makeup", date: "2026-11-02", time: "14:00", status: "Confirmed", createdAt: "2026-10-30T10:00:00.000Z" },
+      { id: "demo_salon_2", client: "Hira Malik", stylist: "Zara", service: "Hydra Facial Deluxe", date: "2026-11-01", time: "16:30", status: "Done", createdAt: "2026-10-29T14:30:00.000Z" },
+      { id: "demo_salon_3", client: "Mariam Aslam", stylist: "Kiran", service: "Keratin Hair Spa", date: "2026-11-03", time: "11:00", status: "Pending", createdAt: "2026-10-31T09:00:00.000Z" }
+    ];
+  }
+  if (catKey === "petrolpump" && (featId === "dispenser-tracking" || featId === "nozzle-readings")) {
+    return [
+      { id: "demo_pump_1", dispenser: "Dispenser #1 (Super)", opening: 145200, closing: 148500, rate: 285, sales: 940500, createdAt: "2026-10-31T06:00:00.000Z" },
+      { id: "demo_pump_2", dispenser: "Dispenser #2 (Diesel)", opening: 210400, closing: 214100, rate: 295, sales: 1091500, createdAt: "2026-10-31T06:00:00.000Z" },
+      { id: "demo_pump_3", dispenser: "Dispenser #3 (Super Nozzle B)", opening: 88100, closing: 90200, rate: 285, sales: 598500, createdAt: "2026-10-31T14:00:00.000Z" }
+    ];
+  }
+  if (catKey === "medicalstore" && (featId === "pharmacy-inventory" || featId === "pharmacy-stock")) {
+    return [
+      { id: "demo_med_1", item: "Panadol 500mg (10x10 Strips)", batch: "BN-882", qty: 120, price: 450, expiry: "2027-08-30", status: "In Stock", createdAt: "2026-10-20T08:00:00.000Z" },
+      { id: "demo_med_2", item: "Augmentin 625mg Tab Box", batch: "AG-419", qty: 45, price: 580, expiry: "2027-04-15", status: "In Stock", createdAt: "2026-10-22T09:00:00.000Z" },
+      { id: "demo_med_3", item: "Arinac Forte 10s Strip", batch: "AF-104", qty: 15, price: 120, expiry: "2026-12-31", status: "Low Stock", createdAt: "2026-10-25T10:00:00.000Z" }
+    ];
+  }
+  if (catKey === "laboratory" && (featId === "patient-tests" || featId === "lab-tests-and-reports")) {
+    return [
+      { id: "demo_lab_1", test: "Complete Blood Count (CBC)", patient: "Farooq Hassan", doctor: "Dr. Arshad", result: "Hb: 14.2 g/dL, TLC: 7,500, Platelets: 240,000 (All Normal)", date: "2026-10-31", status: "Completed", fee: 800, createdAt: "2026-10-31T09:00:00.000Z" },
+      { id: "demo_lab_2", test: "Lipid Profile Test", patient: "Nida Rehman", doctor: "Dr. Qasim", result: "Cholesterol: 195 mg/dL, HDL: 48, Triglycerides: 150", date: "2026-10-31", status: "Completed", fee: 1400, createdAt: "2026-10-31T10:30:00.000Z" },
+      { id: "demo_lab_3", test: "Blood Sugar Fasting & HbA1c", patient: "Kamran Akram", doctor: "Dr. Shahzad", result: "Sample received in lab, processing under automated analyzer", date: "2026-10-31", status: "In Progress", fee: 1100, createdAt: "2026-10-31T11:45:00.000Z" }
+    ];
+  }
+
+  const sampleNames = ["Muhammad Usman", "Fatima Zahra", "Rashid Minhas"];
+  const sampleStatuses = ["Active", "Completed", "Paid", "Confirmed", "In Stock"];
+  return [1, 2, 3].map((num, idx) => {
+    const entry = {
+      id: "demo_" + featId + "_" + num,
+      createdAt: new Date(Date.now() - 86400000 * (4 - num)).toISOString(),
+      updatedAt: new Date(Date.now() - 3600000 * (12 - num * 2)).toISOString()
+    };
+    (fields || []).forEach((f) => {
+      const k = f.key.toLowerCase();
+      if (f.type === "number") {
+        entry[f.key] = k.includes("price") || k.includes("amount") || k.includes("fee") ? (idx + 1) * 750 : (idx + 1) * 12;
+      } else if (f.type === "date") {
+        entry[f.key] = "2026-10-" + (28 + idx);
+      } else if (f.type === "time") {
+        entry[f.key] = (10 + idx * 2) + ":30";
+      } else if (f.type === "select" && Array.isArray(f.options) && f.options.length) {
+        entry[f.key] = f.options[idx % f.options.length];
+      } else if (f.type === "tel" || k.includes("mobile") || k.includes("phone")) {
+        entry[f.key] = "0300" + (1234567 + idx * 1111);
+      } else if (k.includes("name") || k.includes("patient") || k.includes("student") || k.includes("client") || k.includes("customer")) {
+        entry[f.key] = sampleNames[idx];
+      } else if (k.includes("status")) {
+        entry[f.key] = sampleStatuses[idx % sampleStatuses.length];
+      } else if (f.type === "textarea") {
+        entry[f.key] = "Sample details for " + f.label + " record #" + num + ". Verified and saved.";
+      } else {
+        entry[f.key] = f.label + " #" + num;
+      }
+    });
+    return entry;
+  });
+};
+
+const getCategoryDemoTrash = (catKey, featId, fields) => {
+  const sample = getCategoryDemoRecords(catKey, featId, fields)[0] || { id: "demo_trash_" + featId };
+  return [
+    Object.assign({}, sample, {
+      id: "demo_trash_" + featId + "_1",
+      deletedAt: new Date(Date.now() - 3600000 * 3).toISOString()
+    })
+  ];
+};
 let categoryUser = null;
 let categoryFeature = null;
 let categoryEditId = null;
@@ -1255,6 +1379,27 @@ const openCategoryFeature = async (card) => {
 const initCategoryTools = () => {
   categoryEnsureToolsUi();
 
+  document.addEventListener("click", (event) => {
+    const startDemo = event.target.closest("[data-action-start-demo]");
+    if (startDemo) {
+      event.preventDefault();
+      categoryIsDemoMode = true;
+      const firstCard = document.querySelector("#catFeatures [data-tool-feature]");
+      if (firstCard) {
+        openCategoryFeature(firstCard);
+      }
+    }
+  });
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("demo") === "1" || window.location.hash === "#demo") {
+    categoryIsDemoMode = true;
+    setTimeout(() => {
+      const firstCard = document.querySelector("#catFeatures [data-tool-feature]");
+      if (firstCard) openCategoryFeature(firstCard);
+    }, 350);
+  }
+
   document.getElementById("catFeatures")?.addEventListener("click", (event) => {
     const card = event.target.closest("[data-tool-feature]");
     if (card) openCategoryFeature(card);
@@ -1325,6 +1470,26 @@ const initCategoryTools = () => {
         const toggle = document.querySelector("[data-ws-menu-toggle]");
         if (toggle) toggle.setAttribute("aria-expanded", "false");
       }
+    }
+
+    const resetDemo = event.target.closest("[data-action-reset-demo]");
+    if (resetDemo && categoryFeature) {
+      if (!categoryData.features) categoryData.features = {};
+      if (!categoryData.trash) categoryData.trash = {};
+      categoryData.features[categoryFeature.id] = getCategoryDemoRecords(CURRENT.key, categoryFeature.id, categoryFeature.fields);
+      categoryData.trash[categoryFeature.id] = getCategoryDemoTrash(CURRENT.key, categoryFeature.id, categoryFeature.fields);
+      try {
+        localStorage.setItem(categoryLocalStorageKey, JSON.stringify(categoryData));
+      } catch (_) {}
+      showWorkspaceToast("\u0688\u06CC\u0645\u0648 \u0688\u06CC\u0679\u0627 \u06A9\u0627\u0645\u06CC\u0627\u0628\u06CC \u06A9\u06D2 \u0633\u0627\u062A\u06BE \u0631\u06CC \u0633\u06CC\u0679 \u06C1\u0648 \u06AF\u06CC\u0627\u06D4 (Demo data reset to initial state)");
+      categoryRenderList();
+      return;
+    }
+
+    const trialSignup = event.target.closest("[data-action-trial-signup]");
+    if (trialSignup) {
+      showCategoryTrialModal();
+      return;
     }
 
     const add = event.target.closest("[data-tool-add]");

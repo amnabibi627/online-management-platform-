@@ -83,7 +83,7 @@ body[data-category] .header-actions { gap: 0.6rem; }
 }
 
 .cat-hero h1 {
-  font-size: clamp(1.45rem, 2.7vw, 2.45rem);
+  font-size: clamp(1.95rem, 3.75vw, 3.25rem);
   font-weight: 800; letter-spacing: -0.035em; line-height: 1.12;
   margin-bottom: 1.1rem; white-space: nowrap;
 }
@@ -1088,7 +1088,7 @@ body[data-category] .header-actions { gap: 0.6rem; }
   .cat-topbar { padding-top: 0.8rem; }
   .cat-crumbs { padding: 0.65rem 0 1rem; }
   .cat-hero { padding: 2.7rem 0 3.2rem; }
-  .cat-hero h1 { font-size: clamp(1.1rem, 5.2vw, 1.65rem); white-space: nowrap; }
+  .cat-hero h1 { font-size: clamp(1.45rem, 6.2vw, 2.15rem); white-space: nowrap; }
   .cat-hero-copy > p { font-size: 0.96rem; }
   .cat-hero-actions .btn { width: 100%; text-align: center; }
   .cat-hero-points { gap: 0.45rem 1.1rem; }

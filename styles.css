@@ -1405,7 +1405,7 @@ h1, h2, h3, h4, .brand {
 
 .section-subtitle {
   color: var(--muted);
-  font-size: clamp(0.92rem, 1.25vw, 1.02rem);
+  font-size: clamp(1.02rem, 1.35vw, 1.14rem);
   line-height: 1.65;
   white-space: nowrap;
   max-width: 100%;
@@ -1539,7 +1539,7 @@ body.detail-open { overflow: hidden; }
 
 .detail-hero { text-align: center; padding: 3.5rem 0 2.5rem; }
 .detail-icon { font-size: 3rem; margin-bottom: 0.9rem; }
-.detail-hero h2 { font-size: clamp(1.4rem, 3.2vw, 2.3rem); font-weight: 800; margin-bottom: 0.6rem; white-space: nowrap; }
+.detail-hero h2 { font-size: clamp(1.75rem, 3.6vw, 2.55rem); font-weight: 800; margin-bottom: 0.6rem; white-space: nowrap; }
 .detail-hero p { color: var(--muted); max-width: 62ch; margin: 0 auto; font-size: 1.05rem; }
 
 .detail-grid {

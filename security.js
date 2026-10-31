@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ============================================================
  * Online Management Site: Core Security & Anti-Theft Shield
  * Protects frontend content, guards against unauthorized inspection,
@@ -42,11 +42,16 @@
   document.addEventListener("contextmenu", function (e) {
     var target = e.target;
     var tag = target && target.tagName ? target.tagName.toUpperCase() : "";
+    var hasSelectedText = false;
+    try {
+      hasSelectedText = !!(window.getSelection && window.getSelection().toString().trim().length > 0);
+    } catch (err) {}
     var isEditable =
       tag === "INPUT" ||
       tag === "TEXTAREA" ||
       (target && target.isContentEditable) ||
-      (target && target.closest && target.closest(".allow-select"));
+      (target && target.closest && target.closest(".allow-select")) ||
+      hasSelectedText;
 
     if (!isEditable) {
       e.preventDefault();

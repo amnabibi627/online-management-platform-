@@ -5019,3 +5019,42 @@ img, picture, svg {
   -o-user-drag: none !important;
   user-drag: none !important;
 }
+
+
+/* ============================================================
+   GLOBAL PARAGRAPH & DESCRIPTION TEXT JUSTIFICATION
+   Aligns all lines equally on both left and right edges neatly
+   ============================================================ */
+p,
+.hero-text,
+.section-subtitle,
+.owner-profile-bio,
+.industry-card p,
+.portal-card p,
+.plan-card p,
+.detail-card p,
+.cat-hero-desc,
+.cat-feature p,
+.cat-related-card p,
+.cat-plan p,
+.cat-cta-card p,
+.cat-modal-body p,
+.fiverr-card p,
+.review-item-text,
+.review-item p,
+.review-comment,
+.promo-banner p,
+.about-text,
+.trust-item p,
+.feature-desc,
+.plan-desc {
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
+
+.toast p,
+.btn p,
+.footer-bottom p,
+.copyright {
+  text-align: center !important;
+}

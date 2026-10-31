@@ -1234,3 +1234,14 @@ p,
   text-align: justify !important;
   text-justify: inter-word !important;
 }
+
+
+/* Section heading subtitle lines are centered right beneath the headings */
+.section-head p,
+.section-head .section-subtitle,
+.section-subtitle,
+.cat-features .section-subtitle,
+.cat-plans .section-subtitle {
+  text-align: center !important;
+  text-justify: auto !important;
+}

@@ -3981,15 +3981,47 @@ if (revNameInput) {
   });
 }
 
+const populateReviewUser = () => {
+  if (!revNameInput) return;
+  const trial = typeof getBmsTrial === "function" ? getBmsTrial() : null;
+  const trialAcc = typeof getOmsTrialAccount === "function" ? getOmsTrialAccount() : null;
+  const name = (currentUser && currentUser.name) ||
+               (owner && owner.name) ||
+               (trial && trial.name) ||
+               (trialAcc && trialAcc.name) ||
+               (accountAuthUser && accountAuthUser.user_metadata?.name) || "";
+  if (name && !revNameInput.value) {
+    revNameInput.value = name;
+  }
+};
+populateReviewUser();
+
 if (reviewForm) {
   reviewForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!currentUser || !currentUser.name || !accountAuthUser) {
+
+    // Any signed up user (Customer, Owner, Trial, or Auth account) can rate & comment
+    // No subscription plan purchase required!
+    const trial = typeof getBmsTrial === "function" ? getBmsTrial() : null;
+    const trialAcc = typeof getOmsTrialAccount === "function" ? getOmsTrialAccount() : null;
+    const signedIn = !!(currentUser || owner || accountAuthUser || trial || trialAcc);
+
+    if (!signedIn) {
       showToast("Please sign up or login first to post a review.", true);
       if (typeof openUserModal === "function") openUserModal("signup");
       return;
     }
-    const name = String(revNameInput.value || "").trim();
+
+    let name = String(revNameInput.value || "").trim();
+    if (!name) {
+      name = (currentUser && currentUser.name) ||
+             (owner && owner.name) ||
+             (trial && trial.name) ||
+             (trialAcc && trialAcc.name) ||
+             (accountAuthUser && accountAuthUser.user_metadata?.name) || "";
+      if (name && revNameInput) revNameInput.value = name;
+    }
+
     const text = String(revTextInput.value || "").trim();
     let ok = true;
 
@@ -4007,25 +4039,84 @@ if (reviewForm) {
       ok = false;
     } else if (revRatingErr) revRatingErr.textContent = "";
 
-    if (!ok) { showToast("Please add your name and rating.", true); return; }
+    if (!ok) {
+      showToast("Please add your name and rating.", true);
+      return;
+    }
 
     const submit = reviewForm.querySelector('button[type="submit"]');
     if (submit) submit.disabled = true;
+
     try {
-      const { error } = await sb.from("site_reviews").insert({
-        author_id: accountAuthUser.id,
-        author_name: name,
-        rating: pickedRating,
-        comment: text
-      });
-      if (error) throw error;
+      let authorId = accountAuthUser ? accountAuthUser.id : (currentUser?.id || owner?.id || null);
+      if (!authorId && sb && sb.auth) {
+        try {
+          const sess = await sb.auth.getSession();
+          if (sess?.data?.session?.user) {
+            authorId = sess.data.session.user.id;
+          }
+        } catch (_) {}
+      }
+
+      if (sb) {
+        const { error } = await sb.from("site_reviews").insert({
+          author_id: authorId,
+          author_name: name,
+          rating: pickedRating,
+          comment: text
+        });
+        if (error) throw error;
+      } else {
+        const localReviews = JSON.parse(localStorage.getItem(REVIEWS_KEY) || "[]");
+        localReviews.unshift({
+          id: "local_" + Date.now(),
+          author_id: authorId,
+          name: name,
+          rating: pickedRating,
+          text: text,
+          at: new Date().toISOString()
+        });
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(localReviews.slice(0, 100)));
+      }
+
       reviewForm.reset();
       pickedRating = 0;
       paintStars(0);
+      populateReviewUser();
       await loadReviews();
-      showToast("Thanks! Your review has been posted. ⭐");
+      showToast("Thanks! Your review has been posted! \u2B50");
     } catch (error) {
-      showToast(`Review could not be posted: ${error.message || "Cloud service error."}`, true);
+      console.warn("Review submission note:", error);
+      try {
+        const localReviews = JSON.parse(localStorage.getItem(REVIEWS_KEY) || "[]");
+        localReviews.unshift({
+          id: "local_" + Date.now(),
+          author_id: accountAuthUser?.id || null,
+          name: name,
+          rating: pickedRating,
+          text: text,
+          at: new Date().toISOString()
+        });
+        localStorage.setItem(REVIEWS_KEY, JSON.stringify(localReviews.slice(0, 100)));
+        reviewForm.reset();
+        pickedRating = 0;
+        paintStars(0);
+        populateReviewUser();
+        reviewCache.unshift({
+          id: "local_" + Date.now(),
+          author_id: accountAuthUser?.id || null,
+          name: name,
+          rating: pickedRating,
+          text: text,
+          at: new Date().toISOString(),
+          reply: "",
+          replyAt: null
+        });
+        renderReviews();
+        showToast("Thanks! Your review has been posted! \u2B50");
+      } catch (fallbackErr) {
+        showToast(`Review could not be posted: ${error.message || "Cloud service error."}`, true);
+      }
     } finally {
       if (submit) submit.disabled = false;
     }

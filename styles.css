@@ -1393,59 +1393,105 @@ h1, h2, h3, h4, .brand {
 .portals .section-title { white-space: nowrap; }
 .section-subtitle { color: var(--muted); font-size: 1.03rem; line-height: 1.7; white-space: nowrap; }
 
-/* ---------- Industries ---------- */
+/* ---------- Industries: Sleek Horizontal Card Style ---------- */
 .industry-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.15rem;
 }
 
 .industry-card {
-  position: relative; overflow: hidden;
-  display: flex; flex-direction: column; justify-content: space-between;
-  color: inherit; text-decoration: none;
-  background: #ffffff;
-  border: 1.5px solid rgba(255, 143, 4, 0.45);
-  border-radius: 16px;
-  padding: 1.2rem 1.25rem;
+  position: relative;
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1.1rem !important;
+  color: inherit;
+  text-decoration: none;
+  background: rgba(255, 143, 4, 0.05) !important;
+  border: 1.5px solid rgba(255, 143, 4, 0.45) !important;
+  border-radius: 18px;
+  padding: 1.05rem 1.25rem !important;
   box-shadow: none;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  min-height: 130px;
+  min-height: auto !important;
 }
+
 .industry-card:focus,
 .industry-card:focus-visible,
 .industry-card:active {
   outline: none;
-  border-color: rgba(255, 143, 4, 0.4);
+  border-color: #ff8f04 !important;
 }
-.industry-card::before {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
-  background: #ff8f04;
-  opacity: 0; transition: opacity 0.2s ease;
-}
+
 .industry-card:hover {
-  transform: translateY(-6px);
-  box-shadow: none;
+  transform: translateY(-4px);
+  border-color: #ff8f04 !important;
+  background: rgba(255, 143, 4, 0.1) !important;
 }
-.industry-card:hover::before,
-.industry-card:focus::before,
-.industry-card:active::before { opacity: 1; }
 
 .industry-icon {
-  width: 46px; height: 46px; display: grid; place-items: center; font-size: 1.4rem;
-  background: #ffffff;
-  border: 1px solid rgba(255, 143, 4, 0.35); border-radius: 12px; margin-bottom: 0.65rem;
+  width: 52px !important;
+  height: 52px !important;
+  min-width: 52px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 1.6rem !important;
+  background: #ffffff !important;
+  border: 1.5px solid rgba(255, 143, 4, 0.4) !important;
+  border-radius: 14px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 2px 6px rgba(255, 143, 4, 0.08) !important;
 }
 
-.industry-card h3 { font-size: 1.22rem; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 0.35rem; }
-.industry-card p { display: none !important; }
-.industry-card-cta {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  margin-top: 0.45rem; color: #ff8f04;
-  font-size: 0.82rem; font-weight: 700;
+.industry-card-info {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 0.25rem !important;
+  flex: 1 !important;
+  min-width: 0 !important;
 }
-.industry-card-cta span { color: #ff8f04; transition: transform 0.18s ease; }
-.industry-card:hover .industry-card-cta span { transform: translateX(4px); }
+
+.industry-card h3 {
+  font-size: 1.16rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em;
+  color: #0f172a !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.25 !important;
+  white-space: nowrap !important;
+}
+
+.industry-card p {
+  display: none !important;
+}
+
+.industry-card-cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #ff8f04 !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+.industry-card-cta span {
+  color: #ff8f04 !important;
+  transition: transform 0.2s ease !important;
+}
+
+.industry-card:hover .industry-card-cta span {
+  transform: translateX(4px) !important;
+}
 
 /* ---------- Category Detail (Clinic) ---------- */
 .category-detail {

@@ -83,9 +83,9 @@ body[data-category] .header-actions { gap: 0.6rem; }
 }
 
 .cat-hero h1 {
-  font-size: clamp(2.35rem, 4.6vw, 3.65rem);
-  font-weight: 800; letter-spacing: -0.04em; line-height: 1.04;
-  margin-bottom: 1.1rem; overflow-wrap: anywhere;
+  font-size: clamp(1.45rem, 2.7vw, 2.45rem);
+  font-weight: 800; letter-spacing: -0.035em; line-height: 1.12;
+  margin-bottom: 1.1rem; white-space: nowrap;
 }
 .cat-hero h1 .accent {
   color: #ff8f04;
@@ -1088,7 +1088,7 @@ body[data-category] .header-actions { gap: 0.6rem; }
   .cat-topbar { padding-top: 0.8rem; }
   .cat-crumbs { padding: 0.65rem 0 1rem; }
   .cat-hero { padding: 2.7rem 0 3.2rem; }
-  .cat-hero h1 { font-size: clamp(2rem, 9vw, 2.65rem); }
+  .cat-hero h1 { font-size: clamp(1.1rem, 5.2vw, 1.65rem); white-space: nowrap; }
   .cat-hero-copy > p { font-size: 0.96rem; }
   .cat-hero-actions .btn { width: 100%; text-align: center; }
   .cat-hero-points { gap: 0.45rem 1.1rem; }

@@ -1379,7 +1379,7 @@ h1, h2, h3, h4, .brand {
 
 .section-head {
   text-align: center !important;
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto 3.2rem;
   display: flex;
   flex-direction: column;
@@ -1399,17 +1399,21 @@ h1, h2, h3, h4, .brand {
 
 .portals .section-head { max-width: 100%; }
 .portals .section-title { white-space: nowrap; }
+.biz-ads .section-head { max-width: 100%; }
+.owner-details .section-head { max-width: 100%; }
+.reviews-section .section-head { max-width: 100%; }
+
 .section-subtitle {
   color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.7;
-  white-space: normal !important;
-  max-width: 820px;
-  width: 100%;
+  font-size: clamp(0.92rem, 1.25vw, 1.02rem);
+  line-height: 1.65;
+  white-space: nowrap;
+  max-width: 100%;
+  width: auto;
   margin: 0 auto !important;
   text-align: center !important;
   text-justify: auto !important;
-  display: block;
+  display: inline-block;
 }
 
 /* ---------- Industries: Sleek Horizontal Card Style ---------- */

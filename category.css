@@ -1237,11 +1237,19 @@ p,
 
 
 /* Section heading subtitle lines are centered right beneath the headings */
+.section-head,
+.section-head h2,
+.section-head .section-title,
 .section-head p,
 .section-head .section-subtitle,
 .section-subtitle,
 .cat-features .section-subtitle,
-.cat-plans .section-subtitle {
+.cat-plans .section-subtitle,
+.detail-hero,
+.detail-hero h2,
+.detail-hero p {
   text-align: center !important;
   text-justify: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }

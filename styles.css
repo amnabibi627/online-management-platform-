@@ -6096,29 +6096,6 @@ p,
    Global Multi-Payment Selector & Universal Language Support
    ============================================================ */
 
-.global-lang-wrap {
-  display: inline-flex;
-  align-items: center;
-}
-
-.oms-global-lang-select {
-  padding: 0.38rem 0.65rem;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #0f172a;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: border-color 0.15s ease;
-}
-
-.oms-global-lang-select:focus {
-  border-color: #ff8f04;
-}
-
 .sub-payment-method-selector {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

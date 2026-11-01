@@ -5534,33 +5534,3 @@ document.addEventListener("click", (e) => {
     }
   }
 });
-
-// Universal Language Switcher Support
-const initGlobalLangSelector = () => {
-  const langSelect = document.getElementById("omsGlobalLangSelect");
-  if (!langSelect) return;
-  const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
-  if (match) {
-    const code = match[2].split("/")[2];
-    if (code) langSelect.value = code;
-  }
-  langSelect.addEventListener("change", (e) => {
-    const val = e.target.value;
-    const langCode = val === "zh" ? "zh-CN" : val;
-    const cookieVal = "/en/" + langCode;
-    document.cookie = "googtrans=" + cookieVal + "; path=/";
-    document.cookie = "googtrans=" + cookieVal + "; domain=" + window.location.hostname + "; path=/";
-    const gCombo = document.querySelector(".goog-te-combo");
-    if (gCombo) {
-      gCombo.value = langCode;
-      gCombo.dispatchEvent(new Event("change"));
-    } else {
-      window.location.reload();
-    }
-  });
-};
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initGlobalLangSelector);
-} else {
-  initGlobalLangSelector();
-}

@@ -1,3 +1,4 @@
+let categoryDateFilter = "";
 /* ============================================================
    category.js: renders the individual business category pages
    (clinic.html, academy.html, restaurant.html, ...)
@@ -1164,7 +1165,103 @@ const renderSaasNav = () => {
   }).join("");
 };
 
-const renderSaasKpis = () => {};
+
+const getTodayDateString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const renderSaasAnalytics = () => {
+  const container = document.getElementById("saasAnalyticsStrip");
+  if (!container || !categoryFeature) return;
+
+  const items = categoryItems();
+  const todayStr = getTodayDateString();
+
+  const todayCount = items.filter((item) => {
+    const c = (item.createdAt || "").slice(0, 10);
+    const u = (item.updatedAt || "").slice(0, 10);
+    return c === todayStr || u === todayStr;
+  }).length;
+
+  const totalCount = items.length;
+
+  let dateFilterCount = 0;
+  let formattedSelectedDate = "";
+  if (categoryDateFilter) {
+    dateFilterCount = items.filter((item) => {
+      const c = (item.createdAt || "").slice(0, 10);
+      const u = (item.updatedAt || "").slice(0, 10);
+      return c === categoryDateFilter || u === categoryDateFilter;
+    }).length;
+    try {
+      formattedSelectedDate = new Date(categoryDateFilter + "T00:00:00").toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      });
+    } catch (_) {
+      formattedSelectedDate = categoryDateFilter;
+    }
+  }
+
+  const isTodayFiltered = categoryDateFilter === todayStr;
+  const isAllFiltered = !categoryDateFilter;
+
+  container.innerHTML = `
+    <!-- Box 1: Today's Entries -->
+    <div class="saas-stat-box saas-stat-today is-clickable ${isTodayFiltered ? 'is-active' : ''}" id="saasBoxToday" title="Click to view only today's records">
+      <div class="saas-stat-header">
+        <div class="saas-stat-icon-wrap">
+          <span class="saas-stat-icon">&#9889;</span>
+          <span class="saas-stat-title">Today's Entries</span>
+        </div>
+        ${isTodayFiltered ? '<span style="font-size: 0.68rem; font-weight:800; color:#3b82f6; background:#eff6ff; padding:2px 6px; border-radius:6px;">FILTER ACTIVE</span>' : ''}
+      </div>
+      <div class="saas-stat-body">
+        <strong class="saas-stat-number">${todayCount}</strong>
+        <span class="saas-stat-hint">${todayCount === 1 ? '1 entry' : todayCount + ' entries'} recorded today</span>
+      </div>
+    </div>
+
+    <!-- Box 2: Total Entries -->
+    <div class="saas-stat-box saas-stat-total is-clickable ${isAllFiltered ? 'is-active' : ''}" id="saasBoxTotal" title="Click to view all records">
+      <div class="saas-stat-header">
+        <div class="saas-stat-icon-wrap">
+          <span class="saas-stat-icon">&#128202;</span>
+          <span class="saas-stat-title">Total Entries</span>
+        </div>
+        ${isAllFiltered ? '<span style="font-size: 0.68rem; font-weight:800; color:#10b981; background:#ecfdf5; padding:2px 6px; border-radius:6px;">ALL RECORDS</span>' : ''}
+      </div>
+      <div class="saas-stat-body">
+        <strong class="saas-stat-number">${totalCount}</strong>
+        <span class="saas-stat-hint">All-time module records</span>
+      </div>
+    </div>
+
+    <!-- Box 3: Filter by Specific Date (Inspect Any Day) -->
+    <div class="saas-stat-box saas-stat-date ${categoryDateFilter && !isTodayFiltered ? 'is-active' : ''}" id="saasBoxDatePicker">
+      <div class="saas-stat-header">
+        <div class="saas-stat-icon-wrap">
+          <span class="saas-stat-icon">&#128197;</span>
+          <span class="saas-stat-title">Filter by Specific Date</span>
+        </div>
+        ${categoryDateFilter ? `<button type="button" class="saas-date-clear-btn" id="saasClearDateBtn" title="Clear filter and show all dates">&#10005; View All</button>` : ''}
+      </div>
+      <div class="saas-stat-date-controls">
+        <div class="saas-date-input-wrap">
+          <input type="date" id="saasDateFilterInput" class="saas-date-input" value="${categoryDateFilter || ''}" aria-label="Select date to inspect" />
+        </div>
+        <div class="saas-date-status-badge">
+          ${categoryDateFilter ? `<strong>${dateFilterCount}</strong> entries on <span>${formattedSelectedDate}</span>` : `<span>Pick any date to inspect entries</span>`}
+        </div>
+      </div>
+    </div>
+  `;
+};
 
 const updateSaasPortalHeader = () => {
   const brandIcon = document.getElementById("saasBrandIcon");
@@ -1221,7 +1318,7 @@ const selectSaasFeature = (featureId) => {
   categoryTab = "active";
   categorySearchQuery = "";
   renderSaasNav();
-  renderSaasKpis();
+  renderSaasAnalytics();
   updateSaasPortalHeader();
   categoryRenderList();
 
@@ -1235,7 +1332,7 @@ const categoryRenderList = () => {
   if (!categoryFeature) return;
   const content = document.getElementById("categoryWorkspaceContent");
   renderSaasNav();
-  renderSaasKpis();
+  renderSaasAnalytics();
   updateSaasPortalHeader();
   if (!content) return;
 
@@ -1245,6 +1342,15 @@ const categoryRenderList = () => {
   const sourceItems = isTrash ? allTrash : allActive;
 
   let displayedItems = sourceItems;
+
+  if (categoryDateFilter) {
+    displayedItems = displayedItems.filter((item) => {
+      const c = (item.createdAt || "").slice(0, 10);
+      const u = (item.updatedAt || "").slice(0, 10);
+      return c === categoryDateFilter || u === categoryDateFilter;
+    });
+  }
+
   const query = categorySearchQuery.trim().toLowerCase();
   if (query) {
     displayedItems = sourceItems.filter((item) => {
@@ -1377,6 +1483,15 @@ const categoryRenderList = () => {
       </div>
     ` : ""}
 
+    ${categoryDateFilter ? `
+      <div class="saas-date-banner">
+        <div class="saas-date-banner-left">
+          <span>&#128197;</span>
+          <span>Showing <strong>${displayedItems.length}</strong> ${displayedItems.length === 1 ? 'record' : 'records'} for <strong>${categoryDateFilter}</strong></span>
+        </div>
+        <button type="button" class="btn-reset-date" data-action-clear-date>&#10005; Show All Dates</button>
+      </div>
+    ` : ''}
     <div class="cat-ws-toolbar">
       <div class="cat-ws-search-wrap">
         <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>
@@ -1519,6 +1634,13 @@ const initCategoryTools = async () => {
     const btn = event.target.closest("[data-saas-feature]");
     if (btn) {
       selectSaasFeature(btn.dataset.saasFeature);
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    if (e.target && e.target.id === "saasDateFilterInput") {
+      categoryDateFilter = e.target.value || "";
+      categoryRenderList();
     }
   });
 
@@ -1688,6 +1810,23 @@ const initCategoryTools = async () => {
         const toggle = document.querySelector("[data-ws-menu-toggle]");
         if (toggle) toggle.setAttribute("aria-expanded", "false");
       }
+    }
+
+    if (event.target.closest("#saasBoxToday")) {
+      const today = getTodayDateString();
+      categoryDateFilter = categoryDateFilter === today ? "" : today;
+      categoryRenderList();
+      return;
+    }
+    if (event.target.closest("#saasBoxTotal")) {
+      categoryDateFilter = "";
+      categoryRenderList();
+      return;
+    }
+    if (event.target.closest("#saasClearDateBtn, [data-action-clear-date]")) {
+      categoryDateFilter = "";
+      categoryRenderList();
+      return;
     }
 
     const add = event.target.closest("[data-tool-add], .saas-btn-add, #saasAddRecordBtn");

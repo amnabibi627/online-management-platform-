@@ -3194,3 +3194,278 @@ p,
   gap: 0.75rem !important;
   flex-wrap: wrap !important;
 }
+
+/* ============================================================
+   Global Enterprise SaaS Extensions (Worldwide Multi-Currency,
+   Column Sorting, Pagination, and Compliance Standard)
+   ============================================================ */
+
+/* Global Currency Selector in Toolbar */
+.cat-ws-currency-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.cat-currency-globe {
+  font-size: 0.95rem;
+}
+
+.cat-currency-select {
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  padding: 2px 0;
+}
+
+.cat-currency-select:focus {
+  outline: none;
+}
+
+/* Quick Tool Buttons in Toolbar */
+.cat-ws-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.cat-ws-tool-btn:hover {
+  background: #ffffff;
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* Sortable Table Headers */
+.cat-sortable-th {
+  cursor: pointer !important;
+  user-select: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.cat-sortable-th:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.cat-sortable-th.is-sorted {
+  background-color: #fff7ed !important;
+  color: #ea580c !important;
+}
+
+.cat-th-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 6px;
+}
+
+.cat-sort-indicator {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ea580c;
+}
+
+.cat-sort-idle {
+  opacity: 0.35;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Currency Cell Highlighting */
+.cat-currency-val {
+  color: #047857 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-weight: 700 !important;
+}
+
+/* Table Pagination Bar */
+.cat-table-pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.82rem;
+  color: #64748b;
+  border-radius: 0 0 12px 12px;
+}
+
+.cat-pagination-info {
+  font-weight: 500;
+}
+
+.cat-pagination-info strong {
+  color: #0f172a;
+}
+
+.cat-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.cat-page-size-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.cat-page-size-select {
+  padding: 3px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.cat-pagination-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cat-page-btn {
+  padding: 4px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cat-page-btn:hover:not(:disabled) {
+  background: #ff8f04;
+  border-color: #ff8f04;
+  color: #ffffff;
+}
+
+.cat-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cat-page-number {
+  font-weight: 700;
+  color: #0f172a;
+  padding: 0 6px;
+}
+
+/* Analytics Strip Financial KPI Card */
+.saas-stat-financial {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+.saas-currency-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #047857;
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.saas-stat-amount {
+  color: #047857 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+/* Enterprise Compliance Footer */
+.cat-enterprise-compliance-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 10px 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.cat-compliance-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.cat-shortcuts-trigger {
+  cursor: pointer;
+  transition: color 0.15s ease;
+  user-select: none;
+}
+
+.cat-shortcuts-trigger:hover {
+  color: #0f172a;
+}
+
+.cat-shortcuts-trigger kbd {
+  display: inline-block;
+  padding: 2px 5px;
+  font-size: 0.7rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 768px) {
+  .cat-ws-toolbar-right {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-table-pagination-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .cat-enterprise-compliance-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

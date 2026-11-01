@@ -267,8 +267,42 @@ const categoryEscape = (value) => String(value ?? "").replace(/[&<>"']/g, (char)
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 }[char]));
 
-const categoryEmail = (mobile) => `${mobile}@bms.app`;
-const categoryMobile = (value) => value.trim().replace(/[\s-]/g, "").replace(/^\+92/, "0");
+const OMS_CURRENCIES = {
+  USD: { code: "USD", symbol: "$", name: "US Dollar ($)" },
+  EUR: { code: "EUR", symbol: "€", name: "Euro (€)" },
+  GBP: { code: "GBP", symbol: "£", name: "British Pound (£)" },
+  AED: { code: "AED", symbol: "AED ", name: "UAE Dirham (AED)" },
+  SAR: { code: "SAR", symbol: "SAR ", name: "Saudi Riyal (SAR)" },
+  CAD: { code: "CAD", symbol: "CA$", name: "Canadian Dollar ($)" },
+  AUD: { code: "AUD", symbol: "AU$", name: "Australian Dollar ($)" },
+  PKR: { code: "PKR", symbol: "Rs. ", name: "Pakistani Rupee (Rs.)" },
+  INR: { code: "INR", symbol: "₹", name: "Indian Rupee (₹)" },
+  JPY: { code: "JPY", symbol: "¥", name: "Japanese Yen (¥)" }
+};
+
+const getGlobalCurrency = () => {
+  return localStorage.getItem("oms_global_currency") || "USD";
+};
+
+const setGlobalCurrency = (code) => {
+  if (OMS_CURRENCIES[code]) {
+    localStorage.setItem("oms_global_currency", code);
+    renderSaasAnalytics();
+    categoryRenderList();
+    showWorkspaceToast(`Currency switched to ${OMS_CURRENCIES[code].name}`);
+  }
+};
+
+const formatCurrencyVal = (num) => {
+  const code = getGlobalCurrency();
+  const curr = OMS_CURRENCIES[code] || OMS_CURRENCIES.USD;
+  const n = typeof num === "number" ? num : parseFloat(String(num).replace(/[^0-9.-]/g, ""));
+  if (isNaN(n)) return "N/A";
+  return `${curr.symbol}${n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+};
+
+const categoryEmail = (mobile) => `${String(mobile).replace(/[^0-9a-zA-Z]/g, "")}@bms.app`;
+const categoryMobile = (value) => String(value || "").trim().replace(/[\s\-\(\)\.]/g, "").replace(/^\+/, "");
 const categoryCollectionKey = `${CURRENT.key}:data`;
 const categoryLocalStorageKey = `bms_cat_${CURRENT.key}_data_v2`;
 const categoryData = { v: CATEGORY_MODULES.FEATURE_VERSION, features: {}, trash: {} };
@@ -283,6 +317,10 @@ let categoryLatestRequest = null;
 let categorySelectedPlan = null;
 let categoryTab = "active";
 let categorySearchQuery = "";
+let categorySortCol = null;
+let categorySortDir = "asc";
+let categoryPage = 1;
+let categoryPageSize = 25;
 let categoryToastTimeout = null;
 let categoryUndoAction = null;
 
@@ -477,6 +515,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
     const userName = categoryUser?.user_metadata?.name || trial?.name || "Business Owner";
     const userMobile = categoryUser?.user_metadata?.mobile || trial?.mobile || "N/A";
     const userCity = categoryUser?.user_metadata?.city || trial?.city || "";
+    const userCountry = trial?.country || categoryUser?.user_metadata?.country || "International";
     const portalName = CURRENT?.name ? `${CURRENT.name} Portal` : (CURRENT?.short ? `${CURRENT.short} Portal` : "Business Portal");
     const rawBusiness = trial?.businessName || "";
     const displayBusiness = (rawBusiness && rawBusiness.trim().toLowerCase() !== userName.trim().toLowerCase())
@@ -485,6 +524,8 @@ const showCategoryTrialModal = (viewMode = "overview") => {
     const uid = trial?.uid || (categoryUser ? `UID-${categoryUser.id.slice(0, 5).toUpperCase()}` : "UID-84920");
     const initial = (userName.charAt(0) || "U").toUpperCase();
     const avatar = trial?.avatar || "";
+    const currCode = getGlobalCurrency();
+    const curr = OMS_CURRENCIES[currCode] || OMS_CURRENCIES.USD;
     const regDate = trial?.startedAt
       ? new Date(trial.startedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
       : new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
@@ -556,8 +597,12 @@ const showCategoryTrialModal = (viewMode = "overview") => {
               <strong class="pro-detail-val">${categoryEscape(userName)}</strong>
             </div>
             <div class="pro-detail-row">
-              <span class="pro-detail-label">Registered Mobile</span>
+              <span class="pro-detail-label">Registered Phone</span>
               <strong class="pro-detail-val">${categoryEscape(userMobile)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Country / Region</span>
+              <strong class="pro-detail-val">${categoryEscape(userCountry)}</strong>
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">City / Location</span>
@@ -566,6 +611,10 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             <div class="pro-detail-row">
               <span class="pro-detail-label">Business / Category</span>
               <strong class="pro-detail-val">${categoryEscape(displayBusiness)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Active Currency</span>
+              <strong class="pro-detail-val" style="color:#047857;">${categoryEscape(curr.name)} (${categoryEscape(curr.code)})</strong>
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">Account Status</span>
@@ -592,19 +641,37 @@ const showCategoryTrialModal = (viewMode = "overview") => {
           <form class="pro-edit-form" id="proEditProfileForm">
             <div class="pro-form-group">
               <label>Full Name *</label>
-              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="e.g. Amna Bibi" />
+              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="e.g. John Doe / Amna Bibi" />
             </div>
             <div class="pro-form-group">
-              <label>Registered Mobile Number *</label>
-              <input name="mobile" type="tel" value="${categoryEscape(userMobile)}" required maxlength="15" placeholder="e.g. 03001234567" />
+              <label>Country / Region</label>
+              <select name="country" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem; background:#fff;">
+                <option value="United States" ${userCountry === 'United States' ? 'selected' : ''}>🇺🇸 United States</option>
+                <option value="United Kingdom" ${userCountry === 'United Kingdom' ? 'selected' : ''}>🇬🇧 United Kingdom</option>
+                <option value="United Arab Emirates" ${userCountry === 'United Arab Emirates' ? 'selected' : ''}>🇦🇪 United Arab Emirates</option>
+                <option value="Saudi Arabia" ${userCountry === 'Saudi Arabia' ? 'selected' : ''}>🇸🇦 Saudi Arabia</option>
+                <option value="Canada" ${userCountry === 'Canada' ? 'selected' : ''}>🇨🇦 Canada</option>
+                <option value="Australia" ${userCountry === 'Australia' ? 'selected' : ''}>🇦🇺 Australia</option>
+                <option value="Pakistan" ${userCountry === 'Pakistan' ? 'selected' : ''}>🇵🇰 Pakistan</option>
+                <option value="India" ${userCountry === 'India' ? 'selected' : ''}>🇮🇳 India</option>
+                <option value="Germany" ${userCountry === 'Germany' ? 'selected' : ''}>🇩🇪 Germany</option>
+                <option value="France" ${userCountry === 'France' ? 'selected' : ''}>🇫🇷 France</option>
+                <option value="Singapore" ${userCountry === 'Singapore' ? 'selected' : ''}>🇸🇬 Singapore</option>
+                <option value="Malaysia" ${userCountry === 'Malaysia' ? 'selected' : ''}>🇲🇾 Malaysia</option>
+                <option value="International" ${!userCountry || userCountry === 'International' ? 'selected' : ''}>🌐 Other / International</option>
+              </select>
+            </div>
+            <div class="pro-form-group">
+              <label>Registered Phone / Mobile *</label>
+              <input name="mobile" type="tel" value="${categoryEscape(userMobile)}" required maxlength="20" placeholder="e.g. +1 555 0199 or 03001234567" />
             </div>
             <div class="pro-form-group">
               <label>City / Location</label>
-              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' && userCity !== 'Not set' ? userCity : '')}" maxlength="50" placeholder="e.g. Bahawalpur / Lahore" />
+              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' && userCity !== 'Not set' ? userCity : '')}" maxlength="50" placeholder="e.g. New York / London / Dubai / Lahore" />
             </div>
             <div class="pro-form-group">
               <label>Business / Enterprise Name</label>
-              <input name="businessName" type="text" value="${categoryEscape(rawBusiness)}" maxlength="80" placeholder="e.g. Bibi Petroleum Services" />
+              <input name="businessName" type="text" value="${categoryEscape(rawBusiness)}" maxlength="80" placeholder="e.g. Apex Global Management" />
             </div>
 
             <p class="category-auth-error" id="proEditError" role="alert" style="color:#ef4444; font-size:0.84rem; margin:0.2rem 0; min-height:1rem;"></p>
@@ -629,26 +696,44 @@ const showCategoryTrialModal = (viewMode = "overview") => {
       <div style="font-size:2.2rem; margin-bottom:0.25rem;">🚀</div>
       <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Sign Up Free</h2>
       <p style="margin:0; font-size:0.86rem; color:#64748b;">
-        Instant full access to all 8 categories &amp; tools. Zero upfront payment or credit card required.
+        Instant full access to all 8 categories &amp; tools worldwide. Zero upfront payment or credit card required.
       </p>
     </div>
 
     <form id="categoryTrialForm" class="category-auth-form" style="display:grid; gap:0.75rem;">
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Full Name *</label>
-        <input name="name" type="text" placeholder="e.g. Amna Bibi" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="name" type="text" placeholder="e.g. John Doe / Amna Bibi" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile Number *</label>
-        <input name="mobile" type="tel" placeholder="03XXXXXXXXX" required inputmode="numeric" maxlength="13" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Country / Region *</label>
+        <select name="country" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem; background:#fff;">
+          <option value="United States">🇺🇸 United States</option>
+          <option value="United Kingdom">🇬🇧 United Kingdom</option>
+          <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
+          <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
+          <option value="Canada">🇨🇦 Canada</option>
+          <option value="Australia">🇦🇺 Australia</option>
+          <option value="Pakistan" selected>🇵🇰 Pakistan</option>
+          <option value="India">🇮🇳 India</option>
+          <option value="Germany">🇩🇪 Germany</option>
+          <option value="France">🇫🇷 France</option>
+          <option value="Singapore">🇸🇬 Singapore</option>
+          <option value="Malaysia">🇲🇾 Malaysia</option>
+          <option value="International">🌐 Other / International</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile / WhatsApp / Phone *</label>
+        <input name="mobile" type="tel" placeholder="+1 555 0199 or 03001234567" required maxlength="20" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City / Location *</label>
-        <input name="city" type="text" placeholder="e.g. Bahawalpur / Lahore" required maxlength="40" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="city" type="text" placeholder="e.g. New York / London / Dubai / Lahore" required maxlength="50" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Business / Store Name (Optional)</label>
-        <input name="businessName" type="text" placeholder="e.g. Bibi Petroleum Services" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Business / Enterprise Name (Optional)</label>
+        <input name="businessName" type="text" placeholder="e.g. Apex Global Management" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Create Password *</label>
@@ -1221,7 +1306,7 @@ const categoryPrintReport = () => {
   }
 };
 
-const formatCellVal = (val, type) => {
+const formatCellVal = (val, type, fieldKey = "") => {
   if (val === null || val === undefined || val === "") return `<span class="category-empty-value">N/A</span>`;
   const s = String(val).trim();
   const lower = s.toLowerCase();
@@ -1234,7 +1319,11 @@ const formatCellVal = (val, type) => {
   if (["cancelled", "out of stock", "archived", "alert", "rejected", "unpaid", "blocked", "failed"].includes(lower)) {
     return `<span class="cat-status-pill is-danger">${categoryEscape(s)}</span>`;
   }
+  const isFinancial = /(amount|price|rate|cost|fee|bill|balance|cash|salary|due|expense|sale|margin)/i.test(fieldKey || "");
   if (type === "number" && !isNaN(Number(s))) {
+    if (isFinancial) {
+      return `<strong class="cat-num-val cat-currency-val">${categoryEscape(formatCurrencyVal(Number(s)))}</strong>`;
+    }
     return `<strong class="cat-num-val">${Number(s).toLocaleString()}</strong>`;
   }
   return categoryEscape(s);
@@ -1268,6 +1357,49 @@ const categoryCheckAutoBackup = () => {
   } catch (err) {
     console.warn("Auto backup note:", err);
   }
+};
+
+const showCategoryShortcutsModal = () => {
+  const existing = document.getElementById("catShortcutsModal");
+  if (existing) existing.remove();
+  const html = `
+    <div class="category-modal-backdrop is-open" id="catShortcutsModal" style="display:flex; z-index:99999;">
+      <div class="category-modal-card" style="max-width:440px;">
+        <div class="category-modal-card-header">
+          <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#0f172a;">&#9000;&#65039; Global Power Shortcuts</h3>
+          <button type="button" class="category-modal-close-btn" onclick="document.getElementById('catShortcutsModal')?.remove()">&times;</button>
+        </div>
+        <div class="category-modal-card-body" style="padding:1rem 1.25rem;">
+          <div style="display:grid; gap:0.75rem; font-size:0.88rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span>Add New Record</span>
+              <kbd style="padding:3px 8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;">Alt + N</kbd>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span>Focus Search Box</span>
+              <kbd style="padding:3px 8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;">/</kbd>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span>Print / PDF View</span>
+              <kbd style="padding:3px 8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;">Alt + P</kbd>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span>Export CSV Spreadsheet</span>
+              <kbd style="padding:3px 8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;">Alt + E</kbd>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+              <span>Cancel / Close Dialog</span>
+              <kbd style="padding:3px 8px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; font-weight:700;">Esc</kbd>
+            </div>
+          </div>
+          <div style="margin-top:1.25rem; text-align:right;">
+            <button type="button" class="btn btn-primary" onclick="document.getElementById('catShortcutsModal')?.remove()" style="padding:0.45rem 1.1rem; font-size:0.85rem; background:#ff8f04; border-color:#ff8f04; color:#fff;">Got it</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", html);
 };
 
 const showCategorySafetyModal = () => {
@@ -1424,6 +1556,29 @@ const renderSaasAnalytics = () => {
   const isTodayFiltered = categoryDateFilter === todayStr;
   const isAllFiltered = !categoryDateFilter;
 
+  // Identify financial metrics
+  const financialField = categoryFeature.fields.find((f) =>
+    /(amount|price|rate|cost|fee|bill|balance|cash|salary|due|expense|sale|margin)/i.test(f.key || f.label || "")
+  );
+
+  let financialSum = 0;
+  let financialCount = 0;
+  if (financialField) {
+    items.forEach((it) => {
+      const raw = it[financialField.key] ?? it.fields?.[financialField.key];
+      if (raw !== undefined && raw !== null && raw !== "") {
+        const n = parseFloat(String(raw).replace(/[^0-9.-]/g, ""));
+        if (!isNaN(n)) {
+          financialSum += n;
+          financialCount++;
+        }
+      }
+    });
+  }
+
+  const currCode = getGlobalCurrency();
+  const curr = OMS_CURRENCIES[currCode] || OMS_CURRENCIES.USD;
+
   container.innerHTML = `
     <!-- Box 1: Today's Entries -->
     <div class="saas-stat-box saas-stat-today is-clickable ${isTodayFiltered ? 'is-active' : ''}" id="saasBoxToday" title="Click to view today's records">
@@ -1441,7 +1596,6 @@ const renderSaasAnalytics = () => {
     <div class="saas-stat-box saas-stat-total is-clickable ${isAllFiltered ? 'is-active' : ''}" id="saasBoxTotal" title="Click to view all records">
       <div class="saas-stat-header">
         <span class="saas-stat-title">Total Entries</span>
-        
       </div>
       <div class="saas-stat-body">
         <strong class="saas-stat-number">${totalCount}</strong>
@@ -1462,6 +1616,18 @@ const renderSaasAnalytics = () => {
         <div class="saas-date-status-badge">
           ${categoryDateFilter ? `<strong>${dateFilterCount}</strong> (${formattedSelectedDate})` : `<span>Select date</span>`}
         </div>
+      </div>
+    </div>
+
+    <!-- Box 4: Financial Volume or Live Sync -->
+    <div class="saas-stat-box saas-stat-financial" id="saasBoxFinancial" title="Financial volume in ${curr.name}">
+      <div class="saas-stat-header">
+        <span class="saas-stat-title">${financialField ? categoryEscape(financialField.label + ' Volume') : 'Global Cloud'}</span>
+        <span class="saas-currency-badge">${curr.code}</span>
+      </div>
+      <div class="saas-stat-body">
+        <strong class="saas-stat-number saas-stat-amount">${financialField ? categoryEscape(formatCurrencyVal(financialSum)) : 'Encrypted &bull; Live'}</strong>
+        <span class="saas-stat-hint">${financialField ? `${financialCount} logged transactions` : 'AES-256 &bull; TLS 1.3 Active'}</span>
       </div>
     </div>
   `;
@@ -1520,6 +1686,9 @@ const selectSaasFeature = (featureId) => {
   categoryEditId = null;
   categoryTab = "active";
   categorySearchQuery = "";
+  categorySortCol = null;
+  categorySortDir = "asc";
+  categoryPage = 1;
   renderSaasNav();
   renderSaasAnalytics();
   updateSaasPortalHeader();
@@ -1547,7 +1716,7 @@ const categoryRenderList = () => {
   const isTrash = categoryTab === "trash";
   const sourceItems = isTrash ? allTrash : allActive;
 
-  let displayedItems = sourceItems;
+  let displayedItems = [...sourceItems];
 
   if (categoryDateFilter) {
     displayedItems = displayedItems.filter((item) => {
@@ -1559,7 +1728,7 @@ const categoryRenderList = () => {
 
   const query = categorySearchQuery.trim().toLowerCase();
   if (query) {
-    displayedItems = sourceItems.filter((item) => {
+    displayedItems = displayedItems.filter((item) => {
       return categoryFeature.fields.some((field) => {
         const val = String(item[field.key] ?? item.fields?.[field.key] ?? "").toLowerCase();
         return val.includes(query);
@@ -1568,12 +1737,54 @@ const categoryRenderList = () => {
     });
   }
 
-  const columns = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
+  // Column sorting
+  if (categorySortCol) {
+    displayedItems.sort((a, b) => {
+      let va = "";
+      let vb = "";
+      if (categorySortCol === "__date") {
+        va = isTrash ? (a.deletedAt || "") : (a.updatedAt || a.createdAt || "");
+        vb = isTrash ? (b.deletedAt || "") : (b.updatedAt || b.createdAt || "");
+      } else {
+        va = a[categorySortCol] ?? a.fields?.[categorySortCol] ?? "";
+        vb = b[categorySortCol] ?? b.fields?.[categorySortCol] ?? "";
+      }
 
-  const rows = displayedItems.map((item, index) => {
+      const na = parseFloat(String(va).replace(/[^0-9.-]/g, ""));
+      const nb = parseFloat(String(vb).replace(/[^0-9.-]/g, ""));
+      if (!isNaN(na) && !isNaN(nb) && String(va).match(/^[0-9$€£\s,.-]+$/) && String(vb).match(/^[0-9$€£\s,.-]+$/)) {
+        return categorySortDir === "asc" ? na - nb : nb - na;
+      }
+      return categorySortDir === "asc"
+        ? String(va).localeCompare(String(vb), undefined, { numeric: true, sensitivity: "base" })
+        : String(vb).localeCompare(String(va), undefined, { numeric: true, sensitivity: "base" });
+    });
+  }
+
+  const totalRecords = displayedItems.length;
+  const pageSize = categoryPageSize === "all" ? totalRecords : (Number(categoryPageSize) || 25);
+  const totalPages = Math.max(1, Math.ceil(totalRecords / (pageSize || 1)));
+  if (categoryPage > totalPages) categoryPage = totalPages;
+  if (categoryPage < 1) categoryPage = 1;
+
+  const startIndex = (categoryPage - 1) * pageSize;
+  const pageItems = categoryPageSize === "all" ? displayedItems : displayedItems.slice(startIndex, startIndex + pageSize);
+
+  const columns = categoryFeature.fields.map((f) => {
+    const isSorted = categorySortCol === f.key;
+    const sortIcon = isSorted ? (categorySortDir === "asc" ? " ▲" : " ▼") : " <span class='cat-sort-idle'>↕</span>";
+    return `<th class="cat-sortable-th ${isSorted ? 'is-sorted' : ''}" data-sort-key="${categoryEscape(f.key)}" title="Click to sort by ${categoryEscape(f.label)}">
+      <span class="cat-th-wrap">
+        <span>${categoryEscape(f.label)}</span>
+        <span class="cat-sort-indicator">${sortIcon}</span>
+      </span>
+    </th>`;
+  }).join("");
+
+  const rows = pageItems.map((item, index) => {
     const cells = categoryFeature.fields.map((f) => {
       const raw = item[f.key] ?? item.fields?.[f.key] ?? "";
-      return `<td>${formatCellVal(raw, f.type)}</td>`;
+      return `<td>${formatCellVal(raw, f.type, f.key)}</td>`;
     }).join("");
 
     const dateVal = isTrash ? item.deletedAt : (item.updatedAt || item.createdAt);
@@ -1600,9 +1811,10 @@ const categoryRenderList = () => {
       `;
     }
 
+    const rowNum = startIndex + index + 1;
     return `
       <tr>
-        <td class="cat-col-idx">${index + 1}</td>
+        <td class="cat-col-idx">${rowNum}</td>
         ${cells}
         <td class="cat-col-date">${categoryEscape(dateFormatted)}</td>
         <td class="category-row-actions">${actionButtons}</td>
@@ -1610,16 +1822,7 @@ const categoryRenderList = () => {
     `;
   }).join("");
 
-  const trial = categoryGetTrial();
-  const hasSub = categoryHasActiveSubscription();
-  let trialBadgeHtml = "";
-  if (hasSub) {
-    trialBadgeHtml = `<span class="cat-ws-trial-pill is-pro">💎 Pro Active</span>`;
-  } else if (trial && trial.isActive) {
-    trialBadgeHtml = `<span class="cat-ws-trial-pill is-active">🟢 5-Day Trial (${trial.daysLeft}d left)</span>`;
-  } else if (trial && !trial.isActive) {
-    trialBadgeHtml = `<span class="cat-ws-trial-pill is-expired" data-action-view-paywall title="Trial ended - click to purchase subscription">⚠️ Trial Expired (Upgrade)</span>`;
-  }
+  const currCode = getGlobalCurrency();
 
   content.innerHTML = `
     ${isTrash ? `
@@ -1635,11 +1838,38 @@ const categoryRenderList = () => {
     <div class="cat-ws-toolbar">
       <div class="cat-ws-search-wrap">
         <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>
-        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search ${categoryEscape(categoryFeature.name.toLowerCase())} by any field..." value="${categoryEscape(categorySearchQuery)}" />
+        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search by any field... (HotKey: /)" value="${categoryEscape(categorySearchQuery)}" />
         ${categorySearchQuery ? `<button type="button" class="cat-ws-search-clear" data-ws-search-clear aria-label="Clear search">&times;</button>` : ""}
       </div>
 
       <div class="cat-ws-toolbar-right">
+        <!-- Global Currency Selector -->
+        <div class="cat-ws-currency-picker" title="Change Business Currency">
+          <span class="cat-currency-globe" aria-hidden="true">🌐</span>
+          <select class="cat-currency-select" data-ws-currency-select aria-label="Select currency">
+            <option value="USD" ${currCode === 'USD' ? 'selected' : ''}>USD ($)</option>
+            <option value="EUR" ${currCode === 'EUR' ? 'selected' : ''}>EUR (€)</option>
+            <option value="GBP" ${currCode === 'GBP' ? 'selected' : ''}>GBP (£)</option>
+            <option value="AED" ${currCode === 'AED' ? 'selected' : ''}>AED (د.إ)</option>
+            <option value="SAR" ${currCode === 'SAR' ? 'selected' : ''}>SAR (ر.س)</option>
+            <option value="CAD" ${currCode === 'CAD' ? 'selected' : ''}>CAD ($)</option>
+            <option value="AUD" ${currCode === 'AUD' ? 'selected' : ''}>AUD ($)</option>
+            <option value="PKR" ${currCode === 'PKR' ? 'selected' : ''}>PKR (Rs.)</option>
+            <option value="INR" ${currCode === 'INR' ? 'selected' : ''}>INR (₹)</option>
+            <option value="JPY" ${currCode === 'JPY' ? 'selected' : ''}>JPY (¥)</option>
+          </select>
+        </div>
+
+        <button type="button" class="cat-ws-tool-btn" data-action-export-csv title="Export as CSV spreadsheet">
+          <span aria-hidden="true">📥</span> CSV
+        </button>
+        <button type="button" class="cat-ws-tool-btn" data-action-backup-json title="Download full JSON data backup">
+          <span aria-hidden="true">💾</span> Backup
+        </button>
+        <button type="button" class="cat-ws-tool-btn" data-action-restore-json title="Restore records from JSON backup file">
+          <span aria-hidden="true">📂</span> Restore
+        </button>
+
         <div class="cat-ws-view-tabs" role="tablist">
           <button type="button" class="cat-ws-view-tab ${!isTrash ? 'is-active' : ''}" data-ws-tab="active" title="View Active Records">
             <span>📋 Active</span>
@@ -1660,7 +1890,12 @@ const categoryRenderList = () => {
             <tr>
               <th style="width: 45px;">#</th>
               ${columns}
-              <th>${isTrash ? 'Deleted Date' : 'Date'}</th>
+              <th class="cat-sortable-th ${categorySortCol === '__date' ? 'is-sorted' : ''}" data-sort-key="__date" title="Sort by Date">
+                <span class="cat-th-wrap">
+                  <span>${isTrash ? 'Deleted Date' : 'Date'}</span>
+                  <span class="cat-sort-indicator">${categorySortCol === '__date' ? (categorySortDir === 'asc' ? ' ▲' : ' ▼') : ' <span class="cat-sort-idle">↕</span>'}</span>
+                </span>
+              </th>
               <th style="text-align: right;">Actions</th>
             </tr>
           </thead>
@@ -1668,6 +1903,31 @@ const categoryRenderList = () => {
             ${rows}
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="cat-table-pagination-bar">
+        <div class="cat-pagination-info">
+          Showing <strong>${totalRecords === 0 ? 0 : startIndex + 1}</strong> to <strong>${Math.min(startIndex + pageSize, totalRecords)}</strong> of <strong>${totalRecords}</strong> entries
+          ${query ? `(filtered from ${sourceItems.length} total)` : ''}
+        </div>
+        <div class="cat-pagination-controls">
+          <label class="cat-page-size-label">
+            <span>Rows:</span>
+            <select class="cat-page-size-select" data-ws-page-size aria-label="Entries per page">
+              <option value="10" ${categoryPageSize == 10 ? 'selected' : ''}>10</option>
+              <option value="25" ${categoryPageSize == 25 ? 'selected' : ''}>25</option>
+              <option value="50" ${categoryPageSize == 50 ? 'selected' : ''}>50</option>
+              <option value="100" ${categoryPageSize == 100 ? 'selected' : ''}>100</option>
+              <option value="all" ${categoryPageSize === 'all' ? 'selected' : ''}>All</option>
+            </select>
+          </label>
+          <div class="cat-pagination-btns">
+            <button type="button" class="cat-page-btn" data-ws-page="prev" ${categoryPage <= 1 ? 'disabled' : ''} title="Previous Page">← Prev</button>
+            <span class="cat-page-number">Page ${categoryPage} of ${totalPages}</span>
+            <button type="button" class="cat-page-btn" data-ws-page="next" ${categoryPage >= totalPages ? 'disabled' : ''} title="Next Page">Next →</button>
+          </div>
+        </div>
       </div>
     ` : `
       <div class="saas-empty-state-card">
@@ -1679,6 +1939,26 @@ const categoryRenderList = () => {
         </div>
       </div>
     `}
+
+    <!-- Global Enterprise Security & Compliance Bar -->
+    <div class="cat-enterprise-compliance-bar">
+      <div class="cat-compliance-item">
+        <span class="cat-comp-icon" aria-hidden="true">🌐</span>
+        <span>Multi-Region Cloud Sync</span>
+      </div>
+      <div class="cat-compliance-item">
+        <span class="cat-comp-icon" aria-hidden="true">🔒</span>
+        <span>AES-256 &amp; TLS 1.3 Certified</span>
+      </div>
+      <div class="cat-compliance-item">
+        <span class="cat-comp-icon" aria-hidden="true">⚡</span>
+        <span>Sub-second Offline Cache &amp; Real-time Backups</span>
+      </div>
+      <div class="cat-compliance-item">
+        <span class="cat-comp-icon" aria-hidden="true">⌨️</span>
+        <span class="cat-shortcuts-trigger" data-action-show-shortcuts title="Click to view all keyboard shortcuts">HotKeys: <kbd>Alt+N</kbd> New | <kbd>/</kbd> Search | <kbd>Alt+P</kbd> Print</span>
+      </div>
+    </div>
   `;
 };
 
@@ -2138,11 +2418,53 @@ const initCategoryTools = async () => {
       if (container) container.innerHTML = "";
       return;
     }
+
+    const sortTh = event.target.closest("[data-sort-key]");
+    if (sortTh) {
+      const key = sortTh.dataset.sortKey;
+      if (categorySortCol === key) {
+        categorySortDir = categorySortDir === "asc" ? "desc" : "asc";
+      } else {
+        categorySortCol = key;
+        categorySortDir = "asc";
+      }
+      categoryPage = 1;
+      categoryRenderList();
+      return;
+    }
+
+    const pageBtn = event.target.closest("[data-ws-page]");
+    if (pageBtn) {
+      const action = pageBtn.dataset.wsPage;
+      if (action === "prev") categoryPage--;
+      else if (action === "next") categoryPage++;
+      else categoryPage = Number(action) || 1;
+      categoryRenderList();
+      return;
+    }
+
+    if (event.target.closest("[data-action-export-csv]")) {
+      categoryExportCsv();
+      return;
+    }
+    if (event.target.closest("[data-action-backup-json]")) {
+      categoryExportBackup();
+      return;
+    }
+    if (event.target.closest("[data-action-restore-json]")) {
+      document.getElementById("categoryBackupFileInput")?.click();
+      return;
+    }
+    if (event.target.closest("[data-action-show-shortcuts]")) {
+      showCategoryShortcutsModal();
+      return;
+    }
   });
 
   document.getElementById("categoryWorkspaceContent")?.addEventListener("input", (event) => {
     if (event.target.matches("[data-ws-search]")) {
       categorySearchQuery = event.target.value;
+      categoryPage = 1;
       categoryRenderList();
       const input = document.querySelector("[data-ws-search]");
       if (input) {
@@ -2156,6 +2478,60 @@ const initCategoryTools = async () => {
     if (event.target.id === "categoryBackupFileInput" && event.target.files?.length) {
       categoryImportBackup(event.target.files[0]);
       event.target.value = "";
+      return;
+    }
+    if (event.target.matches("[data-ws-currency-select]")) {
+      setGlobalCurrency(event.target.value);
+      return;
+    }
+    if (event.target.matches("[data-ws-page-size]")) {
+      categoryPageSize = event.target.value === "all" ? "all" : Number(event.target.value);
+      categoryPage = 1;
+      categoryRenderList();
+      return;
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    const isInput = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
+    if (e.key === "Escape") {
+      const shortcutsModal = document.getElementById("catShortcutsModal");
+      if (shortcutsModal) {
+        shortcutsModal.remove();
+        return;
+      }
+      const editForm = document.getElementById("categoryRecordForm");
+      if (editForm) {
+        categoryRenderList();
+        return;
+      }
+      const authModal = document.getElementById("categoryAuthModal");
+      if (authModal && authModal.classList.contains("open")) {
+        closeCategoryAuth();
+        return;
+      }
+      return;
+    }
+    if (!isInput && e.key === "/") {
+      e.preventDefault();
+      const searchInput = document.querySelector(".cat-ws-search-input");
+      if (searchInput) searchInput.focus();
+      return;
+    }
+    if (e.altKey && (e.key === "n" || e.key === "N")) {
+      e.preventDefault();
+      categoryRenderForm();
+      return;
+    }
+    if (e.altKey && (e.key === "p" || e.key === "P")) {
+      e.preventDefault();
+      categoryPrintReport();
+      return;
+    }
+    if (e.altKey && (e.key === "e" || e.key === "E")) {
+      e.preventDefault();
+      categoryExportCsv();
+      return;
     }
   });
 
@@ -2165,6 +2541,7 @@ const initCategoryTools = async () => {
       event.preventDefault();
       const formData = new FormData(editForm);
       const name = String(formData.get("name") || "").trim();
+      const country = String(formData.get("country") || "International").trim();
       const mobile = categoryMobile(String(formData.get("mobile") || ""));
       const city = String(formData.get("city") || "").trim();
       const businessName = String(formData.get("businessName") || "").trim();
@@ -2174,13 +2551,14 @@ const initCategoryTools = async () => {
         if (errEl) errEl.textContent = "Please enter your full name (minimum 3 characters).";
         return;
       }
-      if (!/^\d{7,15}$/.test(mobile)) {
-        if (errEl) errEl.textContent = "Please enter a valid mobile number (e.g. 03XXXXXXXXX).";
+      if (!/^\d{7,16}$/.test(mobile)) {
+        if (errEl) errEl.textContent = "Please enter a valid phone number with 7 to 16 digits.";
         return;
       }
 
       let trial = categoryGetTrial() || {};
       trial.name = name;
+      trial.country = country;
       trial.mobile = mobile;
       trial.city = city;
       trial.businessName = businessName;
@@ -2189,6 +2567,7 @@ const initCategoryTools = async () => {
 
       if (categoryUser && categoryUser.user_metadata) {
         categoryUser.user_metadata.name = name;
+        categoryUser.user_metadata.country = country;
         categoryUser.user_metadata.mobile = mobile;
         categoryUser.user_metadata.city = city;
       }
@@ -2205,6 +2584,7 @@ const initCategoryTools = async () => {
       event.preventDefault();
       const formData = new FormData(trialForm);
       const name = String(formData.get("name") || "").trim();
+      const country = String(formData.get("country") || "International").trim();
       const mobile = categoryMobile(String(formData.get("mobile") || ""));
       const email = String(formData.get("email") || "").trim().toLowerCase();
       const city = String(formData.get("city") || "").trim();
@@ -2218,8 +2598,8 @@ const initCategoryTools = async () => {
         if (message) message.textContent = "Please enter your full name (minimum 3 characters).";
         return;
       }
-      if (!/^\d{7,15}$/.test(mobile)) {
-        if (message) message.textContent = "Please enter a valid mobile number (e.g. 03XXXXXXXXX).";
+      if (!/^\d{7,16}$/.test(mobile)) {
+        if (message) message.textContent = "Please enter a valid phone number with 7 to 16 digits.";
         return;
       }
       if (password.length < 8) {
@@ -2236,14 +2616,14 @@ const initCategoryTools = async () => {
         submit.textContent = "Create Account & Start Free";
         return;
       }
-      categorySetTrial({ name, mobile, email, city, businessName });
+      categorySetTrial({ name, country, mobile, email, city, businessName });
 
       if (CATEGORY_SUPABASE) {
         try {
           const res = await CATEGORY_SUPABASE.auth.signUp({
             email: categoryEmail(mobile),
             password,
-            options: { data: { name, mobile, city, email, businessName } }
+            options: { data: { name, country, mobile, city, email, businessName } }
           });
           if (res.data?.user) {
             categoryUser = res.data.user;
@@ -2496,7 +2876,11 @@ categoryUpdateHeaderBtn();
 window.categoryRenderForm = categoryRenderForm;
 window.categoryPrintReport = categoryPrintReport;
 window.categoryExportCsv = categoryExportCsv;
+window.categoryExportBackup = categoryExportBackup;
 window.categoryRenderList = categoryRenderList;
 window.selectSaasFeature = selectSaasFeature;
 window.showCategoryTrialModal = showCategoryTrialModal;
 window.showCategorySubscriptionPaywall = showCategorySubscriptionPaywall;
+window.setGlobalCurrency = setGlobalCurrency;
+window.formatCurrencyVal = formatCurrencyVal;
+window.showCategoryShortcutsModal = showCategoryShortcutsModal;

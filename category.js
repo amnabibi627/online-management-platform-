@@ -350,14 +350,21 @@ const categoryGetTrial = () => {
     const msLeft = expires - now;
     const daysLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60 * 24)));
     const hoursLeft = Math.max(0, Math.ceil(msLeft / (1000 * 60 * 60)));
-    return { ...t, isActive: msLeft > 0, daysLeft, hoursLeft, expiresAt: expires };
+    const uid = t.uid || ("UID-" + (Math.abs((t.mobile || t.name || "").split("").reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0) | 0, 54321)) % 90000 + 10000));
+    return { ...t, uid, isActive: msLeft > 0, daysLeft, hoursLeft, expiresAt: expires };
   } catch (_) {
     return null;
   }
 };
 
 const categorySetTrial = (userData) => {
+  const seed = (userData.mobile || "") + (userData.name || "") + Date.now();
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i) | 0;
+  const uid = userData.uid || ("UID-" + (Math.abs(hash) % 90000 + 10000));
+
   const trial = {
+    uid,
     name: userData.name || "Business User",
     mobile: userData.mobile || "",
     email: userData.email || "",
@@ -387,16 +394,29 @@ const categoryUpdateHeaderBtn = () => {
   if (!btn) return;
   const hasSub = categoryHasActiveSubscription();
   const trial = categoryGetTrial();
-  if (hasSub) {
-    btn.textContent = "💎 Pro Member";
-  } else if (trial && trial.isActive) {
-    btn.textContent = `🟢 5-Day Trial (${trial.daysLeft}d)`;
-  } else if (trial && !trial.isActive) {
-    btn.textContent = "⚠️ Trial Expired";
-  } else if (categoryUser) {
-    btn.textContent = "👤 My Account";
+  const user = categoryUser;
+
+  if (user || (trial && trial.isActive) || hasSub) {
+    const rawName = user?.user_metadata?.name || trial?.name || "Business Owner";
+    const initial = (rawName.charAt(0) || "U").toUpperCase();
+    const uid = trial?.uid || (user ? `UID-${user.id.slice(0, 5).toUpperCase()}` : "UID-84920");
+    const firstName = rawName.split(" ")[0];
+
+    btn.className = "header-user-profile-btn";
+    btn.innerHTML = `
+      <span class="user-avatar-badge">${categoryEscape(initial)}</span>
+      <div class="user-meta-text">
+        <span class="user-id-title">${categoryEscape(firstName)}</span>
+        <span class="user-id-code">${categoryEscape(uid)}</span>
+      </div>
+      <span class="user-online-dot" title="Active Account"></span>
+      <span class="user-dropdown-arrow">&#9662;</span>
+    `;
+    btn.title = `Signed in: ${rawName} (${uid}) - Click to manage account`;
   } else {
-    btn.textContent = "Sign Up Free";
+    btn.className = "btn btn-primary header-signup-btn";
+    btn.innerHTML = `<span>Sign Up Free</span>`;
+    btn.title = "Create an account or sign in";
   }
 };
 
@@ -416,20 +436,25 @@ const showCategoryTrialModal = () => {
 
     content.innerHTML = `
       <div style="text-align:center; padding: 0.5rem 0;">
-        <div style="font-size:2.4rem; margin-bottom: 0.4rem;">👤</div>
-        <h2 id="categoryAuthTitle" style="margin:0 0 0.4rem; font-size:1.45rem;">Your Account</h2>
-        <div class="cat-ws-trial-pill ${hasSub ? 'is-pro' : (trial && trial.isActive ? 'is-active' : 'is-expired')}" style="margin-bottom:1.2rem;">
-          ${hasSub
-            ? '💎 Active Pro Subscription'
-            : (trial && trial.isActive
-                ? `🟢 5-Day Free Trial (${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left)`
-                : '⚠️ Free Trial Expired: Subscription Needed')}
+        <div class="user-avatar-badge" style="width:52px; height:52px; font-size:1.5rem; margin:0 auto 0.75rem;">${categoryEscape(userName.charAt(0).toUpperCase())}</div>
+        <h2 id="categoryAuthTitle" style="margin:0 0 0.25rem; font-size:1.35rem; font-weight:800; color:#0f172a;">${categoryEscape(userName)}</h2>
+        <div style="display:inline-flex; align-items:center; gap:0.4rem; background:#f1f5f9; padding:0.3rem 0.75rem; border-radius:8px; font-size:0.82rem; font-weight:700; color:#475569; margin-bottom:1rem;">
+          <span>User ID:</span>
+          <code style="color:#0f172a; font-family:monospace; font-weight:800; font-size:0.95rem;">${categoryEscape(trial?.uid || "UID-84920")}</code>
         </div>
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; text-align:left; margin-bottom:1.2rem;">
-          <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;">Name</div>
-          <div style="font-weight:700; color:#0f172a; margin-bottom:0.75rem;">${categoryEscape(userName)}</div>
-          <div style="font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;">Mobile</div>
-          <div style="font-weight:700; color:#0f172a;">${categoryEscape(userMobile)}</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.6rem; font-size:0.84rem;">
+            <span style="color:#64748b;">Full Name</span>
+            <strong style="color:#0f172a;">${categoryEscape(userName)}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.6rem; font-size:0.84rem;">
+            <span style="color:#64748b;">Registered Mobile</span>
+            <strong style="color:#0f172a;">${categoryEscape(userMobile)}</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.84rem;">
+            <span style="color:#64748b;">Account Status</span>
+            <strong style="color:#059669;">Verified Active</strong>
+          </div>
         </div>
         ${!hasSub ? `
           <button type="button" class="btn btn-primary" style="width:100%; margin-bottom:0.6rem; padding:0.75rem; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-view-paywall>

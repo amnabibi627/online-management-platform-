@@ -6172,7 +6172,7 @@ body {
    ============================================================ */
 
 .legal-modal-card {
-  max-width: 820px !important;
+  max-width: 680px !important;
   max-height: 90vh !important;
   border-radius: 18px !important;
   display: flex !important;

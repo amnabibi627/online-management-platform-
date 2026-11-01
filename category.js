@@ -410,7 +410,7 @@ const categoryEnsureToolsUi = () => {
       `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">4</span> Data Export &amp; Deletion Rights</div>` +
       `<p>You have full control over your records. You can download your data anytime or permanently delete items from your Recycle Bin with instant purging.</p></div>` +
       `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">5</span> Direct Support &amp; Contact</div>` +
-      `<p>If you have any questions or need technical support, you can reach us directly:<br /><strong>Phone / WhatsApp:</strong> +92 304 295 4627 &bull; <strong>Email:</strong> amnabibi627@gmail.com</p></div>` +
+      `<p>If you have any questions or need technical support, you can reach us directly:<br /><strong>Phone / WhatsApp:</strong> +92 304 295 4627 &bull; <strong>Email:</strong> onlinemanagementsite627@gmail.com</p></div>` +
       `</div>` +
       `</div>` +
       `<div class="legal-modal-footer">` +

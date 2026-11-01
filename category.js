@@ -1629,15 +1629,9 @@ const categoryRenderList = () => {
             <span class="saas-module-live-chip">
               <span class="saas-pulse-green"></span> Live Module
             </span>
-            ${trialBadgeHtml}
           </div>
           <p class="saas-module-hero-desc">${categoryEscape(categoryFeature.desc || `Manage, record, and track ${categoryFeature.name.toLowerCase()} entries with real-time sync and reporting.`)}</p>
         </div>
-      </div>
-      <div class="saas-module-hero-right">
-        <button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add>
-          <span>➕ Add ${categoryEscape(categoryFeature.name)}</span>
-        </button>
       </div>
     </div>
 
@@ -1691,10 +1685,10 @@ const categoryRenderList = () => {
     ` : `
       <div class="saas-empty-state-card">
         <div class="saas-empty-icon-circle">${categoryEscape(isTrash ? '🗑️' : (query ? '🔍' : (categoryFeature.icon || '📝')))}</div>
-        <h3 class="saas-empty-title">${isTrash ? 'Recycle Bin is Empty' : (query ? 'No Matching Records Found' : `Ready for Your First ${categoryEscape(categoryFeature.name)} Record`)}</h3>
+        <h3 class="saas-empty-title">${isTrash ? 'Recycle Bin is Empty' : (query ? 'No Matching Records Found' : `Ready for Your First Record`)}</h3>
         <p class="saas-empty-subtitle">${query ? `No records matched "${categoryEscape(categorySearchQuery)}". Try another search or clear the filter.` : (isTrash ? 'There are no deleted records currently stored in the Recycle Bin.' : `There are currently no active entries in <strong>${categoryEscape(categoryFeature.name)}</strong>. Click below to create your first record or generate a clean print report.`)}</p>
         <div class="saas-empty-actions">
-          ${query ? `<button type="button" class="btn btn-outline" data-ws-search-clear>Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add><span>➕ Add First ${categoryEscape(categoryFeature.name)} Record</span></button><button type="button" class="btn btn-outline" onclick="categoryPrintReport()"><span>🖨️ Print View</span></button>` : `<button type="button" class="btn btn-outline" data-ws-tab="active">← Return to Active Records</button>`)}
+          ${query ? `<button type="button" class="btn btn-outline" data-ws-search-clear>Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add><span>➕ Add First Record</span></button><button type="button" class="btn btn-outline" onclick="categoryPrintReport()"><span>🖨️ Print View</span></button>` : `<button type="button" class="btn btn-outline" data-ws-tab="active">← Return to Active Records</button>`)}
         </div>
       </div>
     `}

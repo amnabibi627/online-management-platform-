@@ -316,25 +316,24 @@ const categoryEnsureToolsUi = () => {
       `<div class="category-modal-backdrop" id="categorySafetyModalBackdrop" aria-hidden="true">` +
       `<div class="category-modal-card">` +
       `<div class="category-modal-card-header">` +
-      `<h3>ðŸ›¡ï¸ Database Security &amp; Daily Cloud Backups</h3>` +
+      `<h3>&#128737;&#65039; Database Security &amp; Daily Cloud Backups</h3>` +
       `<button type="button" class="category-modal-close-btn" data-close-safety aria-label="Close">&times;</button></div>` +
       `<div class="category-modal-card-body" id="categorySafetyModalBody"></div></div></div>` +
       `<div class="category-modal-backdrop" id="categoryPrivacyModalBackdrop" aria-hidden="true">` +
       `<div class="category-modal-card">` +
       `<div class="category-modal-card-header">` +
-      `<h3>ðŸ”’ Enterprise Data Privacy &amp; Confidentiality Charter</h3>` +
+      `<h3>&#128274; Enterprise Data Privacy &amp; Confidentiality Charter</h3>` +
       `<button type="button" class="category-modal-close-btn" data-close-privacy aria-label="Close">&times;</button></div>` +
       `<div class="category-modal-card-body">` +
       `<div class="safety-status-badge"><span class="safety-status-dot"></span><span>100% Confidential: Business, Patient &amp; Financial Records Protection</span></div>` +
-      `<div class="privacy-pillar-box"><h4>ðŸ¥ Patient &amp; Clinical Data Privacy (Medical Store, Clinic, Lab)</h4><p>All patient medical records, diagnostic test results, medical histories, and digital prescriptions are strictly private and accessible only to your authenticated business account. We adhere to high confidentiality standards and never share medical data.</p></div>` +
-      `<div class="privacy-pillar-box"><h4>ðŸ’¼ Commercial &amp; Financial Confidentiality (Store, Restaurant, Fuel)</h4><p>Invoices, wholesale supplier costs, daily cash reconciliation, and customer khata ledgers remain solely under your exclusive control. Data is encrypted using TLS 1.3 in transit and AES-256 at rest.</p></div>` +
-      `<div class="privacy-pillar-box"><h4>ðŸš« Zero Third-Party Monetization</h4><p>We do not monetize, rent, analyze for advertising, or sell your customer phone numbers, receipts, or business data to any third-party marketing network.</p></div>` +
-      `<div class="privacy-pillar-box"><h4>ðŸ—‘ï¸ Right to Eradication &amp; Full Data Portability</h4><p>You hold 100% ownership of your database. You can export complete JSON backups at any moment and permanently delete records from your Recycle Bin with instant irrevocable purging.</p></div>` +
+      `<div class="privacy-pillar-box"><h4>&#127973; Patient &amp; Clinical Data Privacy (Medical Store, Clinic, Lab)</h4><p>All patient medical records, diagnostic test results, medical histories, and digital prescriptions are strictly private and accessible only to your authenticated business account. We adhere to high confidentiality standards and never share medical data.</p></div>` +
+      `<div class="privacy-pillar-box"><h4>&#128188; Commercial &amp; Financial Confidentiality (Store, Restaurant, Fuel)</h4><p>Invoices, wholesale supplier costs, daily cash reconciliation, and customer khata ledgers remain solely under your exclusive control. Data is encrypted using TLS 1.3 in transit and AES-256 at rest.</p></div>` +
+      `<div class="privacy-pillar-box"><h4>&#128683; Zero Third-Party Monetization</h4><p>We do not monetize, rent, analyze for advertising, or sell your customer phone numbers, receipts, or business data to any third-party marketing network.</p></div>` +
+      `<div class="privacy-pillar-box"><h4>&#128465;&#65039; Right to Eradication &amp; Full Data Portability</h4><p>You hold 100% ownership of your database. You can export complete JSON backups at any moment and permanently delete records from your Recycle Bin with instant irrevocable purging.</p></div>` +
       `<div class="privacy-dpo-box"><strong>Direct Grievance &amp; Data Protection Officer Contact:</strong><br />Phone / WhatsApp: <strong>03042954627</strong> &bull; Email: <strong>amnabibi627@gmail.com</strong></div>` +
       `</div></div></div>`);
   }
 };
-
 const setCategoryAccountUi = () => {
   categoryUpdateHeaderBtn();
 };
@@ -1242,34 +1241,7 @@ const categoryResetDemoData = () => {
   }
 };
 
-const categoryExportCsv = () => {
-  if (!categoryFeature) return;
-  const items = categoryItems();
-  if (!items.length) {
-    showWorkspaceToast("No records to export in this module.");
-    return;
-  }
-  const headers = ["#", ...categoryFeature.fields.map(f => f.label), "Date"];
-  const rows = items.map((item, idx) => {
-    const cells = categoryFeature.fields.map(f => {
-      const val = String(item[f.key] ?? item.fields?.[f.key] ?? "");
-      return `"${val.replace(/"/g, '""')}"`;
-    });
-    const dateVal = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "N/A";
-    return [idx + 1, ...cells, `"${dateVal}"`].join(",");
-  });
-  const csvContent = "\uFEFF" + [headers.map(h => `"${h}"`).join(","), ...rows].join("\r\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${CURRENT.key}-${categoryFeature.id}-${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showWorkspaceToast(`Exported ${items.length} records to CSV!`);
-};
+
 
 const renderSaasNav = () => {
   const navList = document.getElementById("saasNavList");

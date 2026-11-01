@@ -1902,3 +1902,53 @@ p,
   color: #1e40af;
   margin-top: 1.1rem;
 }
+
+/* Hide redundant duplicate marketing cards below the SaaS portal */
+.cat-features {
+  display: none !important;
+}
+
+/* Hide duplicate header inside embedded SaaS workspace (topbar already shows breadcrumb and Add Record) */
+.saas-workspace-content .cat-ws-header {
+  display: none !important;
+}
+
+/* Ensure SaaS workspace toolbar is beautifully aligned */
+.saas-workspace-content .cat-ws-toolbar {
+  margin-top: 0.5rem !important;
+  margin-bottom: 1.15rem !important;
+  padding-top: 0.5rem;
+}
+
+/* Polish table and row styling */
+.saas-workspace-content .category-workspace-table-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+.saas-workspace-content .category-workspace-table thead th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+.saas-workspace-content .category-workspace-table tbody td {
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  color: #1e293b;
+  border-bottom: 1px solid #f1f5f9;
+}
+.saas-workspace-content .category-workspace-table tbody tr:hover td {
+  background: #f8fafc;
+}
+.saas-workspace-content .category-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}

@@ -2007,21 +2007,6 @@ const categoryRenderList = () => {
   }
 
   content.innerHTML = `
-    <div class="saas-module-hero-card">
-      <div class="saas-module-hero-left">
-        <div class="saas-module-hero-icon">${categoryEscape(categoryFeature.icon || CURRENT.icon)}</div>
-        <div class="saas-module-hero-details">
-          <div class="saas-module-hero-title-row">
-            <h1 class="saas-module-hero-title">${categoryEscape(categoryFeature.name)}</h1>
-            <span class="saas-module-live-chip">
-              <span class="saas-pulse-green"></span> Live Module
-            </span>
-          </div>
-          <p class="saas-module-hero-desc">${categoryEscape(categoryFeature.desc || `Manage, record, and track ${categoryFeature.name.toLowerCase()} entries with real-time sync and reporting.`)}</p>
-        </div>
-      </div>
-    </div>
-
     ${isTrash ? `
       <div class="cat-ws-trash-banner">
         <span>🗑️ <strong>Recycle Bin View (${allTrash.length})</strong>: Deleted records can be restored anytime or deleted permanently.</span>

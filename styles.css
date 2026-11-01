@@ -5925,17 +5925,7 @@ p,
    ENTERPRISE SAAS MODULE HERO CARD & EMPTY STATE
    ============================================================ */
 .saas-module-hero-card {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 1.25rem !important;
-  background: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 14px !important;
-  padding: 1.1rem 1.4rem !important;
-  margin-bottom: 1.1rem !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
-  flex-wrap: wrap !important;
+  display: none !important;
 }
 
 .saas-module-hero-left {

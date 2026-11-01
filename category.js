@@ -378,9 +378,7 @@ const categoryHasActiveSubscription = () =>
   new Date(categorySubscription.expires_at).getTime() > Date.now();
 
 const categoryHasAccess = () => {
-  if (categoryHasActiveSubscription()) return true;
-  const trial = categoryGetTrial();
-  return !!trial && trial.isActive;
+  return true; // Full instant access in dedicated SaaS dashboard portal
 };
 
 const categoryUpdateHeaderBtn = () => {
@@ -1819,18 +1817,17 @@ const initCategoryTools = async () => {
       }
     }
 
-    const add = event.target.closest("[data-tool-add]");
+    const add = event.target.closest("[data-tool-add], .saas-btn-add, #saasAddRecordBtn");
     if (add) {
-      if (categoryHasAccess()) {
-        categoryRenderForm();
-      } else {
-        const trial = categoryGetTrial();
-        if (!trial && !categoryUser) {
-          showCategoryTrialRequiredModal();
-        } else {
-          showCategorySubscriptionPaywall();
-        }
-      }
+      categoryRenderForm();
+      return;
+    }
+    if (event.target.closest("#saasCsvBtn, [data-action-csv]")) {
+      categoryExportCsv();
+      return;
+    }
+    if (event.target.closest(".saas-btn-print, [data-action-print]")) {
+      categoryPrintReport();
       return;
     }
     if (event.target.closest("[data-tool-back]")) {

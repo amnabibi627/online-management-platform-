@@ -1952,3 +1952,180 @@ p,
   justify-content: flex-end;
   gap: 0.45rem;
 }
+
+/* ============================================================
+   ELITE SAAS ACTION BUTTONS & TABLE ROW ACTIONS
+   ============================================================ */
+/* Top bar action buttons */
+.saas-topbar-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+.saas-topbar-tools .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  padding: 0.5rem 0.95rem !important;
+  border-radius: 10px !important;
+  font-size: 0.84rem !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  text-decoration: none !important;
+  line-height: 1.2 !important;
+}
+
+/* Specific Topbar Button Themes */
+.saas-btn-safety {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  color: #166534 !important;
+}
+.saas-btn-safety:hover {
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.12) !important;
+}
+
+.saas-btn-privacy {
+  background: #f5f3ff !important;
+  border: 1px solid #ddd6fe !important;
+  color: #5b21b6 !important;
+}
+.saas-btn-privacy:hover {
+  background: #ede9fe !important;
+  border-color: #c4b5fd !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(91, 33, 182, 0.12) !important;
+}
+
+.saas-btn-csv {
+  background: #ecfeff !important;
+  border: 1px solid #a5f3fc !important;
+  color: #0e7490 !important;
+}
+.saas-btn-csv:hover {
+  background: #cffafe !important;
+  border-color: #67e8f9 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(14, 116, 144, 0.12) !important;
+}
+
+.saas-btn-print {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+.saas-btn-print:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(51, 65, 85, 0.12) !important;
+}
+
+.saas-btn-add {
+  background: linear-gradient(135deg, #ff8f04 0%, #ea580c 100%) !important;
+  border: 1px solid #ea580c !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(255, 143, 4, 0.35) !important;
+}
+.saas-btn-add:hover {
+  background: linear-gradient(135deg, #f97316 0%, #c2410c 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(255, 143, 4, 0.45) !important;
+}
+
+/* ============================================================
+   TABLE ROW ACTION BUTTONS (Edit & Delete on Single Line)
+   ============================================================ */
+.category-workspace-table td.category-row-actions,
+.category-row-actions {
+  min-width: 195px !important;
+  width: 195px !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+.cat-act-btn {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.45rem !important;
+  white-space: nowrap !important;
+  padding: 0.42rem 0.85rem !important;
+  border-radius: 9px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  margin-left: 0.4rem !important;
+  line-height: 1 !important;
+}
+.cat-act-btn span {
+  display: inline-block !important;
+  font-size: 0.95rem !important;
+  line-height: 1 !important;
+}
+
+/* Edit Button Style */
+.cat-act-btn.edit {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+.cat-act-btn.edit:hover {
+  background: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* Delete / Trash Button Style */
+.cat-act-btn.trash {
+  background: #fff5f5 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+}
+.cat-act-btn.trash:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25) !important;
+}
+
+/* Restore Button Style */
+.cat-act-btn.restore {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #059669 !important;
+}
+.cat-act-btn.restore:hover {
+  background: #059669 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25) !important;
+}
+
+/* Permanent Delete Style */
+.cat-act-btn.delete-perm {
+  background: #fef2f2 !important;
+  border: 1px solid #f87171 !important;
+  color: #b91c1c !important;
+}
+.cat-act-btn.delete-perm:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+}

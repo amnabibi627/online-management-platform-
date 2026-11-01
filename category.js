@@ -285,26 +285,28 @@ let categorySearchQuery = "";
 let categoryToastTimeout = null;
 let categoryUndoAction = null;
 
-const categoryFeatureDef = (featureId, card) => {
+const categoryFeatureDef = (featureId, card = null) => {
   const registered = CATEGORY_MODULES.FEATURE_REGISTRY[CURRENT.key]?.[featureId];
   const generic = CATEGORY_MODULES.GENERIC_FEATURES.find((feature) => feature.id === featureId);
   const fallback = CATEGORY_MODULES.GENERIC_FEATURES[0];
+  const foundInCurrent = Array.isArray(CURRENT.features) ? CURRENT.features.find((f) => f.id === featureId) : null;
   return {
     id: featureId,
-    name: registered?.name || generic?.name || card.querySelector("h3")?.textContent || featureId,
-    icon: registered?.icon || generic?.icon || card.querySelector(".cat-feature-icon")?.textContent || "📁",
+    name: registered?.name || generic?.name || foundInCurrent?.name || card?.querySelector("h3")?.textContent || featureId,
+    icon: registered?.icon || generic?.icon || foundInCurrent?.icon || card?.querySelector(".cat-feature-icon")?.textContent || "\u{1F4C1}",
     fields: registered?.fields || generic?.fields || fallback.fields
   };
 };
-
 const categoryEnsureToolsUi = () => {
   if (!document.getElementById("categoryWorkspaceModal")) {
+    const hasEmbeddedWs = !!document.getElementById("categoryWorkspaceContent");
+    const hasEmbeddedToast = !!document.getElementById("categoryWsToastContainer");
     document.body.insertAdjacentHTML("beforeend",
       `<div class="category-workspace-modal" id="categoryWorkspaceModal" aria-hidden="true">` +
       `<section class="category-workspace" role="dialog" aria-modal="true" aria-labelledby="categoryWorkspaceTitle">` +
       `<button type="button" class="category-workspace-close" data-workspace-close aria-label="Close workspace">&times;</button>` +
-      `<div id="categoryWsToastContainer" class="cat-ws-toast-container"></div>` +
-      `<div id="categoryWorkspaceContent"></div>` +
+      (hasEmbeddedToast ? "" : `<div id="categoryWsToastContainer" class="cat-ws-toast-container"></div>`) +
+      (hasEmbeddedWs ? "" : `<div id="categoryWorkspaceContent"></div>`) +
       `<input type="file" id="categoryBackupFileInput" accept=".json,application/json" style="display:none;" />` +
       `</section></div>` +
       `<div class="category-auth-modal" id="categoryAuthModal" aria-hidden="true">` +
@@ -982,9 +984,129 @@ const formatCellVal = (val, type) => {
   return categoryEscape(s);
 };
 
+const renderSaasNav = () => {
+  const navList = document.getElementById("saasNavList");
+  if (!navList || !CURRENT || !Array.isArray(CURRENT.features)) return;
+  const currentFeatId = categoryFeature?.id;
+  navList.innerHTML = CURRENT.features.map((f) => {
+    const items = categoryData.features?.[f.id];
+    const count = Array.isArray(items) ? items.length : 0;
+    const isActive = f.id === currentFeatId && categoryTab !== "trash";
+    return `
+      <button type="button" class="saas-nav-btn ${isActive ? 'active' : ''}" data-saas-feature="${categoryEscape(f.id)}" title="${categoryEscape(f.name)}">
+        <span class="saas-nav-btn-icon">${f.icon}</span>
+        <span class="saas-nav-btn-text">${categoryEscape(f.name)}</span>
+        <span class="saas-nav-badge">${count}</span>
+      </button>
+    `;
+  }).join("");
+};
+
+const renderSaasKpis = () => {
+  const grid = document.getElementById("saasKpiGrid");
+  if (!grid || !categoryFeature) return;
+  const items = categoryItems();
+  const allModulesTotal = Object.values(categoryData.features || {}).reduce((s, a) => s + (Array.isArray(a) ? a.length : 0), 0);
+  const totalTrash = Object.values(categoryData.trash || {}).reduce((s, a) => s + (Array.isArray(a) ? a.length : 0), 0);
+
+  const activeCount = items.filter((x) => {
+    const st = String(x.status || "").toLowerCase();
+    return !["cancelled", "out of stock", "unpaid", "rejected"].includes(st);
+  }).length;
+
+  grid.innerHTML = `
+    <div class="saas-kpi-card is-primary">
+      <div class="saas-kpi-meta">
+        <span class="saas-kpi-label">${categoryEscape(categoryFeature.name)}</span>
+        <strong class="saas-kpi-value">${items.length}</strong>
+        <span class="saas-kpi-sub">Current Module</span>
+      </div>
+      <div class="saas-kpi-icon">${categoryEscape(categoryFeature.icon)}</div>
+    </div>
+    <div class="saas-kpi-card is-success">
+      <div class="saas-kpi-meta">
+        <span class="saas-kpi-label">Active / Live</span>
+        <strong class="saas-kpi-value">${activeCount}</strong>
+        <span class="saas-kpi-sub">Ready &amp; Operational</span>
+      </div>
+      <div class="saas-kpi-icon">\u{1F7E2}</div>
+    </div>
+    <div class="saas-kpi-card is-info">
+      <div class="saas-kpi-meta">
+        <span class="saas-kpi-label">Total Portal Records</span>
+        <strong class="saas-kpi-value">${allModulesTotal}</strong>
+        <span class="saas-kpi-sub">Across 12 Modules</span>
+      </div>
+      <div class="saas-kpi-icon">\u{1F4CA}</div>
+    </div>
+    <div class="saas-kpi-card is-warning">
+      <div class="saas-kpi-meta">
+        <span class="saas-kpi-label">Recycle Bin</span>
+        <strong class="saas-kpi-value">${totalTrash}</strong>
+        <span class="saas-kpi-sub">Recoverable Items</span>
+      </div>
+      <div class="saas-kpi-icon">\u{1F5D1}\uFE0F</div>
+    </div>
+  `;
+};
+
+const updateSaasPortalHeader = () => {
+  const brandIcon = document.getElementById("saasBrandIcon");
+  if (brandIcon && CURRENT?.icon) brandIcon.textContent = CURRENT.icon;
+  const brandTitle = document.getElementById("saasBrandTitle");
+  if (brandTitle && CURRENT?.short) brandTitle.textContent = `${CURRENT.short} Portal`;
+  const crumbRoot = document.getElementById("saasCrumbRoot");
+  if (crumbRoot && CURRENT?.short) crumbRoot.textContent = CURRENT.short;
+  const crumbCur = document.getElementById("saasCrumbCurrent");
+  if (crumbCur && categoryFeature) crumbCur.textContent = categoryTab === "trash" ? `${categoryFeature.name} (Trash)` : categoryFeature.name;
+
+  const trial = categoryGetTrial();
+  const hasSub = categoryHasActiveSubscription();
+  const userTitle = document.getElementById("saasUserTitle");
+  const userSub = document.getElementById("saasUserSub");
+  if (userTitle && userSub) {
+    if (hasSub) {
+      userTitle.textContent = categoryUser?.user_metadata?.name || "Pro Member";
+      userSub.textContent = "\u{1F48E} Pro Active";
+      userSub.style.color = "#3b82f6";
+    } else if (trial && trial.isActive) {
+      userTitle.textContent = trial.name || "Business User";
+      userSub.textContent = `\u{1F7E2} Free Trial (${trial.daysLeft}d left)`;
+      userSub.style.color = "#10b981";
+    } else if (trial && !trial.isActive) {
+      userTitle.textContent = trial.name || "Business User";
+      userSub.textContent = "\u26A0\uFE0F Trial Ended";
+      userSub.style.color = "#ef4444";
+    } else {
+      userTitle.textContent = "Guest Workspace";
+      userSub.textContent = "\u{1F7E2} 5-Day Free Trial";
+      userSub.style.color = "#10b981";
+    }
+  }
+};
+
+const selectSaasFeature = (featureId) => {
+  categoryFeature = categoryFeatureDef(featureId);
+  categoryEditId = null;
+  categoryTab = "active";
+  categorySearchQuery = "";
+  renderSaasNav();
+  renderSaasKpis();
+  updateSaasPortalHeader();
+  categoryRenderList();
+
+  const sidebar = document.getElementById("saasSidebar");
+  if (sidebar && sidebar.classList.contains("is-open")) {
+    sidebar.classList.remove("is-open");
+  }
+};
+
 const categoryRenderList = () => {
   if (!categoryFeature) return;
   const content = document.getElementById("categoryWorkspaceContent");
+  renderSaasNav();
+  renderSaasKpis();
+  updateSaasPortalHeader();
   if (!content) return;
 
   const allActive = categoryItems();
@@ -1252,12 +1374,65 @@ const openCategoryFeature = async (card) => {
   }
 };
 
-const initCategoryTools = () => {
+const initCategoryTools = async () => {
   categoryEnsureToolsUi();
+  await categoryLoadData();
+
+  if (document.getElementById("saasNavList")) {
+    const firstFeatId = CURRENT.features[0]?.id;
+    if (firstFeatId) {
+      selectSaasFeature(firstFeatId);
+    }
+  }
+
+  document.getElementById("saasNavList")?.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-saas-feature]");
+    if (btn) {
+      selectSaasFeature(btn.dataset.saasFeature);
+    }
+  });
+
+  document.getElementById("saasNavSearchInput")?.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    const buttons = document.querySelectorAll("#saasNavList .saas-nav-btn");
+    buttons.forEach((btn) => {
+      const text = btn.textContent.toLowerCase();
+      btn.style.display = text.includes(query) ? "flex" : "none";
+    });
+  });
+
+  document.getElementById("saasNavToggleBtn")?.addEventListener("click", () => {
+    document.getElementById("saasSidebar")?.classList.toggle("is-open");
+  });
+  document.getElementById("saasSidebarClose")?.addEventListener("click", () => {
+    document.getElementById("saasSidebar")?.classList.remove("is-open");
+  });
+
+  document.querySelector(".saas-btn-print")?.addEventListener("click", () => categoryPrintReport());
+  document.querySelector(".saas-btn-add")?.addEventListener("click", () => {
+    if (categoryHasAccess()) {
+      categoryRenderForm();
+    } else {
+      const trial = categoryGetTrial();
+      if (!trial && !categoryUser) {
+        showCategoryTrialRequiredModal();
+      } else {
+        showCategorySubscriptionPaywall();
+      }
+    }
+  });
 
   document.getElementById("catFeatures")?.addEventListener("click", (event) => {
     const card = event.target.closest("[data-tool-feature]");
-    if (card) openCategoryFeature(card);
+    if (card) {
+      const featId = card.dataset.toolFeature;
+      if (document.getElementById("saasPortal")) {
+        selectSaasFeature(featId);
+        document.getElementById("portalSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        openCategoryFeature(card);
+      }
+    }
   });
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-workspace-close]")) closeCategoryWorkspace();

@@ -888,19 +888,93 @@
 
             <div class="field">
               <label for="regEmail">Email Address</label>
-              <input type="email" id="regEmail" name="regEmail" placeholder="e.g. contact@business.com" maxlength="80" autocomplete="email" />
+              <input type="email" id="regEmail" name="regEmail" placeholder="Email Address" maxlength="80" autocomplete="email" />
               <span class="field-error" id="regEmailErr"></span>
             </div>
 
             <div class="field">
               <label for="regMobile">Mobile Number</label>
-              <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 03123456789" maxlength="15" />
+              <div class="phone-input-group">
+                  <select id="regCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                <input type="tel" id="regMobile" name="regMobile" placeholder="Mobile Number" maxlength="15" />
+              </div>
               <span class="field-error" id="regMobileErr"></span>
             </div>
 
             <div class="field">
               <label for="regWhatsapp">WhatsApp Number</label>
-              <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="e.g. 03123456789" maxlength="15" />
+              <div class="phone-input-group">
+                  <select id="regWhatsappCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="WhatsApp Number" maxlength="15" />
+              </div>
               <span class="field-error" id="regWhatsappErr"></span>
             </div>
 
@@ -1082,24 +1156,61 @@
           <div class="reg-grid">
             <div class="field">
               <label for="subFullName">Full Name <em>*</em></label>
-              <input type="text" id="subFullName" name="subFullName" placeholder="Your name or business name" maxlength="60" required />
+              <input type="text" id="subFullName" name="subFullName" placeholder="Full Name" maxlength="60" required />
               <span class="field-error" id="subFullNameErr"></span>
             </div>
             <div class="field">
               <label for="subEmail">Email Address <em>*</em></label>
-              <input type="email" id="subEmail" name="subEmail" placeholder="e.g. name@company.com" maxlength="80" autocomplete="email" required />
+              <input type="email" id="subEmail" name="subEmail" placeholder="Email Address" maxlength="80" autocomplete="email" required />
               <span class="field-error" id="subEmailErr"></span>
             </div>
           </div>
           <div class="reg-grid">
             <div class="field">
               <label for="subAccountMobile">Account Mobile Number <em>*</em></label>
-              <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="e.g. +1 555 0199 or 03001234567" maxlength="20" inputmode="numeric" required />
+              <div class="phone-input-group">
+                  <select id="subCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="Mobile Number" maxlength="20" inputmode="numeric" required />
+              </div>
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
             <div class="field">
               <label for="subCityName">City <em>*</em></label>
-              <input type="text" id="subCityName" name="subCityName" placeholder="e.g. New York, London, Dubai, Lahore" maxlength="40" required />
+              <input type="text" id="subCityName" name="subCityName" placeholder="City" maxlength="40" required />
               <span class="field-error" id="subCityNameErr"></span>
             </div>
           </div>
@@ -1157,7 +1268,7 @@
           <div class="reg-grid">
             <div class="field">
               <label for="subPayerMobile">Sender Contact / Mobile / Account ID <em>*</em></label>
-              <input type="text" id="subPayerMobile" name="subPayerMobile" placeholder="e.g. +1 555 0199 or payer@email.com" maxlength="60" required />
+              <input type="text" id="subPayerMobile" name="subPayerMobile" placeholder="Sender phone or email" maxlength="60" required />
               <span class="field-error" id="subPayerMobileErr"></span>
             </div>
             <div class="field">
@@ -1350,12 +1461,12 @@
             <div class="form-row">
               <div class="field">
                 <label for="ufName">Full Name <em>*</em></label>
-                <input type="text" id="ufName" placeholder="e.g. Ali Khan" autocomplete="name" maxlength="60" />
+                <input type="text" id="ufName" placeholder="Full Name" autocomplete="name" maxlength="60" />
                 <span class="field-error" id="ufNameErr"></span>
               </div>
               <div class="field">
                 <label for="ufEmail">Email Address <em>*</em></label>
-                <input type="email" id="ufEmail" placeholder="e.g. name@company.com" autocomplete="email" maxlength="80" required />
+                <input type="email" id="ufEmail" placeholder="Email Address" autocomplete="email" maxlength="80" required />
                 <span class="field-error" id="ufEmailErr"></span>
               </div>
             </div>
@@ -1363,12 +1474,49 @@
             <div class="form-row">
               <div class="field">
                 <label for="ufMobile">Mobile Number <em>*</em></label>
-                <input type="tel" id="ufMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                <div class="phone-input-group">
+                  <select id="ufCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                  <input type="tel" id="ufMobile" placeholder="Mobile Number" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                </div>
                 <span class="field-error" id="ufMobileErr"></span>
               </div>
               <div class="field">
                 <label for="ufCity">City <em>*</em></label>
-                <input type="text" id="ufCity" placeholder="e.g. New York, London, Lahore" autocomplete="address-level2" maxlength="40" />
+                <input type="text" id="ufCity" placeholder="City" autocomplete="address-level2" maxlength="40" />
                 <span class="field-error" id="ufCityErr"></span>
               </div>
             </div>
@@ -1419,7 +1567,44 @@
               <div class="form-row">
                 <div class="field">
                   <label for="ufPayerMobile">Payment sender phone / ID <em>*</em></label>
-                  <input type="tel" id="ufPayerMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                  <div class="phone-input-group">
+                  <select id="ufPayerCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                    <input type="tel" id="ufPayerMobile" placeholder="Sender Mobile Number" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                  </div>
                   <span class="field-error" id="ufPayerMobileErr"></span>
                 </div>
                 <div class="field">
@@ -1435,7 +1620,44 @@
           <div id="userLoginFields" hidden>
             <div class="field">
               <label for="ufLoginMobile">Registered Mobile Number <em>*</em></label>
-              <input type="tel" id="ufLoginMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="username" />
+              <div class="phone-input-group">
+                  <select id="ufLoginCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                <input type="tel" id="ufLoginMobile" placeholder="Mobile Number" inputmode="numeric" maxlength="20" autocomplete="username" />
+              </div>
               <span class="field-error" id="ufLoginMobileErr"></span>
             </div>
             <div class="field">
@@ -1487,12 +1709,12 @@
           <div class="form-row">
             <div class="field">
               <label for="ofName">Full Name</label>
-              <input type="text" id="ofName" placeholder="e.g. Amna Bibi" autocomplete="name" />
+              <input type="text" id="ofName" placeholder="Full Name" autocomplete="name" />
               <span class="field-error" id="errName"></span>
             </div>
             <div class="field">
               <label for="ofEmail">Email Address</label>
-              <input type="email" id="ofEmail" placeholder="e.g. owner@business.com" autocomplete="email" maxlength="80" />
+              <input type="email" id="ofEmail" placeholder="Email Address" autocomplete="email" maxlength="80" />
               <span class="field-error" id="errEmail"></span>
             </div>
           </div>
@@ -1500,12 +1722,49 @@
           <div class="form-row">
             <div class="field">
               <label for="ofMobile">Mobile Number</label>
-              <input type="tel" id="ofMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" />
+              <div class="phone-input-group">
+                  <select id="ofCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+                <input type="tel" id="ofMobile" placeholder="Mobile Number" inputmode="numeric" maxlength="20" />
+              </div>
               <span class="field-error" id="errMobile"></span>
             </div>
             <div class="field">
               <label for="ofCity">City</label>
-              <input type="text" id="ofCity" placeholder="e.g. New York, London, Lahore" autocomplete="address-level2" />
+              <input type="text" id="ofCity" placeholder="City" autocomplete="address-level2" />
               <span class="field-error" id="errCity"></span>
             </div>
           </div>
@@ -1535,7 +1794,44 @@
 
         <div class="field" id="loginField" hidden>
           <label for="ofLoginMobile">Registered Mobile Number</label>
-          <input type="tel" id="ofLoginMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="username" />
+          <div class="phone-input-group">
+                  <select id="ofLoginCountryCode" class="phone-country-select" aria-label="Country Code">
+                    <option value="+92" selected>PK (+92)</option>
+                    <option value="+1">US (+1)</option>
+                    <option value="+44">UK (+44)</option>
+                    <option value="+971">UAE (+971)</option>
+                    <option value="+966">SA (+966)</option>
+                    <option value="+91">IN (+91)</option>
+                    <option value="+1">CA (+1)</option>
+                    <option value="+61">AU (+61)</option>
+                    <option value="+49">DE (+49)</option>
+                    <option value="+33">FR (+33)</option>
+                    <option value="+86">CN (+86)</option>
+                    <option value="+90">TR (+90)</option>
+                    <option value="+60">MY (+60)</option>
+                    <option value="+65">SG (+65)</option>
+                    <option value="+974">QA (+974)</option>
+                    <option value="+968">OM (+968)</option>
+                    <option value="+965">KW (+965)</option>
+                    <option value="+973">BH (+973)</option>
+                    <option value="+880">BD (+880)</option>
+                    <option value="+93">AF (+93)</option>
+                    <option value="+20">EG (+20)</option>
+                    <option value="+27">ZA (+27)</option>
+                    <option value="+34">ES (+34)</option>
+                    <option value="+39">IT (+39)</option>
+                    <option value="+81">JP (+81)</option>
+                    <option value="+82">KR (+82)</option>
+                    <option value="+7">RU (+7)</option>
+                    <option value="+55">BR (+55)</option>
+                    <option value="+52">MX (+52)</option>
+                    <option value="+62">ID (+62)</option>
+                    <option value="+63">PH (+63)</option>
+                    <option value="+234">NG (+234)</option>
+                    <option value="+254">KE (+254)</option>
+                  </select>
+            <input type="tel" id="ofLoginMobile" placeholder="Mobile Number" inputmode="numeric" maxlength="20" autocomplete="username" />
+          </div>
           <span class="field-error" id="errLoginMobile"></span>
         </div>
 

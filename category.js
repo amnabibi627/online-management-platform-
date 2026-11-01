@@ -1,3 +1,12 @@
+const combinePhoneWithCode = (code, rawNum) => {
+  let cleaned = String(rawNum || "").trim().replace(/[\s\-\(\)\.]/g, "");
+  if (!cleaned) return "";
+  if (cleaned.startsWith("+")) return cleaned.replace(/^\+/, "");
+  const cleanCode = String(code || "+92").replace(/^\+/, "");
+  if (cleaned.startsWith("0")) cleaned = cleaned.substring(1);
+  if (cleaned.startsWith(cleanCode)) return cleaned;
+  return cleanCode + cleaned;
+};
 let categoryDateFilter = "";
 /* ============================================================
    category.js: renders the individual business category pages
@@ -680,7 +689,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
           <form class="pro-edit-form" id="proEditProfileForm">
             <div class="pro-form-group">
               <label>Full Name *</label>
-              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="e.g. John Doe / Amna Bibi" />
+              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="Full Name" />
             </div>
             <div class="pro-form-group">
               <label>Country / Region</label>
@@ -702,15 +711,15 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             </div>
             <div class="pro-form-group">
               <label>Registered Phone / Mobile *</label>
-              <input name="mobile" type="tel" value="${categoryEscape(userMobile)}" required maxlength="20" placeholder="e.g. +1 555 0199 or 03001234567" />
+              <input name="mobile" type="tel" value="${categoryEscape(userMobile)}" required maxlength="20" placeholder="Mobile Number" />
             </div>
             <div class="pro-form-group">
               <label>City / Location</label>
-              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' && userCity !== 'Not set' ? userCity : '')}" maxlength="50" placeholder="e.g. New York / London / Dubai / Lahore" />
+              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' && userCity !== 'Not set' ? userCity : '')}" maxlength="50" placeholder="City" />
             </div>
             <div class="pro-form-group">
               <label>Business / Enterprise Name</label>
-              <input name="businessName" type="text" value="${categoryEscape(rawBusiness)}" maxlength="80" placeholder="e.g. Apex Global Management" />
+              <input name="businessName" type="text" value="${categoryEscape(rawBusiness)}" maxlength="80" placeholder="Business Name" />
             </div>
 
             <p class="category-auth-error" id="proEditError" role="alert" style="color:#ef4444; font-size:0.84rem; margin:0.2rem 0; min-height:1rem;"></p>
@@ -742,41 +751,69 @@ const showCategoryTrialModal = (viewMode = "overview") => {
     <form id="categoryTrialForm" class="category-auth-form" style="display:grid; gap:0.75rem;">
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Full Name *</label>
-        <input name="name" type="text" placeholder="e.g. John Doe / Amna Bibi" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="name" type="text" placeholder="Full Name" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Email Address *</label>
-        <input name="email" type="email" placeholder="e.g. name@company.com" required maxlength="80" autocomplete="email" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="email" type="email" placeholder="Email Address" required maxlength="80" autocomplete="email" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Country / Region *</label>
         <select name="country" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem; background:#fff;">
-          <option value="United States">🇺🇸 United States</option>
-          <option value="United Kingdom">🇬🇧 United Kingdom</option>
-          <option value="United Arab Emirates">🇦🇪 United Arab Emirates</option>
-          <option value="Saudi Arabia">🇸🇦 Saudi Arabia</option>
-          <option value="Canada">🇨🇦 Canada</option>
-          <option value="Australia">🇦🇺 Australia</option>
-          <option value="Pakistan" selected>🇵🇰 Pakistan</option>
-          <option value="India">🇮🇳 India</option>
-          <option value="Germany">🇩🇪 Germany</option>
-          <option value="France">🇫🇷 France</option>
-          <option value="Singapore">🇸🇬 Singapore</option>
-          <option value="Malaysia">🇲🇾 Malaysia</option>
-          <option value="International">🌐 Other / International</option>
+          <option value="Pakistan" selected>Pakistan</option>
+          <option value="United States">United States</option>
+          <option value="United Kingdom">United Kingdom</option>
+          <option value="United Arab Emirates">United Arab Emirates</option>
+          <option value="Saudi Arabia">Saudi Arabia</option>
+          <option value="Canada">Canada</option>
+          <option value="Australia">Australia</option>
+          <option value="India">India</option>
+          <option value="Germany">Germany</option>
+          <option value="France">France</option>
+          <option value="Singapore">Singapore</option>
+          <option value="Malaysia">Malaysia</option>
+          <option value="International">Other / International</option>
         </select>
       </div>
       <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile / WhatsApp / Phone *</label>
-        <input name="mobile" type="tel" placeholder="+1 555 0199 or 03001234567" required maxlength="20" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile Number *</label>
+        <div class="phone-input-group">
+          <select name="countryCode" class="phone-country-select" aria-label="Country Code">
+            <option value="+92" selected>PK (+92)</option>
+            <option value="+1">US (+1)</option>
+            <option value="+44">UK (+44)</option>
+            <option value="+971">UAE (+971)</option>
+            <option value="+966">SA (+966)</option>
+            <option value="+91">IN (+91)</option>
+            <option value="+1">CA (+1)</option>
+            <option value="+61">AU (+61)</option>
+            <option value="+49">DE (+49)</option>
+            <option value="+33">FR (+33)</option>
+            <option value="+86">CN (+86)</option>
+            <option value="+90">TR (+90)</option>
+            <option value="+60">MY (+60)</option>
+            <option value="+65">SG (+65)</option>
+            <option value="+974">QA (+974)</option>
+            <option value="+968">OM (+968)</option>
+            <option value="+965">KW (+965)</option>
+            <option value="+973">BH (+973)</option>
+            <option value="+880">BD (+880)</option>
+            <option value="+93">AF (+93)</option>
+            <option value="+20">EG (+20)</option>
+            <option value="+27">ZA (+27)</option>
+            <option value="+34">ES (+34)</option>
+            <option value="+39">IT (+39)</option>
+          </select>
+          <input name="mobile" type="tel" placeholder="Mobile Number" required maxlength="20" style="padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        </div>
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City / Location *</label>
-        <input name="city" type="text" placeholder="e.g. New York / London / Dubai / Lahore" required maxlength="50" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="city" type="text" placeholder="City" required maxlength="50" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Business / Enterprise Name (Optional)</label>
-        <input name="businessName" type="text" placeholder="e.g. Apex Global Management" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="businessName" type="text" placeholder="Business Name" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Create Password *</label>
@@ -897,7 +934,13 @@ const showCategorySignIn = (message = "") => {
     `<h2 id="categoryAuthTitle">Sign in to your account</h2>` +
     `<p class="category-auth-copy">An active subscription is required for this category. Other categories require their own separate subscription.</p>` +
     `<form id="categoryLoginForm" class="category-auth-form">` +
-    `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="e.g. +1 555 0199 or 03001234567"></label>` +
+    `<label>Account mobile number` +
+    `<div class="phone-input-group" style="margin-top:0.3rem;">` +
+    `<select name="countryCode" class="phone-country-select" aria-label="Country Code">` +
+    `<option value="+92" selected>PK (+92)</option><option value="+1">US (+1)</option><option value="+44">UK (+44)</option><option value="+971">UAE (+971)</option><option value="+966">SA (+966)</option><option value="+91">IN (+91)</option><option value="+1">CA (+1)</option><option value="+61">AU (+61)</option><option value="+49">DE (+49)</option><option value="+33">FR (+33)</option>` +
+    `</select>` +
+    `<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="Mobile Number">` +
+    `</div></label>` +
     `<label>Password<input name="password" type="text" autocomplete="current-password" required></label>` +
     `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
     `<button class="btn btn-primary" type="submit">Sign in</button></form>` +
@@ -931,7 +974,7 @@ const showCategoryAuth = (planId = categorySelectedPlan, mode = "signup", messag
     `</div>` +
     `<form id="categoryAuthForm" class="category-auth-form">` +
     (!alreadySignedIn && signup ? `<label>Full name<input name="name" type="text" autocomplete="name" required minlength="3" maxlength="80"></label>` : "") +
-    (alreadySignedIn ? "" : `<label>Account phone / mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="e.g. +1 555 0199 or 03001234567"></label>` +
+    (alreadySignedIn ? "" : `<label>Account phone / mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="Mobile Number"></label>` +
     `<label>Password<input name="password" type="text" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>`) +
     `<label>Sender contact / mobile<input name="payerMobile" type="tel" inputmode="tel" required placeholder="Phone, email or sender identifier"></label>` +
     `<label>Transaction / reference ID<input name="paymentReference" type="text" required maxlength="100" autocomplete="off" placeholder="Card TID, wire reference or receipt #"></label>` +
@@ -2524,7 +2567,8 @@ const initCategoryTools = async () => {
       const formData = new FormData(editForm);
       const name = String(formData.get("name") || "").trim();
       const country = String(formData.get("country") || "International").trim();
-      const mobile = categoryMobile(String(formData.get("mobile") || ""));
+            const code = String(formData.get("countryCode") || "+92").trim();
+      const mobile = combinePhoneWithCode(code, String(formData.get("mobile") || ""));
       const city = String(formData.get("city") || "").trim();
       const businessName = String(formData.get("businessName") || "").trim();
       const errEl = document.getElementById("proEditError");
@@ -2567,7 +2611,8 @@ const initCategoryTools = async () => {
       const formData = new FormData(trialForm);
       const name = String(formData.get("name") || "").trim();
       const country = String(formData.get("country") || "International").trim();
-      const mobile = categoryMobile(String(formData.get("mobile") || ""));
+            const code = String(formData.get("countryCode") || "+92").trim();
+      const mobile = combinePhoneWithCode(code, String(formData.get("mobile") || ""));
       const email = String(formData.get("email") || "").trim().toLowerCase();
       const city = String(formData.get("city") || "").trim();
       const businessName = String(formData.get("businessName") || "").trim();
@@ -2627,7 +2672,8 @@ const initCategoryTools = async () => {
     if (loginForm && CATEGORY_SUPABASE) {
       event.preventDefault();
       const formData = new FormData(loginForm);
-      const mobile = categoryMobile(String(formData.get("mobile") || ""));
+            const code = String(formData.get("countryCode") || "+92").trim();
+      const mobile = combinePhoneWithCode(code, String(formData.get("mobile") || ""));
       const password = String(formData.get("password") || "");
       const message = loginForm.querySelector(".category-auth-error");
       const submit = loginForm.querySelector('button[type="submit"]');
@@ -2664,7 +2710,8 @@ const initCategoryTools = async () => {
     if (!form || !CATEGORY_SUPABASE) return;
     event.preventDefault();
     const formData = new FormData(form);
-    const mobile = categoryMobile(String(formData.get("mobile") || ""));
+          const code = String(formData.get("countryCode") || "+92").trim();
+      const mobile = combinePhoneWithCode(code, String(formData.get("mobile") || ""));
     const email = String(formData.get("email") || "").trim().toLowerCase();
     const password = String(formData.get("password") || "");
     const signup = !!formData.get("name");

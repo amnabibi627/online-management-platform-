@@ -1,3 +1,12 @@
+const combinePhoneWithCode = (code, rawNum) => {
+  let cleaned = String(rawNum || "").trim().replace(/[\s\-\(\)\.]/g, "");
+  if (!cleaned) return "";
+  if (cleaned.startsWith("+")) return cleaned.replace(/^\+/, "");
+  const cleanCode = String(code || "+92").replace(/^\+/, "");
+  if (cleaned.startsWith("0")) cleaned = cleaned.substring(1);
+  if (cleaned.startsWith(cleanCode)) return cleaned;
+  return cleanCode + cleaned;
+};
 // ===== Supabase cloud (login + data sync) =====
 const sb = window.OMS_FEATURE_MODULES.supabaseClient;
 const CLOUD_TABLE = "app_data";
@@ -946,7 +955,8 @@ if (userForm) {
     try {
       if (userModalMode === "signup") {
         const name = String(uFields.name.input?.value || "").trim();
-        const mobile = normMobile(uFields.mobile.input?.value || "");
+        const uCode = document.getElementById("ufCountryCode")?.value || "+92";
+        const mobile = combinePhoneWithCode(uCode, uFields.mobile.input?.value || "");
         const email = String(uFields.email.input?.value || "").trim().toLowerCase() || `${mobile}@oms.app`;
         const city = String(uFields.city.input?.value || "").trim();
         const pass = String(uFields.pass.input?.value || "");
@@ -955,9 +965,9 @@ if (userForm) {
 
         if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
         else setUserError(uFields.name, "");
-        if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address (e.g. name@company.com)."); ok = false; }
+        if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address."); ok = false; }
         else setUserError(uFields.email, "");
-        if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid number, e.g. 03123456789."); ok = false; }
+        if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid mobile number."); ok = false; }
         else setUserError(uFields.mobile, "");
         if (city.length < 2) { setUserError(uFields.city, "Enter your city."); ok = false; }
         else setUserError(uFields.city, "");
@@ -995,10 +1005,11 @@ if (userForm) {
         return;
       }
 
-      const mobile = normMobile(uFields.loginMobile.input.value);
+      const uLoginCode = document.getElementById("ufLoginCountryCode")?.value || "+92";
+      const mobile = combinePhoneWithCode(uLoginCode, uFields.loginMobile.input.value);
       const pass = String(uFields.loginPass.input.value || "");
       if (!MOBILE_RE.test(mobile)) {
-        setUserError(uFields.loginMobile, "Enter a valid number, e.g. 03123456789.");
+        setUserError(uFields.loginMobile, "Enter a valid mobile number.");
         showToast("Login failed: invalid mobile number.", true);
         return;
       }
@@ -1071,14 +1082,15 @@ const applyAccess = () => {
 const validateSignup = () => {
   let ok = true;
   const name = fields.name.input.value.trim();
-  const mobile = normMobile(fields.mobile.input.value);
+  const ofCode = document.getElementById("ofCountryCode")?.value || "+92";
+  const mobile = combinePhoneWithCode(ofCode, fields.mobile.input.value);
   const age = fields.age.input.value.trim();
   const city = fields.city.input.value.trim();
   const category = fields.category.input.value;
   const pass = fields.pass.input.value;
 
   if (name.length < 3) { setError(fields.name, "Enter your full name (min 3 letters)."); ok = false; } else setError(fields.name, "");
-  if (!MOBILE_RE.test(mobile)) { setError(fields.mobile, "Enter a valid number, e.g. 03123456789 or +923123456789."); ok = false; } else setError(fields.mobile, "");
+  if (!MOBILE_RE.test(mobile)) { setError(fields.mobile, "Enter a valid mobile number."); ok = false; } else setError(fields.mobile, "");
   const ageNum = Number(age);
   if (!age || !Number.isInteger(ageNum) || ageNum < 18 || ageNum > 100) { setError(fields.age, "Age must be between 18 and 100."); ok = false; } else setError(fields.age, "");
   if (city.length < 2) { setError(fields.city, "Enter your city."); ok = false; } else setError(fields.city, "");
@@ -1162,10 +1174,11 @@ ownerForm.addEventListener("submit", async (e) => {
       return;
     }
 
-    const mobile = normMobile(fields.loginMobile.input.value);
+    const ofLoginCode = document.getElementById("ofLoginCountryCode")?.value || "+92";
+    const mobile = combinePhoneWithCode(ofLoginCode, fields.loginMobile.input.value);
     const pass = fields.loginPass.input.value;
     if (!MOBILE_RE.test(mobile)) {
-      setError(fields.loginMobile, "Enter a valid mobile number, e.g. 03123456789.");
+      setError(fields.loginMobile, "Enter a valid mobile number.");
       showToast("Login failed: invalid mobile number.", true);
       return;
     }
@@ -1409,7 +1422,7 @@ ceoLoginForm.addEventListener("submit", async (e) => {
         ceoSetupEmailInput.classList.remove("invalid");
       }
       if (!MOBILE_RE.test(mobile)) {
-        ceoErrMobile.textContent = "Enter a valid number, e.g. 03123456789.";
+        ceoErrMobile.textContent = "Enter a valid mobile number.";
         ceoMobileInput.classList.add("invalid");
         valid = false;
       } else {
@@ -4510,11 +4523,13 @@ const validateRegForm = () => {
   const ownerName = get("regOwnerName").value.trim();
   ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 3 ? "Please write the owner name (min 3 letters)." : "") && ok;
 
-  const mobile = normalizeMobile(get("regMobile").value);
-  ok = setRegError(get("regMobile"), get("regMobileErr"), MOBILE_LOOKUP_RE.test(mobile) ? "" : "Please enter a valid mobile number, e.g. 03123456789.") && ok;
+  const mCode = document.getElementById("regCountryCode")?.value || "+92";
+  const mobile = combinePhoneWithCode(mCode, get("regMobile")?.value || "");
+  ok = setRegError(get("regMobile"), get("regMobileErr"), MOBILE_LOOKUP_RE.test(mobile) ? "" : "Please enter a valid mobile number.") && ok;
 
-  const wa = normalizeMobile(get("regWhatsapp").value);
-  ok = setRegError(get("regWhatsapp"), get("regWhatsappErr"), MOBILE_LOOKUP_RE.test(wa) ? "" : "Please enter a valid WhatsApp number, e.g. 03123456789.") && ok;
+  const waCode = document.getElementById("regWhatsappCountryCode")?.value || "+92";
+  const wa = combinePhoneWithCode(waCode, get("regWhatsapp")?.value || "");
+  ok = setRegError(get("regWhatsapp"), get("regWhatsappErr"), MOBILE_LOOKUP_RE.test(wa) ? "" : "Please enter a valid WhatsApp number.") && ok;
 
   const regEmailEl = document.getElementById("regEmail");
   if (regEmailEl) {
@@ -5445,7 +5460,8 @@ if (subPurchaseForm) {
     const category = subCategorySelect?.value || "";
     const name = String(document.getElementById("subFullName")?.value || "").trim();
     const email = String(document.getElementById("subEmail")?.value || "").trim().toLowerCase();
-    const mobile = normMobile(document.getElementById("subAccountMobile")?.value || "");
+    const subCode = document.getElementById("subCountryCode")?.value || "+92";
+    const mobile = combinePhoneWithCode(subCode, document.getElementById("subAccountMobile")?.value || "");
     const city = String(document.getElementById("subCityName")?.value || "").trim();
     const password = String(document.getElementById("subPassword")?.value || "");
     const payerMobile = normMobile(document.getElementById("subPayerMobile")?.value || "");
@@ -5460,8 +5476,8 @@ if (subPurchaseForm) {
 
     setErr("subCategorySelectErr", category ? "" : "Please select a business category.");
     setErr("subFullNameErr", name.length >= 3 ? "" : "Enter your full name (min 3 letters).");
-    setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address (e.g. name@company.com).");
-    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid phone number (e.g. +1 555 0199 or 03001234567).");
+    setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address.");
+    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid mobile phone number.");
     setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
     setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
     setErr("subPayerMobileErr", (payerMobile.length >= 4) ? "" : "Enter sender phone, email or account identifier.");

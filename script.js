@@ -5473,3 +5473,22 @@ if (subPurchaseForm) {
     showToast("Payment request submitted! The owner will verify JazzCash TID (" + txId + ") and activate your " + category + " subscription.");
   });
 }
+
+// Global Privacy Policy Modal Triggers
+document.addEventListener("click", (e) => {
+  if (e.target.closest("#openPrivacyPolicyLink")) {
+    e.preventDefault();
+    const modal = document.getElementById("globalPrivacyModal");
+    if (modal) {
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+    }
+  }
+  if (e.target.closest("#closeGlobalPrivacyModal")) {
+    const modal = document.getElementById("globalPrivacyModal");
+    if (modal) {
+      modal.classList.remove("is-open");
+      modal.setAttribute("aria-hidden", "true");
+    }
+  }
+});

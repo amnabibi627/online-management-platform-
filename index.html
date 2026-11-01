@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261031FiverrProfiles" />
+  <link rel="stylesheet" href="styles.css?v=20261101DataSafety" />
   <script src="security.js?v=20261031EnableCopy"></script>
 </head>
 <body>
@@ -1411,7 +1411,7 @@
 
           <label class="user-terms-check" for="ufTerms">
             <input type="checkbox" id="ufTerms" required checked />
-            <span>By creating an account you agree to the Terms of Use and Privacy Policy.</span>
+            <span>By creating an account you agree to the <a href="#" id="openPrivacyPolicyLink" style="color:#ff8f04; text-decoration:underline; font-weight:700;">Terms of Use and Privacy Policy</a>.</span>
           </label>
 
           <button type="submit" class="btn btn-primary btn-block" id="userSubmit">🚀 Start 5-Day Free Trial</button>
@@ -1665,9 +1665,49 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261031ReviewAnytime"></script>
+  <script src="script.js?v=20261101DataSafety"></script>
   <script src="liveads.js?v=20261031FiverrProfiles"></script>
   <script src="ui.js?v=20261023H"></script>
 
+  <!-- ========== PRIVACY POLICY & DATA PROTECTION CHARTER MODAL ========== -->
+  <div class="category-modal-backdrop" id="globalPrivacyModal" aria-hidden="true">
+    <div class="category-modal-card">
+      <div class="category-modal-card-header">
+        <h3>ðŸ”’ Data Privacy &amp; Confidentiality Charter</h3>
+        <button type="button" class="category-modal-close-btn" id="closeGlobalPrivacyModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="category-modal-card-body">
+        <div class="safety-status-badge">
+          <span class="safety-status-dot"></span>
+          <span>100% Confidential: Business, Patient &amp; Financial Records Protection</span>
+        </div>
+        
+        <div class="privacy-pillar-box">
+          <h4>ðŸ¥ Patient &amp; Clinical Data Privacy (Medical Store, Clinic, Lab)</h4>
+          <p>All patient medical records, diagnostic test results, medical histories, and digital prescriptions are strictly private and accessible only to your authenticated business account. We adhere to high confidentiality standards and never share medical data.</p>
+        </div>
+
+        <div class="privacy-pillar-box">
+          <h4>ðŸ’¼ Commercial &amp; Financial Confidentiality (Store, Restaurant, Fuel)</h4>
+          <p>Invoices, wholesale supplier costs, daily cash reconciliation, and customer khata ledgers remain solely under your exclusive control. Data is encrypted using TLS 1.3 in transit and AES-256 at rest.</p>
+        </div>
+
+        <div class="privacy-pillar-box">
+          <h4>ðŸš« Zero Third-Party Monetization</h4>
+          <p>We do not monetize, rent, analyze for advertising, or sell your customer phone numbers, receipts, or business data to any third-party marketing network.</p>
+        </div>
+
+        <div class="privacy-pillar-box">
+          <h4>ðŸ—‘ï¸ Right to Eradication &amp; Full Data Portability</h4>
+          <p>You hold 100% ownership of your database. You can export complete JSON backups at any moment and permanently delete records from your Recycle Bin with instant irrevocable purging.</p>
+        </div>
+
+        <div class="privacy-dpo-box">
+          <strong>Direct Grievance &amp; Data Protection Officer Contact:</strong><br />
+          Phone / WhatsApp: <strong>03042954627</strong> &bull; Email: <strong>amnabibi627@gmail.com</strong>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -140,17 +140,17 @@ const renderLiveAds = async () => {
       // 4. Location Display (Never repeat Bahawalpur twice)
       const cityClean = String(ad.city || "").trim();
       const addrClean = String(ad.address || "").trim();
-      let locationText = "";
+      let locationText = "Worldwide / Remote";
       if (cityClean && addrClean && cityClean.toLowerCase() === addrClean.toLowerCase()) {
-        locationText = `${cityClean}, Pakistan`;
+        locationText = cityClean;
       } else if (cityClean && addrClean) {
         if (addrClean.toLowerCase().includes(cityClean.toLowerCase())) {
           locationText = addrClean;
         } else {
           locationText = `${addrClean}, ${cityClean}`;
         }
-      } else {
-        locationText = cityClean || addrClean || "Pakistan";
+      } else if (cityClean || addrClean) {
+        locationText = cityClean || addrClean;
       }
 
       // 5. Media Cover Image (Show real gig photo / user media / sleek banner)
@@ -238,7 +238,7 @@ const renderLiveAds = async () => {
           `<div class="fiverr-gig-footer">` +
             `<div class="fiverr-gig-price">` +
               `<span class="fiverr-gig-price-label">Starting at</span>` +
-              `<span class="fiverr-gig-price-amount">PKR ${liveAdsEscape(startingPrice)}</span>` +
+              `<span class="fiverr-gig-price-amount">${isInfluencerGig ? '$10 USD / PKR 2,500' : '$9 USD / PKR ' + liveAdsEscape(startingPrice)}</span>` +
             `</div>` +
             `<div class="fiverr-gig-actions">${actionButtons}</div>` +
           `</div>` +

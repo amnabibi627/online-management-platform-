@@ -500,8 +500,8 @@ document.querySelectorAll(".portal-card:not([data-portal='owner'])").forEach((ca
 });
 
 // ===== Owner Account: Sign Up / Login connected with categories =====
-const normMobile = (v) => v.replace(/[\s-]/g, "").replace(/^\+92/, "0");
-const MOBILE_RE = /^03\d{9}$/;
+const normMobile = (v) => String(v || "").trim().replace(/[\s\-\(\)\.]/g, "").replace(/^\+/, "");
+const MOBILE_RE = /^\d{7,16}$/;
 const ownerModal = document.getElementById("ownerModal");
 const ownerForm = document.getElementById("ownerForm");
 const ownerModalTitle = document.getElementById("ownerModalTitle");
@@ -4303,7 +4303,7 @@ const PLAN_INFO = {
   "1year": { label: "1 Year", price: 60000 }
 };
 
-const MOBILE_LOOKUP_RE = /^03\d{9}$/;
+const MOBILE_LOOKUP_RE = /^\d{7,16}$/;
 const normalizeMobile = (v) => String(v || "").replace(/[^\d]/g, "");
 const newCloudUuid = () => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
@@ -5336,9 +5336,9 @@ const subSubmitBtn = document.getElementById("subSubmitBtn");
 const subPlanCards = document.querySelectorAll(".sub-plan-card");
 
 const SUB_PRICES = {
-  "1-month": { label: "1 Month", price: 2000, months: 1 },
-  "3-month": { label: "3 Months", price: 6000, months: 3 },
-  "1-year": { label: "Yearly", price: 20000, months: 12 }
+  "1-month": { label: "1 Month", price: 2000, priceUsd: 9, months: 1 },
+  "3-month": { label: "3 Months", price: 6000, priceUsd: 24, months: 3 },
+  "1-year": { label: "Yearly", price: 20000, priceUsd: 69, months: 12 }
 };
 
 const selectSubPlan = (planId) => {
@@ -5347,12 +5347,43 @@ const selectSubPlan = (planId) => {
   subPlanCards.forEach((c) => {
     c.classList.toggle("selected", c.dataset.subPlan === planId);
   });
-  if (subAmountDue) subAmountDue.textContent = "PKR " + p.price.toLocaleString();
-  if (subSubmitBtn) subSubmitBtn.textContent = "Submit Subscription Request (PKR " + p.price.toLocaleString() + ")";
+  if (subAmountDue) subAmountDue.textContent = `$${p.priceUsd} USD / PKR ${p.price.toLocaleString()}`;
+  if (subSubmitBtn) subSubmitBtn.textContent = `Submit Subscription Request ($${p.priceUsd} USD / PKR ${p.price.toLocaleString()})`;
 };
 
 subPlanCards.forEach((c) => {
   c.addEventListener("click", () => selectSubPlan(c.dataset.subPlan));
+});
+
+// Global Payment method tab switching in subscription modal
+document.querySelectorAll(".sub-pay-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".sub-pay-tab").forEach(t => t.classList.remove("is-active"));
+    tab.classList.add("is-active");
+    const method = tab.dataset.payMethod;
+
+    const iconEl = document.getElementById("subPayIcon");
+    const titleEl = document.getElementById("subPayTitle");
+    const descEl = document.getElementById("subPayDesc");
+    const acctEl = document.getElementById("subPayAccount");
+
+    if (method === "card") {
+      if (iconEl) iconEl.textContent = "💳";
+      if (titleEl) titleEl.textContent = "Credit / Debit Card & Online Checkout";
+      if (descEl) descEl.textContent = "Pay securely worldwide using Visa, MasterCard, Amex, Apple Pay, Google Pay or PayPal.";
+      if (acctEl) acctEl.textContent = "Global Online Card Terminal";
+    } else if (method === "bank") {
+      if (iconEl) iconEl.textContent = "🏦";
+      if (titleEl) titleEl.textContent = "International Bank Wire / SWIFT / IBAN";
+      if (descEl) descEl.textContent = "Direct wire transfer for international business and corporate clients.";
+      if (acctEl) acctEl.textContent = "IBAN: PK92MEZN0001020304050607 / SWIFT: MEZNPKKA";
+    } else {
+      if (iconEl) iconEl.textContent = "📱";
+      if (titleEl) titleEl.textContent = "Regional Mobile Wallet (JazzCash / Raast)";
+      if (descEl) descEl.textContent = "Instant regional wallet transfer.";
+      if (acctEl) acctEl.textContent = "0304 295 4627 (Amna Bibi)";
+    }
+  });
 });
 
 const openSubscriptionModal = (categoryKey = "", planId = "3-month") => {
@@ -5415,11 +5446,11 @@ if (subPurchaseForm) {
 
     setErr("subCategorySelectErr", category ? "" : "Please select a business category.");
     setErr("subFullNameErr", name.length >= 3 ? "" : "Enter your full name (min 3 letters).");
-    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid 11-digit mobile number.");
-    setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city.");
+    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid phone number (e.g. +1 555 0199 or 03001234567).");
+    setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
     setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
-    setErr("subPayerMobileErr", MOBILE_RE.test(payerMobile) ? "" : "Enter the mobile number used to send payment.");
-    setErr("subTxIdErr", txId.length >= 4 ? "" : "Enter a valid JazzCash transaction ID (min 4 characters).");
+    setErr("subPayerMobileErr", (payerMobile.length >= 4) ? "" : "Enter sender phone, email or account identifier.");
+    setErr("subTxIdErr", txId.length >= 4 ? "" : "Enter transaction reference ID or receipt # (min 4 characters).");
 
     if (!valid) {
       showToast("Please fill all required fields correctly.", true);
@@ -5476,12 +5507,12 @@ if (subPurchaseForm) {
     }
 
     subSubmitBtn.disabled = false;
-    subSubmitBtn.textContent = "Submit Subscription Request (PKR " + plan.price.toLocaleString() + ")";
+    subSubmitBtn.textContent = "Submit Subscription Request ($" + (plan.priceUsd || 24) + " USD / PKR " + plan.price.toLocaleString() + ")";
     closeSubscriptionModal();
     subPurchaseForm.reset();
     selectSubPlan("3-month");
 
-    showToast("Payment request submitted! The owner will verify JazzCash TID (" + txId + ") and activate your " + category + " subscription.");
+    showToast("Payment request submitted! The administrator will verify payment TID (" + txId + ") and activate your " + category + " subscription.");
   });
 }
 
@@ -5503,3 +5534,33 @@ document.addEventListener("click", (e) => {
     }
   }
 });
+
+// Universal Language Switcher Support
+const initGlobalLangSelector = () => {
+  const langSelect = document.getElementById("omsGlobalLangSelect");
+  if (!langSelect) return;
+  const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
+  if (match) {
+    const code = match[2].split("/")[2];
+    if (code) langSelect.value = code;
+  }
+  langSelect.addEventListener("change", (e) => {
+    const val = e.target.value;
+    const langCode = val === "zh" ? "zh-CN" : val;
+    const cookieVal = "/en/" + langCode;
+    document.cookie = "googtrans=" + cookieVal + "; path=/";
+    document.cookie = "googtrans=" + cookieVal + "; domain=" + window.location.hostname + "; path=/";
+    const gCombo = document.querySelector(".goog-te-combo");
+    if (gCombo) {
+      gCombo.value = langCode;
+      gCombo.dispatchEvent(new Event("change"));
+    } else {
+      window.location.reload();
+    }
+  });
+};
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initGlobalLangSelector);
+} else {
+  initGlobalLangSelector();
+}

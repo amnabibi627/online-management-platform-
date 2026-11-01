@@ -6091,3 +6091,100 @@ p,
   gap: 0.75rem !important;
   flex-wrap: wrap !important;
 }
+
+/* ============================================================
+   Global Multi-Payment Selector & Universal Language Support
+   ============================================================ */
+
+.global-lang-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.oms-global-lang-select {
+  padding: 0.38rem 0.65rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease;
+}
+
+.oms-global-lang-select:focus {
+  border-color: #ff8f04;
+}
+
+.sub-payment-method-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.sub-pay-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sub-pay-tab:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.sub-pay-tab.is-active {
+  background: #fff7ed;
+  border-color: #ff8f04;
+  box-shadow: 0 2px 8px rgba(255, 143, 4, 0.18);
+}
+
+.sub-pay-icon {
+  font-size: 1.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.sub-pay-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sub-pay-sub {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+@media (max-width: 600px) {
+  .sub-payment-method-selector {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .sub-pay-tab {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+  }
+}
+
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}

@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261101FullAccountLifecycle" />
+  <link rel="stylesheet" href="styles.css?v=20261101WorldReady" />
   <script src="security.js?v=20261031EnableCopy"></script>
 </head>
 <body>
@@ -49,6 +49,19 @@
         </nav>
 
         <div class="header-actions">
+          <div class="global-lang-wrap" title="Select Worldwide Language">
+            <select class="oms-global-lang-select" id="omsGlobalLangSelect" aria-label="Select Language">
+              <option value="en" selected>ðŸŒ English</option>
+              <option value="ur">ðŸ‡µðŸ‡° Ø§Ø±Ø¯Ùˆ (Urdu)</option>
+              <option value="ar">ðŸ‡¸ðŸ‡¦ Ø§Ù„Ø¹Ø±Ø¨ÙŠØ© (Arabic)</option>
+              <option value="es">ðŸ‡ªðŸ‡¸ EspaÃ±ol</option>
+              <option value="fr">ðŸ‡«ðŸ‡· FranÃ§ais</option>
+              <option value="de">ðŸ‡©ðŸ‡ª Deutsch</option>
+              <option value="zh">ðŸ‡¨ðŸ‡³ ä¸­æ–‡ (Chinese)</option>
+              <option value="hi">ðŸ‡®ðŸ‡³ à¤¹à¤¿à¤¨à¥à¤¦à¥€ (Hindi)</option>
+              <option value="tr">ðŸ‡¹ðŸ‡· TÃ¼rkÃ§e</option>
+            </select>
+          </div>
           <button type="button" class="btn btn-primary header-signup-btn" id="userSignupHeaderBtn">Sign Up Free</button>
           <button type="button" class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
             <span></span><span></span><span></span>
@@ -1035,19 +1048,19 @@
             <button type="button" class="sub-plan-card" data-sub-plan="1-month" data-sub-price="2000" data-sub-label="1 Month">
               <span class="sub-plan-badge">Standard</span>
               <span class="sub-plan-name">1 Month</span>
-              <span class="sub-plan-price"><strong>2,000</strong> PKR</span>
+              <span class="sub-plan-price"><strong>$9 USD</strong> / 2,000 PKR</span>
               <span class="sub-plan-desc">30 days category access</span>
             </button>
             <button type="button" class="sub-plan-card featured selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
               <span class="sub-plan-badge badge-popular">Popular</span>
               <span class="sub-plan-name">3 Months</span>
-              <span class="sub-plan-price"><strong>6,000</strong> PKR</span>
+              <span class="sub-plan-price"><strong>$24 USD</strong> / 6,000 PKR</span>
               <span class="sub-plan-desc">90 days category access</span>
             </button>
             <button type="button" class="sub-plan-card" data-sub-plan="1-year" data-sub-price="20000" data-sub-label="Yearly">
               <span class="sub-plan-badge badge-pro">Pro Value</span>
               <span class="sub-plan-name">Yearly</span>
-              <span class="sub-plan-price"><strong>20,000</strong> PKR</span>
+              <span class="sub-plan-price"><strong>$69 USD</strong> / 20,000 PKR</span>
               <span class="sub-plan-desc">365 days full access</span>
             </button>
           </div>
@@ -1081,14 +1094,14 @@
             </div>
             <div class="field">
               <label for="subAccountMobile">Account Mobile Number <em>*</em></label>
-              <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="03XXXXXXXXX" maxlength="13" inputmode="numeric" required />
+              <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="e.g. +1 555 0199 or 03001234567" maxlength="20" inputmode="numeric" required />
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
           </div>
           <div class="reg-grid">
             <div class="field">
               <label for="subCityName">City <em>*</em></label>
-              <input type="text" id="subCityName" name="subCityName" placeholder="e.g. Lahore, Karachi" maxlength="40" required />
+              <input type="text" id="subCityName" name="subCityName" placeholder="e.g. New York, London, Dubai, Lahore" maxlength="40" required />
               <span class="field-error" id="subCityNameErr"></span>
             </div>
             <div class="field">
@@ -1098,28 +1111,46 @@
             </div>
           </div>
 
-          <!-- 4. JazzCash Payment Box -->
-          <h3 class="reg-form-title">4. JazzCash Payment</h3>
-          <div class="sub-jazzcash-box">
+          <!-- 4. Payment Method -->
+          <h3 class="reg-form-title">4. Payment Method</h3>
+          <div class="sub-payment-method-selector">
+            <button type="button" class="sub-pay-tab is-active" data-pay-method="card">
+              <span class="sub-pay-icon">&#128179;</span>
+              <span class="sub-pay-label">Card / PayPal</span>
+              <span class="sub-pay-sub">Visa, MC, PayPal</span>
+            </button>
+            <button type="button" class="sub-pay-tab" data-pay-method="bank">
+              <span class="sub-pay-icon">&#127974;</span>
+              <span class="sub-pay-label">Bank Wire / SWIFT</span>
+              <span class="sub-pay-sub">International IBAN</span>
+            </button>
+            <button type="button" class="sub-pay-tab" data-pay-method="wallet">
+              <span class="sub-pay-icon">&#128241;</span>
+              <span class="sub-pay-label">Mobile Wallet</span>
+              <span class="sub-pay-sub">JazzCash / Raast</span>
+            </button>
+          </div>
+
+          <div class="sub-jazzcash-box" id="subPaymentDetailsBox">
             <div class="sub-jazzcash-head">
-              <span class="sub-jazzcash-icon">&#128241;</span>
+              <span class="sub-jazzcash-icon" id="subPayIcon">&#128179;</span>
               <div>
-                <strong>Send Payment via JazzCash</strong>
-                <p>Transfer the exact plan amount to the official JazzCash account below:</p>
+                <strong id="subPayTitle">Credit / Debit Card &amp; Online Checkout</strong>
+                <p id="subPayDesc">Pay securely worldwide using Visa, MasterCard, Amex, Apple Pay, Google Pay or PayPal.</p>
               </div>
             </div>
             <div class="sub-jazzcash-details">
               <div class="sub-jc-col">
-                <span class="sub-jc-label">JazzCash Account Mobile</span>
-                <strong class="sub-jc-value">0304 295 4627</strong>
+                <span class="sub-jc-label">Payment Channel / Account</span>
+                <strong class="sub-jc-value" id="subPayAccount">Global Online Card Terminal</strong>
               </div>
               <div class="sub-jc-col">
-                <span class="sub-jc-label">Account Title</span>
-                <strong class="sub-jc-value">Amna Bibi</strong>
+                <span class="sub-jc-label">Account Beneficiary</span>
+                <strong class="sub-jc-value">Amna Bibi / OpenMarket SaaS</strong>
               </div>
               <div class="sub-jc-col">
                 <span class="sub-jc-label">Amount Due</span>
-                <strong class="sub-jc-value sub-jc-amount" id="subAmountDue">PKR 6,000</strong>
+                <strong class="sub-jc-value sub-jc-amount" id="subAmountDue"> USD / PKR 6,000</strong>
               </div>
             </div>
           </div>
@@ -1127,22 +1158,22 @@
           <!-- 5. Payment Verification Fields -->
           <div class="reg-grid">
             <div class="field">
-              <label for="subPayerMobile">JazzCash Sender Mobile Number <em>*</em></label>
-              <input type="tel" id="subPayerMobile" name="subPayerMobile" placeholder="Number used to send payment" maxlength="13" inputmode="numeric" required />
+              <label for="subPayerMobile">Sender Contact / Mobile / Account ID <em>*</em></label>
+              <input type="text" id="subPayerMobile" name="subPayerMobile" placeholder="e.g. +1 555 0199 or payer@email.com" maxlength="60" required />
               <span class="field-error" id="subPayerMobileErr"></span>
             </div>
             <div class="field">
-              <label for="subTxId">Transaction ID / TID (from SMS) <em>*</em></label>
-              <input type="text" id="subTxId" name="subTxId" placeholder="Enter JazzCash TID" maxlength="60" required />
+              <label for="subTxId">Transaction Reference / Receipt ID <em>*</em></label>
+              <input type="text" id="subTxId" name="subTxId" placeholder="Card Ref, Wire TID or Receipt #" maxlength="60" required />
               <span class="field-error" id="subTxIdErr"></span>
             </div>
           </div>
 
           <div class="sub-approval-notice">
-            <span class="sub-notice-icon">â³</span>
+            <span class="sub-notice-icon">&#9203;</span>
             <div>
-              <strong>Owner Approval Notice:</strong>
-              <p>After you submit, the site owner will verify the transaction on JazzCash. Once confirmed, your subscription will be activated automatically.</p>
+              <strong>Instant Global Verification:</strong>
+              <p>Your payment confirmation is processed securely. Once validated, your cloud enterprise subscription activates automatically worldwide.</p>
             </div>
           </div>
 
@@ -1325,7 +1356,7 @@
               </div>
               <div class="field">
                 <label for="ufMobile">Mobile Number <em>*</em></label>
-                <input type="tel" id="ufMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+                <input type="tel" id="ufMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
                 <span class="field-error" id="ufMobileErr"></span>
               </div>
             </div>
@@ -1333,7 +1364,7 @@
             <div class="form-row">
               <div class="field">
                 <label for="ufCity">City <em>*</em></label>
-                <input type="text" id="ufCity" placeholder="e.g. Lahore" autocomplete="address-level2" maxlength="40" />
+                <input type="text" id="ufCity" placeholder="e.g. New York, London, Lahore" autocomplete="address-level2" maxlength="40" />
                 <span class="field-error" id="ufCityErr"></span>
               </div>
               <div class="field">
@@ -1373,22 +1404,22 @@
                   <label for="ufSubscriptionPlan">Subscription plan <em>*</em></label>
                   <select id="ufSubscriptionPlan">
                     <option value="">Choose a plan</option>
-                    <option value="1-month">1 Month (PKR 2,000)</option>
-                    <option value="3-month">3 Months (PKR 6,000)</option>
-                    <option value="1-year">1 Year (PKR 20,000)</option>
+                    <option value="1-month">$9 USD / 1 Month (PKR 2,000)</option>
+                    <option value="3-month">$24 USD / 3 Months (PKR 6,000)</option>
+                    <option value="1-year">$69 USD / 1 Year (PKR 20,000)</option>
                   </select>
                   <span class="field-error" id="ufSubscriptionPlanErr"></span>
                 </div>
               </div>
               <div class="form-row">
                 <div class="field">
-                  <label for="ufPayerMobile">JazzCash sender mobile <em>*</em></label>
-                  <input type="tel" id="ufPayerMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+                  <label for="ufPayerMobile">Payment sender phone / ID <em>*</em></label>
+                  <input type="tel" id="ufPayerMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
                   <span class="field-error" id="ufPayerMobileErr"></span>
                 </div>
                 <div class="field">
                   <label for="ufPaymentReference">Transaction / reference ID <em>*</em></label>
-                  <input type="text" id="ufPaymentReference" placeholder="Enter the JazzCash transaction ID" maxlength="100" autocomplete="off" />
+                  <input type="text" id="ufPaymentReference" placeholder="Card TID, wire TID or receipt ID" maxlength="100" autocomplete="off" />
                   <span class="field-error" id="ufPaymentReferenceErr"></span>
                 </div>
               </div>
@@ -1399,7 +1430,7 @@
           <div id="userLoginFields" hidden>
             <div class="field">
               <label for="ufLoginMobile">Registered Mobile Number <em>*</em></label>
-              <input type="tel" id="ufLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="username" />
+              <input type="tel" id="ufLoginMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="username" />
               <span class="field-error" id="ufLoginMobileErr"></span>
             </div>
             <div class="field">
@@ -1464,12 +1495,12 @@
           <div class="form-row">
             <div class="field">
               <label for="ofMobile">Mobile Number</label>
-              <input type="tel" id="ofMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" />
+              <input type="tel" id="ofMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" />
               <span class="field-error" id="errMobile"></span>
             </div>
             <div class="field">
               <label for="ofCity">City</label>
-              <input type="text" id="ofCity" placeholder="e.g. Lahore" autocomplete="address-level2" />
+              <input type="text" id="ofCity" placeholder="e.g. New York, London, Lahore" autocomplete="address-level2" />
               <span class="field-error" id="errCity"></span>
             </div>
           </div>
@@ -1499,7 +1530,7 @@
 
         <div class="field" id="loginField" hidden>
           <label for="ofLoginMobile">Registered Mobile Number</label>
-          <input type="tel" id="ofLoginMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="username" />
+          <input type="tel" id="ofLoginMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="username" />
           <span class="field-error" id="errLoginMobile"></span>
         </div>
 
@@ -1542,7 +1573,7 @@
             </div>
             <div class="field">
               <label for="ceoSetupMobile">Mobile Number</label>
-              <input type="tel" id="ceoSetupMobile" placeholder="03XXXXXXXXX" inputmode="numeric" maxlength="13" autocomplete="tel" />
+              <input type="tel" id="ceoSetupMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
               <span class="field-error" id="ceoErrSetupMobile"></span>
             </div>
             <div class="field">
@@ -1603,7 +1634,7 @@
             <label>Current password<input type="password" name="currentPassword" autocomplete="current-password" required /></label>
             <label>Full name<input type="text" name="name" autocomplete="name" minlength="3" maxlength="80" required /></label>
             <label>Email address<input type="email" name="email" autocomplete="email" required /></label>
-            <label>Mobile number<input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" maxlength="13" required /></label>
+            <label>Mobile number<input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" maxlength="20" required /></label>
             <label>New password <span>Leave blank to keep your current password</span><input type="password" name="newPassword" autocomplete="new-password" minlength="8" maxlength="72" /></label>
             <button class="btn btn-primary btn-block" type="submit">Save account changes</button>
             <p class="ceo-settings-note">Your current password is required to save changes. Email updates may need confirmation from your inbox.</p>
@@ -1665,8 +1696,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261101FullAccountLifecycle"></script>
-  <script src="liveads.js?v=20261031FiverrProfiles"></script>
+  <script src="script.js?v=20261101WorldReady"></script>
+  <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 
   <!-- ========== PRIVACY POLICY & DATA PROTECTION CHARTER MODAL ========== -->

@@ -10,9 +10,9 @@ const CATEGORY_SITE_URL = "https://onlinemanagement.site";
 const CATEGORY_MODULES = window.OMS_FEATURE_MODULES;
 const CATEGORY_SUPABASE = CATEGORY_MODULES.supabaseClient;
 const CATEGORY_SUBSCRIPTION_PLANS = {
-  "1-month": { label: "1 Month", months: 1, price: 2000 },
-  "3-month": { label: "3 Months", months: 3, price: 6000 },
-  "1-year": { label: "1 Year", months: 12, price: 20000 }
+  "1-month": { label: "1 Month", months: 1, price: 2000, priceUsd: 9 },
+  "3-month": { label: "3 Months", months: 3, price: 6000, priceUsd: 24 },
+  "1-year": { label: "1 Year", months: 12, price: 20000, priceUsd: 69 }
 };
 
 const CATEGORIES = {
@@ -854,11 +854,11 @@ const showCategorySignIn = (message = "") => {
     `<h2 id="categoryAuthTitle">Sign in to your account</h2>` +
     `<p class="category-auth-copy">An active subscription is required for this category. Other categories require their own separate subscription.</p>` +
     `<form id="categoryLoginForm" class="category-auth-form">` +
-    `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
+    `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="e.g. +1 555 0199 or 03001234567"></label>` +
     `<label>Password<input name="password" type="text" autocomplete="current-password" required></label>` +
     `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
     `<button class="btn btn-primary" type="submit">Sign in</button></form>` +
-    `<p class="category-auth-switch">New account? Purchase a plan after paying through JazzCash.</p>`;
+    `<p class="category-auth-switch">New account? Purchase a plan with Card, Bank Wire, or Mobile Wallet.</p>`;
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
   content.querySelector("input")?.focus();
@@ -877,18 +877,23 @@ const showCategoryAuth = (planId = categorySelectedPlan, mode = "signup", messag
   categorySelectedPlan = planId;
   const signup = mode === "signup";
   const alreadySignedIn = !!categoryUser;
+  const priceDisplay = `$${plan.priceUsd || Math.round(plan.price / 250)} USD / PKR ${plan.price.toLocaleString()}`;
   content.innerHTML = `<p class="category-workspace-eyebrow">${categoryEscape(CURRENT.short)} subscription</p>` +
     `<h2 id="categoryAuthTitle">Payment &amp; account setup</h2>` +
-    `<p class="category-auth-copy">Plan: <strong>${plan.label}</strong> · PKR ${plan.price.toLocaleString()} · applies only to ${categoryEscape(CURRENT.short)}. Send payment by JazzCash to the owner number below. Access starts only after manual payment verification.</p>` +
-    `<div class="category-jazzcash-box"><span>JazzCash account</span><strong>03042954627</strong><small>Confirm the recipient name shown in JazzCash before sending. Keep your transaction receipt and reference ID.</small></div>` +
+    `<p class="category-auth-copy">Plan: <strong>${plan.label}</strong> · ${priceDisplay} · applies to ${categoryEscape(CURRENT.short)}. Pay securely via Credit/Debit Card, International Wire, or Mobile Wallet.</p>` +
+    `<div class="category-jazzcash-box" style="text-align:left;">` +
+      `<span>Global Multi-Payment Channels</span>` +
+      `<strong style="font-size:1.02rem; display:block; margin:0.35rem 0; line-height:1.45;">💳 Card / PayPal: Online Checkout<br>🏦 Wire: IBAN PK92MEZN0001020304050607 (SWIFT: MEZNPKKA)<br>📱 Mobile Wallet: 0304 295 4627</strong>` +
+      `<small>Beneficiary: Amna Bibi / OpenMarket SaaS. Keep your transaction receipt or reference ID.</small>` +
+    `</div>` +
     `<form id="categoryAuthForm" class="category-auth-form">` +
     (!alreadySignedIn && signup ? `<label>Full name<input name="name" type="text" autocomplete="name" required minlength="3" maxlength="80"></label>` : "") +
-    (alreadySignedIn ? "" : `<label>Account mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="03XXXXXXXXX"></label>` +
+    (alreadySignedIn ? "" : `<label>Account phone / mobile number<input name="mobile" type="tel" autocomplete="tel" required inputmode="tel" placeholder="e.g. +1 555 0199 or 03001234567"></label>` +
     `<label>Password<input name="password" type="text" autocomplete="${signup ? "new-password" : "current-password"}" required ${signup ? "minlength=\"8\"" : ""}></label>`) +
-    `<label>JazzCash sender mobile<input name="payerMobile" type="tel" inputmode="tel" required placeholder="Number used to send payment"></label>` +
-    `<label>JazzCash transaction / reference ID<input name="paymentReference" type="text" required maxlength="100" autocomplete="off" placeholder="Enter the transaction ID from your receipt"></label>` +
-    `<label class="category-subscription-ack"><input name="categoryOnly" type="checkbox" required> I understand this purchase activates only ${categoryEscape(CURRENT.short)}.</label>` +
-    `<p class="category-auth-copy">After you submit, this request stays pending while the owner checks the payment in JazzCash. Do not send your password or PIN to anyone.</p>` +
+    `<label>Sender contact / mobile<input name="payerMobile" type="tel" inputmode="tel" required placeholder="Phone, email or sender identifier"></label>` +
+    `<label>Transaction / reference ID<input name="paymentReference" type="text" required maxlength="100" autocomplete="off" placeholder="Card TID, wire reference or receipt #"></label>` +
+    `<label class="category-subscription-ack"><input name="categoryOnly" type="checkbox" required> I understand this purchase activates ${categoryEscape(CURRENT.short)}.</label>` +
+    `<p class="category-auth-copy">After submission, the administrator verifies the payment reference to activate cloud access worldwide.</p>` +
     `<p class="category-auth-error" role="alert">${categoryEscape(message)}</p>` +
     `<button class="btn btn-primary" type="submit">${alreadySignedIn ? "Submit payment for verification" : signup ? "Create account & submit payment" : "Sign in & submit payment"}</button></form>` +
     (alreadySignedIn ? `<p class="category-auth-switch">Signed in as ${categoryEscape(categoryUser.user_metadata?.mobile || categoryUser.email)}. <button type="button" data-auth-signout>Use another account</button></p>` :
@@ -2689,19 +2694,19 @@ const initCategoryTools = async () => {
     const submit = form.querySelector('button[type="submit"]');
     const payerMobile = categoryMobile(String(formData.get("payerMobile") || ""));
     const paymentReference = String(formData.get("paymentReference") || "").trim();
-    if (!/^\d{7,15}$/.test(payerMobile)) {
-      message.textContent = "Enter the mobile number used to send the JazzCash payment.";
+    if (!/^\d{7,16}$/.test(payerMobile)) {
+      message.textContent = "Enter the sender mobile or contact identifier used for payment.";
       return;
     }
     if (!/^[A-Za-z0-9-]{4,100}$/.test(paymentReference)) {
-      message.textContent = "Enter a valid JazzCash transaction/reference ID (at least 4 letters or numbers).";
+      message.textContent = "Enter a valid transaction or reference ID (at least 4 characters).";
       return;
     }
     submit.disabled = true;
     submit.textContent = categoryUser ? "Submitting request…" : signup ? "Creating account…" : "Signing in…";
     try {
       if (!categoryUser) {
-        if (!/^\d{7,15}$/.test(mobile)) throw new Error("Enter a valid account mobile number.");
+        if (!/^\d{7,16}$/.test(mobile)) throw new Error("Enter a valid account phone / mobile number.");
         const result = signup
           ? await CATEGORY_SUPABASE.auth.signUp({
             email: categoryEmail(mobile),
@@ -2884,3 +2889,33 @@ window.showCategorySubscriptionPaywall = showCategorySubscriptionPaywall;
 window.setGlobalCurrency = setGlobalCurrency;
 window.formatCurrencyVal = formatCurrencyVal;
 window.showCategoryShortcutsModal = showCategoryShortcutsModal;
+
+// Universal Language Switcher Support in Category Portals
+const initCategoryGlobalLangSelector = () => {
+  const langSelect = document.getElementById("omsGlobalLangSelect");
+  if (!langSelect) return;
+  const match = document.cookie.match(/(^|;) ?googtrans=([^;]*)(;|$)/);
+  if (match) {
+    const code = match[2].split("/")[2];
+    if (code) langSelect.value = code;
+  }
+  langSelect.addEventListener("change", (e) => {
+    const val = e.target.value;
+    const langCode = val === "zh" ? "zh-CN" : val;
+    const cookieVal = "/en/" + langCode;
+    document.cookie = "googtrans=" + cookieVal + "; path=/";
+    document.cookie = "googtrans=" + cookieVal + "; domain=" + window.location.hostname + "; path=/";
+    const gCombo = document.querySelector(".goog-te-combo");
+    if (gCombo) {
+      gCombo.value = langCode;
+      gCombo.dispatchEvent(new Event("change"));
+    } else {
+      window.location.reload();
+    }
+  });
+};
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initCategoryGlobalLangSelector);
+} else {
+  initCategoryGlobalLangSelector();
+}

@@ -3339,3 +3339,244 @@ p,
     align-items: flex-start;
   }
 }
+
+
+/* ============================================================
+   ENTERPRISE TERMS OF USE & PRIVACY POLICY MODAL
+   ============================================================ */
+
+.legal-modal-card {
+  max-width: 820px !important;
+  max-height: 90vh !important;
+  border-radius: 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: #ffffff !important;
+  box-shadow: 0 30px 70px -15px rgba(15, 23, 42, 0.45) !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 0 !important;
+}
+
+.legal-modal-header {
+  padding: 1.25rem 1.6rem 0.9rem !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 20 !important;
+}
+
+.legal-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.legal-title-wrap h3 {
+  margin: 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.legal-header-sub {
+  margin: 0.25rem 0 0 !important;
+  font-size: 0.78rem !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+
+.legal-tabs-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  background: #e2e8f0;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.legal-tab-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #475569;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.legal-tab-btn:hover {
+  color: #0f172a;
+}
+
+.legal-tab-btn.is-active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.legal-modal-body {
+  padding: 1.5rem 1.8rem !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
+  color: #334155 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.68 !important;
+}
+
+.legal-tab-content {
+  display: none;
+}
+
+.legal-tab-content.is-active {
+  display: block;
+  animation: legalFade 0.2s ease-in-out;
+}
+
+@keyframes legalFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.legal-lead-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1.15rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  color: #166534;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 1.3rem;
+}
+
+.legal-lead-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+  flex-shrink: 0;
+}
+
+.legal-clause {
+  margin-bottom: 1.35rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.legal-clause:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.legal-clause-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legal-num-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  background: #e2e8f0;
+  color: #334155;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.legal-clause p {
+  margin: 0 0 0.5rem;
+  color: #475569;
+}
+
+.legal-clause p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-highlight-box {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #ff8f04;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0;
+  font-size: 0.86rem;
+  color: #9a3412;
+}
+
+.legal-highlight-box strong {
+  color: #7c2d12;
+}
+
+.legal-bullet-list {
+  margin: 0.5rem 0 0.5rem 1.2rem;
+  padding: 0;
+}
+
+.legal-bullet-list li {
+  margin-bottom: 0.35rem;
+  color: #475569;
+}
+
+.legal-contact-card {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  font-size: 0.84rem;
+}
+
+.legal-contact-item strong {
+  display: block;
+  color: #0f172a;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.legal-modal-footer {
+  padding: 1rem 1.6rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.legal-footer-note {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.legal-footer-btns {
+  display: flex;
+  gap: 0.65rem;
+}

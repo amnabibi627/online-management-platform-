@@ -5533,7 +5533,7 @@ if (subPurchaseForm) {
   });
 }
 
-// Global Privacy Policy Modal Triggers
+// Global Legal Charter (Terms of Use & Privacy Policy) Triggers & Tab Switching
 document.addEventListener("click", (e) => {
   if (e.target.closest("#openPrivacyPolicyLink")) {
     e.preventDefault();
@@ -5543,11 +5543,26 @@ document.addEventListener("click", (e) => {
       modal.setAttribute("aria-hidden", "false");
     }
   }
-  if (e.target.closest("#closeGlobalPrivacyModal")) {
+  if (e.target.closest("#closeGlobalPrivacyModal") || e.target.closest("#acceptLegalCharterBtn")) {
     const modal = document.getElementById("globalPrivacyModal");
     if (modal) {
       modal.classList.remove("is-open");
       modal.setAttribute("aria-hidden", "true");
+    }
+  }
+  const tabBtn = e.target.closest(".legal-tab-btn");
+  if (tabBtn) {
+    const tabName = tabBtn.dataset.legalTab;
+    document.querySelectorAll(".legal-tab-btn").forEach(b => {
+      const active = b === tabBtn;
+      b.classList.toggle("is-active", active);
+      b.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    const termsPane = document.getElementById("legalTabTerms");
+    const privPane = document.getElementById("legalTabPrivacy");
+    if (termsPane && privPane) {
+      termsPane.classList.toggle("is-active", tabName === "terms");
+      privPane.classList.toggle("is-active", tabName === "privacy");
     }
   }
 });

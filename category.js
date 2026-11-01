@@ -360,18 +360,81 @@ const categoryEnsureToolsUi = () => {
       `<button type="button" class="category-modal-close-btn" data-close-safety aria-label="Close">&times;</button></div>` +
       `<div class="category-modal-card-body" id="categorySafetyModalBody"></div></div></div>` +
       `<div class="category-modal-backdrop" id="categoryPrivacyModalBackdrop" aria-hidden="true">` +
-      `<div class="category-modal-card">` +
-      `<div class="category-modal-card-header">` +
-      `<h3>&#128274; Enterprise Data Privacy &amp; Confidentiality Charter</h3>` +
-      `<button type="button" class="category-modal-close-btn" data-close-privacy aria-label="Close">&times;</button></div>` +
-      `<div class="category-modal-card-body">` +
-      `<div class="safety-status-badge"><span class="safety-status-dot"></span><span>100% Confidential: Business, Patient &amp; Financial Records Protection</span></div>` +
-      `<div class="privacy-pillar-box"><h4>&#127973; Patient &amp; Clinical Data Privacy (Medical Store, Clinic, Lab)</h4><p>All patient medical records, diagnostic test results, medical histories, and digital prescriptions are strictly private and accessible only to your authenticated business account. We adhere to high confidentiality standards and never share medical data.</p></div>` +
-      `<div class="privacy-pillar-box"><h4>&#128188; Commercial &amp; Financial Confidentiality (Store, Restaurant, Fuel)</h4><p>Invoices, wholesale supplier costs, daily cash reconciliation, and customer khata ledgers remain solely under your exclusive control. Data is encrypted using TLS 1.3 in transit and AES-256 at rest.</p></div>` +
-      `<div class="privacy-pillar-box"><h4>&#128683; Zero Third-Party Monetization</h4><p>We do not monetize, rent, analyze for advertising, or sell your customer phone numbers, receipts, or business data to any third-party marketing network.</p></div>` +
-      `<div class="privacy-pillar-box"><h4>&#128465;&#65039; Right to Eradication &amp; Full Data Portability</h4><p>You hold 100% ownership of your database. You can export complete JSON backups at any moment and permanently delete records from your Recycle Bin with instant irrevocable purging.</p></div>` +
-      `<div class="privacy-dpo-box"><strong>Direct Grievance &amp; Data Protection Officer Contact:</strong><br />Phone / WhatsApp: <strong>03042954627</strong> &bull; Email: <strong>amnabibi627@gmail.com</strong></div>` +
-      `</div></div></div>`);
+      `<div class="category-modal-card legal-modal-card" role="dialog" aria-modal="true" aria-labelledby="catLegalCharterTitle">` +
+      `<div class="legal-modal-header">` +
+      `<div class="legal-header-top">` +
+      `<div class="legal-title-wrap">` +
+      `<h3 id="catLegalCharterTitle">&#9878;&#65039; Terms of Use &amp; Privacy Policy</h3>` +
+      `<p class="legal-header-sub">Official Legal Charter &bull; Last Updated: November 2026 &bull; Global Enterprise Standard</p>` +
+      `</div>` +
+      `<button type="button" class="category-modal-close-btn" data-close-privacy aria-label="Close dialog">&times;</button>` +
+      `</div>` +
+      `<div class="legal-tabs-bar" role="tablist">` +
+      `<button type="button" class="legal-tab-btn is-active" data-cat-legal-tab="terms" role="tab" aria-selected="true">` +
+      `<span>&#128196; Terms of Use</span>` +
+      `</button>` +
+      `<button type="button" class="legal-tab-btn" data-cat-legal-tab="privacy" role="tab" aria-selected="false">` +
+      `<span>&#128274; Privacy Policy</span>` +
+      `</button>` +
+      `</div>` +
+      `</div>` +
+      `<div class="legal-modal-body">` +
+      `<div class="legal-tab-content is-active" id="catLegalTabTerms" role="tabpanel">` +
+      `<div class="legal-lead-card"><span class="legal-lead-dot"></span><span>Commercial Cloud Agreement: Clear Rules, Fair Terms, and 100% User Data Ownership.</span></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">1.0</span> Acceptance &amp; Cloud Service Scope</div>` +
+      `<p>Welcome to Online Management Site ("OMS", "we", "us", or "our"). By registering an account, initiating a free trial, or subscribing to any module, you agree to be bound by these Terms of Use and our integrated Privacy Policy.</p>` +
+      `<p>OMS provides a cloud-native business operational suite enabling daily billing, patient records, queue tokens, shift management, stock tracking, and analytical reporting across web and mobile platforms.</p></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">2.0</span> Account Credentials &amp; Security</div>` +
+      `<p>You are responsible for safeguarding your login credentials, passwords, and security PINs. You agree to provide accurate and verifiable contact information (name, phone number, email) during account creation. Any activity occurring under your authenticated credentials remains your legal responsibility.</p></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">3.0</span> Subscription Plans &amp; Transparent Billing</div>` +
+      `<p>Our category portals operate on a transparent subscription model (1 Month, 3 Months, Yearly Pro):</p>` +
+      `<ul class="legal-bullet-list"><li><strong>Zero Hidden Charges:</strong> All prices are displayed upfront in USD and regional currencies with zero hidden transaction surcharges.</li>` +
+      `<li><strong>Manual Verification Integrity:</strong> Card checkouts, international bank wires, and mobile wallet payments are validated securely before account activation.</li>` +
+      `<li><strong>Independent Module Access:</strong> Each business category maintains its own dedicated database and subscription access.</li></ul></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">4.0</span> Proprietary Platform vs. 100% Customer Data Ownership</div>` +
+      `<div class="legal-highlight-box"><strong>Your Data Belongs to You:</strong> You retain 100% exclusive proprietary ownership of all invoices, patient histories, customer ledgers, student profiles, and inventory data entered into OMS. We claim zero intellectual property over your operational data.</div>` +
+      `<p>OMS retains all intellectual property rights in the platform's software architecture, algorithms, branding, and user interface designs.</p></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">5.0</span> Service Availability &amp; Offline Resilience</div>` +
+      `<p>OMS targets a 99.9% cloud infrastructure availability standard. Critical transaction flows are engineered with local caching resilience so that temporary internet dropouts do not halt your counter operations.</p></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">6.0</span> Account Termination &amp; Data Export</div>` +
+      `<p>You may export full, unencrypted JSON/CSV backups of your business data at any time. You may request permanent account deletion at will, upon which all your records are permanently purged.</p></div>` +
+      `</div>` +
+      `<div class="legal-tab-content" id="catLegalTabPrivacy" role="tabpanel">` +
+      `<div class="legal-lead-card"><span class="legal-lead-dot"></span><span>Enterprise Privacy Charter: TLS 1.3 Encryption, Zero Third-Party Selling, and Full Portability.</span></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">1.0</span> Information Collection &amp; Usage</div>` +
+      `<p>We collect strictly necessary operational information to provide cloud services:</p>` +
+      `<ul class="legal-bullet-list"><li><strong>Account Identifiers:</strong> Name, business title, phone number, email address, country, and city for authentication.</li>` +
+      `<li><strong>Operational Ledgers:</strong> Invoices, patient charts, lab test reports, fuel dip readings, and student attendance entered by your business.</li>` +
+      `<li><strong>Payment Proofs:</strong> Transaction reference IDs and payment receipt numbers for subscription activation.</li></ul></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">2.0</span> Industry-Specific Clinical &amp; Financial Confidentiality</div>` +
+      `<p><strong>Medical &amp; Healthcare (Clinic, Lab, Pharmacy):</strong> Patient diagnostics, clinical histories, and digital prescriptions are treated as confidential medical data and are never shared or mined.</p>` +
+      `<p><strong>Commercial &amp; Financial (Retail, Dining, Petroleum):</strong> Wholesale purchasing costs, profit margins, cash balances, and customer credit (khata) records remain exclusively visible to your authenticated account.</p></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">3.0</span> Zero Third-Party Data Monetization (Guaranteed)</div>` +
+      `<div class="legal-highlight-box"><strong>Strict Zero-Selling Commitment:</strong> We NEVER sell, rent, monetize, or trade your phone numbers, emails, customer databases, or financial numbers to advertising networks, data brokers, or marketing syndicates.</div></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">4.0</span> Security Architecture &amp; Encryption</div>` +
+      `<p>Your data is secured through defense-in-depth measures:</p>` +
+      `<ul class="legal-bullet-list"><li><strong>In-Transit Protection:</strong> Modern TLS 1.3 encryption with strict HTTPS enforcement.</li>` +
+      `<li><strong>At-Rest Security:</strong> Enterprise AES-256 database encryption with isolated tenant partitions.</li>` +
+      `<li><strong>Disaster Recovery:</strong> Daily rolling encrypted cloud backups with one-click snapshot restoration.</li></ul></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">5.0</span> Data Portability &amp; Right to Eradication</div>` +
+      `<p>You hold the full right to data portability (download complete JSON/CSV exports anytime) and the right to permanent eradication (instant purging of deleted records from the Recycle Bin).</p></div>` +
+      `<div class="legal-clause"><div class="legal-clause-title"><span class="legal-num-badge">6.0</span> Data Protection Officer (DPO) Contact</div>` +
+      `<p>For regulatory inquiries, compliance certifications, or grievance redressal, reach our dedicated Data Protection team:</p>` +
+      `<div class="legal-contact-card">` +
+      `<div class="legal-contact-item"><strong>Data Protection Officer</strong><span>OpenMarket Cloud Governance</span></div>` +
+      `<div class="legal-contact-item"><strong>Official Email</strong><span>amnabibi627@gmail.com</span></div>` +
+      `<div class="legal-contact-item"><strong>Phone / WhatsApp Hotline</strong><span>+92 304 295 4627</span></div>` +
+      `<div class="legal-contact-item"><strong>Operating Jurisdiction</strong><span>Bahawalpur, Punjab, Pakistan (Global Service)</span></div>` +
+      `</div></div>` +
+      `</div>` +
+      `</div>` +
+      `<div class="legal-modal-footer">` +
+      `<span class="legal-footer-note">&#128274; Encrypted &bull; Legally Binding &bull; OpenMarket Cloud Standard</span>` +
+      `<div class="legal-footer-btns">` +
+      `<button type="button" class="btn btn-primary" data-close-privacy style="padding:0.45rem 1.25rem; font-size:0.85rem;">I Understand &amp; Agree</button>` +
+      `</div>` +
+      `</div>` +
+      `</div></div>`);
   }
 };
 const setCategoryAccountUi = () => {
@@ -2052,6 +2115,22 @@ const initCategoryTools = async () => {
     if (e.target.closest("[data-close-safety]")) {
       const m = document.getElementById("categorySafetyModalBackdrop");
       if (m) { m.classList.remove("is-open"); m.setAttribute("aria-hidden", "true"); }
+      return;
+    }
+    const catTabBtn = e.target.closest("[data-cat-legal-tab]");
+    if (catTabBtn) {
+      const tabName = catTabBtn.getAttribute("data-cat-legal-tab");
+      document.querySelectorAll("[data-cat-legal-tab]").forEach(b => {
+        const active = b === catTabBtn;
+        b.classList.toggle("is-active", active);
+        b.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      const tPane = document.getElementById("catLegalTabTerms");
+      const pPane = document.getElementById("catLegalTabPrivacy");
+      if (tPane && pPane) {
+        tPane.classList.toggle("is-active", tabName === "terms");
+        pPane.classList.toggle("is-active", tabName === "privacy");
+      }
       return;
     }
     if (e.target.closest("[data-close-privacy]")) {

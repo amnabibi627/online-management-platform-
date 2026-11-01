@@ -295,6 +295,7 @@ const categoryFeatureDef = (featureId, card = null) => {
     id: featureId,
     name: registered?.name || generic?.name || foundInCurrent?.name || card?.querySelector("h3")?.textContent || featureId,
     icon: registered?.icon || generic?.icon || foundInCurrent?.icon || card?.querySelector(".cat-feature-icon")?.textContent || "\u{1F4C1}",
+    desc: foundInCurrent?.desc || generic?.desc || registered?.desc || `Live digital management for ${featureId}.`,
     fields: registered?.fields || generic?.fields || fallback.fields
   };
 };
@@ -1619,60 +1620,24 @@ const categoryRenderList = () => {
   }
 
   content.innerHTML = `
-    <div class="cat-ws-header">
-      <div class="cat-ws-header-info" style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-        <h2 id="categoryWorkspaceTitle"><span class="cat-ws-title-icon">${categoryEscape(categoryFeature.icon)}</span> ${categoryEscape(categoryFeature.name)}</h2>
-        ${trialBadgeHtml}
-      </div>
-      <div class="cat-ws-header-actions">
-        <button type="button" class="btn btn-primary" data-tool-add>
-          <span aria-hidden="true">➕</span> Add Record
-        </button>
-        <div class="cat-ws-dropdown">
-          <button type="button" class="btn btn-outline cat-ws-dropdown-btn" data-ws-menu-toggle aria-expanded="false" title="Data Backup, Restore, Export & Tools">
-            <span aria-hidden="true">⚙️</span> Manage Data <span class="cat-caret">▾</span>
-          </button>
-          <div class="cat-ws-dropdown-menu" id="catWsDataMenu">
-            <div class="cat-ws-menu-header">Data Backup & Recovery</div>
-            <button type="button" class="cat-ws-menu-item" data-ws-backup>
-              <span class="cat-menu-icon" aria-hidden="true">💾</span>
-              <div class="cat-menu-text">
-                <strong>Export Backup</strong>
-                <small>Download full data file (JSON)</small>
-              </div>
-            </button>
-            <button type="button" class="cat-ws-menu-item" data-ws-restore>
-              <span class="cat-menu-icon" aria-hidden="true">📥</span>
-              <div class="cat-menu-text">
-                <strong>Restore Backup</strong>
-                <small>Upload and import JSON backup</small>
-              </div>
-            </button>
-            <button type="button" class="cat-ws-menu-item" data-ws-tab="${isTrash ? 'active' : 'trash'}">
-              <span class="cat-menu-icon" aria-hidden="true">${isTrash ? '📋' : '🗑️'}</span>
-              <div class="cat-menu-text">
-                <strong>${isTrash ? 'View Active Records' : 'Open Recycle Bin'}</strong>
-                <small>${isTrash ? `Switch to ${allActive.length} active records` : `${allTrash.length} deleted items safely kept`}</small>
-              </div>
-            </button>
-            <div class="cat-ws-menu-divider"></div>
-            <div class="cat-ws-menu-header">Export & Reports</div>
-            <button type="button" class="cat-ws-menu-item" data-ws-csv>
-              <span class="cat-menu-icon" aria-hidden="true">📊</span>
-              <div class="cat-menu-text">
-                <strong>Export CSV</strong>
-                <small>Compatible with Excel / Sheets</small>
-              </div>
-            </button>
-            <button type="button" class="cat-ws-menu-item" data-ws-print>
-              <span class="cat-menu-icon" aria-hidden="true">🖨️</span>
-              <div class="cat-menu-text">
-                <strong>Print / PDF Report</strong>
-                <small>Clean print-ready layout</small>
-              </div>
-            </button>
+    <div class="saas-module-hero-card">
+      <div class="saas-module-hero-left">
+        <div class="saas-module-hero-icon">${categoryEscape(categoryFeature.icon || CURRENT.icon)}</div>
+        <div class="saas-module-hero-details">
+          <div class="saas-module-hero-title-row">
+            <h1 class="saas-module-hero-title">${categoryEscape(categoryFeature.name)}</h1>
+            <span class="saas-module-live-chip">
+              <span class="saas-pulse-green"></span> Live Module
+            </span>
+            ${trialBadgeHtml}
           </div>
+          <p class="saas-module-hero-desc">${categoryEscape(categoryFeature.desc || `Manage, record, and track ${categoryFeature.name.toLowerCase()} entries with real-time sync and reporting.`)}</p>
         </div>
+      </div>
+      <div class="saas-module-hero-right">
+        <button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add>
+          <span>➕ Add ${categoryEscape(categoryFeature.name)}</span>
+        </button>
       </div>
     </div>
 
@@ -1689,7 +1654,7 @@ const categoryRenderList = () => {
     <div class="cat-ws-toolbar">
       <div class="cat-ws-search-wrap">
         <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>
-        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search by any field..." value="${categoryEscape(categorySearchQuery)}" />
+        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search ${categoryEscape(categoryFeature.name.toLowerCase())} by any field..." value="${categoryEscape(categorySearchQuery)}" />
         ${categorySearchQuery ? `<button type="button" class="cat-ws-search-clear" data-ws-search-clear aria-label="Clear search">&times;</button>` : ""}
       </div>
 
@@ -1704,7 +1669,6 @@ const categoryRenderList = () => {
             <span class="cat-ws-badge">${allTrash.length}</span>
           </button>
         </div>
-
       </div>
     </div>
 
@@ -1725,11 +1689,13 @@ const categoryRenderList = () => {
         </table>
       </div>
     ` : `
-      <div class="category-workspace-empty">
-        <div class="cat-ws-empty-icon">${isTrash ? '🗑️' : (query ? '🔍' : '📝')}</div>
-        <strong>${isTrash ? 'Recycle Bin is empty' : (query ? 'No matching records found' : 'No records yet')}</strong>
-        ${query ? `<span>No records match "${categoryEscape(categorySearchQuery)}". Try another search.</span>` : (isTrash ? '<span>Recycle bin is empty.</span>' : '')}
-        ${query ? `<button type="button" class="btn btn-outline btn-sm" data-ws-search-clear style="margin-top: 0.8rem;">Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary btn-sm" data-tool-add style="margin-top: 0.8rem;">Add First Record</button>` : '')}
+      <div class="saas-empty-state-card">
+        <div class="saas-empty-icon-circle">${categoryEscape(isTrash ? '🗑️' : (query ? '🔍' : (categoryFeature.icon || '📝')))}</div>
+        <h3 class="saas-empty-title">${isTrash ? 'Recycle Bin is Empty' : (query ? 'No Matching Records Found' : `Ready for Your First ${categoryEscape(categoryFeature.name)} Record`)}</h3>
+        <p class="saas-empty-subtitle">${query ? `No records matched "${categoryEscape(categorySearchQuery)}". Try another search or clear the filter.` : (isTrash ? 'There are no deleted records currently stored in the Recycle Bin.' : `There are currently no active entries in <strong>${categoryEscape(categoryFeature.name)}</strong>. Click below to create your first record or generate a clean print report.`)}</p>
+        <div class="saas-empty-actions">
+          ${query ? `<button type="button" class="btn btn-outline" data-ws-search-clear>Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add><span>➕ Add First ${categoryEscape(categoryFeature.name)} Record</span></button><button type="button" class="btn btn-outline" onclick="categoryPrintReport()"><span>🖨️ Print View</span></button>` : `<button type="button" class="btn btn-outline" data-ws-tab="active">← Return to Active Records</button>`)}
+        </div>
       </div>
     `}
   `;

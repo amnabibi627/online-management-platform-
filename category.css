@@ -2129,3 +2129,37 @@ p,
   color: #ffffff !important;
   transform: translateY(-2px) !important;
 }
+
+/* ============================================================
+   CLEAN SAAS TOPBAR & 2-KPI GRID
+   ============================================================ */
+.saas-topbar-tools .saas-btn-trash {
+  background: #fff5f5 !important;
+  border: 1px solid #fecaca !important;
+  color: #dc2626 !important;
+}
+.saas-topbar-tools .saas-btn-trash:hover {
+  background: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+.saas-topbar-tools .saas-btn-trash.is-active {
+  background: #dc2626 !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25) !important;
+}
+
+.saas-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(200px, 1fr)) !important;
+  gap: 1.25rem !important;
+  margin-bottom: 1.5rem !important;
+}
+@media (max-width: 640px) {
+  .saas-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

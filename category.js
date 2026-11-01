@@ -358,19 +358,23 @@ const categoryGetTrial = () => {
 };
 
 const categorySetTrial = (userData) => {
+  const prevTrial = categoryGetTrial() || {};
   const seed = (userData.mobile || "") + (userData.name || "") + Date.now();
   let hash = 0;
   for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash) + seed.charCodeAt(i) | 0;
-  const uid = userData.uid || ("UID-" + (Math.abs(hash) % 90000 + 10000));
+  const uid = userData.uid || prevTrial.uid || ("UID-" + (Math.abs(hash) % 90000 + 10000));
 
   const trial = {
+    ...prevTrial,
     uid,
-    name: userData.name || "Business User",
-    mobile: userData.mobile || "",
-    email: userData.email || "",
-    city: userData.city || "",
-    startedAt: Date.now(),
-    expiresAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+    name: userData.name || prevTrial.name || "Business User",
+    mobile: userData.mobile || prevTrial.mobile || "",
+    email: userData.email || prevTrial.email || "",
+    city: userData.city || prevTrial.city || "",
+    businessName: userData.businessName || prevTrial.businessName || (CURRENT?.short ? `${CURRENT.short} Management` : "Business Portal"),
+    avatar: userData.avatar || prevTrial.avatar || "",
+    startedAt: prevTrial.startedAt || Date.now(),
+    expiresAt: prevTrial.expiresAt || (Date.now() + 5 * 24 * 60 * 60 * 1000),
     plan: "5_day_free_trial",
     status: "active"
   };
@@ -389,6 +393,41 @@ const categoryHasAccess = () => {
   return true; // Full instant access in dedicated SaaS dashboard portal
 };
 
+let currentProfileViewMode = "overview";
+
+const compressUserProfileDp = (file, callback) => {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxDim = 280;
+      let width = img.width;
+      let height = img.height;
+      if (width > height) {
+        if (width > maxDim) {
+          height = Math.round(height * (maxDim / width));
+          width = maxDim;
+        }
+      } else {
+        if (height > maxDim) {
+          width = Math.round(width * (maxDim / height));
+          height = maxDim;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+      callback(dataUrl);
+    };
+    img.onerror = () => alert("Could not process this image format. Please select JPEG or PNG.");
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
 const categoryUpdateHeaderBtn = () => {
   const btn = document.getElementById("userSignupHeaderBtn");
   if (!btn) return;
@@ -401,10 +440,13 @@ const categoryUpdateHeaderBtn = () => {
     const initial = (rawName.charAt(0) || "U").toUpperCase();
     const uid = trial?.uid || (user ? `UID-${user.id.slice(0, 5).toUpperCase()}` : "UID-84920");
     const firstName = rawName.split(" ")[0];
+    const avatar = trial?.avatar || "";
 
     btn.className = "header-user-profile-btn";
     btn.innerHTML = `
-      <span class="user-avatar-badge">${categoryEscape(initial)}</span>
+      <span class="user-avatar-badge ${avatar ? 'has-img' : ''}">
+        ${avatar ? `<img src="${avatar}" alt="${categoryEscape(firstName)}" class="user-avatar-img" />` : categoryEscape(initial)}
+      </span>
       <div class="user-meta-text">
         <span class="user-id-title">${categoryEscape(firstName)}</span>
         <span class="user-id-code">${categoryEscape(uid)}</span>
@@ -420,9 +462,11 @@ const categoryUpdateHeaderBtn = () => {
   }
 };
 
-const showCategoryTrialModal = () => {
+const showCategoryTrialModal = (viewMode = "overview") => {
+  currentProfileViewMode = viewMode;
   categoryEnsureToolsUi();
   const modal = document.getElementById("categoryAuthModal");
+  const panel = modal?.querySelector(".category-auth-panel");
   const content = document.getElementById("categoryAuthContent");
   if (!modal || !content) return;
 
@@ -430,47 +474,152 @@ const showCategoryTrialModal = () => {
   const hasSub = categoryHasActiveSubscription();
 
   if (categoryUser || (trial && trial.isActive) || hasSub) {
+    if (panel) panel.classList.add("is-profile-view");
     const userName = categoryUser?.user_metadata?.name || trial?.name || "Business Owner";
     const userMobile = categoryUser?.user_metadata?.mobile || trial?.mobile || "N/A";
-    const daysLeft = trial ? trial.daysLeft : 0;
+    const userCity = categoryUser?.user_metadata?.city || trial?.city || "Not specified";
+    const userBusiness = trial?.businessName || (CURRENT?.short ? `${CURRENT.short} Management` : "Business Portal");
+    const uid = trial?.uid || (categoryUser ? `UID-${categoryUser.id.slice(0, 5).toUpperCase()}` : "UID-84920");
+    const initial = (userName.charAt(0) || "U").toUpperCase();
+    const avatar = trial?.avatar || "";
+    const regDate = trial?.startedAt ? new Date(trial.startedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+    const avatarInnerHtml = avatar
+      ? `<img src="${avatar}" alt="${categoryEscape(userName)}" />`
+      : `<span>${categoryEscape(initial)}</span>`;
 
     content.innerHTML = `
-      <div style="text-align:center; padding: 0.5rem 0;">
-        <div class="user-avatar-badge" style="width:52px; height:52px; font-size:1.5rem; margin:0 auto 0.75rem;">${categoryEscape(userName.charAt(0).toUpperCase())}</div>
-        <h2 id="categoryAuthTitle" style="margin:0 0 0.25rem; font-size:1.35rem; font-weight:800; color:#0f172a;">${categoryEscape(userName)}</h2>
-        <div style="display:inline-flex; align-items:center; gap:0.4rem; background:#f1f5f9; padding:0.3rem 0.75rem; border-radius:8px; font-size:0.82rem; font-weight:700; color:#475569; margin-bottom:1rem;">
-          <span>User ID:</span>
-          <code style="color:#0f172a; font-family:monospace; font-weight:800; font-size:0.95rem;">${categoryEscape(trial?.uid || "UID-84920")}</code>
+      <div class="pro-account-card">
+        <div class="pro-account-header">
+          <div class="pro-avatar-wrapper">
+            <div class="pro-avatar-circle" id="proAvatarCircle">
+              ${avatarInnerHtml}
+            </div>
+            <label class="pro-avatar-camera-btn" title="Upload / Change Profile Picture">
+              <input type="file" id="userProfileDpInput" accept="image/*" style="display:none;" />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+            </label>
+          </div>
+
+          <div class="pro-account-meta">
+            <div class="pro-account-name-row">
+              <h2 class="pro-account-name">${categoryEscape(userName)}</h2>
+              <span class="pro-verified-pill" title="Verified Account">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                Verified
+              </span>
+            </div>
+            <p class="pro-account-sub">${categoryEscape(userBusiness)}</p>
+
+            <div class="pro-badges-strip">
+              <div class="pro-uid-badge" id="proUidBadge" title="Click to copy User ID" data-action-copy-uid="${categoryEscape(uid)}">
+                <span class="pro-uid-label">ID:</span>
+                <code class="pro-uid-val">${categoryEscape(uid)}</code>
+                <svg class="pro-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </div>
+              <span class="pro-status-chip ${hasSub ? 'is-pro' : 'is-trial'}">
+                <span class="pro-status-dot"></span>
+                ${hasSub ? 'Pro Plan' : `5-Day Trial (${trial?.daysLeft ?? 5}d left)`}
+              </span>
+            </div>
+
+            ${avatar ? `<button type="button" class="pro-remove-dp-btn" id="proRemoveDpBtn">Remove photo</button>` : ''}
+          </div>
         </div>
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; text-align:left; margin-bottom:1.2rem;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:0.6rem; font-size:0.84rem;">
-            <span style="color:#64748b;">Full Name</span>
-            <strong style="color:#0f172a;">${categoryEscape(userName)}</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:0.6rem; font-size:0.84rem;">
-            <span style="color:#64748b;">Registered Mobile</span>
-            <strong style="color:#0f172a;">${categoryEscape(userMobile)}</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:0.84rem;">
-            <span style="color:#64748b;">Account Status</span>
-            <strong style="color:#059669;">Verified Active</strong>
-          </div>
-        </div>
-        ${!hasSub ? `
-          <button type="button" class="btn btn-primary" style="width:100%; margin-bottom:0.6rem; padding:0.75rem; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-view-paywall>
-            Upgrade / Purchase Subscription
+
+        <div class="pro-tabs-nav">
+          <button type="button" class="pro-tab-btn ${viewMode === 'overview' ? 'is-active' : ''}" data-pro-tab="overview">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            Account Details
           </button>
-        ` : ''}
-        <button type="button" class="btn btn-outline" style="width:100%; padding:0.7rem;" data-auth-signout>
-          Logout
-        </button>
+          <button type="button" class="pro-tab-btn ${viewMode === 'edit' ? 'is-active' : ''}" data-pro-tab="edit">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Edit Profile
+          </button>
+        </div>
+
+        ${viewMode === 'overview' ? `
+          <div class="pro-details-card">
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Full Name</span>
+              <strong class="pro-detail-val">${categoryEscape(userName)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Registered Mobile</span>
+              <strong class="pro-detail-val">${categoryEscape(userMobile)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">City / Location</span>
+              <strong class="pro-detail-val">${categoryEscape(userCity)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Business / Category</span>
+              <strong class="pro-detail-val">${categoryEscape(userBusiness)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Registered Date</span>
+              <strong class="pro-detail-val">${regDate}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Security &amp; Encryption</span>
+              <strong class="pro-detail-val" style="color:#059669;">TLS 1.3 &bull; AES-256 Cloud Safe</strong>
+            </div>
+          </div>
+
+          <div class="pro-actions-footer">
+            ${!hasSub ? `
+              <button type="button" class="btn btn-primary pro-upgrade-btn" data-action-view-paywall>
+                Upgrade / Purchase Subscription
+              </button>
+            ` : ''}
+            <div class="pro-secondary-actions">
+              <button type="button" class="btn btn-outline" data-pro-tab="edit">
+                ✏️ Edit Profile
+              </button>
+              <button type="button" class="btn btn-outline pro-logout-btn" data-auth-signout>
+                Logout
+              </button>
+            </div>
+          </div>
+        ` : `
+          <form class="pro-edit-form" id="proEditProfileForm">
+            <div class="pro-form-group">
+              <label>Full Name *</label>
+              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="e.g. Dr. Muhammad Ali" />
+            </div>
+            <div class="pro-form-group">
+              <label>Registered Mobile Number *</label>
+              <input name="mobile" type="tel" value="${categoryEscape(userMobile)}" required maxlength="15" placeholder="e.g. 03001234567" />
+            </div>
+            <div class="pro-form-group">
+              <label>City / Location</label>
+              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' ? userCity : '')}" maxlength="50" placeholder="e.g. Lahore / Karachi" />
+            </div>
+            <div class="pro-form-group">
+              <label>Business / Clinic / Store Name</label>
+              <input name="businessName" type="text" value="${categoryEscape(userBusiness)}" maxlength="80" placeholder="e.g. Al-Shifa Clinic" />
+            </div>
+
+            <p class="category-auth-error" id="proEditError" role="alert" style="color:#ef4444; font-size:0.84rem; margin:0.2rem 0; min-height:1rem;"></p>
+
+            <div class="pro-edit-actions">
+              <button type="button" class="btn btn-outline" data-pro-tab="overview">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="proSaveProfileBtn" style="background:#ff8f04; border-color:#ff8f04; color:#fff;">Save Changes</button>
+            </div>
+          </form>
+        `}
       </div>
     `;
+
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     return;
   }
 
+  if (panel) panel.classList.remove("is-profile-view");
   content.innerHTML = `
     <div style="text-align:center; margin-bottom:1.25rem;">
       <div style="font-size:2.4rem; margin-bottom:0.3rem;">🚀</div>
@@ -1689,6 +1838,20 @@ const initCategoryTools = async () => {
   });
 
   document.addEventListener("change", (e) => {
+    if (e.target && e.target.id === "userProfileDpInput") {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      compressUserProfileDp(file, (dataUrl) => {
+        let trial = categoryGetTrial() || {};
+        trial.avatar = dataUrl;
+        localStorage.setItem("bms_user_trial", JSON.stringify(trial));
+        localStorage.setItem("oms_trial_account", JSON.stringify(trial));
+        categoryUpdateHeaderBtn();
+        showCategoryTrialModal(currentProfileViewMode);
+        showWorkspaceToast("Profile photo updated successfully!");
+      });
+      return;
+    }
     if (e.target && e.target.id === "saasDateFilterInput") {
       categoryDateFilter = e.target.value || "";
       categoryRenderList();
@@ -1811,6 +1974,32 @@ const initCategoryTools = async () => {
     if (event.target.closest("[data-auth-close]")) closeCategoryAuth();
     const planButton = event.target.closest("[data-subscription-plan]");
     if (planButton) showCategoryAuth(planButton.dataset.subscriptionPlan, categoryUser ? "request" : "signup");
+    const proTab = event.target.closest("[data-pro-tab]");
+    if (proTab) {
+      showCategoryTrialModal(proTab.dataset.proTab);
+      return;
+    }
+    if (event.target.closest("#proRemoveDpBtn")) {
+      let trial = categoryGetTrial() || {};
+      delete trial.avatar;
+      localStorage.setItem("bms_user_trial", JSON.stringify(trial));
+      localStorage.setItem("oms_trial_account", JSON.stringify(trial));
+      categoryUpdateHeaderBtn();
+      showCategoryTrialModal(currentProfileViewMode);
+      showWorkspaceToast("Profile photo removed.");
+      return;
+    }
+    const copyUid = event.target.closest("[data-action-copy-uid]");
+    if (copyUid) {
+      const uid = copyUid.dataset.actionCopyUid;
+      if (uid) {
+        try {
+          navigator.clipboard.writeText(uid);
+          showWorkspaceToast(`Copied User ID: ${uid}`);
+        } catch (_) {}
+      }
+      return;
+    }
     const heroSignup = event.target.closest("#categoryHeroSignup, #userSignupHeaderBtn");
     if (heroSignup) {
       showCategoryTrialModal();
@@ -2008,6 +2197,40 @@ const initCategoryTools = async () => {
   });
 
   document.getElementById("categoryAuthContent")?.addEventListener("submit", async (event) => {
+    const editForm = event.target.closest("#proEditProfileForm");
+    if (editForm) {
+      event.preventDefault();
+      const formData = new FormData(editForm);
+      const name = String(formData.get("name") || "").trim();
+      const mobile = categoryMobile(String(formData.get("mobile") || ""));
+      const city = String(formData.get("city") || "").trim();
+      const businessName = String(formData.get("businessName") || "").trim();
+      const errEl = document.getElementById("proEditError");
+
+      if (name.length < 3) {
+        if (errEl) errEl.textContent = "Please enter your full name (minimum 3 characters).";
+        return;
+      }
+      if (!/^\d{7,15}$/.test(mobile)) {
+        if (errEl) errEl.textContent = "Please enter a valid mobile number (e.g. 03XXXXXXXXX).";
+        return;
+      }
+
+      let trial = categoryGetTrial() || {};
+      trial.name = name;
+      trial.mobile = mobile;
+      trial.city = city;
+      trial.businessName = businessName;
+      localStorage.setItem("bms_user_trial", JSON.stringify(trial));
+      localStorage.setItem("oms_trial_account", JSON.stringify(trial));
+
+      categoryUpdateHeaderBtn();
+      renderSaasAnalytics();
+      showWorkspaceToast("Profile updated successfully!");
+      showCategoryTrialModal("overview");
+      return;
+    }
+
     const trialForm = event.target.closest("#categoryTrialForm");
     if (trialForm) {
       event.preventDefault();

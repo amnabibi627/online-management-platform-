@@ -785,20 +785,32 @@ const refreshUserSignupButton = () => {
   const btn = document.getElementById("userSignupHeaderBtn");
   if (!btn) return;
   const trial = getBmsTrial();
-  if (currentUser) {
-    if (trial && trial.isActive) {
-      btn.textContent = `🟢 5-Day Trial (${trial.daysLeft}d)`;
-    } else if (trial && !trial.isActive) {
-      btn.textContent = "⚠️ Trial Expired";
-    } else {
-      btn.textContent = "👤 My Account";
-    }
-  } else if (trial && trial.isActive) {
-    btn.textContent = `🟢 5-Day Trial (${trial.daysLeft}d)`;
-  } else if (trial && !trial.isActive) {
-    btn.textContent = "⚠️ Trial Expired";
+  const user = currentUser;
+
+  if (user || (trial && trial.isActive)) {
+    const rawName = user?.user_metadata?.name || trial?.name || "Business Owner";
+    const initial = (rawName.charAt(0) || "U").toUpperCase();
+    const uid = trial?.uid || (user ? `UID-${user.id.slice(0, 5).toUpperCase()}` : "UID-84920");
+    const firstName = rawName.split(" ")[0];
+    const avatar = trial?.avatar || "";
+
+    btn.className = "header-user-profile-btn";
+    btn.innerHTML = `
+      <span class="user-avatar-badge ${avatar ? 'has-img' : ''}">
+        ${avatar ? `<img src="${avatar}" alt="${firstName}" class="user-avatar-img" />` : initial}
+      </span>
+      <div class="user-meta-text">
+        <span class="user-id-title">${firstName}</span>
+        <span class="user-id-code">${uid}</span>
+      </div>
+      <span class="user-online-dot" title="Active Account"></span>
+      <span class="user-dropdown-arrow">&#9662;</span>
+    `;
+    btn.title = `Signed in: ${rawName} (${uid}) - Click to manage account`;
   } else {
-    btn.textContent = "Sign Up Free";
+    btn.className = "btn btn-primary header-signup-btn";
+    btn.innerHTML = `<span>Sign Up Free</span>`;
+    btn.title = "Create an account or sign in";
   }
 };
 

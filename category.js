@@ -1808,38 +1808,11 @@ const categoryRenderList = () => {
     <div class="cat-ws-toolbar">
       <div class="cat-ws-search-wrap">
         <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>
-        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search by any field... (HotKey: /)" value="${categoryEscape(categorySearchQuery)}" />
+        <input type="search" class="cat-ws-search-input" data-ws-search placeholder="Search by any field..." value="${categoryEscape(categorySearchQuery)}" />
         ${categorySearchQuery ? `<button type="button" class="cat-ws-search-clear" data-ws-search-clear aria-label="Clear search">&times;</button>` : ""}
       </div>
 
       <div class="cat-ws-toolbar-right">
-        <!-- Global Currency Selector -->
-        <div class="cat-ws-currency-picker" title="Change Business Currency">
-          <span class="cat-currency-globe" aria-hidden="true">🌐</span>
-          <select class="cat-currency-select" data-ws-currency-select aria-label="Select currency">
-            <option value="USD" ${currCode === 'USD' ? 'selected' : ''}>USD ($)</option>
-            <option value="EUR" ${currCode === 'EUR' ? 'selected' : ''}>EUR (€)</option>
-            <option value="GBP" ${currCode === 'GBP' ? 'selected' : ''}>GBP (£)</option>
-            <option value="AED" ${currCode === 'AED' ? 'selected' : ''}>AED (د.إ)</option>
-            <option value="SAR" ${currCode === 'SAR' ? 'selected' : ''}>SAR (ر.س)</option>
-            <option value="CAD" ${currCode === 'CAD' ? 'selected' : ''}>CAD ($)</option>
-            <option value="AUD" ${currCode === 'AUD' ? 'selected' : ''}>AUD ($)</option>
-            <option value="PKR" ${currCode === 'PKR' ? 'selected' : ''}>PKR (Rs.)</option>
-            <option value="INR" ${currCode === 'INR' ? 'selected' : ''}>INR (₹)</option>
-            <option value="JPY" ${currCode === 'JPY' ? 'selected' : ''}>JPY (¥)</option>
-          </select>
-        </div>
-
-        <button type="button" class="cat-ws-tool-btn" data-action-export-csv title="Export as CSV spreadsheet">
-          <span aria-hidden="true">📥</span> CSV
-        </button>
-        <button type="button" class="cat-ws-tool-btn" data-action-backup-json title="Download full JSON data backup">
-          <span aria-hidden="true">💾</span> Backup
-        </button>
-        <button type="button" class="cat-ws-tool-btn" data-action-restore-json title="Restore records from JSON backup file">
-          <span aria-hidden="true">📂</span> Restore
-        </button>
-
         <div class="cat-ws-view-tabs" role="tablist">
           <button type="button" class="cat-ws-view-tab ${!isTrash ? 'is-active' : ''}" data-ws-tab="active" title="View Active Records">
             <span>📋 Active</span>
@@ -1902,33 +1875,13 @@ const categoryRenderList = () => {
     ` : `
       <div class="saas-empty-state-card">
         <div class="saas-empty-icon-circle">${categoryEscape(isTrash ? '🗑️' : (query ? '🔍' : (categoryFeature.icon || '📝')))}</div>
-        <h3 class="saas-empty-title">${isTrash ? 'Recycle Bin is Empty' : (query ? 'No Matching Records Found' : `Ready for Your First Record`)}</h3>
-        <p class="saas-empty-subtitle">${query ? `No records matched "${categoryEscape(categorySearchQuery)}". Try another search or clear the filter.` : (isTrash ? 'There are no deleted records currently stored in the Recycle Bin.' : `There are currently no active entries in <strong>${categoryEscape(categoryFeature.name)}</strong>. Click below to create your first record.`)}</p>
+        <h3 class="saas-empty-title">${isTrash ? 'Recycle Bin is Empty' : (query ? 'No Matching Records Found' : `No records yet`)}</h3>
+        <p class="saas-empty-subtitle">${query ? `No records matched "${categoryEscape(categorySearchQuery)}". Try another search or clear the filter.` : (isTrash ? 'There are no deleted records currently stored in the Recycle Bin.' : `Add your first ${categoryEscape(categoryFeature.name.toLowerCase())} record to get started.`)}</p>
         <div class="saas-empty-actions">
           ${query ? `<button type="button" class="btn btn-outline" data-ws-search-clear>Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add><span>➕ Add First Record</span></button>` : `<button type="button" class="btn btn-outline" data-ws-tab="active">← Return to Active Records</button>`)}
         </div>
       </div>
     `}
-
-    <!-- Global Enterprise Security & Compliance Bar -->
-    <div class="cat-enterprise-compliance-bar">
-      <div class="cat-compliance-item">
-        <span class="cat-comp-icon" aria-hidden="true">🌐</span>
-        <span>Multi-Region Cloud Sync</span>
-      </div>
-      <div class="cat-compliance-item">
-        <span class="cat-comp-icon" aria-hidden="true">🔒</span>
-        <span>AES-256 &amp; TLS 1.3 Certified</span>
-      </div>
-      <div class="cat-compliance-item">
-        <span class="cat-comp-icon" aria-hidden="true">⚡</span>
-        <span>Sub-second Offline Cache &amp; Real-time Backups</span>
-      </div>
-      <div class="cat-compliance-item">
-        <span class="cat-comp-icon" aria-hidden="true">⌨️</span>
-        <span class="cat-shortcuts-trigger" data-action-show-shortcuts title="Click to view all keyboard shortcuts">HotKeys: <kbd>Alt+N</kbd> New | <kbd>/</kbd> Search | <kbd>Alt+P</kbd> Print</span>
-      </div>
-    </div>
   `;
 };
 

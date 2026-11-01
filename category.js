@@ -1537,15 +1537,6 @@ const categoryRenderList = () => {
       </div>
     ` : ""}
 
-    ${categoryDateFilter ? `
-      <div class="saas-date-banner">
-        <div class="saas-date-banner-left">
-          
-          <span>Showing <strong>${displayedItems.length}</strong> ${displayedItems.length === 1 ? 'record' : 'records'} for <strong>${categoryDateFilter}</strong></span>
-        </div>
-        <button type="button" class="btn-reset-date" data-action-clear-date>&#10005; Show All Dates</button>
-      </div>
-    ` : ''}
     <div class="cat-ws-toolbar">
       <div class="cat-ws-search-wrap">
         <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>

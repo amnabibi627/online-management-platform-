@@ -2374,3 +2374,176 @@ p,
 .saas-date-banner .btn-reset-date:hover {
   background: #fef3c7 !important;
 }
+
+/* ============================================================
+   COMPACT EMOJI-FREE ANALYTICS STRIP
+   ============================================================ */
+.saas-analytics-strip {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1.35fr !important;
+  gap: 0.75rem !important;
+  padding: 0.65rem 1.6rem 0.35rem !important;
+}
+@media (max-width: 960px) {
+  .saas-analytics-strip {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+@media (max-width: 640px) {
+  .saas-analytics-strip {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.saas-stat-box {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 9px !important;
+  padding: 0.6rem 0.9rem !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+  user-select: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  min-height: 58px !important;
+}
+.saas-stat-box.is-clickable {
+  cursor: pointer !important;
+}
+.saas-stat-box.is-clickable:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.06) !important;
+  border-color: #cbd5e1 !important;
+}
+.saas-stat-box.is-active {
+  border-color: #ff8f04 !important;
+  box-shadow: 0 0 0 2px rgba(255, 143, 4, 0.2) !important;
+}
+
+.saas-stat-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 0.2rem !important;
+}
+.saas-stat-title {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+.saas-badge-active {
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  color: #2563eb !important;
+  background: #eff6ff !important;
+  padding: 1px 5px !important;
+  border-radius: 4px !important;
+}
+.saas-badge-active.is-green {
+  color: #059669 !important;
+  background: #ecfdf5 !important;
+}
+
+.saas-stat-body {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 0.55rem !important;
+}
+.saas-stat-number {
+  font-size: 1.35rem !important;
+  font-weight: 900 !important;
+  color: #0f172a !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
+}
+.saas-stat-hint {
+  font-size: 0.7rem !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+/* Today Box */
+.saas-stat-today {
+  border-left: 3px solid #3b82f6 !important;
+}
+.saas-stat-today .saas-stat-number {
+  color: #1e40af !important;
+}
+
+/* Total Box */
+.saas-stat-total {
+  border-left: 3px solid #10b981 !important;
+}
+.saas-stat-total .saas-stat-number {
+  color: #065f46 !important;
+}
+
+/* Date Box */
+.saas-stat-date {
+  border-left: 3px solid #f59e0b !important;
+}
+.saas-stat-date-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  margin-top: 0.15rem !important;
+}
+.saas-date-input-wrap {
+  flex: 1 !important;
+}
+.saas-date-input {
+  width: 100% !important;
+  height: 29px !important;
+  padding: 0.2rem 0.5rem !important;
+  border-radius: 6px !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  outline: none !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+.saas-date-input:focus {
+  background: #ffffff !important;
+  border-color: #ff8f04 !important;
+  box-shadow: 0 0 0 2px rgba(255, 143, 4, 0.15) !important;
+}
+
+.saas-date-clear-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 29px !important;
+  padding: 0 0.55rem !important;
+  border-radius: 6px !important;
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  white-space: nowrap !important;
+}
+.saas-date-clear-btn:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.saas-date-status-badge {
+  font-size: 0.68rem !important;
+  color: #64748b !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+}
+.saas-date-status-badge strong {
+  color: #d97706 !important;
+  font-weight: 800 !important;
+}

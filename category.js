@@ -1213,56 +1213,46 @@ const renderSaasAnalytics = () => {
 
   container.innerHTML = `
     <!-- Box 1: Today's Entries -->
-    <div class="saas-stat-box saas-stat-today is-clickable ${isTodayFiltered ? 'is-active' : ''}" id="saasBoxToday" title="Click to view only today's records">
+    <div class="saas-stat-box saas-stat-today is-clickable ${isTodayFiltered ? 'is-active' : ''}" id="saasBoxToday" title="Click to view today's records">
       <div class="saas-stat-header">
-        <div class="saas-stat-icon-wrap">
-          <span class="saas-stat-icon">&#9889;</span>
-          <span class="saas-stat-title">Today's Entries</span>
-        </div>
-        ${isTodayFiltered ? '<span style="font-size: 0.68rem; font-weight:800; color:#3b82f6; background:#eff6ff; padding:2px 6px; border-radius:6px;">FILTER ACTIVE</span>' : ''}
+        <span class="saas-stat-title">Today's Entries</span>
+        ${isTodayFiltered ? '<span class="saas-badge-active">Active</span>' : ''}
       </div>
       <div class="saas-stat-body">
         <strong class="saas-stat-number">${todayCount}</strong>
-        <span class="saas-stat-hint">${todayCount === 1 ? '1 entry' : todayCount + ' entries'} recorded today</span>
+        <span class="saas-stat-hint">${todayCount === 1 ? '1 entry' : todayCount + ' entries'} today</span>
       </div>
     </div>
 
     <!-- Box 2: Total Entries -->
     <div class="saas-stat-box saas-stat-total is-clickable ${isAllFiltered ? 'is-active' : ''}" id="saasBoxTotal" title="Click to view all records">
       <div class="saas-stat-header">
-        <div class="saas-stat-icon-wrap">
-          <span class="saas-stat-icon">&#128202;</span>
-          <span class="saas-stat-title">Total Entries</span>
-        </div>
-        ${isAllFiltered ? '<span style="font-size: 0.68rem; font-weight:800; color:#10b981; background:#ecfdf5; padding:2px 6px; border-radius:6px;">ALL RECORDS</span>' : ''}
+        <span class="saas-stat-title">Total Entries</span>
+        ${isAllFiltered ? '<span class="saas-badge-active is-green">All</span>' : ''}
       </div>
       <div class="saas-stat-body">
         <strong class="saas-stat-number">${totalCount}</strong>
-        <span class="saas-stat-hint">All-time module records</span>
+        <span class="saas-stat-hint">All-time records</span>
       </div>
     </div>
 
-    <!-- Box 3: Filter by Specific Date (Inspect Any Day) -->
+    <!-- Box 3: Filter by Specific Date -->
     <div class="saas-stat-box saas-stat-date ${categoryDateFilter && !isTodayFiltered ? 'is-active' : ''}" id="saasBoxDatePicker">
       <div class="saas-stat-header">
-        <div class="saas-stat-icon-wrap">
-          <span class="saas-stat-icon">&#128197;</span>
-          <span class="saas-stat-title">Filter by Specific Date</span>
-        </div>
-        ${categoryDateFilter ? `<button type="button" class="saas-date-clear-btn" id="saasClearDateBtn" title="Clear filter and show all dates">&#10005; View All</button>` : ''}
+        <span class="saas-stat-title">Filter by Date</span>
+        ${categoryDateFilter ? `<button type="button" class="saas-date-clear-btn" id="saasClearDateBtn" title="Reset and show all dates">Reset</button>` : ''}
       </div>
       <div class="saas-stat-date-controls">
         <div class="saas-date-input-wrap">
-          <input type="date" id="saasDateFilterInput" class="saas-date-input" value="${categoryDateFilter || ''}" aria-label="Select date to inspect" />
+          <input type="date" id="saasDateFilterInput" class="saas-date-input" value="${categoryDateFilter || ''}" aria-label="Select date" />
         </div>
         <div class="saas-date-status-badge">
-          ${categoryDateFilter ? `<strong>${dateFilterCount}</strong> entries on <span>${formattedSelectedDate}</span>` : `<span>Pick any date to inspect entries</span>`}
+          ${categoryDateFilter ? `<strong>${dateFilterCount}</strong> (${formattedSelectedDate})` : `<span>Select date</span>`}
         </div>
       </div>
     </div>
   `;
 };
-
 const updateSaasPortalHeader = () => {
   const brandIcon = document.getElementById("saasBrandIcon");
   if (brandIcon && CURRENT?.icon) brandIcon.textContent = CURRENT.icon;
@@ -1486,7 +1476,7 @@ const categoryRenderList = () => {
     ${categoryDateFilter ? `
       <div class="saas-date-banner">
         <div class="saas-date-banner-left">
-          <span>&#128197;</span>
+          
           <span>Showing <strong>${displayedItems.length}</strong> ${displayedItems.length === 1 ? 'record' : 'records'} for <strong>${categoryDateFilter}</strong></span>
         </div>
         <button type="button" class="btn-reset-date" data-action-clear-date>&#10005; Show All Dates</button>

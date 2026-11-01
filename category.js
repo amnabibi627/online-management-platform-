@@ -1003,34 +1003,43 @@ const categoryExportCsv = () => {
 };
 
 const categoryPrintReport = () => {
+  if (!categoryFeature && CURRENT?.features?.length) {
+    categoryFeature = categoryFeatureDef(CURRENT.features[0].id);
+  }
   if (!categoryFeature) return;
   const items = categoryTab === "trash" ? categoryTrashItems() : categoryItems();
-  const printWindow = window.open("", "_blank", "width=900,height=650");
-  if (!printWindow) {
-    alert("Please allow popups to print report.");
-    return;
-  }
-  const title = `${CURRENT.short} - ${categoryFeature.name} (${categoryTab === "trash" ? "Recycle Bin" : "Active Records"})`;
-  const tableHeaders = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
-  const tableRows = items.map((item, idx) => {
-    const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "N/A")}</td>`).join("");
-    const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A');
-    return `<tr><td>${idx + 1}</td>${cells}<td>${dateStr}</td></tr>`;
-  }).join("");
+  try {
+    const printWindow = window.open("", "_blank", "width=900,height=650");
+    if (printWindow && printWindow.document) {
+      const title = `${CURRENT.short} - ${categoryFeature.name} (${categoryTab === "trash" ? "Recycle Bin" : "Active Records"})`;
+      const tableHeaders = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
+      const tableRows = items.length ? items.map((item, idx) => {
+        const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "N/A")}</td>`).join("");
+        const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A');
+        return `<tr><td>${idx + 1}</td>${cells}<td>${dateStr}</td></tr>`;
+      }).join("") : `<tr><td colspan="${categoryFeature.fields.length + 2}" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
 
-  printWindow.document.write(
-    `<!DOCTYPE html><html><head><title>${categoryEscape(title)}</title>` +
-    `<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:25px;color:#1e293b;}` +
-    `.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #e2e8f0;padding-bottom:15px;margin-bottom:20px;}` +
-    `h1{margin:0;font-size:20px;font-weight:800;color:#0f172a;}.meta{font-size:13px;color:#64748b;margin-top:5px;}` +
-    `table{width:100%;border-collapse:collapse;font-size:13px;margin-top:15px;}th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;}` +
-    `th{background:#f8fafc;font-weight:700;color:#0f172a;}tr:nth-child(even){background:#f8fafc;}@media print{body{padding:0;}button{display:none;}}</style>` +
-    `</head><body><div class="header"><div><h1>${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</h1>` +
-    `<div class="meta">${categoryTab === "trash" ? "Recycle Bin Records" : "Active Tool Records"} &bull; Printed: ${new Date().toLocaleString()} &bull; Total: ${items.length} records</div></div>` +
-    `<button onclick="window.print()" style="padding:8px 16px;background:#ff8f04;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>` +
-    `</div><table><thead><tr><th>#</th>${tableHeaders}<th>Date</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`
-  );
-  printWindow.document.close();
+      printWindow.document.write(
+        `<!DOCTYPE html><html><head><title>${categoryEscape(title)}</title>` +
+        `<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:25px;color:#1e293b;}` +
+        `.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #e2e8f0;padding-bottom:15px;margin-bottom:20px;}` +
+        `h1{margin:0;font-size:20px;font-weight:800;color:#0f172a;}.meta{font-size:13px;color:#64748b;margin-top:5px;}` +
+        `table{width:100%;border-collapse:collapse;font-size:13px;margin-top:15px;}th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;}` +
+        `th{background:#f8fafc;font-weight:700;color:#0f172a;}tr:nth-child(even){background:#f8fafc;}@media print{body{padding:0;}button{display:none;}}</style>` +
+        `</head><body><div class="header"><div><h1>${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</h1>` +
+        `<div class="meta">${categoryTab === "trash" ? "Recycle Bin Records" : "Active Tool Records"} &bull; Printed: ${new Date().toLocaleString()} &bull; Total: ${items.length} records</div></div>` +
+        `<button onclick="window.print()" style="padding:8px 16px;background:#ff8f04;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>` +
+        `</div><table><thead><tr><th>#</th>${tableHeaders}<th>Date</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`
+      );
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        try { printWindow.print(); } catch (_) {}
+      }, 500);
+      return;
+    }
+  } catch (_) {}
+  window.print();
 };
 
 const formatCellVal = (val, type) => {
@@ -1344,6 +1353,9 @@ const selectSaasFeature = (featureId) => {
 };
 
 const categoryRenderList = () => {
+  if (!categoryFeature && CURRENT?.features?.length) {
+    categoryFeature = categoryFeatureDef(CURRENT.features[0].id);
+  }
   if (!categoryFeature) return;
   const content = document.getElementById("categoryWorkspaceContent");
   renderSaasNav();
@@ -1557,6 +1569,9 @@ const categoryRenderList = () => {
 };
 
 const categoryRenderForm = (itemId = null) => {
+  if (!categoryFeature && CURRENT?.features?.length) {
+    categoryFeature = categoryFeatureDef(CURRENT.features[0].id);
+  }
   if (!categoryFeature) return;
   categoryEditId = itemId;
   const item = itemId ? categoryItems().find((entry) => entry.id === itemId) : null;
@@ -1729,21 +1744,7 @@ const initCategoryTools = async () => {
     }
   });
 
-  document.getElementById("saasCsvBtn")?.addEventListener("click", () => categoryExportCsv());
-  document.getElementById("saasResetDemoBtn")?.addEventListener("click", () => categoryResetDemoData());
-  document.querySelector(".saas-btn-print")?.addEventListener("click", () => categoryPrintReport());
-  document.querySelector(".saas-btn-add")?.addEventListener("click", () => {
-    if (categoryHasAccess()) {
-      categoryRenderForm();
-    } else {
-      const trial = categoryGetTrial();
-      if (!trial && !categoryUser) {
-        showCategoryTrialRequiredModal();
-      } else {
-        showCategorySubscriptionPaywall();
-      }
-    }
-  });
+
 
   document.getElementById("catFeatures")?.addEventListener("click", (event) => {
     const card = event.target.closest("[data-tool-feature]");
@@ -1758,6 +1759,23 @@ const initCategoryTools = async () => {
     }
   });
   document.addEventListener("click", (event) => {
+    if (event.target.closest("#saasNavToggleBtn")) {
+      document.getElementById("saasSidebar")?.classList.toggle("is-open");
+      return;
+    }
+    if (event.target.closest("#saasSidebarClose")) {
+      document.getElementById("saasSidebar")?.classList.remove("is-open");
+      return;
+    }
+    const navFeat = event.target.closest("[data-saas-feature]");
+    if (navFeat) {
+      selectSaasFeature(navFeat.dataset.saasFeature);
+      return;
+    }
+    if (event.target.closest("#toTop")) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     if (event.target.closest("[data-workspace-close]")) closeCategoryWorkspace();
     if (event.target.closest("[data-auth-close]")) closeCategoryAuth();
     const planButton = event.target.closest("[data-subscription-plan]");
@@ -1856,7 +1874,7 @@ const initCategoryTools = async () => {
       categoryExportCsv();
       return;
     }
-    if (event.target.closest(".saas-btn-print, [data-action-print]")) {
+    if (event.target.closest(".saas-btn-print, [data-action-print], #saasPrintBtn")) {
       categoryPrintReport();
       return;
     }
@@ -2116,7 +2134,7 @@ const initCategoryTools = async () => {
       submit.textContent = categoryUser ? "Submit payment for verification" : signup ? "Create account & submit payment" : "Sign in & submit payment";
     }
   });
-  document.getElementById("categoryWorkspaceContent")?.addEventListener("submit", async (event) => {
+  document.addEventListener("submit", async (event) => {
     const form = event.target.closest("#categoryRecordForm");
     if (!form || !categoryFeature) return;
     event.preventDefault();

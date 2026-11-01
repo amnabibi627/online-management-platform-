@@ -724,6 +724,11 @@ const categoryRefreshSubscription = async () => {
 };
 
 const categoryLoadData = async () => {
+  // Ensure user has active trial so all features work immediately out of the box
+  if (!categoryGetTrial() && !categoryUser) {
+    categorySetTrial({ name: "Business Owner", mobile: "03001234567" });
+  }
+
   // 1. Load from localStorage first (Instant, resilient, offline-ready worldwide)
   try {
     const raw = localStorage.getItem(categoryLocalStorageKey);
@@ -763,6 +768,9 @@ const categoryLoadData = async () => {
       console.warn("Cloud data load warning (using local data):", cloudErr);
     }
   }
+
+  // Populate sample records if portal is empty
+  categoryEnsureSampleData();
 };
 
 const categorySaveData = async () => {
@@ -1108,6 +1116,159 @@ const showCategoryPrivacyModal = () => {
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
   }
+};
+
+const categoryEnsureSampleData = () => {
+  if (!categoryData.features) categoryData.features = {};
+  const currentTotal = Object.values(categoryData.features).reduce((s, a) => s + (Array.isArray(a) ? a.length : 0), 0);
+  if (currentTotal > 0) return;
+
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+  const timeStr = "11:30 AM";
+
+  const SEEDS = {
+    clinic: {
+      "patient-records": [
+        { name: "Muhammad Rizwan", mobile: "03001234567", age: 34, gender: "Male", address: "Model Town, Lahore", blood: "O+" },
+        { name: "Fatima Noor", mobile: "03217654321", age: 28, gender: "Female", address: "Gulberg III, Lahore", blood: "B+" },
+        { name: "Tariq Mahmood", mobile: "03339876543", age: 52, gender: "Male", address: "DHA Phase 5, Lahore", blood: "A+" }
+      ],
+      "smart-appointments": [
+        { patient: "Muhammad Rizwan", doctor: "Dr. Asif Shah (Cardiology)", date: dateStr, time: "10:30 AM", status: "Confirmed" },
+        { patient: "Fatima Noor", doctor: "Dr. Sadia Irfan (Gynecology)", date: dateStr, time: "12:00 PM", status: "Pending" },
+        { patient: "Zubair Ahmed", doctor: "Dr. Bilal Tariq (General Physician)", date: dateStr, time: "04:30 PM", status: "Completed" }
+      ],
+      "opd-token-system": [
+        { token: "OPD-101", patient: "Muhammad Rizwan", doctor: "Dr. Asif Shah", issued: dateStr, status: "Done" },
+        { token: "OPD-102", patient: "Fatima Noor", doctor: "Dr. Sadia Irfan", issued: dateStr, status: "In Progress" },
+        { token: "OPD-103", patient: "Kamran Akram", doctor: "Dr. Bilal Tariq", issued: dateStr, status: "Waiting" }
+      ],
+      "digital-prescriptions": [
+        { patient: "Muhammad Rizwan", doctor: "Dr. Asif Shah", medicines: "Tab. Concor 5mg (1x morning)\nTab. Panadol 500mg (as needed)", date: dateStr, notes: "Follow up after 2 weeks with BP chart." },
+        { patient: "Zubair Ahmed", doctor: "Dr. Bilal Tariq", medicines: "Cap. Amoxil 500mg (1x 8 hourly for 5 days)\nSyp. Hydryllin 2 tsp at bedtime", date: dateStr, notes: "Complete 5 days antibiotic course." }
+      ],
+      "billing-and-payments": [
+        { invoice: "INV-2026-001", patient: "Muhammad Rizwan", amount: 2500, date: dateStr, status: "Paid" },
+        { invoice: "INV-2026-002", patient: "Fatima Noor", amount: 3500, date: dateStr, status: "Paid" },
+        { invoice: "INV-2026-003", patient: "Kamran Akram", amount: 1500, date: dateStr, status: "Pending" }
+      ],
+      "lab-tests-and-reports": [
+        { test: "Complete Blood Count (CBC)", patient: "Muhammad Rizwan", doctor: "Dr. Asif Shah", result: "Hb: 14.2 g/dL, WBC: 7,500, Platelets: 240,000 (All Normal)", date: dateStr },
+        { test: "Fasting Blood Sugar (FBS)", patient: "Tariq Mahmood", doctor: "Dr. Bilal Tariq", result: "Glucose: 104 mg/dL (Normal Fasting Range)", date: dateStr }
+      ],
+      "doctor-profiles": [
+        { name: "Dr. Asif Shah", specialty: "Cardiologist (FCPS)", mobile: "03008889991", timing: "10:00 AM - 02:00 PM", fee: 2500 },
+        { name: "Dr. Sadia Irfan", specialty: "Gynecologist (MBBS, MCPS)", mobile: "03214445552", timing: "11:00 AM - 04:00 PM", fee: 3000 },
+        { name: "Dr. Bilal Tariq", specialty: "General Physician", mobile: "03456667773", timing: "04:00 PM - 09:00 PM", fee: 1500 }
+      ],
+      "staff-management": [
+        { name: "Farhan Saeed", role: "Head Receptionist", shift: "Morning (08 AM - 04 PM)", mobile: "03012223334", joined: "2025-01-10" },
+        { name: "Bushra Bibi", role: "Senior Nurse", shift: "Morning (08 AM - 04 PM)", mobile: "03223334445", joined: "2025-03-15" }
+      ],
+      "pharmacy-stock": [
+        { item: "Panadol 500mg Tablets (Box of 200)", qty: 45, expiry: "2027-12-31", price: 650, batch: "BAT-9901" },
+        { item: "Augmentin 625mg Tablets (Box of 14)", qty: 28, expiry: "2027-08-15", price: 1250, batch: "BAT-7734" },
+        { item: "Saniplast First Aid Bandages", qty: 120, expiry: "2028-05-20", price: 280, batch: "BAT-5512" }
+      ],
+      "revenue-reports": [
+        { source: "OPD Consultation Fees", amount: 45000, date: dateStr, method: "Cash" },
+        { source: "Pharmacy Internal Dispense", amount: 18500, date: dateStr, method: "Online" },
+        { source: "Lab Sample Orders", amount: 12000, date: dateStr, method: "Cash" }
+      ],
+      "expense-tracking": [
+        { title: "Staff Monthly Salaries", amount: 65000, date: dateStr, category: "Payroll", notes: "Receptionist & nursing staff" },
+        { title: "Clinic Medical Supplies & Sanitization", amount: 14500, date: dateStr, category: "Supplies", notes: "Gloves, syringes, disinfectant" }
+      ],
+      "patient-reminders": [
+        { patient: "Muhammad Rizwan", mobile: "03001234567", channel: "WhatsApp", due: dateStr, message: "Reminder: Your follow-up visit is scheduled with Dr. Asif Shah." },
+        { patient: "Fatima Noor", mobile: "03217654321", channel: "SMS", due: dateStr, message: "Reminder: Your test reports are ready for collection at reception." }
+      ]
+    }
+  };
+
+  const catKey = CURRENT.key;
+  if (SEEDS[catKey]) {
+    for (const [featId, records] of Object.entries(SEEDS[catKey])) {
+      categoryData.features[featId] = records.map((r, i) => ({
+        id: `demo_${catKey}_${featId}_${i + 1}`,
+        ...r,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString()
+      }));
+    }
+  } else {
+    const regCat = CATEGORY_MODULES.FEATURE_REGISTRY[catKey] || {};
+    CURRENT.features.forEach((feat) => {
+      const featDef = regCat[feat.id] || CATEGORY_MODULES.GENERIC_FEATURES.find(f => f.id === feat.id);
+      const fields = featDef?.fields || CATEGORY_MODULES.GENERIC_FEATURES[0].fields;
+      const sampleNames = ["Hamza Enterprise", "Apex Traders", "Bismillah Corporation", "Zahid & Sons"];
+
+      categoryData.features[feat.id] = [1, 2, 3].map((num) => {
+        const item = {
+          id: `demo_${catKey}_${feat.id}_${num}`,
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString()
+        };
+        fields.forEach((fld) => {
+          if (fld.type === "number") item[fld.key] = num * 1250;
+          else if (fld.type === "date") item[fld.key] = dateStr;
+          else if (fld.type === "time") item[fld.key] = timeStr;
+          else if (fld.type === "tel") item[fld.key] = `0300123456${num}`;
+          else if (fld.type === "select" && fld.options?.length) item[fld.key] = fld.options[(num - 1) % fld.options.length];
+          else if (fld.key.toLowerCase().includes("name") || fld.key.toLowerCase().includes("client") || fld.key.toLowerCase().includes("student") || fld.key.toLowerCase().includes("customer") || fld.key.toLowerCase().includes("patient")) {
+            item[fld.key] = sampleNames[num - 1];
+          } else {
+            item[fld.key] = `${feat.name} Record #${num}`;
+          }
+        });
+        return item;
+      });
+    });
+  }
+
+  try {
+    localStorage.setItem(categoryLocalStorageKey, JSON.stringify(categoryData));
+  } catch (_) {}
+};
+
+const categoryResetDemoData = () => {
+  if (confirm("Reset portal to live demo sample records? This will populate all 12 modules with clean test data.")) {
+    categoryData.features = {};
+    categoryData.trash = {};
+    categoryEnsureSampleData();
+    categoryRenderList();
+    showWorkspaceToast("Reset to active demo data successfully!");
+  }
+};
+
+const categoryExportCsv = () => {
+  if (!categoryFeature) return;
+  const items = categoryItems();
+  if (!items.length) {
+    showWorkspaceToast("No records to export in this module.");
+    return;
+  }
+  const headers = ["#", ...categoryFeature.fields.map(f => f.label), "Date"];
+  const rows = items.map((item, idx) => {
+    const cells = categoryFeature.fields.map(f => {
+      const val = String(item[f.key] ?? item.fields?.[f.key] ?? "");
+      return `"${val.replace(/"/g, '""')}"`;
+    });
+    const dateVal = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "N/A";
+    return [idx + 1, ...cells, `"${dateVal}"`].join(",");
+  });
+  const csvContent = "\uFEFF" + [headers.map(h => `"${h}"`).join(","), ...rows].join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${CURRENT.key}-${categoryFeature.id}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showWorkspaceToast(`Exported ${items.length} records to CSV!`);
 };
 
 const renderSaasNav = () => {
@@ -1590,6 +1751,8 @@ const initCategoryTools = async () => {
     }
   });
 
+  document.getElementById("saasCsvBtn")?.addEventListener("click", () => categoryExportCsv());
+  document.getElementById("saasResetDemoBtn")?.addEventListener("click", () => categoryResetDemoData());
   document.querySelector(".saas-btn-print")?.addEventListener("click", () => categoryPrintReport());
   document.querySelector(".saas-btn-add")?.addEventListener("click", () => {
     if (categoryHasAccess()) {

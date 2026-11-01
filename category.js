@@ -584,6 +584,9 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             <button type="button" class="btn btn-outline pro-logout-btn" data-auth-signout>
               Logout
             </button>
+            <button type="button" class="btn btn-outline pro-delete-acc-btn" data-action-delete-account>
+              Delete Account
+            </button>
           </div>
         ` : `
           <form class="pro-edit-form" id="proEditProfileForm">
@@ -623,29 +626,33 @@ const showCategoryTrialModal = (viewMode = "overview") => {
   if (panel) panel.classList.remove("is-profile-view");
   content.innerHTML = `
     <div style="text-align:center; margin-bottom:1.25rem;">
-      <div style="font-size:2.4rem; margin-bottom:0.3rem;">🚀</div>
-      <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Start 5-Day Free Trial</h2>
+      <div style="font-size:2.2rem; margin-bottom:0.25rem;">🚀</div>
+      <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Sign Up Free</h2>
       <p style="margin:0; font-size:0.86rem; color:#64748b;">
-        Instant full access to all 8 categories &amp; 96 tools. Zero upfront payment or card needed.
+        Instant full access to all 8 categories &amp; tools. Zero upfront payment or credit card required.
       </p>
     </div>
 
     <form id="categoryTrialForm" class="category-auth-form" style="display:grid; gap:0.75rem;">
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Full Name *</label>
-        <input name="name" type="text" placeholder="e.g. Ali Khan" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="name" type="text" placeholder="e.g. Amna Bibi" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile Number *</label>
         <input name="mobile" type="tel" placeholder="03XXXXXXXXX" required inputmode="numeric" maxlength="13" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City *</label>
-        <input name="city" type="text" placeholder="e.g. Lahore" required maxlength="40" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City / Location *</label>
+        <input name="city" type="text" placeholder="e.g. Bahawalpur / Lahore" required maxlength="40" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Business / Store Name (Optional)</label>
+        <input name="businessName" type="text" placeholder="e.g. Bibi Petroleum Services" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Create Password *</label>
-        <input name="password" type="text" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <input name="password" type="password" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <label style="display:flex; align-items:center; gap:0.55rem; font-size:0.78rem; color:#64748b; margin:0.35rem 0 0.2rem; cursor:pointer; text-align:left;">
         <input name="terms" type="checkbox" required checked style="width:16px; height:16px; flex:0 0 auto; accent-color:#ff8f04;">
@@ -653,7 +660,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
       </label>
       <p class="category-auth-error" role="alert" style="color:#ef4444; font-size:0.8rem; margin:0.2rem 0 0; min-height:1rem;"></p>
       <button class="btn btn-primary" type="submit" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff; cursor:pointer;">
-        🚀 Start 5-Day Free Trial
+        Create Account &amp; Start Free
       </button>
     </form>
 
@@ -897,11 +904,6 @@ const categoryRefreshSubscription = async () => {
 };
 
 const categoryLoadData = async () => {
-  // Ensure user has active trial so all features work immediately out of the box
-  if (!categoryGetTrial() && !categoryUser) {
-    categorySetTrial({ name: "Business Owner", mobile: "03001234567" });
-  }
-
   // 1. Load from localStorage first (Instant, resilient, offline-ready worldwide)
   try {
     const raw = localStorage.getItem(categoryLocalStorageKey);
@@ -2377,6 +2379,22 @@ const initCategoryTools = async () => {
       if (categoryFeature) categoryRenderList();
       return;
     }
+    if (event.target.closest("[data-action-delete-account]")) {
+      const confirmDel = window.confirm("Are you sure you want to delete your account? This will permanently delete your profile and reset your session.");
+      if (!confirmDel) return;
+
+      localStorage.removeItem("bms_user_trial");
+      localStorage.removeItem("oms_trial_account");
+      categoryUser = null;
+      categorySubscription = null;
+      categoryLatestRequest = null;
+      categoryUpdateHeaderBtn();
+      CATEGORY_SUPABASE?.auth.signOut().catch(() => {});
+      closeCategoryAuth();
+      showWorkspaceToast("Account deleted successfully. You can sign up free again anytime.");
+      if (categoryFeature) categoryRenderList();
+      return;
+    }
     const menuToggle = event.target.closest("[data-ws-menu-toggle]");
     if (menuToggle) {
       const menu = document.getElementById("catWsDataMenu");
@@ -2577,6 +2595,7 @@ const initCategoryTools = async () => {
       const mobile = categoryMobile(String(formData.get("mobile") || ""));
       const email = String(formData.get("email") || "").trim().toLowerCase();
       const city = String(formData.get("city") || "").trim();
+      const businessName = String(formData.get("businessName") || "").trim();
       const password = String(formData.get("password") || "");
       const termsBox = trialForm.querySelector('input[name="terms"]');
       const message = trialForm.querySelector(".category-auth-error");
@@ -2596,22 +2615,22 @@ const initCategoryTools = async () => {
       }
 
       submit.disabled = true;
-      submit.textContent = "Starting trial…";
+      submit.textContent = "Creating account…";
 
       if (termsBox && !termsBox.checked) {
         if (message) message.textContent = "Please agree to the Terms of Use and Privacy Policy.";
         submit.disabled = false;
-        submit.textContent = "🚀 Start 5-Day Free Trial";
+        submit.textContent = "Create Account & Start Free";
         return;
       }
-      categorySetTrial({ name, mobile, email, city });
+      categorySetTrial({ name, mobile, email, city, businessName });
 
       if (CATEGORY_SUPABASE) {
         try {
           const res = await CATEGORY_SUPABASE.auth.signUp({
             email: categoryEmail(mobile),
             password,
-            options: { data: { name, mobile, city, email } }
+            options: { data: { name, mobile, city, email, businessName } }
           });
           if (res.data?.user) {
             categoryUser = res.data.user;
@@ -2624,7 +2643,7 @@ const initCategoryTools = async () => {
 
       closeCategoryAuth();
       categoryUpdateHeaderBtn();
-      showWorkspaceToast(`🎉 Welcome, ${name}! Your 5-day free trial has started.`);
+      showWorkspaceToast(`🎉 Welcome, ${name}! Your account has been created.`);
       if (categoryFeature) categoryRenderList();
       return;
     }

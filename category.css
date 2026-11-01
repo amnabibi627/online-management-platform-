@@ -2969,13 +2969,26 @@ p,
 }
 
 .pro-logout-btn {
-  color: #dc2626 !important;
-  border-color: #fecaca !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
 }
 
 .pro-logout-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+.pro-delete-acc-btn {
+  color: #dc2626 !important;
+  border-color: #fecaca !important;
+  background: #fff5f5 !important;
+}
+
+.pro-delete-acc-btn:hover {
   background: #fef2f2 !important;
   border-color: #dc2626 !important;
+  color: #b91c1c !important;
 }
 
 .pro-edit-form {

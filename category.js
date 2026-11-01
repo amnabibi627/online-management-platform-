@@ -440,19 +440,17 @@ const categoryUpdateHeaderBtn = () => {
     const rawName = user?.user_metadata?.name || trial?.name || "Business Owner";
     const initial = (rawName.charAt(0) || "U").toUpperCase();
     const uid = trial?.uid || (user ? `UID-${user.id.slice(0, 5).toUpperCase()}` : "UID-84920");
-    const firstName = rawName.split(" ")[0];
     const avatar = trial?.avatar || "";
 
     btn.className = "header-user-profile-btn";
     btn.innerHTML = `
       <span class="user-avatar-badge ${avatar ? 'has-img' : ''}">
-        ${avatar ? `<img src="${avatar}" alt="${categoryEscape(firstName)}" class="user-avatar-img" />` : categoryEscape(initial)}
+        ${avatar ? `<img src="${avatar}" alt="${categoryEscape(rawName)}" class="user-avatar-img" />` : categoryEscape(initial)}
       </span>
       <div class="user-meta-text">
-        <span class="user-id-title">${categoryEscape(firstName)}</span>
+        <span class="user-id-title">${categoryEscape(rawName)}</span>
         <span class="user-id-code">${categoryEscape(uid)}</span>
       </div>
-      <span class="user-online-dot" title="Active Account"></span>
       <span class="user-dropdown-arrow">&#9662;</span>
     `;
     btn.title = `Signed in: ${rawName} (${uid}) - Click to manage account`;
@@ -478,12 +476,18 @@ const showCategoryTrialModal = (viewMode = "overview") => {
     if (panel) panel.classList.add("is-profile-view");
     const userName = categoryUser?.user_metadata?.name || trial?.name || "Business Owner";
     const userMobile = categoryUser?.user_metadata?.mobile || trial?.mobile || "N/A";
-    const userCity = categoryUser?.user_metadata?.city || trial?.city || "Not specified";
-    const userBusiness = trial?.businessName || (CURRENT?.short ? `${CURRENT.short} Management` : "Business Portal");
+    const userCity = categoryUser?.user_metadata?.city || trial?.city || "";
+    const portalName = CURRENT?.name ? `${CURRENT.name} Portal` : (CURRENT?.short ? `${CURRENT.short} Portal` : "Business Portal");
+    const rawBusiness = trial?.businessName || "";
+    const displayBusiness = (rawBusiness && rawBusiness.trim().toLowerCase() !== userName.trim().toLowerCase())
+      ? rawBusiness.trim()
+      : portalName;
     const uid = trial?.uid || (categoryUser ? `UID-${categoryUser.id.slice(0, 5).toUpperCase()}` : "UID-84920");
     const initial = (userName.charAt(0) || "U").toUpperCase();
     const avatar = trial?.avatar || "";
-    const regDate = trial?.startedAt ? new Date(trial.startedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    const regDate = trial?.startedAt
+      ? new Date(trial.startedAt).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+      : new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
     const avatarInnerHtml = avatar
       ? `<img src="${avatar}" alt="${categoryEscape(userName)}" />`
@@ -498,7 +502,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             </div>
             <label class="pro-avatar-camera-btn" title="Upload / Change Profile Picture">
               <input type="file" id="userProfileDpInput" accept="image/*" style="display:none;" />
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                 <circle cx="12" cy="13" r="4"></circle>
               </svg>
@@ -513,7 +517,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
                 Verified
               </span>
             </div>
-            <p class="pro-account-sub">${categoryEscape(userBusiness)}</p>
+            <p class="pro-account-sub">${categoryEscape(displayBusiness)}</p>
 
             <div class="pro-badges-strip">
               <div class="pro-uid-badge" id="proUidBadge" title="Click to copy User ID" data-action-copy-uid="${categoryEscape(uid)}">
@@ -521,13 +525,16 @@ const showCategoryTrialModal = (viewMode = "overview") => {
                 <code class="pro-uid-val">${categoryEscape(uid)}</code>
                 <svg class="pro-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               </div>
-              <span class="pro-status-chip ${hasSub ? 'is-pro' : 'is-trial'}">
+              <span class="pro-status-chip is-active">
                 <span class="pro-status-dot"></span>
-                ${hasSub ? 'Pro Plan' : `5-Day Trial (${trial?.daysLeft ?? 5}d left)`}
+                Active Account
               </span>
             </div>
 
-            ${avatar ? `<button type="button" class="pro-remove-dp-btn" id="proRemoveDpBtn">Remove photo</button>` : ''}
+            <div class="pro-avatar-actions-row">
+              <label class="pro-avatar-text-link" for="userProfileDpInput">Change photo</label>
+              ${avatar ? `<button type="button" class="pro-remove-dp-btn" id="proRemoveDpBtn">Remove photo</button>` : ''}
+            </div>
           </div>
         </div>
 
@@ -554,42 +561,35 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">City / Location</span>
-              <strong class="pro-detail-val">${categoryEscape(userCity)}</strong>
+              <strong class="pro-detail-val">${categoryEscape(userCity && userCity !== 'Not specified' ? userCity : 'Not set')}</strong>
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">Business / Category</span>
-              <strong class="pro-detail-val">${categoryEscape(userBusiness)}</strong>
+              <strong class="pro-detail-val">${categoryEscape(displayBusiness)}</strong>
+            </div>
+            <div class="pro-detail-row">
+              <span class="pro-detail-label">Account Status</span>
+              <strong class="pro-detail-val" style="color:#047857;">Verified Active</strong>
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">Registered Date</span>
               <strong class="pro-detail-val">${regDate}</strong>
             </div>
-            <div class="pro-detail-row">
-              <span class="pro-detail-label">Security &amp; Encryption</span>
-              <strong class="pro-detail-val" style="color:#059669;">TLS 1.3 &bull; AES-256 Cloud Safe</strong>
-            </div>
           </div>
 
           <div class="pro-actions-footer">
-            ${!hasSub ? `
-              <button type="button" class="btn btn-primary pro-upgrade-btn" data-action-view-paywall>
-                Upgrade / Purchase Subscription
-              </button>
-            ` : ''}
-            <div class="pro-secondary-actions">
-              <button type="button" class="btn btn-outline" data-pro-tab="edit">
-                ✏️ Edit Profile
-              </button>
-              <button type="button" class="btn btn-outline pro-logout-btn" data-auth-signout>
-                Logout
-              </button>
-            </div>
+            <button type="button" class="btn btn-primary pro-edit-cta-btn" data-pro-tab="edit">
+              ✏️ Edit Profile
+            </button>
+            <button type="button" class="btn btn-outline pro-logout-btn" data-auth-signout>
+              Logout
+            </button>
           </div>
         ` : `
           <form class="pro-edit-form" id="proEditProfileForm">
             <div class="pro-form-group">
               <label>Full Name *</label>
-              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="e.g. Dr. Muhammad Ali" />
+              <input name="name" type="text" value="${categoryEscape(userName)}" required minlength="3" maxlength="80" placeholder="e.g. Amna Bibi" />
             </div>
             <div class="pro-form-group">
               <label>Registered Mobile Number *</label>
@@ -597,11 +597,11 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             </div>
             <div class="pro-form-group">
               <label>City / Location</label>
-              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' ? userCity : '')}" maxlength="50" placeholder="e.g. Lahore / Karachi" />
+              <input name="city" type="text" value="${categoryEscape(userCity !== 'Not specified' && userCity !== 'Not set' ? userCity : '')}" maxlength="50" placeholder="e.g. Bahawalpur / Lahore" />
             </div>
             <div class="pro-form-group">
-              <label>Business / Clinic / Store Name</label>
-              <input name="businessName" type="text" value="${categoryEscape(userBusiness)}" maxlength="80" placeholder="e.g. Al-Shifa Clinic" />
+              <label>Business / Enterprise Name</label>
+              <input name="businessName" type="text" value="${categoryEscape(rawBusiness)}" maxlength="80" placeholder="e.g. Bibi Petroleum Services" />
             </div>
 
             <p class="category-auth-error" id="proEditError" role="alert" style="color:#ef4444; font-size:0.84rem; margin:0.2rem 0; min-height:1rem;"></p>
@@ -2183,6 +2183,12 @@ const initCategoryTools = async () => {
       trial.businessName = businessName;
       localStorage.setItem("bms_user_trial", JSON.stringify(trial));
       localStorage.setItem("oms_trial_account", JSON.stringify(trial));
+
+      if (categoryUser && categoryUser.user_metadata) {
+        categoryUser.user_metadata.name = name;
+        categoryUser.user_metadata.mobile = mobile;
+        categoryUser.user_metadata.city = city;
+      }
 
       categoryUpdateHeaderBtn();
       renderSaasAnalytics();

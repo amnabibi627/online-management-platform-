@@ -797,13 +797,12 @@ const refreshUserSignupButton = () => {
     btn.className = "header-user-profile-btn";
     btn.innerHTML = `
       <span class="user-avatar-badge ${avatar ? 'has-img' : ''}">
-        ${avatar ? `<img src="${avatar}" alt="${firstName}" class="user-avatar-img" />` : initial}
+        ${avatar ? `<img src="${avatar}" alt="${rawName}" class="user-avatar-img" />` : initial}
       </span>
       <div class="user-meta-text">
-        <span class="user-id-title">${firstName}</span>
+        <span class="user-id-title">${rawName}</span>
         <span class="user-id-code">${uid}</span>
       </div>
-      <span class="user-online-dot" title="Active Account"></span>
       <span class="user-dropdown-arrow">&#9662;</span>
     `;
     btn.title = `Signed in: ${rawName} (${uid}) - Click to manage account`;

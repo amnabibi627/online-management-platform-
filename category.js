@@ -1686,9 +1686,9 @@ const categoryRenderList = () => {
       <div class="saas-empty-state-card">
         <div class="saas-empty-icon-circle">${categoryEscape(isTrash ? '🗑️' : (query ? '🔍' : (categoryFeature.icon || '📝')))}</div>
         <h3 class="saas-empty-title">${isTrash ? 'Recycle Bin is Empty' : (query ? 'No Matching Records Found' : `Ready for Your First Record`)}</h3>
-        <p class="saas-empty-subtitle">${query ? `No records matched "${categoryEscape(categorySearchQuery)}". Try another search or clear the filter.` : (isTrash ? 'There are no deleted records currently stored in the Recycle Bin.' : `There are currently no active entries in <strong>${categoryEscape(categoryFeature.name)}</strong>. Click below to create your first record or generate a clean print report.`)}</p>
+        <p class="saas-empty-subtitle">${query ? `No records matched "${categoryEscape(categorySearchQuery)}". Try another search or clear the filter.` : (isTrash ? 'There are no deleted records currently stored in the Recycle Bin.' : `There are currently no active entries in <strong>${categoryEscape(categoryFeature.name)}</strong>. Click below to create your first record.`)}</p>
         <div class="saas-empty-actions">
-          ${query ? `<button type="button" class="btn btn-outline" data-ws-search-clear>Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add><span>➕ Add First Record</span></button><button type="button" class="btn btn-outline" onclick="categoryPrintReport()"><span>🖨️ Print View</span></button>` : `<button type="button" class="btn btn-outline" data-ws-tab="active">← Return to Active Records</button>`)}
+          ${query ? `<button type="button" class="btn btn-outline" data-ws-search-clear>Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary saas-module-cta-btn" data-tool-add><span>➕ Add First Record</span></button>` : `<button type="button" class="btn btn-outline" data-ws-tab="active">← Return to Active Records</button>`)}
         </div>
       </div>
     `}

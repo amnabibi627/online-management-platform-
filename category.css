@@ -3387,26 +3387,6 @@ p,
 }
 
 /* Analytics Strip Financial KPI Card */
-.saas-stat-financial {
-  background: #f0fdf4 !important;
-  border-color: #bbf7d0 !important;
-}
-
-.saas-currency-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  background: #047857;
-  color: #ffffff;
-  border-radius: 6px;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-}
-
-.saas-stat-amount {
-  color: #047857 !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-}
 
 /* Enterprise Compliance Footer */
 .cat-enterprise-compliance-bar {

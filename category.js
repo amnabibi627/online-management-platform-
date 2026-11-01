@@ -1561,29 +1561,6 @@ const renderSaasAnalytics = () => {
   const isTodayFiltered = categoryDateFilter === todayStr;
   const isAllFiltered = !categoryDateFilter;
 
-  // Identify financial metrics
-  const financialField = categoryFeature.fields.find((f) =>
-    /(amount|price|rate|cost|fee|bill|balance|cash|salary|due|expense|sale|margin)/i.test(f.key || f.label || "")
-  );
-
-  let financialSum = 0;
-  let financialCount = 0;
-  if (financialField) {
-    items.forEach((it) => {
-      const raw = it[financialField.key] ?? it.fields?.[financialField.key];
-      if (raw !== undefined && raw !== null && raw !== "") {
-        const n = parseFloat(String(raw).replace(/[^0-9.-]/g, ""));
-        if (!isNaN(n)) {
-          financialSum += n;
-          financialCount++;
-        }
-      }
-    });
-  }
-
-  const currCode = getGlobalCurrency();
-  const curr = OMS_CURRENCIES[currCode] || OMS_CURRENCIES.USD;
-
   container.innerHTML = `
     <!-- Box 1: Today's Entries -->
     <div class="saas-stat-box saas-stat-today is-clickable ${isTodayFiltered ? 'is-active' : ''}" id="saasBoxToday" title="Click to view today's records">
@@ -1621,18 +1598,6 @@ const renderSaasAnalytics = () => {
         <div class="saas-date-status-badge">
           ${categoryDateFilter ? `<strong>${dateFilterCount}</strong> (${formattedSelectedDate})` : `<span>Select date</span>`}
         </div>
-      </div>
-    </div>
-
-    <!-- Box 4: Financial Volume or Live Sync -->
-    <div class="saas-stat-box saas-stat-financial" id="saasBoxFinancial" title="Financial volume in ${curr.name}">
-      <div class="saas-stat-header">
-        <span class="saas-stat-title">${financialField ? categoryEscape(financialField.label + ' Volume') : 'Global Cloud'}</span>
-        <span class="saas-currency-badge">${curr.code}</span>
-      </div>
-      <div class="saas-stat-body">
-        <strong class="saas-stat-number saas-stat-amount">${financialField ? categoryEscape(formatCurrencyVal(financialSum)) : 'Encrypted &bull; Live'}</strong>
-        <span class="saas-stat-hint">${financialField ? `${financialCount} logged transactions` : 'AES-256 &bull; TLS 1.3 Active'}</span>
       </div>
     </div>
   `;

@@ -201,6 +201,9 @@ const renderLiveAds = async () => {
       if (waNum) {
         actionButtons += `<a class="fiverr-gig-btn-wa" href="https://wa.me/${liveAdsEscape(waNum)}" target="_blank" rel="noopener noreferrer"><span>💬 WhatsApp</span></a>`;
       }
+      if (ad.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ad.email)) {
+        actionButtons += `<a class="fiverr-gig-btn-wa" href="mailto:${liveAdsEscape(ad.email)}" title="Send Email"><span>✉️ Email</span></a>`;
+      }
 
       const startingPrice = isInfluencerGig ? "2,500" : planPrice(ad.plan);
 

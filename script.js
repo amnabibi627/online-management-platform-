@@ -513,6 +513,7 @@ const ownerBtn = document.querySelector(".portal-btn[data-portal='owner'], [data
 
 const fields = {
   name: { input: document.getElementById("ofName"), err: document.getElementById("errName") },
+  email: { input: document.getElementById("ofEmail"), err: document.getElementById("errEmail") },
   mobile: { input: document.getElementById("ofMobile"), err: document.getElementById("errMobile") },
   age: { input: document.getElementById("ofAge"), err: document.getElementById("errAge") },
   city: { input: document.getElementById("ofCity"), err: document.getElementById("errCity") },
@@ -854,9 +855,11 @@ const openUserModal = (mode) => {
     }
 
     const nm = document.getElementById("userActiveName");
+    const em = document.getElementById("userActiveEmail");
     const mb = document.getElementById("userActiveMobile");
     const ct = document.getElementById("userActiveCity");
     if (nm) nm.textContent = (currentUser && currentUser.name) || (trial && trial.name) || "User";
+    if (em) em.textContent = (currentUser && currentUser.email) || (trial && trial.email) || "N/A";
     if (mb) mb.textContent = (currentUser && currentUser.mobile) || (trial && trial.mobile) || "N/A";
     if (ct) ct.textContent = (currentUser && currentUser.city) || (trial && trial.city) || "N/A";
   } else {
@@ -952,6 +955,8 @@ if (userForm) {
 
         if (name.length < 3) { setUserError(uFields.name, "Enter your full name (min 3 letters)."); ok = false; }
         else setUserError(uFields.name, "");
+        if (!EMAIL_RE.test(email)) { setUserError(uFields.email, "Enter a valid email address (e.g. name@company.com)."); ok = false; }
+        else setUserError(uFields.email, "");
         if (!MOBILE_RE.test(mobile)) { setUserError(uFields.mobile, "Enter a valid number, e.g. 03123456789."); ok = false; }
         else setUserError(uFields.mobile, "");
         if (city.length < 2) { setUserError(uFields.city, "Enter your city."); ok = false; }
@@ -4511,6 +4516,13 @@ const validateRegForm = () => {
   const wa = normalizeMobile(get("regWhatsapp").value);
   ok = setRegError(get("regWhatsapp"), get("regWhatsappErr"), MOBILE_LOOKUP_RE.test(wa) ? "" : "Please enter a valid WhatsApp number, e.g. 03123456789.") && ok;
 
+  const regEmailEl = document.getElementById("regEmail");
+  if (regEmailEl) {
+    const rawEm = regEmailEl.value.trim();
+    const badEm = rawEm && !EMAIL_RE.test(rawEm);
+    ok = setRegError(regEmailEl, document.getElementById("regEmailErr"), badEm ? "Please enter a valid email address." : "") && ok;
+  }
+
   const category = get("regCategory").value;
   ok = setRegError(get("regCategory"), get("regCategoryErr"), category ? "" : "Please select your business category.") && ok;
 
@@ -4583,6 +4595,7 @@ if (regForm) {
     const entry = {
       business_name: get("regBizName"),
       owner_name: get("regOwnerName"),
+      email: (document.getElementById("regEmail")?.value || "").trim().toLowerCase(),
       mobile: normalizeMobile(get("regMobile")),
       whatsapp: normalizeMobile(get("regWhatsapp")),
       category: get("regCategory"),
@@ -5431,6 +5444,7 @@ if (subPurchaseForm) {
     const plan = SUB_PRICES[planId] || SUB_PRICES["3-month"];
     const category = subCategorySelect?.value || "";
     const name = String(document.getElementById("subFullName")?.value || "").trim();
+    const email = String(document.getElementById("subEmail")?.value || "").trim().toLowerCase();
     const mobile = normMobile(document.getElementById("subAccountMobile")?.value || "");
     const city = String(document.getElementById("subCityName")?.value || "").trim();
     const password = String(document.getElementById("subPassword")?.value || "");
@@ -5446,6 +5460,7 @@ if (subPurchaseForm) {
 
     setErr("subCategorySelectErr", category ? "" : "Please select a business category.");
     setErr("subFullNameErr", name.length >= 3 ? "" : "Enter your full name (min 3 letters).");
+    setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address (e.g. name@company.com).");
     setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid phone number (e.g. +1 555 0199 or 03001234567).");
     setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
     setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
@@ -5467,6 +5482,7 @@ if (subPurchaseForm) {
       plan: planId,
       amount: plan.price,
       account_name: name,
+      account_email: email,
       account_mobile: mobile,
       city,
       payment_reference: txId,
@@ -5496,6 +5512,7 @@ if (subPurchaseForm) {
           plan: planId,
           amount: plan.price,
           account_name: name,
+          account_email: email,
           account_mobile: mobile,
           payment_reference: txId,
           payer_mobile: payerMobile,

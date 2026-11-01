@@ -887,6 +887,12 @@
             </div>
 
             <div class="field">
+              <label for="regEmail">Email Address</label>
+              <input type="email" id="regEmail" name="regEmail" placeholder="e.g. contact@business.com" maxlength="80" autocomplete="email" />
+              <span class="field-error" id="regEmailErr"></span>
+            </div>
+
+            <div class="field">
               <label for="regMobile">Mobile Number</label>
               <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 03123456789" maxlength="15" />
               <span class="field-error" id="regMobileErr"></span>
@@ -1080,22 +1086,27 @@
               <span class="field-error" id="subFullNameErr"></span>
             </div>
             <div class="field">
+              <label for="subEmail">Email Address <em>*</em></label>
+              <input type="email" id="subEmail" name="subEmail" placeholder="e.g. name@company.com" maxlength="80" autocomplete="email" required />
+              <span class="field-error" id="subEmailErr"></span>
+            </div>
+          </div>
+          <div class="reg-grid">
+            <div class="field">
               <label for="subAccountMobile">Account Mobile Number <em>*</em></label>
               <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="e.g. +1 555 0199 or 03001234567" maxlength="20" inputmode="numeric" required />
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
-          </div>
-          <div class="reg-grid">
             <div class="field">
               <label for="subCityName">City <em>*</em></label>
               <input type="text" id="subCityName" name="subCityName" placeholder="e.g. New York, London, Dubai, Lahore" maxlength="40" required />
               <span class="field-error" id="subCityNameErr"></span>
             </div>
-            <div class="field">
-              <label for="subPassword">Create Password <em>*</em></label>
-              <input type="text" id="subPassword" name="subPassword" placeholder="Min 8 characters" maxlength="64" required />
-              <span class="field-error" id="subPasswordErr"></span>
-            </div>
+          </div>
+          <div class="field">
+            <label for="subPassword">Create Password <em>*</em></label>
+            <input type="text" id="subPassword" name="subPassword" placeholder="Min 8 characters" maxlength="64" required />
+            <span class="field-error" id="subPasswordErr"></span>
           </div>
 
           <!-- 4. Payment Method -->
@@ -1323,6 +1334,7 @@
           </div>
           <div class="ceo-stats" style="margin-bottom:1rem;">
             <div class="ceo-stat"><span>Name</span><strong id="userActiveName">N/A</strong></div>
+            <div class="ceo-stat"><span>Email</span><strong id="userActiveEmail">N/A</strong></div>
             <div class="ceo-stat"><span>Mobile</span><strong id="userActiveMobile">N/A</strong></div>
             <div class="ceo-stat"><span>City</span><strong id="userActiveCity">N/A</strong></div>
           </div>
@@ -1342,23 +1354,29 @@
                 <span class="field-error" id="ufNameErr"></span>
               </div>
               <div class="field">
-                <label for="ufMobile">Mobile Number <em>*</em></label>
-                <input type="tel" id="ufMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
-                <span class="field-error" id="ufMobileErr"></span>
+                <label for="ufEmail">Email Address <em>*</em></label>
+                <input type="email" id="ufEmail" placeholder="e.g. name@company.com" autocomplete="email" maxlength="80" required />
+                <span class="field-error" id="ufEmailErr"></span>
               </div>
             </div>
 
             <div class="form-row">
               <div class="field">
+                <label for="ufMobile">Mobile Number <em>*</em></label>
+                <input type="tel" id="ufMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                <span class="field-error" id="ufMobileErr"></span>
+              </div>
+              <div class="field">
                 <label for="ufCity">City <em>*</em></label>
                 <input type="text" id="ufCity" placeholder="e.g. New York, London, Lahore" autocomplete="address-level2" maxlength="40" />
                 <span class="field-error" id="ufCityErr"></span>
               </div>
-              <div class="field">
-                <label for="ufPass">Create Password <em>*</em></label>
-                <input type="text" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
-                <span class="field-error" id="ufPassErr"></span>
-              </div>
+            </div>
+
+            <div class="field">
+              <label for="ufPass">Create Password <em>*</em></label>
+              <input type="text" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
+              <span class="field-error" id="ufPassErr"></span>
             </div>
 
             <div class="field user-purpose-field" hidden>
@@ -1473,9 +1491,9 @@
               <span class="field-error" id="errName"></span>
             </div>
             <div class="field">
-              <label for="ofAge">Age</label>
-              <input type="number" id="ofAge" placeholder="e.g. 32" min="18" max="100" />
-              <span class="field-error" id="errAge"></span>
+              <label for="ofEmail">Email Address</label>
+              <input type="email" id="ofEmail" placeholder="e.g. owner@business.com" autocomplete="email" maxlength="80" />
+              <span class="field-error" id="errEmail"></span>
             </div>
           </div>
 

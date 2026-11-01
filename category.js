@@ -706,6 +706,10 @@ const showCategoryTrialModal = (viewMode = "overview") => {
         <input name="name" type="text" placeholder="e.g. John Doe / Amna Bibi" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
       </div>
       <div>
+        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Email Address *</label>
+        <input name="email" type="email" placeholder="e.g. name@company.com" required maxlength="80" autocomplete="email" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+      </div>
+      <div>
         <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Country / Region *</label>
         <select name="country" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem; background:#fff;">
           <option value="United States">🇺🇸 United States</option>
@@ -2606,6 +2610,7 @@ const initCategoryTools = async () => {
     event.preventDefault();
     const formData = new FormData(form);
     const mobile = categoryMobile(String(formData.get("mobile") || ""));
+    const email = String(formData.get("email") || "").trim().toLowerCase();
     const password = String(formData.get("password") || "");
     const signup = !!formData.get("name");
     const message = form.querySelector(".category-auth-error");
@@ -2645,6 +2650,7 @@ const initCategoryTools = async () => {
         plan: categorySelectedPlan,
         amount: CATEGORY_SUBSCRIPTION_PLANS[categorySelectedPlan].price,
         account_name: String(formData.get("name") || categoryUser.user_metadata?.name || "Account holder").trim().slice(0, 80),
+        account_email: email || categoryUser.email || (categoryUser.user_metadata?.email || ""),
         account_mobile: categoryMobile(String(formData.get("mobile") || categoryUser.user_metadata?.mobile || categoryUser.email?.split("@")[0] || "")),
         payment_reference: paymentReference,
         payer_mobile: payerMobile,

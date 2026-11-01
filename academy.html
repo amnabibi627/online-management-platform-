@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20261101AllActiveBtns" />
-  <link rel="stylesheet" href="category.css?v=20261101AllActiveBtns" />
+  <link rel="stylesheet" href="category.css?v=20261101DirectActiveBtns" />
   <script src="security.js?v=20261031EnableCopy"></script>
 </head>
 <body data-category="academy">
@@ -121,10 +121,10 @@
               </div>
 
                                                                       <div class="saas-topbar-tools">
-                <button type="button" class="btn btn-outline btn-sm saas-btn-print" id="saasPrintBtn" title="Print Current View">
+                <button type="button" class="btn btn-outline btn-sm saas-btn-print" id="saasPrintBtn" onclick="categoryPrintReport()" title="Print Current View">
                   <span>&#128424;&#65039; Print / PDF</span>
                 </button>
-                <button type="button" class="btn btn-primary btn-sm saas-btn-add" id="saasAddRecordBtn" data-tool-add title="Add New Entry">
+                <button type="button" class="btn btn-primary btn-sm saas-btn-add" id="saasAddRecordBtn" onclick="categoryRenderForm()" data-tool-add title="Add New Entry">
                   <span>&#10133; Add Record</span>
                 </button>
               </div>
@@ -230,7 +230,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="category.js?v=20261101AllActiveBtns"></script>
+  <script src="category.js?v=20261101DirectActiveBtns"></script>
   <script src="ui.js?v=20261023J"></script>
 
 </body>

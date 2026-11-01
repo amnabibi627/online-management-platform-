@@ -1008,38 +1008,65 @@ const categoryPrintReport = () => {
   }
   if (!categoryFeature) return;
   const items = categoryTab === "trash" ? categoryTrashItems() : categoryItems();
-  try {
-    const printWindow = window.open("", "_blank", "width=900,height=650");
-    if (printWindow && printWindow.document) {
-      const title = `${CURRENT.short} - ${categoryFeature.name} (${categoryTab === "trash" ? "Recycle Bin" : "Active Records"})`;
-      const tableHeaders = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
-      const tableRows = items.length ? items.map((item, idx) => {
-        const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "N/A")}</td>`).join("");
-        const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A');
-        return `<tr><td>${idx + 1}</td>${cells}<td>${dateStr}</td></tr>`;
-      }).join("") : `<tr><td colspan="${categoryFeature.fields.length + 2}" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
+  const title = `${CURRENT.short} - ${categoryFeature.name} (${categoryTab === "trash" ? "Recycle Bin" : "Active Records"})`;
+  const tableHeaders = categoryFeature.fields.map((f) => `<th>${categoryEscape(f.label)}</th>`).join("");
+  const tableRows = items.length ? items.map((item, idx) => {
+    const cells = categoryFeature.fields.map((f) => `<td>${categoryEscape(item[f.key] ?? item.fields?.[f.key] ?? "N/A")}</td>`).join("");
+    const dateStr = item.deletedAt ? `Deleted: ${new Date(item.deletedAt).toLocaleString()}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A');
+    return `<tr><td>${idx + 1}</td>${cells}<td>${dateStr}</td></tr>`;
+  }).join("") : `<tr><td colspan="${categoryFeature.fields.length + 2}" style="text-align:center; padding: 25px; color: #64748b; font-style: italic;">No records found.</td></tr>`;
 
-      printWindow.document.write(
-        `<!DOCTYPE html><html><head><title>${categoryEscape(title)}</title>` +
-        `<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:25px;color:#1e293b;}` +
-        `.header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #e2e8f0;padding-bottom:15px;margin-bottom:20px;}` +
-        `h1{margin:0;font-size:20px;font-weight:800;color:#0f172a;}.meta{font-size:13px;color:#64748b;margin-top:5px;}` +
-        `table{width:100%;border-collapse:collapse;font-size:13px;margin-top:15px;}th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;}` +
-        `th{background:#f8fafc;font-weight:700;color:#0f172a;}tr:nth-child(even){background:#f8fafc;}@media print{body{padding:0;}button{display:none;}}</style>` +
-        `</head><body><div class="header"><div><h1>${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</h1>` +
-        `<div class="meta">${categoryTab === "trash" ? "Recycle Bin Records" : "Active Tool Records"} &bull; Printed: ${new Date().toLocaleString()} &bull; Total: ${items.length} records</div></div>` +
-        `<button onclick="window.print()" style="padding:8px 16px;background:#ff8f04;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Print / Save PDF</button>` +
-        `</div><table><thead><tr><th>#</th>${tableHeaders}<th>Date</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`
-      );
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        try { printWindow.print(); } catch (_) {}
-      }, 500);
-      return;
+  showWorkspaceToast("Preparing Print / PDF report...");
+
+  const printHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${categoryEscape(title)}</title>` +
+    `<style>` +
+    `@page { size: auto; margin: 15mm; }` +
+    `body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 25px; color: #0f172a; margin: 0; background: #fff; }` +
+    `.header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }` +
+    `h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; color: #0f172a; }` +
+    `.meta { font-size: 12px; color: #64748b; }` +
+    `table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 14px; }` +
+    `th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }` +
+    `th { background: #f1f5f9; font-weight: 700; color: #0f172a; }` +
+    `tr:nth-child(even) { background: #f8fafc; }` +
+    `@media print { body { padding: 0; } }` +
+    `</style></head><body>` +
+    `<div class="header"><div><h1>${categoryEscape(CURRENT.short)} &bull; ${categoryEscape(categoryFeature.name)}</h1>` +
+    `<div class="meta">${categoryTab === "trash" ? "Recycle Bin Records" : "Active Records"} &bull; Printed: ${new Date().toLocaleString()} &bull; Total: ${items.length} records</div></div>` +
+    `<div style="text-align:right;"><div style="font-size:14px;font-weight:700;color:#ff8f04;">Online Management Site</div><div style="font-size:11px;color:#64748b;">Enterprise Business Portal</div></div>` +
+    `</div><table><thead><tr><th>#</th>${tableHeaders}<th>Date</th></tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
+
+  try {
+    let iframe = document.getElementById("saasPrintFrame");
+    if (!iframe) {
+      iframe = document.createElement("iframe");
+      iframe.id = "saasPrintFrame";
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "none";
+      iframe.style.visibility = "hidden";
+      document.body.appendChild(iframe);
     }
-  } catch (_) {}
-  window.print();
+    const frameDoc = iframe.contentWindow || iframe.contentDocument;
+    const doc = frameDoc.document || frameDoc;
+    doc.open();
+    doc.write(printHtml);
+    doc.close();
+
+    setTimeout(() => {
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch (_) {
+        window.print();
+      }
+    }, 250);
+  } catch (_) {
+    window.print();
+  }
 };
 
 const formatCellVal = (val, type) => {
@@ -1573,6 +1600,7 @@ const categoryRenderForm = (itemId = null) => {
     categoryFeature = categoryFeatureDef(CURRENT.features[0].id);
   }
   if (!categoryFeature) return;
+  categoryTab = "active";
   categoryEditId = itemId;
   const item = itemId ? categoryItems().find((entry) => entry.id === itemId) : null;
   const fieldsHtml = categoryFeature.fields.map((field) => {
@@ -1601,6 +1629,7 @@ const categoryRenderForm = (itemId = null) => {
   }).join("");
 
   const content = document.getElementById("categoryWorkspaceContent");
+  if (!content) return;
   content.innerHTML = `
     <div class="cat-form-head">
       <h2 id="categoryWorkspaceTitle">${itemId ? "Edit Record" : "Add New Record"}</h2>
@@ -1615,7 +1644,10 @@ const categoryRenderForm = (itemId = null) => {
       </div>
     </form>
   `;
-  content.querySelector("input,select,textarea")?.focus();
+  content.scrollIntoView({ behavior: "smooth", block: "start" });
+  setTimeout(() => {
+    content.querySelector("input,select,textarea")?.focus();
+  }, 100);
 };
 
 const openCategoryFeature = async (card) => {
@@ -1681,6 +1713,14 @@ const initCategoryTools = async () => {
     });
   });
 
+  document.getElementById("saasAddRecordBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    categoryRenderForm();
+  });
+  document.getElementById("saasPrintBtn")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    categoryPrintReport();
+  });
   document.getElementById("saasNavToggleBtn")?.addEventListener("click", () => {
     document.getElementById("saasSidebar")?.classList.toggle("is-open");
   });
@@ -2268,3 +2308,11 @@ fillCategoryRelated();
 initCategoryPage();
 initCategoryTools();
 categoryUpdateHeaderBtn();
+
+window.categoryRenderForm = categoryRenderForm;
+window.categoryPrintReport = categoryPrintReport;
+window.categoryExportCsv = categoryExportCsv;
+window.categoryRenderList = categoryRenderList;
+window.selectSaasFeature = selectSaasFeature;
+window.showCategoryTrialModal = showCategoryTrialModal;
+window.showCategorySubscriptionPaywall = showCategorySubscriptionPaywall;

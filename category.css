@@ -2547,3 +2547,13 @@ p,
   color: #d97706 !important;
   font-weight: 800 !important;
 }
+
+/* ============================================================
+   HIDE UNWANTED SIDEBAR & WORKSPACE CLUTTER
+   ============================================================ */
+.saas-brand-badge,
+.saas-nav-search-wrap,
+.saas-sidebar-footer,
+.cat-ws-meta-count {
+  display: none !important;
+}

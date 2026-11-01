@@ -1228,7 +1228,7 @@ const renderSaasAnalytics = () => {
     <div class="saas-stat-box saas-stat-total is-clickable ${isAllFiltered ? 'is-active' : ''}" id="saasBoxTotal" title="Click to view all records">
       <div class="saas-stat-header">
         <span class="saas-stat-title">Total Entries</span>
-        ${isAllFiltered ? '<span class="saas-badge-active is-green">All</span>' : ''}
+        
       </div>
       <div class="saas-stat-body">
         <strong class="saas-stat-number">${totalCount}</strong>
@@ -1500,9 +1500,7 @@ const categoryRenderList = () => {
             <span class="cat-ws-badge">${allTrash.length}</span>
           </button>
         </div>
-        <div class="cat-ws-meta-count">
-          ${query ? `<strong>${displayedItems.length}</strong> of ${sourceItems.length}` : `<strong>${sourceItems.length}</strong> ${sourceItems.length === 1 ? 'item' : 'items'}`}
-        </div>
+
       </div>
     </div>
 
@@ -1526,7 +1524,7 @@ const categoryRenderList = () => {
       <div class="category-workspace-empty">
         <div class="cat-ws-empty-icon">${isTrash ? '🗑️' : (query ? '🔍' : '📝')}</div>
         <strong>${isTrash ? 'Recycle Bin is empty' : (query ? 'No matching records found' : 'No records yet')}</strong>
-        <span>${isTrash ? 'Items moved to the recycle bin will appear here with a restore option.' : (query ? `No records match "${categoryEscape(categorySearchQuery)}". Try another search.` : `Click "+ Add Record" above to create your first ${categoryEscape(categoryFeature.name.toLowerCase())} entry.`)}</span>
+        ${query ? `<span>No records match "${categoryEscape(categorySearchQuery)}". Try another search.</span>` : (isTrash ? '<span>Recycle bin is empty.</span>' : '')}
         ${query ? `<button type="button" class="btn btn-outline btn-sm" data-ws-search-clear style="margin-top: 0.8rem;">Clear Search</button>` : (!isTrash ? `<button type="button" class="btn btn-primary btn-sm" data-tool-add style="margin-top: 0.8rem;">Add First Record</button>` : '')}
       </div>
     `}

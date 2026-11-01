@@ -1164,32 +1164,7 @@ const renderSaasNav = () => {
   }).join("");
 };
 
-const renderSaasKpis = () => {
-  const grid = document.getElementById("saasKpiGrid");
-  if (!grid || !categoryFeature) return;
-  const items = categoryItems();
-  const totalTrash = Object.values(categoryData.trash || {}).reduce((s, a) => s + (Array.isArray(a) ? a.length : 0), 0);
-  const isTrashView = categoryTab === "trash";
-
-  grid.innerHTML = `
-    <div class="saas-kpi-card is-primary" style="cursor: pointer;" data-ws-tab="active" title="View Current Active Records">
-      <div class="saas-kpi-meta">
-        <span class="saas-kpi-label">${categoryEscape(categoryFeature.name)}</span>
-        <strong class="saas-kpi-value">${items.length}</strong>
-        <span class="saas-kpi-sub">${isTrashView ? 'Switch to Active List' : 'Active Module Records'}</span>
-      </div>
-      <div class="saas-kpi-icon">${categoryEscape(categoryFeature.icon)}</div>
-    </div>
-    <div class="saas-kpi-card is-warning ${isTrashView ? 'is-active' : ''}" style="cursor: pointer;" data-ws-tab="trash" title="Click to view Recycle Bin">
-      <div class="saas-kpi-meta">
-        <span class="saas-kpi-label">Recycle Bin</span>
-        <strong class="saas-kpi-value">${totalTrash}</strong>
-        <span class="saas-kpi-sub">${isTrashView ? 'Currently Viewing Trash' : 'Click to View Trashed Items'}</span>
-      </div>
-      <div class="saas-kpi-icon">&#128465;&#65039;</div>
-    </div>
-  `;
-};
+const renderSaasKpis = () => {};
 
 const updateSaasPortalHeader = () => {
   const brandIcon = document.getElementById("saasBrandIcon");

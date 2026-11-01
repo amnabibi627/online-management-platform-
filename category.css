@@ -2163,3 +2163,8 @@ p,
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Completely remove KPI grid */
+.saas-kpi-grid {
+  display: none !important;
+}

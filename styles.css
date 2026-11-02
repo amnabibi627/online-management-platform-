@@ -168,11 +168,10 @@ h1, h2, h3, h4, .brand {
 }
 .nav-link:hover { color: #000000; background: rgba(0, 0, 0, 0.07); }
 .nav-link.active {
-  color: #ff8f04 !important;
-  background: #fff7ed !important;
-  font-weight: 700 !important;
-  border-radius: 999px !important;
-  box-shadow: none !important;
+  color: #ffffff;
+  background: #ff8f04;
+  font-weight: 600;
+  box-shadow: none;
 }
 
 @media (max-width: 1200px) and (min-width: 901px) {

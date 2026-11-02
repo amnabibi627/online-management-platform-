@@ -1737,6 +1737,33 @@ const updateSaasPortalHeader = () => {
   }
 };
 
+const ensureSaasSidebarBackdrop = () => {
+  let backdrop = document.getElementById("saasSidebarBackdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.id = "saasSidebarBackdrop";
+    backdrop.className = "saas-sidebar-backdrop";
+    document.body.appendChild(backdrop);
+    backdrop.addEventListener("click", () => toggleSaasSidebar(false));
+  }
+  return backdrop;
+};
+
+const toggleSaasSidebar = (forceState) => {
+  const sidebar = document.getElementById("saasSidebar");
+  if (!sidebar) return;
+  const backdrop = ensureSaasSidebarBackdrop();
+  const isCurrentlyOpen = sidebar.classList.contains("is-open");
+  const shouldOpen = typeof forceState === "boolean" ? forceState : !isCurrentlyOpen;
+  sidebar.classList.toggle("is-open", shouldOpen);
+  if (backdrop) backdrop.classList.toggle("is-open", shouldOpen);
+  if (shouldOpen) {
+    document.body.classList.add("saas-sidebar-locked");
+  } else {
+    document.body.classList.remove("saas-sidebar-locked");
+  }
+};
+
 const selectSaasFeature = (featureId) => {
   categoryFeature = categoryFeatureDef(featureId);
   categoryEditId = null;
@@ -1750,10 +1777,7 @@ const selectSaasFeature = (featureId) => {
   updateSaasPortalHeader();
   categoryRenderList();
 
-  const sidebar = document.getElementById("saasSidebar");
-  if (sidebar && sidebar.classList.contains("is-open")) {
-    sidebar.classList.remove("is-open");
-  }
+  toggleSaasSidebar(false);
 };
 
 const categoryRenderList = () => {
@@ -2111,12 +2135,7 @@ const initCategoryTools = async () => {
     e.preventDefault();
     categoryPrintReport();
   });
-  document.getElementById("saasNavToggleBtn")?.addEventListener("click", () => {
-    document.getElementById("saasSidebar")?.classList.toggle("is-open");
-  });
-  document.getElementById("saasSidebarClose")?.addEventListener("click", () => {
-    document.getElementById("saasSidebar")?.classList.remove("is-open");
-  });
+
 
   // Auto backup verification
   categoryCheckAutoBackup();
@@ -2205,18 +2224,31 @@ const initCategoryTools = async () => {
     }
   });
   document.addEventListener("click", (event) => {
-    if (event.target.closest("#saasNavToggleBtn")) {
-      document.getElementById("saasSidebar")?.classList.toggle("is-open");
+    const toggleBtn = event.target.closest("#saasNavToggleBtn");
+    if (toggleBtn) {
+      event.preventDefault();
+      toggleSaasSidebar();
       return;
     }
-    if (event.target.closest("#saasSidebarClose")) {
-      document.getElementById("saasSidebar")?.classList.remove("is-open");
+    const closeBtn = event.target.closest("#saasSidebarClose, #saasSidebarBackdrop");
+    if (closeBtn) {
+      event.preventDefault();
+      toggleSaasSidebar(false);
       return;
     }
     const navFeat = event.target.closest("[data-saas-feature]");
     if (navFeat) {
       selectSaasFeature(navFeat.dataset.saasFeature);
+      toggleSaasSidebar(false);
       return;
+    }
+    if (window.innerWidth <= 1024) {
+      const sidebar = document.getElementById("saasSidebar");
+      if (sidebar && sidebar.classList.contains("is-open")) {
+        if (!event.target.closest("#saasSidebar, #saasNavToggleBtn")) {
+          toggleSaasSidebar(false);
+        }
+      }
     }
     if (event.target.closest("#toTop")) {
       window.scrollTo({ top: 0, behavior: "smooth" });

@@ -1209,7 +1209,6 @@ let customCats = store.get("customCats", []);
 
 const ceoBtn = document.getElementById("ceoBtn");
 const ceoSignupBtn = document.getElementById("ceoSignupBtn");
-const userSignupHeaderBtn = document.getElementById("userSignupHeaderBtn");
 const ceoModal = document.getElementById("ceoModal");
 const ceoLogin = document.getElementById("ceoLogin");
 const ceoPanel = document.getElementById("ceoPanel");
@@ -1677,33 +1676,22 @@ const closeCeoModal = () => {
 
 ceoBtn.addEventListener("click", openCeoModal);
 document.addEventListener("click", (e) => {
-  const target = e.target.closest("#userSignupHeaderBtn, .header-signup-btn, #userSignupHero");
-  if (target) {
+  const target = e.target.closest("#userSignupHeaderBtn, #userSignupHero");
+  if (target?.id === "userSignupHeaderBtn") {
     e.preventDefault();
-    if (typeof openUserModal === "function") {
-      const trial = getBmsTrial();
-      const hasAccount = !!currentUser || !!trial;
-      openUserModal(hasAccount ? "active" : "signup");
+    const trial = getBmsTrial();
+    if (currentUser || trial) {
+      openUserModal("active");
+    } else {
+      window.location.assign("signup.html");
     }
+    return;
+  }
+  if (target?.id === "userSignupHero") {
+    e.preventDefault();
+    openUserModal(currentUser ? "active" : "signup");
   }
 });
-if (userSignupHeaderBtn) {
-  userSignupHeaderBtn.addEventListener("click", () => {
-    if (typeof openUserModal === "function") {
-      const trial = getBmsTrial();
-      const hasAccount = !!currentUser || !!trial;
-      openUserModal(hasAccount ? "active" : "signup");
-    }
-  });
-}
-const userSignupHeroBtn = document.getElementById("userSignupHero");
-if (userSignupHeroBtn) {
-  userSignupHeroBtn.addEventListener("click", () => {
-    if (typeof openUserModal === "function") {
-      openUserModal(currentUser ? "active" : "signup");
-    }
-  });
-}
 if (ceoSignupBtn) {
   ceoSignupBtn.addEventListener("click", () => {
     if (typeof openCeoModal === "function") {

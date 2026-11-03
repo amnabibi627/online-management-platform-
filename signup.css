@@ -1,0 +1,305 @@
+:root {
+  color-scheme: light;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #172033;
+  background: #f5f7fb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  --ink: #172033;
+  --muted: #748096;
+  --line: #e6eaf0;
+  --accent: #6258e8;
+  --accent-dark: #4c43ce;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(ellipse at 50% 34%, rgba(116, 105, 242, 0.09), transparent 34rem),
+    #f5f7fb;
+}
+
+button, input, select { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+.page-shell {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 38px 24px 24px;
+}
+
+.brand {
+  position: absolute;
+  top: 34px;
+  left: max(32px, calc((100vw - 1180px) / 2));
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 11px;
+  background: #6258e8;
+  color: white;
+}
+
+.brand-mark svg { width: 24px; height: 24px; }
+.brand-name { font-size: 15px; font-weight: 700; letter-spacing: -0.5px; }
+.brand-name span { color: #6258e8; }
+
+.signup-card {
+  width: min(100%, 440px);
+  margin: 50px 0 62px;
+  padding: 42px 42px 32px;
+  border: 1px solid rgba(226, 230, 238, 0.85);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 22px 65px rgba(31, 39, 68, 0.09), 0 3px 10px rgba(31, 39, 68, 0.035);
+}
+
+.card-heading { margin-bottom: 27px; text-align: center; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 13px;
+  color: #6258e8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.25px;
+}
+
+.eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8d84ff;
+  box-shadow: 0 0 0 3px #f0efff;
+}
+
+h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(25px, 6vw, 29px);
+  font-weight: 700;
+  letter-spacing: -1.05px;
+  line-height: 1.2;
+}
+
+.card-heading p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.google-button,
+.phone-button {
+  display: flex;
+  width: 100%;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.google-button {
+  border: 1px solid #dfe3e9;
+  background: #fff;
+  color: #263044;
+  box-shadow: 0 1px 2px rgba(20, 32, 54, 0.03);
+}
+
+.google-button:hover {
+  transform: translateY(-1px);
+  border-color: #c9ced8;
+  background: #fbfcfe;
+  box-shadow: 0 5px 14px rgba(20, 32, 54, 0.08);
+}
+
+.google-button:active,
+.phone-button:active { transform: scale(0.985); }
+.google-icon { width: 19px; height: 19px; }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 23px 0;
+  color: #9aa3b2;
+  font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+  content: "";
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #303a4d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.phone-field {
+  display: flex;
+  min-height: 53px;
+  align-items: center;
+  border: 1px solid #dfe3e9;
+  border-radius: 10px;
+  background: white;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.phone-field:focus-within {
+  border-color: #8178f0;
+  box-shadow: 0 0 0 3px rgba(98, 88, 232, 0.12);
+}
+
+.phone-field select {
+  width: 116px;
+  min-width: 116px;
+  align-self: stretch;
+  padding: 0 8px 0 13px;
+  border: 0;
+  border-radius: 10px 0 0 10px;
+  outline: 0;
+  background: transparent;
+  color: #303a4d;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.field-separator { width: 1px; height: 25px; flex: 0 0 1px; background: #e7eaf0; }
+
+.phone-field input {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 0 10px 10px 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.phone-field input::placeholder { color: #a0a8b6; opacity: 1; }
+.field-hint { margin: 8px 0 0; color: #8992a2; font-size: 11px; }
+
+#recaptcha-container:empty { display: none; }
+#recaptcha-container:not(:empty) { margin-top: 16px; }
+
+.phone-button {
+  position: relative;
+  margin-top: 20px;
+  border: 0;
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 5px 12px rgba(98, 88, 232, 0.2);
+}
+
+.phone-button:hover {
+  transform: translateY(-1px);
+  background: var(--accent-dark);
+  box-shadow: 0 8px 17px rgba(98, 88, 232, 0.27);
+}
+
+.phone-button svg { position: absolute; right: 17px; width: 19px; height: 19px; }
+
+.auth-message {
+  display: none;
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #f1dfba;
+  border-radius: 8px;
+  background: #fffaf0;
+  color: #795a19;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.auth-message.is-visible { display: block; }
+
+.legal-copy {
+  margin: 23px 0 0;
+  color: #9099a8;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.legal-copy a { color: #687185; text-decoration: underline; text-decoration-color: #cbd0d9; text-underline-offset: 2px; }
+.legal-copy a:hover { color: var(--accent); }
+
+.page-footer {
+  position: absolute;
+  right: 24px;
+  bottom: 21px;
+  left: 24px;
+  display: flex;
+  justify-content: space-between;
+  color: #929aaa;
+  font-size: 11px;
+}
+
+.footer-secure { display: inline-flex; align-items: center; gap: 6px; }
+.footer-secure span { color: #6258e8; font-size: 17px; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+:focus-visible { outline: 3px solid rgba(98, 88, 232, 0.45); outline-offset: 3px; }
+
+@media (max-width: 560px) {
+  .page-shell { justify-content: flex-start; padding: 25px 17px 76px; }
+  .brand { position: static; align-self: flex-start; margin: 0 0 auto 2px; }
+  .signup-card { margin: auto 0; padding: 34px 25px 27px; border-radius: 18px; }
+  .page-footer { bottom: 17px; right: 18px; left: 18px; gap: 10px; font-size: 10px; }
+}
+
+@media (max-width: 360px) {
+  .signup-card { padding-right: 19px; padding-left: 19px; }
+  .footer-secure { max-width: 150px; text-align: right; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}

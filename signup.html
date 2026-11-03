@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="Create your onlinemanagement.site account with a global, mobile-friendly sign-up experience.">
+  <title>Create your account | Online Management</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="signup.css">
+  <script src="signup.js" defer></script>
+</head>
+<body>
+  <main class="page-shell">
+    <a class="brand" href="index.html" aria-label="Online Management home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M5 8.5 16 3l11 5.5v15L16 29 5 23.5v-15Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="m10 16 4 4 8-9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="brand-name">online<span>management</span>.site</span>
+    </a>
+
+    <section class="signup-card" aria-labelledby="signup-title">
+      <div class="card-heading">
+        <span class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> YOUR BUSINESS, IN SYNC</span>
+        <h1 id="signup-title">Create your account</h1>
+        <p>One simple sign-up, wherever you are in the world.</p>
+      </div>
+
+      <button class="google-button" id="googleSignIn" type="button">
+        <svg class="google-icon" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z" transform="translate(0 5)"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.76 7.18l7.73 6C44.42 38.06 46.98 31.91 46.98 24.55Z"/>
+          <path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.75-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19Z" transform="translate(0 5)"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.14 1.44-4.89 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z" transform="translate(0 -5)"/>
+        </svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="divider" role="separator" aria-label="Or continue with your phone">
+        <span>or</span>
+      </div>
+
+      <form id="phoneForm" novalidate>
+        <label class="field-label" for="phoneNumber">Phone number</label>
+        <div class="phone-field">
+          <label class="visually-hidden" for="countryCode">Country calling code</label>
+          <select id="countryCode" name="countryCode" aria-label="Country calling code">
+            <option value="+1">🇺🇸 &nbsp; +1</option>
+            <option value="+44">🇬🇧 &nbsp; +44</option>
+            <option value="+92">🇵🇰 &nbsp; +92</option>
+            <option value="+971">🇦🇪 &nbsp; +971</option>
+          </select>
+          <span class="field-separator" aria-hidden="true"></span>
+          <input
+            id="phoneNumber"
+            name="phoneNumber"
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel-national"
+            placeholder="Enter phone number"
+            aria-describedby="phoneHint authMessage"
+            required
+          >
+        </div>
+        <p class="field-hint" id="phoneHint">Choose your country code and enter your number.</p>
+
+        <div id="recaptcha-container" aria-label="reCAPTCHA verification"></div>
+
+        <button class="phone-button" type="submit">
+          <span>Continue with Phone</span>
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4.167 10h11.666M10 4.167 15.833 10 10 15.833" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </form>
+
+      <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+
+      <p class="legal-copy">
+        By continuing, you agree to our <a href="index.html#terms">Terms of Service</a>
+        and <a href="index.html#privacy">Privacy Policy</a>.
+      </p>
+    </section>
+
+    <footer class="page-footer">
+      <span>© <span id="currentYear"></span> Online Management</span>
+      <span class="footer-secure"><span aria-hidden="true">⌑</span> A better way to manage, worldwide.</span>
+    </footer>
+  </main>
+</body>
+</html>

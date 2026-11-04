@@ -823,51 +823,94 @@ const refreshUserSignupButton = () => {
   }
 };
 
+const getRegisteredUsers = () => {
+  try {
+    const raw = localStorage.getItem("oms_registered_users");
+    return raw ? JSON.parse(raw) : [];
+  } catch (_) {
+    return [];
+  }
+};
+
+const saveRegisteredUser = (userObj) => {
+  try {
+    const users = getRegisteredUsers();
+    const cleanId = (userObj.email || userObj.mobile || "").toLowerCase();
+    const idx = users.findIndex(u => {
+      if (userObj.email && u.email && u.email.toLowerCase() === userObj.email.toLowerCase()) return true;
+      if (userObj.mobile && u.mobile && u.mobile.replace(/\D/g, "") === userObj.mobile.replace(/\D/g, "")) return true;
+      return false;
+    });
+    if (idx >= 0) {
+      users[idx] = { ...users[idx], ...userObj };
+    } else {
+      users.push(userObj);
+    }
+    localStorage.setItem("oms_registered_users", JSON.stringify(users));
+  } catch (err) {
+    console.warn("User save err:", err);
+  }
+};
+
 const openUserModal = (mode) => {
   const trial = getBmsTrial();
   const hasAccount = !!currentUser || !!trial;
   userModalMode = mode || (hasAccount ? "active" : "signup");
   Object.values(uFields).forEach((f) => setUserError(f, ""));
 
+  const signupCardView = document.getElementById("signupCardView");
+  const signupStepMain = document.getElementById("signupStepMain");
+  const signupStepLogin = document.getElementById("signupStepLogin");
+  const modalIcon = document.getElementById("userModalIcon") || document.querySelector("#userModal .modal-icon");
+  const userModalTitle = document.getElementById("userModalTitle");
+  const userModalSub = document.getElementById("userModalSub");
+  const authMessage = document.getElementById("authMessage");
+  const loginAuthMessage = document.getElementById("loginAuthMessage");
+
+  if (authMessage) {
+    authMessage.textContent = "";
+    authMessage.classList.remove("is-visible");
+  }
+  if (loginAuthMessage) {
+    loginAuthMessage.textContent = "";
+    loginAuthMessage.classList.remove("is-visible");
+  }
+
   if (userModalMode === "active" && hasAccount) {
+    if (signupCardView) signupCardView.hidden = true;
     if (userModalTitle) userModalTitle.style.display = "none";
     if (userModalSub) userModalSub.style.display = "none";
-    const modalIcon = document.querySelector("#userModal .modal-icon");
     if (modalIcon) modalIcon.style.display = "none";
 
     if (userActiveBox) userActiveBox.hidden = false;
-    userForm.hidden = true;
+    if (userForm) userForm.hidden = true;
     renderUserActiveProfile("overview");
-  } else {
-    const isSignup = userModalMode === "signup";
-    if (userModalTitle) {
-      userModalTitle.style.display = "block";
-      userModalTitle.textContent = isSignup ? "Sign Up Free" : "Welcome Back";
+  } else if (userModalMode === "login") {
+    if (signupCardView) {
+      signupCardView.hidden = false;
+      if (signupStepMain) signupStepMain.style.display = "none";
+      if (signupStepLogin) signupStepLogin.style.display = "block";
     }
-    if (userModalSub) {
-      userModalSub.style.display = "block";
-      userModalSub.textContent = isSignup
-        ? "Start your 5-day unlimited free trial. No credit card needed."
-        : "Enter your registered mobile number and password to log in.";
-    }
-    const modalIcon = document.querySelector("#userModal .modal-icon");
-    if (modalIcon) modalIcon.style.display = "block";
-
     if (userActiveBox) userActiveBox.hidden = true;
-    userForm.hidden = false;
-    userSignupFields.hidden = !isSignup;
-    userLoginFields.hidden = isSignup;
-    if (userPurpose) userPurpose.value = "community";
-    if (userSubscriptionFields) userSubscriptionFields.hidden = true;
-    userSubmit.textContent = isSignup ? "Sign Up Free" : "Sign In";
-    if (userModeToggle) {
-      userModeToggle.textContent = isSignup
-        ? "Already have an account? Login here"
-        : "Need a new account? Start 5-day trial";
+    if (userForm) userForm.hidden = true;
+    if (userModalTitle) userModalTitle.style.display = "none";
+    if (userModalSub) userModalSub.style.display = "none";
+    if (modalIcon) modalIcon.style.display = "none";
+
+    const loginIdInput = document.getElementById("loginIdentifier");
+    if (loginIdInput) setTimeout(() => loginIdInput.focus(), 60);
+  } else {
+    // Show the NEW sign-up card
+    if (signupCardView) {
+      signupCardView.hidden = false;
+      if (signupStepMain) signupStepMain.style.display = "block";
+      if (signupStepLogin) signupStepLogin.style.display = "none";
     }
-    userForm.reset();
-    setUserPassVisibility(false);
-    setUserPassVisibility(false, true);
+    if (userActiveBox) userActiveBox.hidden = true;
+    if (userForm) userForm.hidden = true;
+    if (userModalTitle) userModalTitle.style.display = "none";
+    if (userModalSub) userModalSub.style.display = "none";
+    if (modalIcon) modalIcon.style.display = "none";
   }
 
   userModal.classList.add("open");
@@ -883,7 +926,290 @@ const closeUserModal = () => {
 if (userModeToggle) {
   userModeToggle.addEventListener("click", (e) => {
     e.preventDefault();
-    openUserModal(userModalMode === "signup" ? "login" : "signup");
+    openUserModal(userModalMode === "login" ? "signup" : "login");
+  });
+}
+
+const toggleToPasswordLogin = document.getElementById("toggleToPasswordLogin");
+if (toggleToPasswordLogin) {
+  toggleToPasswordLogin.addEventListener("click", (e) => {
+    e.preventDefault();
+    openUserModal("login");
+  });
+}
+
+const toggleToCreateAccount = document.getElementById("toggleToCreateAccount");
+if (toggleToCreateAccount) {
+  toggleToCreateAccount.addEventListener("click", (e) => {
+    e.preventDefault();
+    openUserModal("signup");
+  });
+}
+
+// Password toggle helpers
+const toggleSignupPass = document.getElementById("toggleSignupPass");
+if (toggleSignupPass) {
+  toggleSignupPass.addEventListener("click", () => {
+    const passInput = document.getElementById("signupPassword");
+    if (!passInput) return;
+    const isPass = passInput.type === "password";
+    passInput.type = isPass ? "text" : "password";
+    toggleSignupPass.textContent = isPass ? "🙈" : "👁️";
+  });
+}
+
+const toggleLoginPass = document.getElementById("toggleLoginPass");
+if (toggleLoginPass) {
+  toggleLoginPass.addEventListener("click", () => {
+    const passInput = document.getElementById("loginPassword");
+    if (!passInput) return;
+    const isPass = passInput.type === "password";
+    passInput.type = isPass ? "text" : "password";
+    toggleLoginPass.textContent = isPass ? "🙈" : "👁️";
+  });
+}
+
+// Country Code Picker sync
+const countryCodeSelect = document.getElementById("countryCode");
+if (countryCodeSelect) {
+  countryCodeSelect.addEventListener("change", () => {
+    const selected = countryCodeSelect.options[countryCodeSelect.selectedIndex];
+    if (!selected) return;
+    const flag = selected.getAttribute("data-flag") || "🌐";
+    const code = selected.getAttribute("data-code") || selected.value;
+    const flagDisplay = document.getElementById("countryFlagDisplay");
+    const codeDisplay = document.getElementById("countryCodeDisplay");
+    if (flagDisplay) flagDisplay.textContent = flag;
+    if (codeDisplay) codeDisplay.textContent = code;
+  });
+}
+
+// Sign up Account Form
+const signupAccountForm = document.getElementById("signupAccountForm");
+if (signupAccountForm) {
+  signupAccountForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const emailInput = document.getElementById("signupEmail");
+    const phoneInput = document.getElementById("phoneNumber");
+    const passInput = document.getElementById("signupPassword");
+    const authMessage = document.getElementById("authMessage");
+
+    const email = emailInput ? emailInput.value.trim().toLowerCase() : "";
+    const rawPhone = phoneInput ? phoneInput.value.trim() : "";
+    const pass = passInput ? passInput.value.trim() : "";
+
+    if (!email && !rawPhone) {
+      if (authMessage) {
+        authMessage.textContent = "Please enter either your Gmail or Mobile number.";
+        authMessage.classList.add("is-visible");
+      }
+      if (emailInput) emailInput.focus();
+      return;
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)) {
+      if (authMessage) {
+        authMessage.textContent = "Please enter a valid Gmail / Email address.";
+        authMessage.classList.add("is-visible");
+      }
+      if (emailInput) emailInput.focus();
+      return;
+    }
+
+    let fullPhone = "";
+    if (rawPhone) {
+      const digits = rawPhone.replace(/\D/g, "");
+      if (digits.length < 6 || digits.length > 15) {
+        if (authMessage) {
+          authMessage.textContent = "Please enter a valid mobile number.";
+          authMessage.classList.add("is-visible");
+        }
+        if (phoneInput) phoneInput.focus();
+        return;
+      }
+      const cCodeSelect = document.getElementById("countryCode");
+      const cCode = cCodeSelect ? cCodeSelect.value : "+92";
+      const cleanNumber = rawPhone.replace(/^0+/, "");
+      fullPhone = rawPhone.startsWith("+") ? rawPhone : `${cCode} ${cleanNumber}`;
+    }
+
+    if (!pass || pass.length < 4) {
+      if (authMessage) {
+        authMessage.textContent = "Please create a password of at least 4 characters.";
+        authMessage.classList.add("is-visible");
+      }
+      if (passInput) passInput.focus();
+      return;
+    }
+
+    const userName = email ? email.split("@")[0] : (fullPhone ? `User ${fullPhone.slice(-4)}` : "Business User");
+    const newUser = {
+      id: "u_" + Date.now(),
+      name: userName,
+      email: email,
+      mobile: fullPhone,
+      password: pass,
+      createdAt: Date.now()
+    };
+    saveRegisteredUser(newUser);
+
+    setBmsTrial({
+      name: userName,
+      email: email,
+      mobile: fullPhone,
+      password: pass
+    });
+
+    showToast(`🎉 Account created successfully! Welcome, ${userName}.`);
+    openUserModal("active");
+  });
+}
+
+// Login Account Form
+const loginAccountForm = document.getElementById("loginAccountForm");
+if (loginAccountForm) {
+  loginAccountForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const identifierInput = document.getElementById("loginIdentifier");
+    const passInput = document.getElementById("loginPassword");
+    const loginAuthMessage = document.getElementById("loginAuthMessage");
+
+    const identifier = identifierInput ? identifierInput.value.trim() : "";
+    const pass = passInput ? passInput.value.trim() : "";
+
+    if (!identifier) {
+      if (loginAuthMessage) {
+        loginAuthMessage.textContent = "Please enter your Gmail or Mobile number.";
+        loginAuthMessage.classList.add("is-visible");
+      }
+      if (identifierInput) identifierInput.focus();
+      return;
+    }
+
+    if (!pass) {
+      if (loginAuthMessage) {
+        loginAuthMessage.textContent = "Please enter your password.";
+        loginAuthMessage.classList.add("is-visible");
+      }
+      if (passInput) passInput.focus();
+      return;
+    }
+
+    const users = getRegisteredUsers();
+    const idLower = identifier.toLowerCase();
+    const idDigits = identifier.replace(/\D/g, "");
+    const idClean = idDigits.replace(/^0+/, "");
+
+    const matchPhone = (storedPhone) => {
+      if (!storedPhone || !idClean) return false;
+      const sDigits = String(storedPhone).replace(/\D/g, "");
+      const sClean = sDigits.replace(/^0+/, "");
+      if (sClean === idClean) return true;
+      if (sClean.length >= 7 && idClean.length >= 7) {
+        if (sClean.endsWith(idClean) || idClean.endsWith(sClean)) return true;
+      }
+      return false;
+    };
+
+    let matchedUser = users.find(u => {
+      const uEmail = (u.email || "").toLowerCase();
+      if (uEmail && uEmail === idLower) return true;
+      if (matchPhone(u.mobile)) return true;
+      return false;
+    });
+
+    if (!matchedUser) {
+      const trial = getBmsTrial();
+      if (trial) {
+        const tEmail = (trial.email || "").toLowerCase();
+        if ((tEmail && tEmail === idLower) || matchPhone(trial.mobile)) {
+          matchedUser = trial;
+        }
+      }
+    }
+
+    if (!matchedUser) {
+      if (loginAuthMessage) {
+        loginAuthMessage.textContent = "No registered account found with this Gmail or mobile number.";
+        loginAuthMessage.classList.add("is-visible");
+      }
+      return;
+    }
+
+    if (matchedUser.password && matchedUser.password !== pass) {
+      if (loginAuthMessage) {
+        loginAuthMessage.textContent = "Incorrect password. Please try again.";
+        loginAuthMessage.classList.add("is-visible");
+      }
+      if (passInput) passInput.focus();
+      return;
+    }
+
+    setBmsTrial({
+      name: matchedUser.name || "Business User",
+      email: matchedUser.email || "",
+      mobile: matchedUser.mobile || "",
+      password: pass
+    });
+
+    showToast(`Welcome back, ${matchedUser.name || 'User'}! Logged in successfully.`);
+    openUserModal("active");
+  });
+}
+
+// Clear error messages on input
+["signupEmail", "phoneNumber", "signupPassword"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", () => {
+      const authMessage = document.getElementById("authMessage");
+      if (authMessage && authMessage.classList.contains("is-visible")) {
+        authMessage.textContent = "";
+        authMessage.classList.remove("is-visible");
+      }
+    });
+  }
+});
+
+["loginIdentifier", "loginPassword"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", () => {
+      const loginAuthMessage = document.getElementById("loginAuthMessage");
+      if (loginAuthMessage && loginAuthMessage.classList.contains("is-visible")) {
+        loginAuthMessage.textContent = "";
+        loginAuthMessage.classList.remove("is-visible");
+      }
+    });
+  }
+});
+
+const openTermsLink = document.getElementById("openTermsLink");
+const openPrivacyLink = document.getElementById("openPrivacyLink");
+const globalPrivacyModal = document.getElementById("globalPrivacyModal");
+if (openTermsLink && globalPrivacyModal) {
+  openTermsLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    globalPrivacyModal.classList.add("open");
+    globalPrivacyModal.setAttribute("aria-hidden", "false");
+  });
+}
+if (openPrivacyLink && globalPrivacyModal) {
+  openPrivacyLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    globalPrivacyModal.classList.add("open");
+    globalPrivacyModal.setAttribute("aria-hidden", "false");
+  });
+}
+
+const phoneInputField = document.getElementById("phoneNumber");
+if (phoneInputField) {
+  phoneInputField.addEventListener("input", () => {
+    const authMessage = document.getElementById("authMessage");
+    if (authMessage && authMessage.classList.contains("is-visible")) {
+      authMessage.textContent = "";
+      authMessage.classList.remove("is-visible");
+    }
   });
 }
 
@@ -1209,6 +1535,7 @@ let customCats = store.get("customCats", []);
 
 const ceoBtn = document.getElementById("ceoBtn");
 const ceoSignupBtn = document.getElementById("ceoSignupBtn");
+const userSignupHeaderBtn = document.getElementById("userSignupHeaderBtn");
 const ceoModal = document.getElementById("ceoModal");
 const ceoLogin = document.getElementById("ceoLogin");
 const ceoPanel = document.getElementById("ceoPanel");
@@ -1676,22 +2003,33 @@ const closeCeoModal = () => {
 
 ceoBtn.addEventListener("click", openCeoModal);
 document.addEventListener("click", (e) => {
-  const target = e.target.closest("#userSignupHeaderBtn, #userSignupHero");
-  if (target?.id === "userSignupHeaderBtn") {
+  const target = e.target.closest("#userSignupHeaderBtn, .header-signup-btn, #userSignupHero");
+  if (target) {
     e.preventDefault();
-    const trial = getBmsTrial();
-    if (currentUser || trial) {
-      openUserModal("active");
-    } else {
-      window.location.assign("signup.html");
+    if (typeof openUserModal === "function") {
+      const trial = getBmsTrial();
+      const hasAccount = !!currentUser || !!trial;
+      openUserModal(hasAccount ? "active" : "signup");
     }
-    return;
-  }
-  if (target?.id === "userSignupHero") {
-    e.preventDefault();
-    openUserModal(currentUser ? "active" : "signup");
   }
 });
+if (userSignupHeaderBtn) {
+  userSignupHeaderBtn.addEventListener("click", () => {
+    if (typeof openUserModal === "function") {
+      const trial = getBmsTrial();
+      const hasAccount = !!currentUser || !!trial;
+      openUserModal(hasAccount ? "active" : "signup");
+    }
+  });
+}
+const userSignupHeroBtn = document.getElementById("userSignupHero");
+if (userSignupHeroBtn) {
+  userSignupHeroBtn.addEventListener("click", () => {
+    if (typeof openUserModal === "function") {
+      openUserModal(currentUser ? "active" : "signup");
+    }
+  });
+}
 if (ceoSignupBtn) {
   ceoSignupBtn.addEventListener("click", () => {
     if (typeof openCeoModal === "function") {
@@ -4486,6 +4824,17 @@ const validateRegForm = () => {
   const get = (id) => document.getElementById(id);
   let ok = true;
 
+  // Sync WhatsApp from mobile if same-checkbox is checked
+  const sameWa = document.getElementById("regSameWaCheck");
+  if (sameWa && sameWa.checked) {
+    const mCode = document.getElementById("regCountryCode")?.value || "+92";
+    const mNum = get("regMobile")?.value || "";
+    const waEl = get("regWhatsapp");
+    const waCodeEl = document.getElementById("regWhatsappCountryCode");
+    if (waEl) waEl.value = mNum;
+    if (waCodeEl) waCodeEl.value = mCode;
+  }
+
   const bizName = get("regBizName").value.trim();
   ok = setRegError(get("regBizName"), get("regBizNameErr"), bizName.length < 3 ? "Please write your business name (min 3 letters)." : "") && ok;
 
@@ -4663,15 +5012,23 @@ if (regForm) {
       renderRegistrations();
       resetRegErrors();
 
-      showToast(`Registration saved online. The owner must verify your payment before the ad can go live.${mediaWarning}`, !!mediaWarning);
+      showToast(`Registration saved! Redirecting to WhatsApp to complete payment with the owner.${mediaWarning}`, !!mediaWarning);
       closeRegModal();
       regListWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
 
       const waText = encodeURIComponent(
-        `Assalam o Alaikum! I submitted my business registration on Online Management Site.\n` +
-        `Business: ${entry.business_name}\nOwner: ${entry.owner_name}\nPlan: ${plan.label} (PKR ${rupees(entry.amount)})\n` +
-        `Request reference: ${submission.id}\nPlease send me the payment details.` +
-        (mediaWarning ? `\n${mediaWarning.trim()}` : "")
+        `🌟 *BUSINESS REGISTRATION & AD ACTIVATION* 🌟\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `🆔 *Ref ID:* ${submission.id}\n` +
+        `🏢 *Business:* ${entry.business_name}\n` +
+        `👤 *Owner:* ${entry.owner_name}\n` +
+        `📂 *Category:* ${entry.category}\n` +
+        `📍 *Location:* ${entry.city}\n` +
+        `📞 *Contact:* ${entry.mobile}\n` +
+        `📅 *Plan:* ${plan.label} (PKR ${rupees(entry.amount)})\n` +
+        `━━━━━━━━━━━━━━━━━━━━\n` +
+        `Assalam o Alaikum! I have submitted my business registration on the portal. Please provide your payment details (JazzCash / EasyPaisa / Bank Transfer / Remittance) so I can pay and have my listing activated.\nThank you!` +
+        (mediaWarning ? `\n\n*Note:* ${mediaWarning.trim()}` : "")
       );
       window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
     } catch (error) {
@@ -4681,6 +5038,37 @@ if (regForm) {
       submitButton.disabled = false;
     }
   });
+
+  // Setup WhatsApp sync checkbox
+  const regSameWaCheck = document.getElementById("regSameWaCheck");
+  const regWhatsappWrap = document.getElementById("regWhatsappWrap");
+  if (regSameWaCheck && regWhatsappWrap) {
+    regSameWaCheck.addEventListener("change", () => {
+      regWhatsappWrap.style.display = regSameWaCheck.checked ? "none" : "block";
+      if (regSameWaCheck.checked) {
+        const mCode = document.getElementById("regCountryCode")?.value || "+92";
+        const mNum = document.getElementById("regMobile")?.value || "";
+        const waEl = document.getElementById("regWhatsapp");
+        const waCodeEl = document.getElementById("regWhatsappCountryCode");
+        if (waEl) waEl.value = mNum;
+        if (waCodeEl) waCodeEl.value = mCode;
+      }
+    });
+
+    document.getElementById("regMobile")?.addEventListener("input", (e) => {
+      if (regSameWaCheck.checked) {
+        const waEl = document.getElementById("regWhatsapp");
+        if (waEl) waEl.value = e.target.value;
+      }
+    });
+
+    document.getElementById("regCountryCode")?.addEventListener("change", (e) => {
+      if (regSameWaCheck.checked) {
+        const waCodeEl = document.getElementById("regWhatsappCountryCode");
+        if (waCodeEl) waCodeEl.value = e.target.value;
+      }
+    });
+  }
 
   regForm.addEventListener("input", (e) => {
     const t = e.target;
@@ -4695,7 +5083,7 @@ if (regForm) {
   document.getElementById("regReset")?.addEventListener("click", () => {
     clearPreview(regPhotoPreview);
     clearPreview(regVideoPreview);
-    if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
+    if (regMediaNote) regMediaNote.textContent = "Uploaded media is saved securely and published live once your ad is verified and activated by the owner.";
     if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
     if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
     store.set(REG_PLAN_KEY, null);
@@ -5345,7 +5733,15 @@ const selectSubPlan = (planId) => {
     c.classList.toggle("selected", c.dataset.subPlan === planId);
   });
   if (subAmountDue) subAmountDue.textContent = `$${p.priceUsd} USD / PKR ${p.price.toLocaleString()}`;
-  if (subSubmitBtn) subSubmitBtn.textContent = `Submit Subscription Request ($${p.priceUsd} USD / PKR ${p.price.toLocaleString()})`;
+  if (subSubmitBtn) {
+    subSubmitBtn.innerHTML = `
+      <span class="sub-btn-text">Submit Request &amp; Connect on WhatsApp ($${p.priceUsd} USD / PKR ${p.price.toLocaleString()})</span>
+      <svg class="sub-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    `;
+  }
 };
 
 subPlanCards.forEach((c) => {
@@ -5458,7 +5854,9 @@ if (subPurchaseForm) {
     }
 
     subSubmitBtn.disabled = true;
-    subSubmitBtn.textContent = "Submitting request...";
+    subSubmitBtn.innerHTML = `
+      <span class="sub-btn-text">Submitting Request &amp; Connecting...</span>
+    `;
 
     const reqData = {
       id: "req_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
@@ -5509,13 +5907,56 @@ if (subPurchaseForm) {
     }
 
     subSubmitBtn.disabled = false;
-    subSubmitBtn.textContent = "Submit Subscription Request ($" + (plan.priceUsd || 24) + " USD / PKR " + plan.price.toLocaleString() + ")";
+    subSubmitBtn.innerHTML = `
+      <span class="sub-btn-text">Submit Request &amp; Connect on WhatsApp ($${plan.priceUsd || 24} USD / PKR ${plan.price.toLocaleString()})</span>
+      <svg class="sub-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    `;
     closeSubscriptionModal();
     subPurchaseForm.reset();
     selectSubPlan("3-month");
 
-    showToast("Payment request submitted! The administrator will verify payment TID (" + txId + ") and activate your " + category + " subscription.");
+    const categoryName = subCategorySelect?.selectedOptions[0]?.text || category;
+    const activePayMethod = document.querySelector(".sub-pay-tab.is-active")?.dataset.payMethod || "card";
+    const payMethodNames = {
+      card: "Credit/Debit Card & Online Checkout",
+      bank: "Bank Wire / SWIFT (IBAN)",
+      wallet: "Mobile Wallet (JazzCash / Raast)"
+    };
+    const payMethodLabel = payMethodNames[activePayMethod] || activePayMethod;
+
+    const waText = encodeURIComponent(
+      `💎 *CATEGORY PORTAL SUBSCRIPTION REQUEST* 💎\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🆔 *Ref ID:* ${reqData.id}\n` +
+      `📂 *Category to Unlock:* ${categoryName}\n` +
+      `📅 *Plan Selected:* ${plan.label} ($${plan.priceUsd || 24} USD / PKR ${plan.price.toLocaleString()})\n` +
+      `👤 *Subscriber Name:* ${name}\n` +
+      `📧 *Email:* ${email}\n` +
+      `📞 *Account Mobile:* ${mobile}\n` +
+      `📍 *City:* ${city}\n` +
+      `💳 *Payment Method:* ${payMethodLabel}\n` +
+      `📱 *Sender Account / Phone:* ${payerMobile}\n` +
+      `🧾 *Transaction ID / Receipt #:* ${txId}\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `Assalam o Alaikum! I have submitted my portal subscription request with payment details. Please verify my payment and activate my category access.\nThank you!`
+    );
+    window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
+
+    showToast("Subscription request submitted! Connecting with Owner on WhatsApp for instant activation.");
   });
+
+  const toggleSubPassBtn = document.getElementById("toggleSubPass");
+  const subPassInput = document.getElementById("subPassword");
+  if (toggleSubPassBtn && subPassInput) {
+    toggleSubPassBtn.addEventListener("click", () => {
+      const isPass = subPassInput.type === "password";
+      subPassInput.type = isPass ? "text" : "password";
+      toggleSubPassBtn.textContent = isPass ? "🔒" : "👁️";
+    });
+  }
 }
 
 // Global Legal Charter (Terms of Use & Privacy Policy) Triggers & Tab Switching

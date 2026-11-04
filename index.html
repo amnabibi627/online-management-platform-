@@ -22,7 +22,437 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261101WorldReady" />
+  <link rel="stylesheet" href="styles.css?v=20261103SubPortalPro" />
+  <style id="signup-modal-styles">
+    /* =========================================================
+       ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
+       ========================================================= */
+    #userModal.owner-modal {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 2500 !important;
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 1rem !important;
+      background: rgba(15, 23, 42, 0.6) !important;
+      backdrop-filter: blur(6px) !important;
+    }
+    #userModal.owner-modal.open {
+      display: flex !important;
+    }
+    #userModal .user-modal-box {
+      width: min(460px, 94vw) !important;
+      padding: 32px 28px 24px !important;
+      border-radius: 20px !important;
+      background: #ffffff !important;
+      box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.28) !important;
+      position: relative !important;
+      border: 1px solid rgba(226, 232, 240, 0.9) !important;
+      animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    @keyframes modalFadeIn {
+      from { transform: translateY(16px) scale(0.97); opacity: 0; }
+      to { transform: none; opacity: 1; }
+    }
+    #userModal .modal-close {
+      position: absolute !important;
+      top: 14px !important;
+      right: 16px !important;
+      width: 32px !important;
+      height: 32px !important;
+      display: grid !important;
+      place-items: center !important;
+      background: #f1f5f9 !important;
+      color: #475569 !important;
+      border: 0 !important;
+      border-radius: 50% !important;
+      font-size: 20px !important;
+      line-height: 1 !important;
+      cursor: pointer !important;
+      transition: background 0.15s, color 0.15s !important;
+    }
+    #userModal .modal-close:hover {
+      background: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    .signup-modal-content {
+      text-align: center !important;
+      position: relative !important;
+    }
+    .signup-modal-content .card-heading {
+      margin-bottom: 20px !important;
+      text-align: center !important;
+    }
+    .signup-modal-content .signup-title {
+      margin: 0 !important;
+      color: #000000 !important;
+      font-size: 24px !important;
+      font-weight: 800 !important;
+      letter-spacing: -0.025em !important;
+      line-height: 1.25 !important;
+    }
+    .signup-modal-content .signup-sub {
+      margin: 6px 0 0 !important;
+      color: #64748b !important;
+      font-size: 14px !important;
+      line-height: 1.45 !important;
+    }
+    .signup-modal-content .google-button {
+      display: flex !important;
+      width: 100% !important;
+      height: 50px !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 11px !important;
+      border-radius: 12px !important;
+      background: #ffffff !important;
+      border: 1.5px solid #e2e8f0 !important;
+      color: #1e293b !important;
+      font-family: inherit !important;
+      font-size: 14.5px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+      transition: all 0.18s ease !important;
+      user-select: none !important;
+    }
+    .signup-modal-content .google-button:hover {
+      background: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      transform: translateY(-1.5px) !important;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+    }
+    .signup-modal-content .google-button:active {
+      transform: scale(0.985) !important;
+    }
+    .signup-modal-content .google-icon {
+      width: 20px !important;
+      height: 20px !important;
+      flex-shrink: 0 !important;
+    }
+    .signup-modal-content .divider {
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      margin: 18px 0 !important;
+      color: #94a3b8 !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.6px !important;
+    }
+    .signup-modal-content .divider::before,
+    .signup-modal-content .divider::after {
+      height: 1px !important;
+      flex: 1 !important;
+      background: #e2e8f0 !important;
+      content: "" !important;
+    }
+    .signup-modal-content .form-field-group {
+      margin-bottom: 14px !important;
+      text-align: left !important;
+    }
+    .signup-modal-content .custom-input-box {
+      display: flex !important;
+      align-items: center !important;
+      height: 52px !important;
+      min-height: 52px !important;
+      border: 1.5px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      background: #ffffff !important;
+      overflow: hidden !important;
+      transition: border-color 0.18s, box-shadow 0.18s !important;
+      width: 100% !important;
+      position: relative !important;
+    }
+    .signup-modal-content .custom-input-box:hover {
+      border-color: #cbd5e1 !important;
+    }
+    .signup-modal-content .custom-input-box:focus-within {
+      border-color: #ff8f04 !important;
+      box-shadow: 0 0 0 3.5px rgba(255, 143, 4, 0.18) !important;
+    }
+    .signup-modal-content .custom-input-box input {
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      height: 100% !important;
+      padding: 0 14px !important;
+      border: 0 !important;
+      outline: none !important;
+      background: transparent !important;
+      color: #000000 !important;
+      font-size: 14.5px !important;
+      font-weight: 500 !important;
+    }
+    .signup-modal-content .custom-input-box input::placeholder {
+      color: #94a3b8 !important;
+      font-weight: 400 !important;
+    }
+    .signup-modal-content .input-icon-btn {
+      background: none !important;
+      border: 0 !important;
+      color: #64748b !important;
+      cursor: pointer !important;
+      padding: 0 14px !important;
+      height: 100% !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 17px !important;
+      transition: color 0.15s !important;
+    }
+    .signup-modal-content .input-icon-btn:hover {
+      color: #ff8f04 !important;
+    }
+    .signup-modal-content .phone-input-block {
+      text-align: left !important;
+      margin-bottom: 2px !important;
+    }
+    .signup-modal-content .field-label {
+      display: block !important;
+      text-align: left !important;
+      margin-bottom: 6px !important;
+      color: #1e293b !important;
+      font-size: 13.5px !important;
+      font-weight: 600 !important;
+    }
+    .signup-modal-content .phone-input-wrap {
+      display: flex !important;
+      align-items: center !important;
+      height: 52px !important;
+      min-height: 52px !important;
+      border: 1.5px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      background: #ffffff !important;
+      transition: border-color 0.18s, box-shadow 0.18s !important;
+      position: relative !important;
+      width: 100% !important;
+      overflow: hidden !important;
+    }
+    .signup-modal-content .phone-input-wrap:hover {
+      border-color: #cbd5e1 !important;
+    }
+    .signup-modal-content .phone-input-wrap:focus-within {
+      border-color: #ff8f04 !important;
+      box-shadow: 0 0 0 3.5px rgba(255, 143, 4, 0.18) !important;
+    }
+    .signup-modal-content .country-picker-btn {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      height: 100% !important;
+      padding: 0 10px 0 14px !important;
+      cursor: pointer !important;
+      flex-shrink: 0 !important;
+      background: #ffffff !important;
+    }
+    .signup-modal-content .country-picker-btn select {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      opacity: 0 !important;
+      cursor: pointer !important;
+      z-index: 2 !important;
+      font-size: 16px !important;
+    }
+    .signup-modal-content .country-display {
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      font-size: 14.5px !important;
+      font-weight: 600 !important;
+      color: #1e293b !important;
+      user-select: none !important;
+      white-space: nowrap !important;
+    }
+    .signup-modal-content .country-display .flag-emoji {
+      font-size: 19px !important;
+      line-height: 1 !important;
+    }
+    .signup-modal-content .country-display .dial-code {
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      letter-spacing: -0.01em !important;
+    }
+    .signup-modal-content .country-display .chevron-icon {
+      width: 10px !important;
+      height: 10px !important;
+      color: #94a3b8 !important;
+      margin-left: 1px !important;
+    }
+    .signup-modal-content .phone-v-divider {
+      width: 1px !important;
+      height: 26px !important;
+      background: #e2e8f0 !important;
+      margin: 0 !important;
+      flex-shrink: 0 !important;
+    }
+    .signup-modal-content .phone-input-wrap input {
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      height: 100% !important;
+      padding: 0 14px !important;
+      border: 0 !important;
+      outline: none !important;
+      background: transparent !important;
+      color: #000000 !important;
+      font-size: 14.5px !important;
+      font-weight: 500 !important;
+    }
+    .signup-modal-content .phone-input-wrap input::placeholder {
+      color: #94a3b8 !important;
+      font-weight: 400 !important;
+    }
+    .signup-modal-content .phone-button {
+      position: relative !important;
+      display: flex !important;
+      width: 100% !important;
+      height: 52px !important;
+      margin-top: 16px !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 1.5px solid transparent !important;
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, #ff981a 0%, #ff8f04 50%, #f38500 100%) !important;
+      color: #ffffff !important;
+      font-family: inherit !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      box-shadow: 0 4px 14px rgba(255, 143, 4, 0.32), 0 1px 3px rgba(255, 143, 4, 0.18) !important;
+      transition: transform 0.18s, box-shadow 0.18s !important;
+      user-select: none !important;
+    }
+    .signup-modal-content .phone-button:hover {
+      transform: translateY(-1.5px) !important;
+      box-shadow: 0 8px 24px rgba(255, 143, 4, 0.44), 0 3px 8px rgba(255, 143, 4, 0.22) !important;
+    }
+    .signup-modal-content .phone-button:active {
+      transform: scale(0.985) !important;
+    }
+    .signup-modal-content .phone-button .btn-arrow {
+      position: absolute !important;
+      right: 18px !important;
+      width: 20px !important;
+      height: 20px !important;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .signup-modal-content .phone-button:hover .btn-arrow {
+      transform: translateX(4px) !important;
+    }
+    .signup-modal-content .auth-message {
+      display: none;
+      margin: 12px 0 0 !important;
+      padding: 10px 14px !important;
+      border: 1px solid #fed7aa !important;
+      border-radius: 10px !important;
+      background: #fff8f0 !important;
+      color: #9a4b00 !important;
+      font-size: 12.5px !important;
+      line-height: 1.55 !important;
+      font-weight: 500 !important;
+      text-align: center !important;
+    }
+    .signup-modal-content .auth-message.is-visible {
+      display: block !important;
+    }
+    .signup-modal-content .signup-modal-footer {
+      margin-top: 16px !important;
+    }
+    .signup-modal-content .legal-copy {
+      margin: 0 0 10px !important;
+      color: #64748b !important;
+      font-size: 11.5px !important;
+      line-height: 1.6 !important;
+      text-align: center !important;
+    }
+    .signup-modal-content .legal-copy a {
+      color: #334155 !important;
+      font-weight: 600 !important;
+      text-decoration: underline !important;
+      text-decoration-color: #cbd5e1 !important;
+      text-underline-offset: 3px !important;
+      transition: color 0.15s !important;
+    }
+    .signup-modal-content .legal-copy a:hover {
+      color: #ff8f04 !important;
+    }
+    .signup-modal-content .modal-switch-text {
+      margin: 0 !important;
+      padding-top: 10px !important;
+      border-top: 1px solid #f1f5f9 !important;
+      font-size: 13px !important;
+      color: #475569 !important;
+      text-align: center !important;
+    }
+    .signup-modal-content .modal-switch-text a {
+      color: #ff8f04 !important;
+      font-weight: 700 !important;
+      text-decoration: none !important;
+      margin-left: 3px !important;
+    }
+    .signup-modal-content .modal-switch-text a:hover {
+      text-decoration: underline !important;
+    }
+    .signup-modal-content .otp-badge-icon {
+      font-size: 36px !important;
+      line-height: 1 !important;
+      margin-bottom: 8px !important;
+      display: inline-block !important;
+    }
+    .signup-modal-content .otp-code-field {
+      width: 100% !important;
+      max-width: 250px !important;
+      height: 52px !important;
+      margin: 8px auto 0 !important;
+      display: block !important;
+      text-align: center !important;
+      font-size: 24px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.35em !important;
+      border: 2px solid #cbd5e1 !important;
+      border-radius: 12px !important;
+      background: #f8fafc !important;
+      color: #0f172a !important;
+      outline: none !important;
+      transition: border-color 0.18s, box-shadow 0.18s, background-color 0.18s !important;
+    }
+    .signup-modal-content .otp-code-field:focus {
+      border-color: #ff8f04 !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 0 3.5px rgba(255, 143, 4, 0.18) !important;
+    }
+    .signup-modal-content .otp-actions-row {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      margin-top: 14px !important;
+      padding: 0 2px !important;
+    }
+    .signup-modal-content .otp-link-btn {
+      background: none !important;
+      border: 0 !important;
+      color: #ff8f04 !important;
+      font-family: inherit !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      padding: 4px 6px !important;
+      border-radius: 6px !important;
+      transition: opacity 0.15s !important;
+    }
+    .signup-modal-content .otp-link-btn:hover {
+      text-decoration: underline !important;
+    }
+    .signup-modal-content .otp-link-muted {
+      color: #64748b !important;
+    }
+    .signup-modal-content .otp-link-muted:hover {
+      color: #0f172a !important;
+    }
+  </style>
   <script src="security.js?v=20261031EnableCopy"></script>
 </head>
 <body>
@@ -843,253 +1273,323 @@
         <button class="reg-modal-close" type="button" id="regModalClose" aria-label="Close">&times;</button>
 
         <div class="reg-modal-head">
+          <span class="reg-modal-eyebrow">🌐 Global Business Network &amp; Promotion</span>
           <h3 class="reg-form-title-modal" id="regModalTitle">Register Your Business</h3>
-          <p class="reg-modal-sub">Pick a plan, fill the details and submit. All fields are required except social links.</p>
+          <p class="reg-modal-sub">List your business globally. Choose a plan, submit your details, and connect directly with the owner on WhatsApp for quick payment verification &amp; instant ad activation.</p>
         </div>
 
         <form class="reg-form" id="regForm" novalidate>
-          <!-- Plans -->
-          <h3 class="reg-form-title">Choose Your Plan</h3>
+          <!-- Step 1: Promotion Plan -->
+          <div class="reg-section-header">
+            <span class="reg-step-number">1</span>
+            <div>
+              <h4 class="reg-step-title">Choose Promotion Plan</h4>
+              <p class="reg-step-desc">Select how long your business listing stays featured &amp; active worldwide</p>
+            </div>
+          </div>
+
           <div class="plan-mini-grid" id="planGrid">
             <button type="button" class="plan-mini" data-plan="15days" data-price="2500" data-label="15 Days">
               <span class="plan-mini-name">15 Days</span>
               <span class="plan-mini-price"><strong>2,500</strong> PKR</span>
-              <span class="plan-mini-note">Short run</span>
+              <span class="plan-mini-note">Short run • ~$9 USD</span>
             </button>
             <button type="button" class="plan-mini featured" data-plan="30days" data-price="5000" data-label="30 Days">
               <span class="plan-mini-ribbon">Popular</span>
               <span class="plan-mini-name">30 Days</span>
               <span class="plan-mini-price"><strong>5,000</strong> PKR</span>
-              <span class="plan-mini-note">Best for regular ads</span>
+              <span class="plan-mini-note">Best for regular ads • ~$18 USD</span>
             </button>
             <button type="button" class="plan-mini" data-plan="1year" data-price="60000" data-label="1 Year">
+              <span class="plan-mini-ribbon best-deal">Best Value</span>
               <span class="plan-mini-name">1 Year</span>
               <span class="plan-mini-price"><strong>60,000</strong> PKR</span>
-              <span class="plan-mini-note">Best value</span>
+              <span class="plan-mini-note">365 Days • ~$215 USD</span>
             </button>
           </div>
           <span class="field-error" id="regPlanErr"></span>
 
-          <!-- Business info -->
-          <h3 class="reg-form-title">Business Details</h3>
+          <!-- Step 2: Business & Contact Details -->
+          <div class="reg-section-header">
+            <span class="reg-step-number">2</span>
+            <div>
+              <h4 class="reg-step-title">Business &amp; Contact Details</h4>
+              <p class="reg-step-desc">Enter your business information and primary phone number</p>
+            </div>
+          </div>
 
           <div class="reg-grid">
             <div class="field">
-              <label for="regBizName">Business Name</label>
-              <input type="text" id="regBizName" name="regBizName" placeholder="Write your business name here." maxlength="60" />
+              <label for="regBizName">Business / Company Name *</label>
+              <input type="text" id="regBizName" name="regBizName" placeholder="e.g. Al-Madina Traders / Apex Tech" maxlength="60" />
               <span class="field-error" id="regBizNameErr"></span>
             </div>
 
             <div class="field">
-              <label for="regOwnerName">Owner Name</label>
-              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Write the owner name here." maxlength="50" />
+              <label for="regOwnerName">Owner / Contact Person *</label>
+              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Full name of owner" maxlength="50" />
               <span class="field-error" id="regOwnerNameErr"></span>
             </div>
 
             <div class="field">
               <label for="regEmail">Email Address</label>
-              <input type="email" id="regEmail" name="regEmail" placeholder="Email Address" maxlength="80" autocomplete="email" />
+              <input type="email" id="regEmail" name="regEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" />
               <span class="field-error" id="regEmailErr"></span>
             </div>
 
             <div class="field">
-              <label for="regMobile">Mobile Number</label>
+              <label for="regMobile">Mobile Number *</label>
               <div class="phone-input-group">
-                  <select id="regCountryCode" class="phone-country-select" aria-label="Country Code">
-                    <option value="+92" selected>PK (+92)</option>
-                    <option value="+1">US (+1)</option>
-                    <option value="+44">UK (+44)</option>
-                    <option value="+971">UAE (+971)</option>
-                    <option value="+966">SA (+966)</option>
-                    <option value="+91">IN (+91)</option>
-                    <option value="+1">CA (+1)</option>
-                    <option value="+61">AU (+61)</option>
-                    <option value="+49">DE (+49)</option>
-                    <option value="+33">FR (+33)</option>
-                    <option value="+86">CN (+86)</option>
-                    <option value="+90">TR (+90)</option>
-                    <option value="+60">MY (+60)</option>
-                    <option value="+65">SG (+65)</option>
-                    <option value="+974">QA (+974)</option>
-                    <option value="+968">OM (+968)</option>
-                    <option value="+965">KW (+965)</option>
-                    <option value="+973">BH (+973)</option>
-                    <option value="+880">BD (+880)</option>
-                    <option value="+93">AF (+93)</option>
-                    <option value="+20">EG (+20)</option>
-                    <option value="+27">ZA (+27)</option>
-                    <option value="+34">ES (+34)</option>
-                    <option value="+39">IT (+39)</option>
-                    <option value="+81">JP (+81)</option>
-                    <option value="+82">KR (+82)</option>
-                    <option value="+7">RU (+7)</option>
-                    <option value="+55">BR (+55)</option>
-                    <option value="+52">MX (+52)</option>
-                    <option value="+62">ID (+62)</option>
-                    <option value="+63">PH (+63)</option>
-                    <option value="+234">NG (+234)</option>
-                    <option value="+254">KE (+254)</option>
-                  </select>
-                <input type="tel" id="regMobile" name="regMobile" placeholder="Mobile Number" maxlength="15" />
+                <select id="regCountryCode" class="phone-country-select" aria-label="Country Code">
+                  <option value="+92" selected>🇵🇰 PK (+92)</option>
+                  <option value="+1">🇺🇸 US (+1)</option>
+                  <option value="+44">🇬🇧 UK (+44)</option>
+                  <option value="+971">🇦🇪 UAE (+971)</option>
+                  <option value="+966">🇸🇦 SA (+966)</option>
+                  <option value="+91">🇮🇳 IN (+91)</option>
+                  <option value="+1">🇨🇦 CA (+1)</option>
+                  <option value="+61">🇦🇺 AU (+61)</option>
+                  <option value="+49">🇩🇪 DE (+49)</option>
+                  <option value="+33">🇫🇷 FR (+33)</option>
+                  <option value="+86">🇨🇳 CN (+86)</option>
+                  <option value="+90">🇹🇷 TR (+90)</option>
+                  <option value="+60">🇲🇾 MY (+60)</option>
+                  <option value="+65">🇸🇬 SG (+65)</option>
+                  <option value="+974">🇶🇦 QA (+974)</option>
+                  <option value="+968">🇴🇲 OM (+968)</option>
+                  <option value="+965">🇰🇼 KW (+965)</option>
+                  <option value="+973">🇧🇭 BH (+973)</option>
+                  <option value="+880">🇧🇩 BD (+880)</option>
+                  <option value="+93">🇦🇫 AF (+93)</option>
+                  <option value="+20">🇪🇬 EG (+20)</option>
+                  <option value="+27">🇿🇦 ZA (+27)</option>
+                  <option value="+34">🇪🇸 ES (+34)</option>
+                  <option value="+39">🇮🇹 IT (+39)</option>
+                  <option value="+81">🇯🇵 JP (+81)</option>
+                  <option value="+82">🇰🇷 KR (+82)</option>
+                  <option value="+7">🇷🇺 RU (+7)</option>
+                  <option value="+55">🇧🇷 BR (+55)</option>
+                  <option value="+52">🇲🇽 MX (+52)</option>
+                  <option value="+62">🇮🇩 ID (+62)</option>
+                  <option value="+63">🇵🇭 PH (+63)</option>
+                  <option value="+234">🇳🇬 NG (+234)</option>
+                  <option value="+254">🇰🇪 KE (+254)</option>
+                </select>
+                <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 3012345678" maxlength="15" />
               </div>
               <span class="field-error" id="regMobileErr"></span>
-            </div>
 
-            <div class="field">
-              <label for="regWhatsapp">WhatsApp Number</label>
-              <div class="phone-input-group">
-                  <select id="regWhatsappCountryCode" class="phone-country-select" aria-label="Country Code">
-                    <option value="+92" selected>PK (+92)</option>
-                    <option value="+1">US (+1)</option>
-                    <option value="+44">UK (+44)</option>
-                    <option value="+971">UAE (+971)</option>
-                    <option value="+966">SA (+966)</option>
-                    <option value="+91">IN (+91)</option>
-                    <option value="+1">CA (+1)</option>
-                    <option value="+61">AU (+61)</option>
-                    <option value="+49">DE (+49)</option>
-                    <option value="+33">FR (+33)</option>
-                    <option value="+86">CN (+86)</option>
-                    <option value="+90">TR (+90)</option>
-                    <option value="+60">MY (+60)</option>
-                    <option value="+65">SG (+65)</option>
-                    <option value="+974">QA (+974)</option>
-                    <option value="+968">OM (+968)</option>
-                    <option value="+965">KW (+965)</option>
-                    <option value="+973">BH (+973)</option>
-                    <option value="+880">BD (+880)</option>
-                    <option value="+93">AF (+93)</option>
-                    <option value="+20">EG (+20)</option>
-                    <option value="+27">ZA (+27)</option>
-                    <option value="+34">ES (+34)</option>
-                    <option value="+39">IT (+39)</option>
-                    <option value="+81">JP (+81)</option>
-                    <option value="+82">KR (+82)</option>
-                    <option value="+7">RU (+7)</option>
-                    <option value="+55">BR (+55)</option>
-                    <option value="+52">MX (+52)</option>
-                    <option value="+62">ID (+62)</option>
-                    <option value="+63">PH (+63)</option>
-                    <option value="+234">NG (+234)</option>
-                    <option value="+254">KE (+254)</option>
-                  </select>
-                <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="WhatsApp Number" maxlength="15" />
-              </div>
-              <span class="field-error" id="regWhatsappErr"></span>
+              <label class="reg-same-wa" style="margin-top: 6px; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); cursor: pointer;">
+                <input type="checkbox" id="regSameWaCheck" checked style="accent-color: var(--pink);" />
+                <span>WhatsApp number is same as mobile number</span>
+              </label>
             </div>
+          </div>
 
+          <!-- Separate WhatsApp (hidden by default unless user unchecks above) -->
+          <div class="field" id="regWhatsappWrap" style="display: none; margin-bottom: 0.85rem;">
+            <label for="regWhatsapp">Separate WhatsApp Number *</label>
+            <div class="phone-input-group">
+              <select id="regWhatsappCountryCode" class="phone-country-select" aria-label="Country Code">
+                <option value="+92" selected>🇵🇰 PK (+92)</option>
+                <option value="+1">🇺🇸 US (+1)</option>
+                <option value="+44">🇬🇧 UK (+44)</option>
+                <option value="+971">🇦🇪 UAE (+971)</option>
+                <option value="+966">🇸🇦 SA (+966)</option>
+                <option value="+91">🇮🇳 IN (+91)</option>
+                <option value="+1">🇨🇦 CA (+1)</option>
+                <option value="+61">🇦🇺 AU (+61)</option>
+                <option value="+49">🇩🇪 DE (+49)</option>
+                <option value="+33">🇫🇷 FR (+33)</option>
+                <option value="+86">🇨🇳 CN (+86)</option>
+                <option value="+90">🇹🇷 TR (+90)</option>
+                <option value="+60">🇲🇾 MY (+60)</option>
+                <option value="+65">🇸🇬 SG (+65)</option>
+                <option value="+974">🇶🇦 QA (+974)</option>
+                <option value="+968">🇴🇲 OM (+968)</option>
+                <option value="+965">🇰🇼 KW (+965)</option>
+                <option value="+973">🇧🇭 BH (+973)</option>
+                <option value="+880">🇧🇩 BD (+880)</option>
+                <option value="+93">🇦🇫 AF (+93)</option>
+                <option value="+20">🇪🇬 EG (+20)</option>
+                <option value="+27">🇿🇦 ZA (+27)</option>
+                <option value="+34">🇪🇸 ES (+34)</option>
+                <option value="+39">🇮🇹 IT (+39)</option>
+                <option value="+81">🇯🇵 JP (+81)</option>
+                <option value="+82">🇰🇷 KR (+82)</option>
+                <option value="+7">🇷🇺 RU (+7)</option>
+                <option value="+55">🇧🇷 BR (+55)</option>
+                <option value="+52">🇲🇽 MX (+52)</option>
+                <option value="+62">🇮🇩 ID (+62)</option>
+                <option value="+63">🇵🇭 PH (+63)</option>
+                <option value="+234">🇳🇬 NG (+234)</option>
+                <option value="+254">🇰🇪 KE (+254)</option>
+              </select>
+              <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="WhatsApp Number" maxlength="15" />
+            </div>
+            <span class="field-error" id="regWhatsappErr"></span>
+          </div>
+
+          <div class="reg-grid">
             <div class="field">
-              <label for="regCategory">Business Category</label>
+              <label for="regCategory">Business Category *</label>
               <select id="regCategory" name="regCategory">
                 <option value="">Select a category</option>
-                <option value="Clinic">Clinic</option>
-                <option value="Academy">Academy</option>
-                <option value="Restaurant">Restaurant</option>
-                <option value="General Store">General Store</option>
-                <option value="Beauty Salon">Beauty Salon</option>
-                <option value="Petrol Pump">Petrol Pump</option>
-                <option value="Medical Store">Medical Store</option>
-                <option value="Laboratory">Laboratory</option>
-                <option value="Other">Other</option>
+                <option value="Clinic">Clinic &amp; Healthcare</option>
+                <option value="Academy">Academy &amp; Education</option>
+                <option value="Restaurant">Restaurant &amp; Food</option>
+                <option value="General Store">General &amp; Retail Store</option>
+                <option value="Beauty Salon">Beauty Salon &amp; Spa</option>
+                <option value="Petrol Pump">Petrol Pump &amp; Energy</option>
+                <option value="Medical Store">Pharmacy &amp; Medical Store</option>
+                <option value="Laboratory">Laboratory &amp; Diagnostics</option>
+                <option value="Real Estate">Real Estate &amp; Property</option>
+                <option value="Software / IT">Software &amp; Digital Services</option>
+                <option value="Other">Other Business</option>
               </select>
               <span class="field-error" id="regCategoryErr"></span>
             </div>
 
             <div class="field">
-              <label for="regCity">City</label>
-              <input type="text" id="regCity" name="regCity" placeholder="Write your city here." maxlength="40" />
+              <label for="regCity">City &amp; Country *</label>
+              <input type="text" id="regCity" name="regCity" placeholder="e.g. Lahore, Pakistan or London, UK" maxlength="50" />
               <span class="field-error" id="regCityErr"></span>
             </div>
           </div>
 
           <div class="field">
-            <label for="regAddress">Full Address</label>
-            <input type="text" id="regAddress" name="regAddress" placeholder="Shop number, street, area." maxlength="120" />
+            <label for="regAddress">Full Address / Location *</label>
+            <input type="text" id="regAddress" name="regAddress" placeholder="Shop / Office No, Street, Plaza, Area or Online" maxlength="120" />
             <span class="field-error" id="regAddressErr"></span>
           </div>
 
+          <div class="reg-grid">
+            <div class="field">
+              <label for="regTiming">Opening Hours *</label>
+              <input type="text" id="regTiming" name="regTiming" placeholder="e.g. 9:00 AM to 10:00 PM or 24/7" maxlength="60" />
+              <span class="field-error" id="regTimingErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="regWebsite">Business Website / Link <span class="reg-optional">Optional</span></label>
+              <input type="text" id="regWebsite" name="regWebsite" placeholder="https://yourwebsite.com or social link" maxlength="200" />
+              <span class="field-error" id="regWebsiteErr"></span>
+            </div>
+          </div>
+
           <div class="field">
-            <label for="regAbout">About Your Business</label>
-            <textarea id="regAbout" name="regAbout" rows="2" placeholder="Write a short description of your business." maxlength="300"></textarea>
+            <label for="regAbout">About Your Business *</label>
+            <textarea id="regAbout" name="regAbout" rows="2" placeholder="Write a brief overview of your business, products, or services (min 10 characters)." maxlength="300"></textarea>
             <span class="field-error" id="regAboutErr"></span>
           </div>
 
-          <div class="field">
-            <label for="regTiming">Opening Hours</label>
-            <input type="text" id="regTiming" name="regTiming" placeholder="e.g. 9:00 AM to 10:00 PM" maxlength="60" />
-            <span class="field-error" id="regTimingErr"></span>
-          </div>
+          <!-- Hidden fallbacks for Facebook, Instagram, TikTok -->
+          <input type="hidden" id="regFacebook" name="regFacebook" value="" />
+          <span class="field-error" id="regFacebookErr" style="display:none"></span>
+          <input type="hidden" id="regInstagram" name="regInstagram" value="" />
+          <span class="field-error" id="regInstagramErr" style="display:none"></span>
+          <input type="hidden" id="regTiktok" name="regTiktok" value="" />
+          <span class="field-error" id="regTiktokErr" style="display:none"></span>
 
-          <!-- Social + media -->
-          <h3 class="reg-form-title">Social Links &amp; Media <span class="reg-optional">Optional</span></h3>
-
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regWebsite">Business Website</label>
-              <input type="text" id="regWebsite" name="regWebsite" placeholder="Paste your website link here." maxlength="200" />
-              <span class="field-error" id="regWebsiteErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regFacebook">Facebook Page</label>
-              <input type="text" id="regFacebook" name="regFacebook" placeholder="Paste your Facebook link here." maxlength="200" />
-              <span class="field-error" id="regFacebookErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regInstagram">Instagram Profile</label>
-              <input type="text" id="regInstagram" name="regInstagram" placeholder="Paste your Instagram link here." maxlength="200" />
-              <span class="field-error" id="regInstagramErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regTiktok">TikTok Profile</label>
-              <input type="text" id="regTiktok" name="regTiktok" placeholder="Paste your TikTok link here." maxlength="200" />
-              <span class="field-error" id="regTiktokErr"></span>
+          <!-- Step 3: Photos & Media -->
+          <div class="reg-section-header">
+            <span class="reg-step-number">3</span>
+            <div>
+              <h4 class="reg-step-title">Photos &amp; Branding <span class="reg-optional">Optional</span></h4>
+              <p class="reg-step-desc">Upload your business logo or storefront photos to attract clients</p>
             </div>
           </div>
 
-          <div class="reg-media">
-            <div class="media-box">
-              <label class="media-label" for="regPhotos">Business Photos (up to 30, 5 MB each)</label>
+          <div class="reg-media-compact">
+            <div class="media-box-compact">
+              <div class="media-box-info">
+                <span class="media-box-icon">📸</span>
+                <div>
+                  <strong>Business Photos / Logo</strong>
+                  <p>Up to 5 photos (JPG, PNG, WebP — max 5 MB each)</p>
+                </div>
+              </div>
               <input type="file" id="regPhotos" name="regPhotos" accept="image/jpeg,image/png,image/webp" multiple />
               <div class="media-preview" id="regPhotoPreview"></div>
             </div>
-            <div class="media-box">
-              <label class="media-label" for="regVideos">Business Videos (up to 5, 25 MB each)</label>
+
+            <div class="media-box-compact">
+              <div class="media-box-info">
+                <span class="media-box-icon">🎥</span>
+                <div>
+                  <strong>Promotional Video</strong>
+                  <p>1 short video clip (MP4, WebM — max 25 MB)</p>
+                </div>
+              </div>
               <input type="file" id="regVideos" name="regVideos" accept="video/mp4,video/webm" multiple />
               <div class="media-preview" id="regVideoPreview"></div>
             </div>
           </div>
-          <p class="reg-media-note" id="regMediaNote">Up to 30 photos (5 MB each) and 5 videos (25 MB each). Media stays private until the CEO activates your paid ad.</p>
+          <p class="reg-media-note" id="regMediaNote">Uploaded media is saved securely and published live once your ad is verified and activated by the owner.</p>
 
-          <!-- Payment -->
-          <h3 class="reg-form-title">Payment</h3>
-          <div class="reg-plan-summary" id="regPlanSummary">
-            <span class="reg-plan-none">No plan selected yet.</span>
-          </div>
-
-          <div class="pay-contact">
-            <div class="pay-contact-info">
-              <span class="pay-contact-label">For ad run, send payment by contacting the owner</span>
-              <a class="pay-contact-number" href="https://wa.me/923042954627" target="_blank" rel="noopener">0304 295 4627</a>
-              <span class="pay-contact-sub">Above the number it says: For ad run, send payment by contacting the owner.</span>
+          <!-- Step 4: Payment & Direct Owner Activation Flow -->
+          <div class="reg-section-header">
+            <span class="reg-step-number">4</span>
+            <div>
+              <h4 class="reg-step-title">Payment &amp; Owner Activation</h4>
+              <p class="reg-step-desc">Simple 3-step process to pay and activate your listing instantly</p>
             </div>
-            <a class="btn btn-primary pay-contact-btn" href="https://wa.me/923042954627" target="_blank" rel="noopener">Contact Owner</a>
           </div>
 
-          <div class="reg-before-submit">
-            <p>Submit the form first, then contact the owner to arrange payment. Payment is checked manually; your ad appears publicly only after the owner verifies payment and activates it.</p>
+          <div class="reg-plan-summary" id="regPlanSummary">
+            <span class="reg-plan-none">No plan selected yet. Pick one in Step 1.</span>
+          </div>
+
+          <div class="pay-flow-card">
+            <div class="pay-flow-head">
+              <span class="pay-flow-badge">HOW IT WORKS</span>
+              <span class="pay-flow-title">Direct Owner Payment &amp; Instant Activation</span>
+            </div>
+            <div class="pay-flow-steps">
+              <div class="pay-flow-step">
+                <div class="pay-step-num">1</div>
+                <div class="pay-step-text">
+                  <strong>Submit Form</strong>
+                  <span>Fill details and submit to generate your Ad Reference ID.</span>
+                </div>
+              </div>
+              <div class="pay-flow-step">
+                <div class="pay-step-num">2</div>
+                <div class="pay-step-text">
+                  <strong>Connect on WhatsApp</strong>
+                  <span>Contact owner on WhatsApp (+92 304 295 4627) to get payment details.</span>
+                </div>
+              </div>
+              <div class="pay-flow-step">
+                <div class="pay-step-num">3</div>
+                <div class="pay-step-text">
+                  <strong>Owner Verifies &amp; Activates</strong>
+                  <span>Owner confirms payment receipt and immediately activates your listing LIVE!</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pay-owner-box">
+              <div class="pay-owner-details">
+                <span class="pay-owner-tag">OFFICIAL PAYMENT CONTACT</span>
+                <span class="pay-owner-num">WhatsApp: +92 304 295 4627</span>
+                <span class="pay-owner-methods">JazzCash • EasyPaisa • Bank Transfer / IBAN • International Remittance (Wise, Western Union)</span>
+              </div>
+              <a class="btn-owner-whatsapp" href="https://wa.me/923042954627" target="_blank" rel="noopener">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                <span>Chat with Owner</span>
+              </a>
+            </div>
           </div>
 
           <label class="reg-terms">
             <input type="checkbox" id="regTerms" name="regTerms" />
-            <span>I confirm the details are correct and will contact the owner to arrange payment. I understand that uploaded media and listing details become public only after manual payment verification and ad activation.</span>
+            <span>I confirm the details are correct and agree to contact the owner on WhatsApp to arrange payment. Listing details and media become live after manual payment verification by the owner.</span>
           </label>
           <span class="field-error" id="regTermsErr"></span>
 
           <div class="reg-actions">
-            <button type="submit" class="btn btn-primary btn-lg">Submit Registration</button>
+            <button type="submit" class="btn btn-primary btn-lg">Submit &amp; Connect on WhatsApp</button>
             <button type="reset" class="btn btn-outline btn-lg" id="regReset">Clear Form</button>
           </div>
         </form>
@@ -1105,7 +1605,7 @@
         <div class="reg-modal-head">
           <span class="sub-modal-eyebrow">💎 Category Access Portal</span>
           <h3 class="reg-form-title-modal" id="subModalTitle">Subscription Plans</h3>
-          <p class="reg-modal-sub">Choose a duration, select your business category, and submit your JazzCash payment. Once approved by the owner, your portal access becomes active.</p>
+          <p class="reg-modal-sub">Choose a duration, select your business category, and complete your payment. Once approved by the owner, your portal access becomes active.</p>
         </div>
 
         <form class="reg-form sub-purchase-form" id="subPurchaseForm" novalidate>
@@ -1170,39 +1670,39 @@
               <label for="subAccountMobile">Account Mobile Number <em>*</em></label>
               <div class="phone-input-group">
                   <select id="subCountryCode" class="phone-country-select" aria-label="Country Code">
-                    <option value="+92" selected>PK (+92)</option>
-                    <option value="+1">US (+1)</option>
-                    <option value="+44">UK (+44)</option>
-                    <option value="+971">UAE (+971)</option>
-                    <option value="+966">SA (+966)</option>
-                    <option value="+91">IN (+91)</option>
-                    <option value="+1">CA (+1)</option>
-                    <option value="+61">AU (+61)</option>
-                    <option value="+49">DE (+49)</option>
-                    <option value="+33">FR (+33)</option>
-                    <option value="+86">CN (+86)</option>
-                    <option value="+90">TR (+90)</option>
-                    <option value="+60">MY (+60)</option>
-                    <option value="+65">SG (+65)</option>
-                    <option value="+974">QA (+974)</option>
-                    <option value="+968">OM (+968)</option>
-                    <option value="+965">KW (+965)</option>
-                    <option value="+973">BH (+973)</option>
-                    <option value="+880">BD (+880)</option>
-                    <option value="+93">AF (+93)</option>
-                    <option value="+20">EG (+20)</option>
-                    <option value="+27">ZA (+27)</option>
-                    <option value="+34">ES (+34)</option>
-                    <option value="+39">IT (+39)</option>
-                    <option value="+81">JP (+81)</option>
-                    <option value="+82">KR (+82)</option>
-                    <option value="+7">RU (+7)</option>
-                    <option value="+55">BR (+55)</option>
-                    <option value="+52">MX (+52)</option>
-                    <option value="+62">ID (+62)</option>
-                    <option value="+63">PH (+63)</option>
-                    <option value="+234">NG (+234)</option>
-                    <option value="+254">KE (+254)</option>
+                    <option value="+92" selected>ðŸ‡µðŸ‡° PK (+92)</option>
+                    <option value="+1">ðŸ‡ºðŸ‡¸ US (+1)</option>
+                    <option value="+44">ðŸ‡¬ðŸ‡§ UK (+44)</option>
+                    <option value="+971">ðŸ‡¦ðŸ‡ª UAE (+971)</option>
+                    <option value="+966">ðŸ‡¸ðŸ‡¦ SA (+966)</option>
+                    <option value="+91">ðŸ‡®ðŸ‡³ IN (+91)</option>
+                    <option value="+1">ðŸ‡¨ðŸ‡¦ CA (+1)</option>
+                    <option value="+61">ðŸ‡¦ðŸ‡º AU (+61)</option>
+                    <option value="+49">ðŸ‡©ðŸ‡ª DE (+49)</option>
+                    <option value="+33">ðŸ‡«ðŸ‡· FR (+33)</option>
+                    <option value="+86">ðŸ‡¨ðŸ‡³ CN (+86)</option>
+                    <option value="+90">ðŸ‡¹ðŸ‡· TR (+90)</option>
+                    <option value="+60">ðŸ‡²ðŸ‡¾ MY (+60)</option>
+                    <option value="+65">ðŸ‡¸ðŸ‡¬ SG (+65)</option>
+                    <option value="+974">ðŸ‡¶ðŸ‡¦ QA (+974)</option>
+                    <option value="+968">ðŸ‡´ðŸ‡² OM (+968)</option>
+                    <option value="+965">ðŸ‡°ðŸ‡¼ KW (+965)</option>
+                    <option value="+973">ðŸ‡§ðŸ‡­ BH (+973)</option>
+                    <option value="+880">ðŸ‡§ðŸ‡© BD (+880)</option>
+                    <option value="+93">ðŸ‡¦ðŸ‡« AF (+93)</option>
+                    <option value="+20">ðŸ‡ªðŸ‡¬ EG (+20)</option>
+                    <option value="+27">ðŸ‡¿ðŸ‡¦ ZA (+27)</option>
+                    <option value="+34">ðŸ‡ªðŸ‡¸ ES (+34)</option>
+                    <option value="+39">ðŸ‡®ðŸ‡¹ IT (+39)</option>
+                    <option value="+81">ðŸ‡¯ðŸ‡µ JP (+81)</option>
+                    <option value="+82">ðŸ‡°ðŸ‡· KR (+82)</option>
+                    <option value="+7">ðŸ‡·ðŸ‡º RU (+7)</option>
+                    <option value="+55">ðŸ‡§ðŸ‡· BR (+55)</option>
+                    <option value="+52">ðŸ‡²ðŸ‡½ MX (+52)</option>
+                    <option value="+62">ðŸ‡®ðŸ‡© ID (+62)</option>
+                    <option value="+63">ðŸ‡µðŸ‡­ PH (+63)</option>
+                    <option value="+234">ðŸ‡³ðŸ‡¬ NG (+234)</option>
+                    <option value="+254">ðŸ‡°ðŸ‡ª KE (+254)</option>
                   </select>
                 <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="Mobile Number" maxlength="20" inputmode="numeric" required />
               </div>
@@ -1286,8 +1786,24 @@
             </div>
           </div>
 
-          <div class="reg-actions">
-            <button type="submit" class="btn btn-primary btn-lg" id="subSubmitBtn">Submit Subscription Request (PKR 6,000)</button>
+          <div class="sub-direct-owner-help">
+            <div class="sub-owner-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              <span>Instant Verification Support:</span>
+            </div>
+            <a href="https://wa.me/923042954627" target="_blank" rel="noopener" class="sub-help-wa-btn">
+              Chat with Owner (+92 304 295 4627)
+            </a>
+          </div>
+
+          <div class="reg-actions sub-reg-actions">
+            <button type="submit" class="btn btn-primary btn-lg sub-submit-btn-premium" id="subSubmitBtn">
+              <span class="sub-btn-text">Submit Request &amp; Connect on WhatsApp ($24 USD / PKR 6,000)</span>
+              <svg class="sub-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
             <button type="button" class="btn btn-outline btn-lg" id="subCancelBtn">Cancel</button>
           </div>
         </form>
@@ -1430,7 +1946,213 @@
       <!-- Main form panel -->
       <!-- Right form panel -->
       <div class="user-main">
-        <div class="modal-icon">🚀</div>
+        <!-- New Global Sign-up Card View -->
+        <div class="signup-modal-content" id="signupCardView">
+          <!-- Step 1: Account Creation View -->
+          <div id="signupStepMain">
+            <div class="card-heading">
+              <h2 id="signup-title" class="signup-title">Create your account</h2>
+              <p class="signup-sub">Enter your Gmail or Mobile number to start your 5-day free access.</p>
+            </div>
+
+            <form id="signupAccountForm" class="signup-phone-form" novalidate>
+              <!-- Gmail / Email Box -->
+              <div class="form-field-group">
+                <label class="field-label" for="signupEmail">Gmail / Email Address</label>
+                <div class="custom-input-box">
+                  <input
+                    type="email"
+                    id="signupEmail"
+                    name="signupEmail"
+                    placeholder="example@gmail.com"
+                    autocomplete="email"
+                  >
+                </div>
+              </div>
+
+              <!-- Mobile Number Box with Clean World Country Code Picker -->
+              <div class="form-field-group">
+                <label class="field-label" for="phoneNumber">Mobile Number</label>
+                <div class="phone-input-wrap">
+                  <div class="country-picker-btn" id="countryPickerBtn">
+                    <div class="country-display">
+                      <span class="flag-emoji" id="countryFlagDisplay">🇵🇰</span>
+                      <span class="dial-code" id="countryCodeDisplay">+92</span>
+                      <svg class="chevron-icon" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                        <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <select id="countryCode" name="countryCode" aria-label="Select Country Code">
+                      <option value="+92" data-flag="🇵🇰" data-code="+92" selected>🇵🇰 Pakistan (+92)</option>
+                      <option value="+1" data-flag="🇺🇸" data-code="+1">🇺🇸 United States (+1)</option>
+                      <option value="+44" data-flag="🇬🇧" data-code="+44">🇬🇧 United Kingdom (+44)</option>
+                      <option value="+971" data-flag="🇦🇪" data-code="+971">🇦🇪 United Arab Emirates (+971)</option>
+                      <option value="+966" data-flag="🇸🇦" data-code="+966">🇸🇦 Saudi Arabia (+966)</option>
+                      <option value="+1" data-flag="🇨🇦" data-code="+1">🇨🇦 Canada (+1)</option>
+                      <option value="+61" data-flag="🇦🇺" data-code="+61">🇦🇺 Australia (+61)</option>
+                      <option value="+91" data-flag="🇮🇳" data-code="+91">🇮🇳 India (+91)</option>
+                      <option value="+49" data-flag="🇩🇪" data-code="+49">🇩🇪 Germany (+49)</option>
+                      <option value="+33" data-flag="🇫🇷" data-code="+33">🇫🇷 France (+33)</option>
+                      <option value="+90" data-flag="🇹🇷" data-code="+90">🇹🇷 Turkey (+90)</option>
+                      <option value="+86" data-flag="🇨🇳" data-code="+86">🇨🇳 China (+86)</option>
+                      <option value="+81" data-flag="🇯🇵" data-code="+81">🇯🇵 Japan (+81)</option>
+                      <option value="+82" data-flag="🇰🇷" data-code="+82">🇰🇷 South Korea (+82)</option>
+                      <option value="+60" data-flag="🇲🇾" data-code="+60">🇲🇾 Malaysia (+60)</option>
+                      <option value="+65" data-flag="🇸🇬" data-code="+65">🇸🇬 Singapore (+65)</option>
+                      <option value="+974" data-flag="🇶🇦" data-code="+974">🇶🇦 Qatar (+974)</option>
+                      <option value="+968" data-flag="🇴🇲" data-code="+968">🇴🇲 Oman (+968)</option>
+                      <option value="+965" data-flag="🇰🇼" data-code="+965">🇰🇼 Kuwait (+965)</option>
+                      <option value="+973" data-flag="🇧🇭" data-code="+973">🇧🇭 Bahrain (+973)</option>
+                      <option value="+880" data-flag="🇧🇩" data-code="+880">🇧🇩 Bangladesh (+880)</option>
+                      <option value="+94" data-flag="🇱🇰" data-code="+94">🇱🇰 Sri Lanka (+94)</option>
+                      <option value="+977" data-flag="🇳🇵" data-code="+977">🇳🇵 Nepal (+977)</option>
+                      <option value="+93" data-flag="🇦🇫" data-code="+93">🇦🇫 Afghanistan (+93)</option>
+                      <option value="+98" data-flag="🇮🇷" data-code="+98">🇮🇷 Iran (+98)</option>
+                      <option value="+964" data-flag="🇮🇶" data-code="+964">🇮🇶 Iraq (+964)</option>
+                      <option value="+962" data-flag="🇯🇴" data-code="+962">🇯🇴 Jordan (+962)</option>
+                      <option value="+961" data-flag="🇱🇧" data-code="+961">🇱🇧 Lebanon (+961)</option>
+                      <option value="+20" data-flag="🇪🇬" data-code="+20">🇪🇬 Egypt (+20)</option>
+                      <option value="+27" data-flag="🇿🇦" data-code="+27">🇿🇦 South Africa (+27)</option>
+                      <option value="+234" data-flag="🇳🇬" data-code="+234">🇳🇬 Nigeria (+234)</option>
+                      <option value="+254" data-flag="🇰🇪" data-code="+254">🇰🇪 Kenya (+254)</option>
+                      <option value="+212" data-flag="🇲🇦" data-code="+212">🇲🇦 Morocco (+212)</option>
+                      <option value="+216" data-flag="🇹🇳" data-code="+216">🇹🇳 Tunisia (+216)</option>
+                      <option value="+213" data-flag="🇩🇿" data-code="+213">🇩🇿 Algeria (+213)</option>
+                      <option value="+31" data-flag="🇳🇱" data-code="+31">🇳🇱 Netherlands (+31)</option>
+                      <option value="+32" data-flag="🇧🇪" data-code="+32">🇧🇪 Belgium (+32)</option>
+                      <option value="+41" data-flag="🇨🇭" data-code="+41">🇨🇭 Switzerland (+41)</option>
+                      <option value="+43" data-flag="🇦🇹" data-code="+43">🇦🇹 Austria (+43)</option>
+                      <option value="+46" data-flag="🇸🇪" data-code="+46">🇸🇪 Sweden (+46)</option>
+                      <option value="+47" data-flag="🇳🇴" data-code="+47">🇳🇴 Norway (+47)</option>
+                      <option value="+45" data-flag="🇩🇰" data-code="+45">🇩🇰 Denmark (+45)</option>
+                      <option value="+358" data-flag="🇫🇮" data-code="+358">🇫🇮 Finland (+358)</option>
+                      <option value="+353" data-flag="🇮🇪" data-code="+353">🇮🇪 Ireland (+353)</option>
+                      <option value="+351" data-flag="🇵🇹" data-code="+351">🇵🇹 Portugal (+351)</option>
+                      <option value="+30" data-flag="🇬🇷" data-code="+30">🇬🇷 Greece (+30)</option>
+                      <option value="+48" data-flag="🇵🇱" data-code="+48">🇵🇱 Poland (+48)</option>
+                      <option value="+420" data-flag="🇨🇿" data-code="+420">🇨🇿 Czech Republic (+420)</option>
+                      <option value="+36" data-flag="🇭🇺" data-code="+36">🇭🇺 Hungary (+36)</option>
+                      <option value="+40" data-flag="🇷🇴" data-code="+40">🇷🇴 Romania (+40)</option>
+                      <option value="+380" data-flag="🇺🇦" data-code="+380">🇺🇦 Ukraine (+380)</option>
+                      <option value="+7" data-flag="🇷🇺" data-code="+7">🇷🇺 Russia (+7)</option>
+                      <option value="+55" data-flag="🇧🇷" data-code="+55">🇧🇷 Brazil (+55)</option>
+                      <option value="+52" data-flag="🇲🇽" data-code="+52">🇲🇽 Mexico (+52)</option>
+                      <option value="+54" data-flag="🇦🇷" data-code="+54">🇦🇷 Argentina (+54)</option>
+                      <option value="+56" data-flag="🇨🇱" data-code="+56">🇨🇱 Chile (+56)</option>
+                      <option value="+57" data-flag="🇨🇴" data-code="+57">🇨🇴 Colombia (+57)</option>
+                      <option value="+62" data-flag="🇮🇩" data-code="+62">🇮🇩 Indonesia (+62)</option>
+                      <option value="+63" data-flag="🇵🇭" data-code="+63">🇵🇭 Philippines (+63)</option>
+                      <option value="+66" data-flag="🇹🇭" data-code="+66">🇹🇭 Thailand (+66)</option>
+                      <option value="+84" data-flag="🇻🇳" data-code="+84">🇻🇳 Vietnam (+84)</option>
+                      <option value="+64" data-flag="🇳🇿" data-code="+64">🇳🇿 New Zealand (+64)</option>
+                    </select>
+                  </div>
+                  <span class="phone-v-divider" aria-hidden="true"></span>
+                  <input
+                    type="tel"
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    inputmode="tel"
+                    autocomplete="tel"
+                    placeholder="301 2345678"
+                  >
+                </div>
+              </div>
+
+              <!-- Create Password Box -->
+              <div class="form-field-group">
+                <label class="field-label" for="signupPassword">Create Password</label>
+                <div class="custom-input-box">
+                  <input
+                    type="password"
+                    id="signupPassword"
+                    name="signupPassword"
+                    placeholder="Create password (min 4 characters)"
+                    autocomplete="new-password"
+                    required
+                  >
+                  <button type="button" class="input-icon-btn" id="toggleSignupPass" aria-label="Toggle password visibility">👁️</button>
+                </div>
+              </div>
+
+              <button class="phone-button" id="signupSubmitBtn" type="submit">
+                <span>Create Account &amp; Start Trial</span>
+                <svg class="btn-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4.167 10h11.666M10 4.167 15.833 10 10 15.833" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </form>
+
+            <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+
+            <div class="signup-modal-footer">
+              <p class="legal-copy">
+                By continuing, you agree to our <a href="#terms" id="openTermsLink">Terms of Service</a>
+                and <a href="#privacy" id="openPrivacyLink">Privacy Policy</a>.
+              </p>
+
+              <p class="modal-switch-text">
+                Already have an account? <a href="#" id="toggleToPasswordLogin">Log in with password</a>
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 2: Login View -->
+          <div id="signupStepLogin" style="display:none;">
+            <div class="card-heading">
+              <h2 class="signup-title">Welcome Back</h2>
+              <p class="signup-sub">Enter your registered Gmail or mobile number &amp; password.</p>
+            </div>
+
+            <form id="loginAccountForm" class="signup-phone-form" novalidate>
+              <div class="form-field-group">
+                <label class="field-label" for="loginIdentifier">Gmail or Mobile Number</label>
+                <div class="custom-input-box">
+                  <input
+                    type="text"
+                    id="loginIdentifier"
+                    name="loginIdentifier"
+                    placeholder="Enter Gmail or 0301... or +92..."
+                    autocomplete="username"
+                    required
+                  >
+                </div>
+              </div>
+
+              <div class="form-field-group">
+                <label class="field-label" for="loginPassword">Password</label>
+                <div class="custom-input-box">
+                  <input
+                    type="password"
+                    id="loginPassword"
+                    name="loginPassword"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                  >
+                  <button type="button" class="input-icon-btn" id="toggleLoginPass" aria-label="Toggle password visibility">👁️</button>
+                </div>
+              </div>
+
+              <button class="phone-button" id="loginSubmitBtn" type="submit">
+                <span>Sign In to Account</span>
+                <svg class="btn-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4.167 10h11.666M10 4.167 15.833 10 10 15.833" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </form>
+
+            <p class="auth-message" id="loginAuthMessage" role="status" aria-live="polite"></p>
+
+            <div class="signup-modal-footer">
+              <p class="modal-switch-text" style="border-top: none; padding-top: 0;">
+                Don't have an account yet? <a href="#" id="toggleToCreateAccount">Create an account free</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-icon" id="userModalIcon" style="display:none;">🚀</div>
         <h3 id="userModalTitle">Start 5-Day Free Trial</h3>
         <p class="modal-sub" id="userModalSub">Create your free account in 30 seconds. No credit card needed.</p>
 
@@ -1997,7 +2719,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261101WorldReady"></script>
+  <script src="script.js?v=20261103SubPortalPro"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

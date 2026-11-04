@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f7fb">
+  <meta name="theme-color" content="#ffffff">
   <meta name="description" content="Create your onlinemanagement.site account with a global, mobile-friendly sign-up experience.">
-  <title>Create your account | Online Management</title>
+  <title>Create your account | Online Management Site</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="signup.css">
   <script src="signup.js" defer></script>
 </head>
@@ -22,22 +22,22 @@
           <path d="m10 16 4 4 8-9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </span>
-      <span class="brand-name">online<span>management</span>.site</span>
+      <span class="brand-name">Online <span class="brand-highlight">Management</span> Site</span>
     </a>
 
     <section class="signup-card" aria-labelledby="signup-title">
       <div class="card-heading">
-        <span class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> YOUR BUSINESS, IN SYNC</span>
+
         <h1 id="signup-title">Create your account</h1>
         <p>One simple sign-up, wherever you are in the world.</p>
       </div>
 
       <button class="google-button" id="googleSignIn" type="button">
-        <svg class="google-icon" viewBox="0 0 48 48" aria-hidden="true">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z" transform="translate(0 5)"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.76 7.18l7.73 6C44.42 38.06 46.98 31.91 46.98 24.55Z"/>
-          <path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.75-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19Z" transform="translate(0 5)"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.14 1.44-4.89 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z" transform="translate(0 -5)"/>
+        <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
         </svg>
         <span>Continue with Google</span>
       </button>
@@ -49,12 +49,75 @@
       <form id="phoneForm" novalidate>
         <label class="field-label" for="phoneNumber">Phone number</label>
         <div class="phone-field">
-          <label class="visually-hidden" for="countryCode">Country calling code</label>
+
           <select id="countryCode" name="countryCode" aria-label="Country calling code">
-            <option value="+1">🇺🇸 &nbsp; +1</option>
-            <option value="+44">🇬🇧 &nbsp; +44</option>
-            <option value="+92">🇵🇰 &nbsp; +92</option>
-            <option value="+971">🇦🇪 &nbsp; +971</option>
+            <option value="+92" selected>🇵🇰 &nbsp; +92 &nbsp; Pakistan</option>
+            <option value="+1">🇺🇸 &nbsp; +1 &nbsp; United States</option>
+            <option value="+44">🇬🇧 &nbsp; +44 &nbsp; United Kingdom</option>
+            <option value="+971">🇦🇪 &nbsp; +971 &nbsp; United Arab Emirates</option>
+            <option value="+966">🇸🇦 &nbsp; +966 &nbsp; Saudi Arabia</option>
+            <option value="+1">🇨🇦 &nbsp; +1 &nbsp; Canada</option>
+            <option value="+61">🇦🇺 &nbsp; +61 &nbsp; Australia</option>
+            <option value="+91">🇮🇳 &nbsp; +91 &nbsp; India</option>
+            <option value="+49">🇩🇪 &nbsp; +49 &nbsp; Germany</option>
+            <option value="+33">🇫🇷 &nbsp; +33 &nbsp; France</option>
+            <option value="+39">🇮🇹 &nbsp; +39 &nbsp; Italy</option>
+            <option value="+34">🇪🇸 &nbsp; +34 &nbsp; Spain</option>
+            <option value="+90">🇹🇷 &nbsp; +90 &nbsp; Turkey</option>
+            <option value="+86">🇨🇳 &nbsp; +86 &nbsp; China</option>
+            <option value="+81">🇯🇵 &nbsp; +81 &nbsp; Japan</option>
+            <option value="+82">🇰🇷 &nbsp; +82 &nbsp; South Korea</option>
+            <option value="+60">🇲🇾 &nbsp; +60 &nbsp; Malaysia</option>
+            <option value="+65">🇸🇬 &nbsp; +65 &nbsp; Singapore</option>
+            <option value="+974">🇶🇦 &nbsp; +974 &nbsp; Qatar</option>
+            <option value="+968">🇴🇲 &nbsp; +968 &nbsp; Oman</option>
+            <option value="+965">🇰🇼 &nbsp; +965 &nbsp; Kuwait</option>
+            <option value="+973">🇧🇭 &nbsp; +973 &nbsp; Bahrain</option>
+            <option value="+880">🇧🇩 &nbsp; +880 &nbsp; Bangladesh</option>
+            <option value="+94">🇱🇰 &nbsp; +94 &nbsp; Sri Lanka</option>
+            <option value="+977">🇳🇵 &nbsp; +977 &nbsp; Nepal</option>
+            <option value="+93">🇦🇫 &nbsp; +93 &nbsp; Afghanistan</option>
+            <option value="+98">🇮🇷 &nbsp; +98 &nbsp; Iran</option>
+            <option value="+964">🇮🇶 &nbsp; +964 &nbsp; Iraq</option>
+            <option value="+962">🇯🇴 &nbsp; +962 &nbsp; Jordan</option>
+            <option value="+961">🇱🇧 &nbsp; +961 &nbsp; Lebanon</option>
+            <option value="+20">🇪🇬 &nbsp; +20 &nbsp; Egypt</option>
+            <option value="+27">🇿🇦 &nbsp; +27 &nbsp; South Africa</option>
+            <option value="+234">🇳🇬 &nbsp; +234 &nbsp; Nigeria</option>
+            <option value="+254">🇰🇪 &nbsp; +254 &nbsp; Kenya</option>
+            <option value="+212">🇲🇦 &nbsp; +212 &nbsp; Morocco</option>
+            <option value="+216">🇹🇳 &nbsp; +216 &nbsp; Tunisia</option>
+            <option value="+213">🇩🇿 &nbsp; +213 &nbsp; Algeria</option>
+            <option value="+31">🇳🇱 &nbsp; +31 &nbsp; Netherlands</option>
+            <option value="+32">🇧🇪 &nbsp; +32 &nbsp; Belgium</option>
+            <option value="+41">🇨🇭 &nbsp; +41 &nbsp; Switzerland</option>
+            <option value="+43">🇦🇹 &nbsp; +43 &nbsp; Austria</option>
+            <option value="+46">🇸🇪 &nbsp; +46 &nbsp; Sweden</option>
+            <option value="+47">🇳🇴 &nbsp; +47 &nbsp; Norway</option>
+            <option value="+45">🇩🇰 &nbsp; +45 &nbsp; Denmark</option>
+            <option value="+358">🇫🇮 &nbsp; +358 &nbsp; Finland</option>
+            <option value="+353">🇮🇪 &nbsp; +353 &nbsp; Ireland</option>
+            <option value="+351">🇵🇹 &nbsp; +351 &nbsp; Portugal</option>
+            <option value="+30">🇬🇷 &nbsp; +30 &nbsp; Greece</option>
+            <option value="+48">🇵🇱 &nbsp; +48 &nbsp; Poland</option>
+            <option value="+420">🇨🇿 &nbsp; +420 &nbsp; Czech Republic</option>
+            <option value="+36">🇭🇺 &nbsp; +36 &nbsp; Hungary</option>
+            <option value="+40">🇷🇴 &nbsp; +40 &nbsp; Romania</option>
+            <option value="+380">🇺🇦 &nbsp; +380 &nbsp; Ukraine</option>
+            <option value="+7">🇷🇺 &nbsp; +7 &nbsp; Russia</option>
+            <option value="+55">🇧🇷 &nbsp; +55 &nbsp; Brazil</option>
+            <option value="+52">🇲🇽 &nbsp; +52 &nbsp; Mexico</option>
+            <option value="+54">🇦🇷 &nbsp; +54 &nbsp; Argentina</option>
+            <option value="+56">🇨🇱 &nbsp; +56 &nbsp; Chile</option>
+            <option value="+57">🇨🇴 &nbsp; +57 &nbsp; Colombia</option>
+            <option value="+62">🇮🇩 &nbsp; +62 &nbsp; Indonesia</option>
+            <option value="+63">🇵🇭 &nbsp; +63 &nbsp; Philippines</option>
+            <option value="+66">🇹🇭 &nbsp; +66 &nbsp; Thailand</option>
+            <option value="+84">🇻🇳 &nbsp; +84 &nbsp; Vietnam</option>
+            <option value="+64">🇳🇿 &nbsp; +64 &nbsp; New Zealand</option>
+
+
+
           </select>
           <span class="field-separator" aria-hidden="true"></span>
           <input
@@ -68,13 +131,13 @@
             required
           >
         </div>
-        <p class="field-hint" id="phoneHint">Choose your country code and enter your number.</p>
+
 
         <div id="recaptcha-container" aria-label="reCAPTCHA verification"></div>
 
         <button class="phone-button" type="submit">
           <span>Continue with Phone</span>
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <svg class="btn-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M4.167 10h11.666M10 4.167 15.833 10 10 15.833" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
@@ -89,7 +152,7 @@
     </section>
 
     <footer class="page-footer">
-      <span>© <span id="currentYear"></span> Online Management</span>
+      <span>© <span id="currentYear"></span> Online Management Site</span>
       <span class="footer-secure"><span aria-hidden="true">⌑</span> A better way to manage, worldwide.</span>
     </footer>
   </main>

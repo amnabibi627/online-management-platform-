@@ -4885,8 +4885,10 @@ const validateRegForm = () => {
     ok = setRegError(el, get(errId), bad ? `Please enter a valid ${label} link.` : "") && ok;
   });
 
-  if (regTermsErr) regTermsErr.textContent = regTerms && !regTerms.checked ? "Please confirm the details and the payment steps." : "";
-  if (regTerms && !regTerms.checked) ok = false;
+  if (regTerms && regTerms.type === "checkbox") {
+    if (regTermsErr) regTermsErr.textContent = !regTerms.checked ? "Please confirm the details." : "";
+    if (!regTerms.checked) ok = false;
+  }
 
   return ok;
 };

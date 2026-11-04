@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104AdsFullMedia" />
+  <link rel="stylesheet" href="styles.css?v=20261104AdsCleanInputs" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1298,12 +1298,12 @@
           <div class="reg-grid">
             <div class="field">
               <label for="regBizName">Business / Company Name</label>
-              <input type="text" id="regBizName" name="regBizName" placeholder="Al-Madina Traders / Apex Studio" maxlength="60" />
+              <input type="text" id="regBizName" name="regBizName" maxlength="60" />
               <span class="field-error" id="regBizNameErr"></span>
             </div>
             <div class="field">
               <label for="regOwnerName">Owner / Contact Person</label>
-              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Full name of owner" maxlength="50" />
+              <input type="text" id="regOwnerName" name="regOwnerName" maxlength="50" />
               <span class="field-error" id="regOwnerNameErr"></span>
             </div>
           </div>
@@ -1367,67 +1367,28 @@
                   <option value="+234">NG (+234)</option>
                   <option value="+254">KE (+254)</option>
                 </select>
-                <input type="tel" id="regMobile" name="regMobile" placeholder="3012345678" maxlength="15" />
+                <input type="tel" id="regMobile" name="regMobile" maxlength="15" />
               </div>
               <span class="field-error" id="regMobileErr"></span>
             </div>
           </div>
 
-          <!-- Row 3: Email & City / Country -->
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regEmail">Email Address</label>
-              <input type="email" id="regEmail" name="regEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" />
-              <span class="field-error" id="regEmailErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regCity">City &amp; Country</label>
-              <input type="text" id="regCity" name="regCity" placeholder="Lahore, Pakistan or London, UK" maxlength="50" />
-              <span class="field-error" id="regCityErr"></span>
-            </div>
+          <!-- Row 3: City & Location -->
+          <div class="field">
+            <label for="regCity">City &amp; Location</label>
+            <input type="text" id="regCity" name="regCity" maxlength="80" />
+            <span class="field-error" id="regCityErr"></span>
           </div>
 
-          <!-- Row 4: Location Address & Timings -->
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regAddress">Full Address / Location</label>
-              <input type="text" id="regAddress" name="regAddress" placeholder="Shop / Office No, Street, Plaza or Online" maxlength="120" />
-              <span class="field-error" id="regAddressErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regTiming">Opening Hours / Timings</label>
-              <input type="text" id="regTiming" name="regTiming" placeholder="9:00 AM to 10:00 PM or 24/7" maxlength="60" />
-              <span class="field-error" id="regTimingErr"></span>
-            </div>
-          </div>
-
-          <!-- Row 5: Ad Description / About Business -->
+          <!-- Row 4: Ad Description / Offers & Services -->
           <div class="field">
             <label for="regAbout">Ad Description / Offers &amp; Services</label>
-            <textarea id="regAbout" name="regAbout" rows="3" placeholder="Describe your business, main services, deals, discounts, or special offers for customers..." maxlength="400"></textarea>
+            <textarea id="regAbout" name="regAbout" rows="3" maxlength="400"></textarea>
             <span class="field-error" id="regAboutErr"></span>
           </div>
 
-          <!-- Row 6: Website or Social Link (Optional) -->
-          <div class="field">
-            <label for="regWebsite">Business Website / Social Media Link (Optional)</label>
-            <input type="url" id="regWebsite" name="regWebsite" placeholder="https://yourwebsite.com or Facebook / Instagram profile link" maxlength="120" />
-            <span class="field-error" id="regWebsiteErr"></span>
-          </div>
-
           <!-- Media Upload Section (5 Photos + 1 Video) -->
-          <div class="ad-media-section" style="margin-top: 1rem; margin-bottom: 0.6rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-              <label style="font-weight:700; color:var(--ink); font-size:0.92rem; margin:0;">
-                Ad Media Upload
-              </label>
-              <span style="font-size:0.75rem; color:#15803d; font-weight:700; background:#dcfce7; padding:0.25rem 0.65rem; border-radius:999px;">
-                5 Photos &bull; 1 Promo Video
-              </span>
-            </div>
-
+          <div class="ad-media-section" style="margin-top: 0.9rem; margin-bottom: 0.6rem;">
             <div class="reg-media-compact">
               <!-- Photos Box (Max 5) -->
               <div class="media-box-compact">
@@ -1440,7 +1401,7 @@
                 </div>
                 <input type="file" id="regPhotos" name="regPhotos" accept="image/jpeg,image/png,image/webp" multiple />
                 <div id="regPhotoPreview" class="media-preview">
-                  <span class="media-empty">No photos selected yet (0/5)</span>
+                  <span class="media-empty">No photos selected yet</span>
                 </div>
               </div>
 
@@ -1450,19 +1411,23 @@
                   <span class="media-box-icon">🎥</span>
                   <div>
                     <strong>Promotional Video (Max 1)</strong>
-                    <p>Short intro or promo clip (MP4, WebM &le; 25MB)</p>
+                    <p>Short promo clip (MP4, WebM &le; 25MB)</p>
                   </div>
                 </div>
                 <input type="file" id="regVideos" name="regVideos" accept="video/mp4,video/webm" />
                 <div id="regVideoPreview" class="media-preview">
-                  <span class="media-empty">No video selected yet (0/1)</span>
+                  <span class="media-empty">No video selected yet</span>
                 </div>
               </div>
             </div>
-            <p id="regMediaNote" class="reg-media-note" style="margin-top:0.45rem; margin-bottom:0; font-size:0.8rem;"></p>
+            <p id="regMediaNote" class="reg-media-note" style="margin-top:0.35rem; margin-bottom:0; font-size:0.8rem;"></p>
           </div>
 
           <!-- Synced hidden fallbacks -->
+          <input type="hidden" id="regEmail" name="regEmail" value="" />
+          <input type="hidden" id="regAddress" name="regAddress" value="" />
+          <input type="hidden" id="regTiming" name="regTiming" value="" />
+          <input type="hidden" id="regWebsite" name="regWebsite" value="" />
           <input type="hidden" id="regWhatsapp" name="regWhatsapp" />
           <input type="hidden" id="regWhatsappCountryCode" value="+92" />
           <span class="field-error" id="regWhatsappErr" style="display: none;"></span>
@@ -1472,13 +1437,8 @@
           <span class="field-error" id="regInstagramErr" style="display:none"></span>
           <input type="hidden" id="regTiktok" name="regTiktok" value="" />
           <span class="field-error" id="regTiktokErr" style="display:none"></span>
+          <input type="hidden" id="regTerms" name="regTerms" value="on" checked />
           <div id="regPlanSummary" style="display:none"></div>
-
-          <label class="reg-terms">
-            <input type="checkbox" id="regTerms" name="regTerms" />
-            <span>I confirm the details are correct and will contact the owner on WhatsApp to arrange payment.</span>
-          </label>
-          <span class="field-error" id="regTermsErr"></span>
 
           <div class="reg-actions sub-reg-actions">
             <button type="submit" class="btn btn-primary btn-lg sub-submit-btn-premium" id="regSubmitBtn">
@@ -2529,7 +2489,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104AdsFullMedia"></script>
+  <script src="script.js?v=20261104AdsCleanInputs"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

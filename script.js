@@ -5820,7 +5820,10 @@ if (subPurchaseForm) {
     setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address.");
     setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid mobile phone number.");
     setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
-    setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
+    const subPasswordEl = document.getElementById("subPassword");
+    if (subPasswordEl && subPasswordEl.type !== "hidden") {
+      setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
+    }
     const subTerms = document.getElementById("subTerms");
     if (subTerms && !subTerms.checked) {
       setErr("subTermsErr", "Please confirm details before continuing.");
@@ -5871,7 +5874,8 @@ if (subPurchaseForm) {
         let authId = currentUser?.id;
         if (!authId) {
           try {
-            const authUser = await createOrResumeAuthAccount(mobile, password, { name, mobile, city });
+            const fallbackPass = password || ("Pass@" + mobile.replace(/\D/g, "").slice(-6) + "x!");
+            const authUser = await createOrResumeAuthAccount(mobile, fallbackPass, { name, mobile, city });
             authId = authUser.id;
           } catch (_) {}
         }

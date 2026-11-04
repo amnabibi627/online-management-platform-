@@ -1593,19 +1593,15 @@
             </div>
           </div>
 
-          <div class="reg-grid">
-            <div class="field">
-              <label for="subCityName">City &amp; Country *</label>
-              <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
-              <span class="field-error" id="subCityNameErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="subPassword">Create Password *</label>
-              <input type="password" id="subPassword" name="subPassword" placeholder="Min 8 characters" maxlength="64" required />
-              <span class="field-error" id="subPasswordErr"></span>
-            </div>
+          <div class="field" style="margin-bottom: 0.85rem;">
+            <label for="subCityName">City &amp; Country *</label>
+            <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
+            <span class="field-error" id="subCityNameErr"></span>
           </div>
+
+          <!-- Hidden fallback for subPassword so backend compatibility is preserved -->
+          <input type="hidden" id="subPassword" name="subPassword" value="" />
+          <span class="field-error" id="subPasswordErr" style="display:none"></span>
 
           <!-- Hidden fallbacks for payment verification fields so JS / DB stay 100% compatible -->
           <input type="hidden" id="subPayerMobile" name="subPayerMobile" value="WhatsApp Direct" />
@@ -2535,7 +2531,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104CleanRegInputs"></script>
+  <script src="script.js?v=20261104NoSubPass"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

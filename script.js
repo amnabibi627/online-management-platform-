@@ -4699,8 +4699,8 @@ if (planGrid) {
 const clearPreview = (el) => { if (el) el.innerHTML = ""; };
 
 const BUSINESS_AD_MEDIA = {
-  photos: { maxCount: 30, maxBytes: 5 * 1024 * 1024, types: ["image/jpeg", "image/png", "image/webp"] },
-  videos: { maxCount: 5, maxBytes: 25 * 1024 * 1024, types: ["video/mp4", "video/webm"] }
+  photos: { maxCount: 5, maxBytes: 5 * 1024 * 1024, types: ["image/jpeg", "image/png", "image/webp"] },
+  videos: { maxCount: 1, maxBytes: 25 * 1024 * 1024, types: ["video/mp4", "video/webm"] }
 };
 const MEDIA_EXTENSIONS = {
   "image/jpeg": "jpg",
@@ -4712,7 +4712,9 @@ const MEDIA_EXTENSIONS = {
 
 const validateBusinessAdFiles = (files, kind) => {
   const limit = BUSINESS_AD_MEDIA[kind];
-  if (files.length > limit.maxCount) return `Choose no more than ${limit.maxCount} ${kind}.`;
+  if (files.length > limit.maxCount) {
+    return kind === "photos" ? "Choose no more than 5 photos." : "Choose no more than 1 video.";
+  }
   const invalidType = files.find((file) => !limit.types.includes(file.type));
   if (invalidType) return `Use ${kind === "photos" ? "JPG, PNG or WebP" : "MP4 or WebM"} files only.`;
   const oversized = files.find((file) => file.size > limit.maxBytes);
@@ -4761,7 +4763,7 @@ const handleBusinessAdMediaChange = (input, preview, kind) => {
     showToast(error, true);
     return;
   }
-  if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
+  if (regMediaNote) regMediaNote.textContent = "Upload business media: up to 5 photos (5 MB each) and 1 promo video (25 MB).";
   renderMediaPreview(files, preview, kind === "photos" ? "photo" : "video");
 };
 
@@ -4772,7 +4774,7 @@ clearPreview(regPhotoPreview);
 clearPreview(regVideoPreview);
 if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
 if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
-if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
+if (regMediaNote) regMediaNote.textContent = "Upload business media: up to 5 photos (5 MB each) and 1 promo video (25 MB).";
 
 const buildBusinessAdMediaManifest = (requestId, photos, videos) => {
   const files = [
@@ -4835,11 +4837,11 @@ const validateRegForm = () => {
   const bizNameEl = get("regBizName");
   if (bizNameEl && bizNameEl.type !== "hidden") {
     const bizName = bizNameEl.value.trim();
-    ok = setRegError(bizNameEl, get("regBizNameErr"), bizName.length < 3 ? "Please write your business name (min 3 letters)." : "") && ok;
+    ok = setRegError(bizNameEl, get("regBizNameErr"), bizName.length < 2 ? "Please write your business name." : "") && ok;
   }
 
   const ownerName = get("regOwnerName").value.trim();
-  ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 3 ? "Please write your name (min 3 letters)." : "") && ok;
+  ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 2 ? "Please write your name." : "") && ok;
 
   const mobile = combinePhoneWithCode(mCode, mNum);
   ok = setRegError(get("regMobile"), get("regMobileErr"), MOBILE_LOOKUP_RE.test(mobile) ? "" : "Please enter a valid mobile number.") && ok;
@@ -4855,24 +4857,24 @@ const validateRegForm = () => {
   ok = setRegError(get("regCategory"), get("regCategoryErr"), category ? "" : "Please select your business category.") && ok;
 
   const city = get("regCity").value.trim();
-  ok = setRegError(get("regCity"), get("regCityErr"), city.length < 2 ? "Please write your city." : "") && ok;
+  ok = setRegError(get("regCity"), get("regCityErr"), city.length < 2 ? "Please write your city & country." : "") && ok;
 
   const addressEl = get("regAddress");
   if (addressEl && addressEl.type !== "hidden") {
     const address = addressEl.value.trim();
-    ok = setRegError(addressEl, get("regAddressErr"), address.length < 5 ? "Please write the full address." : "") && ok;
+    ok = setRegError(addressEl, get("regAddressErr"), address.length < 2 ? "Please write your business address or shop location." : "") && ok;
   }
 
   const aboutEl = get("regAbout");
   if (aboutEl && aboutEl.type !== "hidden") {
     const about = aboutEl.value.trim();
-    ok = setRegError(aboutEl, get("regAboutErr"), about.length < 10 ? "Please write a short description (min 10 letters)." : "") && ok;
+    ok = setRegError(aboutEl, get("regAboutErr"), about.length < 5 ? "Please describe your business or offers (min 5 characters)." : "") && ok;
   }
 
   const timingEl = get("regTiming");
   if (timingEl && timingEl.type !== "hidden") {
     const timing = timingEl.value.trim();
-    ok = setRegError(timingEl, get("regTimingErr"), timing.length < 3 ? "Please write your opening hours." : "") && ok;
+    ok = setRegError(timingEl, get("regTimingErr"), timing.length < 2 ? "Please write your opening hours or timings." : "") && ok;
   }
 
   // Social links are optional, but if filled they must look like a real link.
@@ -5009,7 +5011,7 @@ if (regForm) {
       clearPreview(regVideoPreview);
       if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
       if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
-      if (regMediaNote) regMediaNote.textContent = "Media uploads to private storage and is shown publicly only after the CEO activates your paid ad. Photos: up to 30 files, 5 MB each. Videos: up to 5 files, 25 MB each.";
+      if (regMediaNote) regMediaNote.textContent = "Upload business media: up to 5 photos (5 MB each) and 1 promo video (25 MB).";
       store.set(REG_PLAN_KEY, null);
       markPlanSelected(null);
       renderPlanSummary();
@@ -5021,16 +5023,22 @@ if (regForm) {
       regListWrap?.scrollIntoView({ behavior: "smooth", block: "start" });
 
       const waText = encodeURIComponent(
-        `🌟 *BUSINESS REGISTRATION & AD ACTIVATION* 🌟\n` +
+        `🌟 *BUSINESS AD REGISTRATION* 🌟\n` +
         `━━━━━━━━━━━━━━━━━━━━\n` +
         `🆔 *Ref ID:* ${submission.id}\n` +
-        `👤 *Name:* ${entry.owner_name}\n` +
+        `🏢 *Business:* ${entry.business_name}\n` +
+        `👤 *Owner:* ${entry.owner_name}\n` +
         `📂 *Category:* ${entry.category}\n` +
         `📍 *Location:* ${entry.city}\n` +
+        (entry.address && entry.address !== "Online" ? `🏠 *Address:* ${entry.address}\n` : "") +
+        (entry.timing ? `⏰ *Timings:* ${entry.timing}\n` : "") +
+        (entry.about ? `📝 *Ad Details:* ${entry.about.slice(0, 100)}\n` : "") +
+        (entry.website ? `🌐 *Website:* ${entry.website}\n` : "") +
         `📞 *Contact:* ${entry.mobile}\n` +
         `📅 *Plan:* ${plan.label} (PKR ${rupees(entry.amount)})\n` +
+        `📸 *Media:* ${entry.photo_count} Photos, ${entry.video_count} Video\n` +
         `━━━━━━━━━━━━━━━━━━━━\n` +
-        `Assalam o Alaikum! I have submitted my business registration on the portal. Please provide your payment details (JazzCash / EasyPaisa / Bank Transfer / Remittance) so I can pay and have my listing activated.\nThank you!` +
+        `Assalam o Alaikum! I have submitted my business ad on the portal with media. Please provide payment details (JazzCash / EasyPaisa / Bank Transfer) so I can pay and have my ad activated.\nThank you!` +
         (mediaWarning ? `\n\n*Note:* ${mediaWarning.trim()}` : "")
       );
       window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");

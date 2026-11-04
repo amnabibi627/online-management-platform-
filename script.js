@@ -4854,8 +4854,11 @@ const validateRegForm = () => {
   const city = get("regCity").value.trim();
   ok = setRegError(get("regCity"), get("regCityErr"), city.length < 2 ? "Please write your city." : "") && ok;
 
-  const address = get("regAddress").value.trim();
-  ok = setRegError(get("regAddress"), get("regAddressErr"), address.length < 5 ? "Please write the full address." : "") && ok;
+  const addressEl = get("regAddress");
+  if (addressEl && addressEl.type !== "hidden") {
+    const address = addressEl.value.trim();
+    ok = setRegError(addressEl, get("regAddressErr"), address.length < 5 ? "Please write the full address." : "") && ok;
+  }
 
   const aboutEl = get("regAbout");
   if (aboutEl && aboutEl.type !== "hidden") {
@@ -4863,8 +4866,11 @@ const validateRegForm = () => {
     ok = setRegError(aboutEl, get("regAboutErr"), about.length < 10 ? "Please write a short description (min 10 letters)." : "") && ok;
   }
 
-  const timing = get("regTiming").value.trim();
-  ok = setRegError(get("regTiming"), get("regTimingErr"), timing.length < 3 ? "Please write your opening hours." : "") && ok;
+  const timingEl = get("regTiming");
+  if (timingEl && timingEl.type !== "hidden") {
+    const timing = timingEl.value.trim();
+    ok = setRegError(timingEl, get("regTimingErr"), timing.length < 3 ? "Please write your opening hours." : "") && ok;
+  }
 
   // Social links are optional, but if filled they must look like a real link.
   URL_FIELDS.forEach(([id, errId, label]) => {
@@ -5799,6 +5805,7 @@ if (subPurchaseForm) {
     const planId = subSelectedPlanInput?.value || "3-month";
     const plan = SUB_PRICES[planId] || SUB_PRICES["3-month"];
     const category = subCategorySelect?.value || "";
+    const bizName = String(document.getElementById("subBizName")?.value || "").trim();
     const name = String(document.getElementById("subFullName")?.value || "").trim();
     const email = String(document.getElementById("subEmail")?.value || "").trim().toLowerCase();
     const subCode = document.getElementById("subCountryCode")?.value || "+92";
@@ -5816,7 +5823,11 @@ if (subPurchaseForm) {
     };
 
     setErr("subCategorySelectErr", category ? "" : "Please select a business category.");
-    setErr("subFullNameErr", name.length >= 3 ? "" : "Enter your full name (min 3 letters).");
+    const subBizNameEl = document.getElementById("subBizName");
+    if (subBizNameEl && subBizNameEl.type !== "hidden") {
+      setErr("subBizNameErr", bizName.length >= 2 ? "" : "Enter your business / company name.");
+    }
+    setErr("subFullNameErr", name.length >= 3 ? "" : "Enter owner / contact person name.");
     setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address.");
     setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid mobile phone number.");
     setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
@@ -5916,7 +5927,8 @@ if (subPurchaseForm) {
       `🆔 *Ref ID:* ${reqData.id}\n` +
       `📂 *Category to Unlock:* ${categoryName}\n` +
       `📅 *Plan Selected:* ${plan.label} ($${plan.priceUsd || 24} USD / PKR ${plan.price.toLocaleString()})\n` +
-      `👤 *Subscriber Name:* ${name}\n` +
+      (bizName ? `🏢 *Business / Company:* ${bizName}\n` : "") +
+      `👤 *Owner / Contact:* ${name}\n` +
       `📧 *Email:* ${email}\n` +
       `📞 *Account Mobile:* ${mobile}\n` +
       `📍 *City:* ${city}\n` +

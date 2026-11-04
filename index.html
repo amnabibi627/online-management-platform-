@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104SuperCleanPlan" />
+  <link rel="stylesheet" href="styles.css?v=20261104TwinForms" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1273,9 +1273,8 @@
         <button class="reg-modal-close" type="button" id="regModalClose" aria-label="Close">&times;</button>
 
         <div class="reg-modal-head">
-          <span class="reg-modal-eyebrow">🌐 Global Business Network &amp; Promotion</span>
-          <h3 class="reg-form-title-modal" id="regModalTitle">Register Your Business</h3>
-          <p class="reg-modal-sub">List your business globally. Choose a plan, submit your details, and connect directly with the owner on WhatsApp for quick payment verification &amp; instant ad activation.</p>
+          <h3 class="reg-form-title-modal" id="regModalTitle">Ads Registration</h3>
+          <p class="reg-modal-sub">Choose a duration, select your business category, and connect directly with the owner on WhatsApp to activate your business ad.</p>
         </div>
 
         <form class="reg-form" id="regForm" novalidate>
@@ -1297,11 +1296,32 @@
 
           <div class="reg-grid">
             <div class="field">
+              <label for="regCategory">Business Category *</label>
+              <select id="regCategory" name="regCategory">
+                <option value="">Select a category</option>
+                <option value="Clinic">Clinic &amp; Healthcare</option>
+                <option value="Academy">Academy &amp; Education</option>
+                <option value="Restaurant">Restaurant &amp; Food</option>
+                <option value="General Store">General &amp; Retail Store</option>
+                <option value="Beauty Salon">Beauty Salon &amp; Spa</option>
+                <option value="Petrol Pump">Petrol Pump &amp; Energy</option>
+                <option value="Medical Store">Pharmacy &amp; Medical Store</option>
+                <option value="Laboratory">Laboratory &amp; Diagnostics</option>
+                <option value="Real Estate">Real Estate &amp; Property</option>
+                <option value="Software / IT">Software &amp; Digital Services</option>
+                <option value="Other">Other Business</option>
+              </select>
+              <span class="field-error" id="regCategoryErr"></span>
+            </div>
+
+            <div class="field">
               <label for="regBizName">Business / Company Name *</label>
               <input type="text" id="regBizName" name="regBizName" placeholder="Al-Madina Traders / Apex Tech" maxlength="60" />
               <span class="field-error" id="regBizNameErr"></span>
             </div>
+          </div>
 
+          <div class="reg-grid">
             <div class="field">
               <label for="regOwnerName">Owner / Contact Person *</label>
               <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Full name of owner" maxlength="50" />
@@ -1313,7 +1333,9 @@
               <input type="email" id="regEmail" name="regEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" />
               <span class="field-error" id="regEmailErr"></span>
             </div>
+          </div>
 
+          <div class="reg-grid">
             <div class="field">
               <label for="regMobile">Mobile Number *</label>
               <div class="phone-input-group">
@@ -1356,32 +1378,6 @@
               </div>
               <span class="field-error" id="regMobileErr"></span>
             </div>
-          </div>
-
-          <!-- Synced WhatsApp inputs for database & communication -->
-          <input type="hidden" id="regWhatsapp" name="regWhatsapp" />
-          <input type="hidden" id="regWhatsappCountryCode" value="+92" />
-          <span class="field-error" id="regWhatsappErr" style="display: none;"></span>
-
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regCategory">Business Category *</label>
-              <select id="regCategory" name="regCategory">
-                <option value="">Select a category</option>
-                <option value="Clinic">Clinic &amp; Healthcare</option>
-                <option value="Academy">Academy &amp; Education</option>
-                <option value="Restaurant">Restaurant &amp; Food</option>
-                <option value="General Store">General &amp; Retail Store</option>
-                <option value="Beauty Salon">Beauty Salon &amp; Spa</option>
-                <option value="Petrol Pump">Petrol Pump &amp; Energy</option>
-                <option value="Medical Store">Pharmacy &amp; Medical Store</option>
-                <option value="Laboratory">Laboratory &amp; Diagnostics</option>
-                <option value="Real Estate">Real Estate &amp; Property</option>
-                <option value="Software / IT">Software &amp; Digital Services</option>
-                <option value="Other">Other Business</option>
-              </select>
-              <span class="field-error" id="regCategoryErr"></span>
-            </div>
 
             <div class="field">
               <label for="regCity">City &amp; Country *</label>
@@ -1390,27 +1386,18 @@
             </div>
           </div>
 
-          <div class="field">
-            <label for="regAddress">Full Address / Location *</label>
-            <input type="text" id="regAddress" name="regAddress" placeholder="Shop / Office No, Street, Plaza, Area or Online" maxlength="120" />
-            <span class="field-error" id="regAddressErr"></span>
-          </div>
+          <!-- Synced WhatsApp inputs for database & communication -->
+          <input type="hidden" id="regWhatsapp" name="regWhatsapp" />
+          <input type="hidden" id="regWhatsappCountryCode" value="+92" />
+          <span class="field-error" id="regWhatsappErr" style="display: none;"></span>
 
-          <div class="reg-grid">
-            <div class="field">
-              <label for="regTiming">Opening Hours *</label>
-              <input type="text" id="regTiming" name="regTiming" placeholder="9:00 AM to 10:00 PM or 24/7" maxlength="60" />
-              <span class="field-error" id="regTimingErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="regWebsite">Business Website / Link <span class="reg-optional">Optional</span></label>
-              <input type="text" id="regWebsite" name="regWebsite" placeholder="https://yourwebsite.com or social link" maxlength="200" />
-              <span class="field-error" id="regWebsiteErr"></span>
-            </div>
-          </div>
-
-          <!-- Hidden fallback for regAbout so existing database models stay intact -->
+          <!-- Hidden fallbacks for address, timing, website, about so existing database models stay intact -->
+          <input type="hidden" id="regAddress" name="regAddress" value="Online / Direct via WhatsApp" />
+          <span class="field-error" id="regAddressErr" style="display:none"></span>
+          <input type="hidden" id="regTiming" name="regTiming" value="Standard Business Hours" />
+          <span class="field-error" id="regTimingErr" style="display:none"></span>
+          <input type="hidden" id="regWebsite" name="regWebsite" value="" />
+          <span class="field-error" id="regWebsiteErr" style="display:none"></span>
           <input type="hidden" id="regAbout" name="regAbout" value="" />
           <span class="field-error" id="regAboutErr" style="display:none"></span>
 
@@ -1476,81 +1463,92 @@
             <div class="field">
               <label for="subCategorySelect">Category to Unlock *</label>
               <select id="subCategorySelect" name="subCategorySelect" required>
-                <option value="">Choose a category</option>
-                <option value="clinic">Clinic Management</option>
-                <option value="academy">Academy Management</option>
-                <option value="restaurant">Restaurant Management</option>
-                <option value="generalstore">General Store Management</option>
-                <option value="beautysalon">Beauty Salon Management</option>
-                <option value="petrolpump">Petrol Pump Management</option>
-                <option value="medicalstore">Medical Store Management</option>
-                <option value="laboratory">Laboratory Management</option>
+                <option value="">Select a category</option>
+                <option value="clinic">Clinic &amp; Healthcare</option>
+                <option value="academy">Academy &amp; Education</option>
+                <option value="restaurant">Restaurant &amp; Food</option>
+                <option value="generalstore">General &amp; Retail Store</option>
+                <option value="beautysalon">Beauty Salon &amp; Spa</option>
+                <option value="petrolpump">Petrol Pump &amp; Energy</option>
+                <option value="medicalstore">Pharmacy &amp; Medical Store</option>
+                <option value="laboratory">Laboratory &amp; Diagnostics</option>
+                <option value="realestate">Real Estate &amp; Property</option>
+                <option value="software">Software &amp; Digital Services</option>
+                <option value="other">Other Business</option>
               </select>
               <span class="field-error" id="subCategorySelectErr"></span>
             </div>
 
             <div class="field">
-              <label for="subFullName">Full Name *</label>
-              <input type="text" id="subFullName" name="subFullName" placeholder="Full Name" maxlength="60" required />
-              <span class="field-error" id="subFullNameErr"></span>
+              <label for="subBizName">Business / Company Name *</label>
+              <input type="text" id="subBizName" name="subBizName" placeholder="Al-Madina Traders / Apex Tech" maxlength="60" required />
+              <span class="field-error" id="subBizNameErr"></span>
             </div>
           </div>
 
           <div class="reg-grid">
             <div class="field">
-              <label for="subEmail">Email Address *</label>
-              <input type="email" id="subEmail" name="subEmail" placeholder="name@business.com" maxlength="80" autocomplete="email" required />
-              <span class="field-error" id="subEmailErr"></span>
+              <label for="subFullName">Owner / Contact Person *</label>
+              <input type="text" id="subFullName" name="subFullName" placeholder="Full name of owner" maxlength="50" required />
+              <span class="field-error" id="subFullNameErr"></span>
             </div>
 
+            <div class="field">
+              <label for="subEmail">Email Address *</label>
+              <input type="email" id="subEmail" name="subEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" required />
+              <span class="field-error" id="subEmailErr"></span>
+            </div>
+          </div>
+
+          <div class="reg-grid">
             <div class="field">
               <label for="subAccountMobile">Mobile Number *</label>
               <div class="phone-input-group">
                 <select id="subCountryCode" class="phone-country-select" aria-label="Country Code">
-                  <option value="+92" selected>PK (+92)</option>
-                  <option value="+1">US (+1)</option>
-                  <option value="+44">UK (+44)</option>
-                  <option value="+971">UAE (+971)</option>
-                  <option value="+966">SA (+966)</option>
-                  <option value="+91">IN (+91)</option>
-                  <option value="+1">CA (+1)</option>
-                  <option value="+61">AU (+61)</option>
-                  <option value="+49">DE (+49)</option>
-                  <option value="+33">FR (+33)</option>
-                  <option value="+86">CN (+86)</option>
-                  <option value="+90">TR (+90)</option>
-                  <option value="+60">MY (+60)</option>
-                  <option value="+65">SG (+65)</option>
-                  <option value="+974">QA (+974)</option>
-                  <option value="+968">OM (+968)</option>
-                  <option value="+965">KW (+965)</option>
-                  <option value="+973">BH (+973)</option>
-                  <option value="+880">BD (+880)</option>
-                  <option value="+93">AF (+93)</option>
-                  <option value="+20">EG (+20)</option>
-                  <option value="+27">ZA (+27)</option>
-                  <option value="+34">ES (+34)</option>
-                  <option value="+39">IT (+39)</option>
-                  <option value="+81">JP (+81)</option>
-                  <option value="+82">KR (+82)</option>
-                  <option value="+7">RU (+7)</option>
-                  <option value="+55">BR (+55)</option>
-                  <option value="+52">MX (+52)</option>
-                  <option value="+62">ID (+62)</option>
-                  <option value="+63">PH (+63)</option>
-                  <option value="+234">NG (+234)</option>
-                  <option value="+254">KE (+254)</option>
+                  <option value="+92" selected>🇵🇰 PK (+92)</option>
+                  <option value="+1">🇺🇸 US (+1)</option>
+                  <option value="+44">🇬🇧 UK (+44)</option>
+                  <option value="+971">🇦🇪 UAE (+971)</option>
+                  <option value="+966">🇸🇦 SA (+966)</option>
+                  <option value="+91">🇮🇳 IN (+91)</option>
+                  <option value="+1">🇨🇦 CA (+1)</option>
+                  <option value="+61">🇦🇺 AU (+61)</option>
+                  <option value="+49">🇩🇪 DE (+49)</option>
+                  <option value="+33">🇫🇷 FR (+33)</option>
+                  <option value="+86">🇨🇳 CN (+86)</option>
+                  <option value="+90">🇹🇷 TR (+90)</option>
+                  <option value="+60">🇲🇾 MY (+60)</option>
+                  <option value="+65">🇸🇬 SG (+65)</option>
+                  <option value="+974">🇶🇦 QA (+974)</option>
+                  <option value="+968">🇴🇲 OM (+968)</option>
+                  <option value="+965">🇰🇼 KW (+965)</option>
+                  <option value="+973">🇧🇭 BH (+973)</option>
+                  <option value="+880">🇧🇩 BD (+880)</option>
+                  <option value="+93">🇦🇫 AF (+93)</option>
+                  <option value="+20">🇪🇬 EG (+20)</option>
+                  <option value="+27">🇿🇦 ZA (+27)</option>
+                  <option value="+34">🇪🇸 ES (+34)</option>
+                  <option value="+39">🇮🇹 IT (+39)</option>
+                  <option value="+81">🇯🇵 JP (+81)</option>
+                  <option value="+82">🇰🇷 KR (+82)</option>
+                  <option value="+7">🇷🇺 RU (+7)</option>
+                  <option value="+55">🇧🇷 BR (+55)</option>
+                  <option value="+52">🇲🇽 MX (+52)</option>
+                  <option value="+62">🇮🇩 ID (+62)</option>
+                  <option value="+63">🇵🇭 PH (+63)</option>
+                  <option value="+234">🇳🇬 NG (+234)</option>
+                  <option value="+254">🇰🇪 KE (+254)</option>
                 </select>
-                <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="3012345678" maxlength="20" inputmode="numeric" required />
+                <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="3012345678" maxlength="15" required />
               </div>
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
-          </div>
 
-          <div class="field" style="margin-bottom: 0.85rem;">
-            <label for="subCityName">City &amp; Country *</label>
-            <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
-            <span class="field-error" id="subCityNameErr"></span>
+            <div class="field">
+              <label for="subCityName">City &amp; Country *</label>
+              <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
+              <span class="field-error" id="subCityNameErr"></span>
+            </div>
           </div>
 
           <!-- Hidden fallback for subPassword so backend compatibility is preserved -->
@@ -1577,7 +1575,7 @@
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
             </button>
-            <button type="button" class="btn btn-outline btn-lg" id="subCancelBtn">Cancel</button>
+            <button type="reset" class="btn btn-outline btn-lg" id="subCancelBtn">Clear Form</button>
           </div>
         </form>
       </div>
@@ -2485,7 +2483,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104SuperCleanPlan"></script>
+  <script src="script.js?v=20261104TwinForms"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

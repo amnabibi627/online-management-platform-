@@ -6101,23 +6101,23 @@ const renderUserActiveProfile = (viewMode = "overview") => {
         <form class="pro-edit-form" id="userActiveEditForm">
           <div class="pro-form-group">
             <label>Full Name *</label>
-            <input name="name" type="text" value="${userName}" required minlength="3" maxlength="80" placeholder="Full Name" />
+            <input name="name" type="text" value="${userName}" required minlength="3" maxlength="80" />
           </div>
           <div class="pro-form-group">
             <label>Email Address</label>
-            <input name="email" type="email" value="${userEmail !== 'N/A' ? userEmail : ''}" maxlength="80" placeholder="Email Address" />
+            <input name="email" type="email" value="${userEmail !== 'N/A' ? userEmail : ''}" maxlength="80" />
           </div>
           <div class="pro-form-group">
             <label>Registered Phone / Mobile *</label>
-            <input name="mobile" type="tel" value="${userMobile}" required maxlength="20" placeholder="Mobile Number" />
+            <input name="mobile" type="tel" value="${userMobile}" required maxlength="20" />
           </div>
           <div class="pro-form-group">
             <label>City / Location</label>
-            <input name="city" type="text" value="${userCity}" maxlength="50" placeholder="City" />
+            <input name="city" type="text" value="${userCity}" maxlength="50" />
           </div>
           <div class="pro-form-group">
             <label>Business / Enterprise Name</label>
-            <input name="businessName" type="text" value="${rawBusiness}" maxlength="80" placeholder="Business Name" />
+            <input name="businessName" type="text" value="${rawBusiness}" maxlength="80" />
           </div>
 
           <p class="category-auth-error" id="userEditError" role="alert" style="color:#ef4444; font-size:0.84rem; margin:0.2rem 0; min-height:1rem;"></p>

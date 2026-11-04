@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104NoMediaNotes" />
+  <link rel="stylesheet" href="styles.css?v=20261104NoPlaceholdersClean" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1488,7 +1488,7 @@
           <div class="reg-grid">
             <div class="field">
               <label for="subFullName">Name</label>
-              <input type="text" id="subFullName" name="subFullName" placeholder="Your Name" maxlength="50" required />
+              <input type="text" id="subFullName" name="subFullName" maxlength="50" required />
               <span class="field-error" id="subFullNameErr"></span>
             </div>
 
@@ -1530,7 +1530,7 @@
                   <option value="+234">NG (+234)</option>
                   <option value="+254">KE (+254)</option>
                 </select>
-                <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="3012345678" maxlength="15" required />
+                <input type="tel" id="subAccountMobile" name="subAccountMobile" maxlength="15" required />
               </div>
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
@@ -1539,7 +1539,7 @@
           <div class="reg-grid">
             <div class="field">
               <label for="subCityName">Country</label>
-              <input type="text" id="subCityName" name="subCityName" placeholder="Your Country" maxlength="50" required />
+              <input type="text" id="subCityName" name="subCityName" maxlength="50" required />
               <span class="field-error" id="subCityNameErr"></span>
             </div>
 
@@ -1739,7 +1739,6 @@
                     type="email"
                     id="signupEmail"
                     name="signupEmail"
-                    placeholder="example@gmail.com"
                     autocomplete="email"
                   >
                 </div>
@@ -1829,7 +1828,6 @@
                     name="phoneNumber"
                     inputmode="tel"
                     autocomplete="tel"
-                    placeholder="301 2345678"
                   >
                 </div>
               </div>
@@ -1842,7 +1840,6 @@
                     type="password"
                     id="signupPassword"
                     name="signupPassword"
-                    placeholder="Create password (min 4 characters)"
                     autocomplete="new-password"
                     required
                   >
@@ -1881,7 +1878,6 @@
                     type="text"
                     id="loginIdentifier"
                     name="loginIdentifier"
-                    placeholder="Enter Gmail or 0301... or +92..."
                     autocomplete="username"
                     required
                   >
@@ -1895,7 +1891,6 @@
                     type="password"
                     id="loginPassword"
                     name="loginPassword"
-                    placeholder="Enter your password"
                     autocomplete="current-password"
                     required
                   >
@@ -1951,12 +1946,12 @@
             <div class="form-row">
               <div class="field">
                 <label for="ufName">Full Name <em>*</em></label>
-                <input type="text" id="ufName" placeholder="Full Name" autocomplete="name" maxlength="60" />
+                <input type="text" id="ufName" autocomplete="name" maxlength="60" />
                 <span class="field-error" id="ufNameErr"></span>
               </div>
               <div class="field">
                 <label for="ufEmail">Email Address <em>*</em></label>
-                <input type="email" id="ufEmail" placeholder="Email Address" autocomplete="email" maxlength="80" required />
+                <input type="email" id="ufEmail" autocomplete="email" maxlength="80" required />
                 <span class="field-error" id="ufEmailErr"></span>
               </div>
             </div>
@@ -2000,20 +1995,20 @@
                     <option value="+234">NG (+234)</option>
                     <option value="+254">KE (+254)</option>
                   </select>
-                  <input type="tel" id="ufMobile" placeholder="Mobile Number" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                  <input type="tel" id="ufMobile" inputmode="numeric" maxlength="20" autocomplete="tel" />
                 </div>
                 <span class="field-error" id="ufMobileErr"></span>
               </div>
               <div class="field">
                 <label for="ufCity">City <em>*</em></label>
-                <input type="text" id="ufCity" placeholder="City" autocomplete="address-level2" maxlength="40" />
+                <input type="text" id="ufCity" autocomplete="address-level2" maxlength="40" />
                 <span class="field-error" id="ufCityErr"></span>
               </div>
             </div>
 
             <div class="field">
               <label for="ufPass">Create Password <em>*</em></label>
-              <input type="text" id="ufPass" placeholder="Min 8 characters" maxlength="64" autocomplete="new-password" />
+              <input type="text" id="ufPass" maxlength="64" autocomplete="new-password" />
               <span class="field-error" id="ufPassErr"></span>
             </div>
 
@@ -2093,13 +2088,13 @@
                     <option value="+234">NG (+234)</option>
                     <option value="+254">KE (+254)</option>
                   </select>
-                    <input type="tel" id="ufPayerMobile" placeholder="Sender Mobile Number" inputmode="numeric" maxlength="20" autocomplete="tel" />
+                    <input type="tel" id="ufPayerMobile" inputmode="numeric" maxlength="20" autocomplete="tel" />
                   </div>
                   <span class="field-error" id="ufPayerMobileErr"></span>
                 </div>
                 <div class="field">
                   <label for="ufPaymentReference">Transaction / reference ID <em>*</em></label>
-                  <input type="text" id="ufPaymentReference" placeholder="Card TID, wire TID or receipt ID" maxlength="100" autocomplete="off" />
+                  <input type="text" id="ufPaymentReference" maxlength="100" autocomplete="off" />
                   <span class="field-error" id="ufPaymentReferenceErr"></span>
                 </div>
               </div>
@@ -2146,13 +2141,13 @@
                     <option value="+234">NG (+234)</option>
                     <option value="+254">KE (+254)</option>
                   </select>
-                <input type="tel" id="ufLoginMobile" placeholder="Mobile Number" inputmode="numeric" maxlength="20" autocomplete="username" />
+                <input type="tel" id="ufLoginMobile" inputmode="numeric" maxlength="20" autocomplete="username" />
               </div>
               <span class="field-error" id="ufLoginMobileErr"></span>
             </div>
             <div class="field">
               <label for="ufLoginPass">Password <em>*</em></label>
-              <input type="text" id="ufLoginPass" placeholder="Enter your password" maxlength="64" autocomplete="current-password" />
+              <input type="text" id="ufLoginPass" maxlength="64" autocomplete="current-password" />
               <span class="field-error" id="ufLoginPassErr"></span>
             </div>
           </div>
@@ -2487,7 +2482,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104NoMediaNotes"></script>
+  <script src="script.js?v=20261104NoPlaceholdersClean"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

@@ -4832,11 +4832,14 @@ const validateRegForm = () => {
   if (waEl) waEl.value = mNum;
   if (waCodeEl) waCodeEl.value = mCode;
 
-  const bizName = get("regBizName").value.trim();
-  ok = setRegError(get("regBizName"), get("regBizNameErr"), bizName.length < 3 ? "Please write your business name (min 3 letters)." : "") && ok;
+  const bizNameEl = get("regBizName");
+  if (bizNameEl && bizNameEl.type !== "hidden") {
+    const bizName = bizNameEl.value.trim();
+    ok = setRegError(bizNameEl, get("regBizNameErr"), bizName.length < 3 ? "Please write your business name (min 3 letters)." : "") && ok;
+  }
 
   const ownerName = get("regOwnerName").value.trim();
-  ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 3 ? "Please write the owner name (min 3 letters)." : "") && ok;
+  ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 3 ? "Please write your name (min 3 letters)." : "") && ok;
 
   const mobile = combinePhoneWithCode(mCode, mNum);
   ok = setRegError(get("regMobile"), get("regMobileErr"), MOBILE_LOOKUP_RE.test(mobile) ? "" : "Please enter a valid mobile number.") && ok;
@@ -4927,7 +4930,7 @@ if (regForm) {
     let submission;
     let mediaWarning = "";
     const entry = {
-      business_name: get("regBizName"),
+      business_name: get("regBizName") || get("regOwnerName"),
       owner_name: get("regOwnerName"),
       email: (document.getElementById("regEmail")?.value || "").trim().toLowerCase(),
       mobile: normalizeMobile(get("regMobile")),
@@ -5021,8 +5024,7 @@ if (regForm) {
         `🌟 *BUSINESS REGISTRATION & AD ACTIVATION* 🌟\n` +
         `━━━━━━━━━━━━━━━━━━━━\n` +
         `🆔 *Ref ID:* ${submission.id}\n` +
-        `🏢 *Business:* ${entry.business_name}\n` +
-        `👤 *Owner:* ${entry.owner_name}\n` +
+        `👤 *Name:* ${entry.owner_name}\n` +
         `📂 *Category:* ${entry.category}\n` +
         `📍 *Location:* ${entry.city}\n` +
         `📞 *Contact:* ${entry.mobile}\n` +
@@ -5927,8 +5929,7 @@ if (subPurchaseForm) {
       `🆔 *Ref ID:* ${reqData.id}\n` +
       `📂 *Category to Unlock:* ${categoryName}\n` +
       `📅 *Plan Selected:* ${plan.label} ($${plan.priceUsd || 24} USD / PKR ${plan.price.toLocaleString()})\n` +
-      (bizName ? `🏢 *Business / Company:* ${bizName}\n` : "") +
-      `👤 *Owner / Contact:* ${name}\n` +
+      `👤 *Name:* ${name}\n` +
       `📧 *Email:* ${email}\n` +
       `📞 *Account Mobile:* ${mobile}\n` +
       `📍 *City:* ${city}\n` +

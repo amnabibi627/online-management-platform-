@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104TwinForms" />
+  <link rel="stylesheet" href="styles.css?v=20261104NoBizName" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1294,6 +1294,10 @@
           </div>
           <span class="field-error" id="regPlanErr"></span>
 
+          <!-- Hidden fallback for regBizName -->
+          <input type="hidden" id="regBizName" name="regBizName" value="" />
+          <span class="field-error" id="regBizNameErr" style="display:none"></span>
+
           <div class="reg-grid">
             <div class="field">
               <label for="regCategory">Business Category *</label>
@@ -1315,27 +1319,19 @@
             </div>
 
             <div class="field">
-              <label for="regBizName">Business / Company Name *</label>
-              <input type="text" id="regBizName" name="regBizName" placeholder="Al-Madina Traders / Apex Tech" maxlength="60" />
-              <span class="field-error" id="regBizNameErr"></span>
+              <label for="regOwnerName">Full Name *</label>
+              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Full Name" maxlength="50" />
+              <span class="field-error" id="regOwnerNameErr"></span>
             </div>
           </div>
 
           <div class="reg-grid">
-            <div class="field">
-              <label for="regOwnerName">Owner / Contact Person *</label>
-              <input type="text" id="regOwnerName" name="regOwnerName" placeholder="Full name of owner" maxlength="50" />
-              <span class="field-error" id="regOwnerNameErr"></span>
-            </div>
-
             <div class="field">
               <label for="regEmail">Email Address</label>
               <input type="email" id="regEmail" name="regEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" />
               <span class="field-error" id="regEmailErr"></span>
             </div>
-          </div>
 
-          <div class="reg-grid">
             <div class="field">
               <label for="regMobile">Mobile Number *</label>
               <div class="phone-input-group">
@@ -1378,12 +1374,12 @@
               </div>
               <span class="field-error" id="regMobileErr"></span>
             </div>
+          </div>
 
-            <div class="field">
-              <label for="regCity">City &amp; Country *</label>
-              <input type="text" id="regCity" name="regCity" placeholder="Lahore, Pakistan or London, UK" maxlength="50" />
-              <span class="field-error" id="regCityErr"></span>
-            </div>
+          <div class="field" style="margin-bottom: 0.85rem;">
+            <label for="regCity">City &amp; Country *</label>
+            <input type="text" id="regCity" name="regCity" placeholder="Lahore, Pakistan or London, UK" maxlength="50" />
+            <span class="field-error" id="regCityErr"></span>
           </div>
 
           <!-- Synced WhatsApp inputs for database & communication -->
@@ -1480,27 +1476,19 @@
             </div>
 
             <div class="field">
-              <label for="subBizName">Business / Company Name *</label>
-              <input type="text" id="subBizName" name="subBizName" placeholder="Al-Madina Traders / Apex Tech" maxlength="60" required />
-              <span class="field-error" id="subBizNameErr"></span>
+              <label for="subFullName">Full Name *</label>
+              <input type="text" id="subFullName" name="subFullName" placeholder="Full Name" maxlength="50" required />
+              <span class="field-error" id="subFullNameErr"></span>
             </div>
           </div>
 
           <div class="reg-grid">
-            <div class="field">
-              <label for="subFullName">Owner / Contact Person *</label>
-              <input type="text" id="subFullName" name="subFullName" placeholder="Full name of owner" maxlength="50" required />
-              <span class="field-error" id="subFullNameErr"></span>
-            </div>
-
             <div class="field">
               <label for="subEmail">Email Address *</label>
               <input type="email" id="subEmail" name="subEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" required />
               <span class="field-error" id="subEmailErr"></span>
             </div>
-          </div>
 
-          <div class="reg-grid">
             <div class="field">
               <label for="subAccountMobile">Mobile Number *</label>
               <div class="phone-input-group">
@@ -1543,15 +1531,17 @@
               </div>
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
-
-            <div class="field">
-              <label for="subCityName">City &amp; Country *</label>
-              <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
-              <span class="field-error" id="subCityNameErr"></span>
-            </div>
           </div>
 
-          <!-- Hidden fallback for subPassword so backend compatibility is preserved -->
+          <div class="field" style="margin-bottom: 0.85rem;">
+            <label for="subCityName">City &amp; Country *</label>
+            <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
+            <span class="field-error" id="subCityNameErr"></span>
+          </div>
+
+          <!-- Hidden fallback for subBizName & subPassword -->
+          <input type="hidden" id="subBizName" name="subBizName" value="" />
+          <span class="field-error" id="subBizNameErr" style="display:none"></span>
           <input type="hidden" id="subPassword" name="subPassword" value="" />
           <span class="field-error" id="subPasswordErr" style="display:none"></span>
 
@@ -2483,7 +2473,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104TwinForms"></script>
+  <script src="script.js?v=20261104NoBizName"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

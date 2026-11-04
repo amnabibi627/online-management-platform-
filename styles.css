@@ -7374,26 +7374,26 @@ body {
   align-items: center !important;
   justify-content: center !important;
   gap: 0.7rem !important;
-  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+  background: #25D366 !important;
   color: #ffffff !important;
   border: 0 !important;
   border-radius: 12px !important;
   padding: 0.95rem 1.4rem !important;
   font-family: inherit !important;
-  font-size: 0.98rem !important;
+  font-size: 1rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.2px !important;
   cursor: pointer !important;
-  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.32) !important;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative !important;
   overflow: hidden !important;
 }
 
 .sub-submit-btn-premium:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.45) !important;
-  background: linear-gradient(135deg, #2be16e 0%, #0f7a6e 100%) !important;
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.5) !important;
+  background: #20bd5a !important;
 }
 
 .sub-submit-btn-premium:active {

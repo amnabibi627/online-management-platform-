@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104AdsUsdDualCurrency" />
+  <link rel="stylesheet" href="styles.css?v=20261104PaymentMethodsModal" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -476,6 +476,7 @@
           <a href="#business-registration" class="nav-link">Ads</a>
           <a href="#owner-details" class="nav-link">Owner</a>
           <a href="#reviews" class="nav-link">Feedback</a>
+          <a href="javascript:void(0)" class="nav-link nav-link-payment" id="openPaymentMethodsNav" role="button">💳 Payment Info</a>
         </nav>
 
         <div class="header-actions">
@@ -1275,6 +1276,11 @@
         <div class="reg-modal-head">
           <h3 class="reg-form-title-modal" id="regModalTitle">Ads Registration</h3>
           <p class="reg-modal-sub">Choose a duration, select your business category, and connect directly with the owner on WhatsApp to activate your business ad.</p>
+          <div style="margin-top: 0.65rem; text-align: center;">
+            <button type="button" class="btn btn-outline btn-sm open-payment-methods-btn" style="border-color: #2563eb; color: #2563eb; font-weight: 600; border-radius: 9999px; padding: 0.35rem 0.95rem; font-size: 0.82rem;">
+              💳 View Payment Accounts (JazzCash • Bank • Payoneer • Binance)
+            </button>
+          </div>
         </div>
 
         <form class="reg-form" id="regForm" novalidate>
@@ -1462,6 +1468,11 @@
           <p class="reg-modal-sub" style="text-align: center; margin: 0.35rem auto 1.15rem; max-width: 580px; font-size: 0.88rem; color: #a1a1aa; line-height: 1.5;">
             Select your plan, enter your details, and submit form to contact the owner on WhatsApp to send payment &amp; activate your plan.
           </p>
+          <div style="margin: -0.45rem auto 1rem; text-align: center;">
+            <button type="button" class="btn btn-outline btn-sm open-payment-methods-btn" style="border-color: #2563eb; color: #2563eb; font-weight: 600; border-radius: 9999px; padding: 0.35rem 0.95rem; font-size: 0.82rem;">
+              💳 View Payment Accounts (JazzCash • Bank • Payoneer • Binance)
+            </button>
+          </div>
         </div>
 
         <form class="reg-form sub-purchase-form" id="subPurchaseForm" novalidate>
@@ -2096,6 +2107,9 @@
                   <label for="ufPaymentReference">Transaction / reference ID <em>*</em></label>
                   <input type="text" id="ufPaymentReference" maxlength="100" autocomplete="off" />
                   <span class="field-error" id="ufPaymentReferenceErr"></span>
+                  <div style="margin-top: 0.35rem; font-size: 0.8rem;">
+                    <a href="javascript:void(0)" class="open-payment-methods-btn" style="color: #2563eb; font-weight: 600; text-decoration: underline;">💳 View Payment Accounts (JazzCash, Bank, Payoneer, Binance)</a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2482,7 +2496,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104AdsUsdDualCurrency"></script>
+  <script src="script.js?v=20261104PaymentMethodsModal"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 
@@ -2572,6 +2586,193 @@
         <span class="legal-footer-note">&#128274; 100% Secure &bull; User Privacy Protected</span>
         <div class="legal-footer-btns">
           <button type="button" class="btn btn-primary" id="acceptLegalCharterBtn" style="padding:0.45rem 1.25rem; font-size:0.85rem;">I Understand &amp; Agree</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ========== GLOBAL PAYMENT METHODS & TRANSFER DETAILS MODAL ========== -->
+  <div class="category-modal-backdrop" id="globalPaymentModal" aria-hidden="true">
+    <div class="category-modal-card legal-modal-card payment-modal-card" role="dialog" aria-modal="true" aria-labelledby="payModalTitle">
+      <div class="legal-modal-header payment-modal-header">
+        <div class="legal-header-top">
+          <div class="legal-title-wrap">
+            <h3 id="payModalTitle" style="display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 1.25rem;">
+              <span>💳</span> Official Payment Accounts
+            </h3>
+            <p class="legal-header-sub" style="margin: 0.25rem 0 0; font-size: 0.84rem; color: #64748b;">
+              Pay via Pakistan local methods (PKR) or International methods (USD &amp; Crypto)
+            </p>
+          </div>
+          <button type="button" class="category-modal-close-btn" id="closeGlobalPaymentModal" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="legal-tabs-bar payment-tabs-bar" role="tablist">
+          <button type="button" class="legal-tab-btn payment-tab-btn is-active" data-pay-tab="local" role="tab" aria-selected="true">
+            <span>🇵🇰 Pakistan (PKR)</span>
+          </button>
+          <button type="button" class="legal-tab-btn payment-tab-btn" data-pay-tab="intl" role="tab" aria-selected="false">
+            <span>🌍 International (USD &amp; Crypto)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="legal-modal-body payment-modal-body">
+        <!-- TAB 1: PAKISTAN (PKR) -->
+        <div class="payment-tab-content is-active" id="payTabLocal" role="tabpanel">
+          <div class="pay-method-card">
+            <div class="pay-card-head">
+              <div class="pay-card-badges">
+                <span class="pay-badge pay-badge-jazz">JazzCash</span>
+                <span class="pay-badge pay-badge-easy">EasyPaisa</span>
+              </div>
+              <span class="pay-card-tag">Mobile Wallets</span>
+            </div>
+            <div class="pay-fields-list">
+              <div class="pay-field-row">
+                <span class="pay-label">Account Title:</span>
+                <span class="pay-value" id="dispJazzCashTitle">Muhammad Waqas / Amna Bibi</span>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">Mobile / Account No:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispJazzCashNum">03042954627</span>
+                  <button type="button" class="btn-copy-action" data-copy="03042954627">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="pay-card-hint">💡 Send via JazzCash or EasyPaisa mobile app or any nearby agent / retailer shop.</p>
+          </div>
+
+          <div class="pay-method-card" style="margin-top: 1rem;">
+            <div class="pay-card-head">
+              <div class="pay-card-badges">
+                <span class="pay-badge pay-badge-bank">🏛️ Bank Transfer</span>
+                <span class="pay-badge pay-badge-raast">⚡ Raast (Instant 0% Fee)</span>
+              </div>
+              <span class="pay-card-tag">1Link &amp; IBFT</span>
+            </div>
+            <div class="pay-fields-list">
+              <div class="pay-field-row">
+                <span class="pay-label">Bank Name:</span>
+                <span class="pay-value" id="dispBankName">Meezan Bank / Allied Bank / HBL</span>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">Account Title:</span>
+                <span class="pay-value" id="dispBankAccountTitle">Online Management Platform</span>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">Account Number:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispBankAccNum">01010101010101</span>
+                  <button type="button" class="btn-copy-action" data-copy="01010101010101">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">IBAN:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispBankIban">PK00MEZN00010101010101</span>
+                  <button type="button" class="btn-copy-action" data-copy="PK00MEZN00010101010101">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">Raast ID:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispBankRaast">03042954627</span>
+                  <button type="button" class="btn-copy-action" data-copy="03042954627">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="pay-card-hint">💡 Instant zero-fee transfer from any Pakistani banking mobile app using Raast ID or IBAN.</p>
+          </div>
+        </div>
+
+        <!-- TAB 2: INTERNATIONAL (USD & CRYPTO) -->
+        <div class="payment-tab-content" id="payTabIntl" role="tabpanel" style="display: none;">
+          <div class="pay-method-card">
+            <div class="pay-card-head">
+              <div class="pay-card-badges">
+                <span class="pay-badge pay-badge-payoneer">Payoneer</span>
+                <span class="pay-badge pay-badge-card">💳 Visa / Mastercard</span>
+              </div>
+              <span class="pay-card-tag">Cards &amp; Global Transfer</span>
+            </div>
+            <div class="pay-fields-list">
+              <div class="pay-field-row">
+                <span class="pay-label">Payoneer Email:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispPayoneerEmail">onlinemanagementsite627@gmail.com</span>
+                  <button type="button" class="btn-copy-action" data-copy="onlinemanagementsite627@gmail.com">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">Card Checkout Link:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value" id="dispPayoneerLink" style="font-size:0.83rem; word-break:break-all;">https://payoneer.me/onlinemanagementsite</span>
+                  <button type="button" class="btn-copy-action" data-copy="https://payoneer.me/onlinemanagementsite">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy Link</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="pay-card-hint">💡 International clients from US, UK, UAE, Saudi Arabia, Europe can pay using credit/debit cards or Payoneer balance.</p>
+          </div>
+
+          <div class="pay-method-card" style="margin-top: 1rem;">
+            <div class="pay-card-head">
+              <div class="pay-card-badges">
+                <span class="pay-badge pay-badge-binance">🟡 Binance Pay</span>
+                <span class="pay-badge pay-badge-crypto">USDT (Crypto)</span>
+              </div>
+              <span class="pay-card-tag">Instant Worldwide 0% Fee</span>
+            </div>
+            <div class="pay-fields-list">
+              <div class="pay-field-row">
+                <span class="pay-label">Binance Pay ID:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispBinanceId">839201948</span>
+                  <button type="button" class="btn-copy-action" data-copy="839201948">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy ID</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">USDT Network:</span>
+                <span class="pay-value">TRC-20 / BEP-20 (USDT)</span>
+              </div>
+              <div class="pay-field-row">
+                <span class="pay-label">USDT Deposit Address:</span>
+                <div class="pay-val-copy-wrap">
+                  <span class="pay-value pay-val-highlight" id="dispUsdtAddress" style="font-size:0.8rem; word-break:break-all;">TYasK748q298LmkZsQ28394LmqP919</span>
+                  <button type="button" class="btn-copy-action" data-copy="TYasK748q298LmkZsQ28394LmqP919">
+                    <span class="copy-icon">📋</span> <span class="copy-text">Copy</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="pay-card-hint">💡 Open Binance App &gt; Pay &gt; Send via Pay ID for instant, zero-fee confirmation.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="legal-modal-footer payment-modal-footer">
+        <div class="pay-footer-note">
+          <span style="font-size: 1.05rem;">📲</span>
+          <span><strong>Quick Activation:</strong> Send transaction screenshot on WhatsApp to activate immediately.</span>
+        </div>
+        <div class="legal-footer-btns">
+          <a href="https://wa.me/923042954627?text=Assalam%20o%20Alaikum!%20I%20have%20sent%20payment%20for%20my%20subscription%20/%20ad.%20Here%20is%20my%20screenshot:" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.35rem; background:#22c55e; border-color:#22c55e;">
+            <span>💬 Send Proof on WhatsApp</span>
+          </a>
+          <button type="button" class="btn btn-outline btn-sm" id="closeGlobalPaymentModalBtn">Close</button>
         </div>
       </div>
     </div>

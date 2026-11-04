@@ -4763,7 +4763,7 @@ const handleBusinessAdMediaChange = (input, preview, kind) => {
     showToast(error, true);
     return;
   }
-  if (regMediaNote) regMediaNote.textContent = "Upload business media: up to 5 photos (5 MB each) and 1 promo video (25 MB).";
+  if (regMediaNote) regMediaNote.textContent = "";
   renderMediaPreview(files, preview, kind === "photos" ? "photo" : "video");
 };
 
@@ -4774,7 +4774,7 @@ clearPreview(regPhotoPreview);
 clearPreview(regVideoPreview);
 if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
 if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
-if (regMediaNote) regMediaNote.textContent = "Upload business media: up to 5 photos (5 MB each) and 1 promo video (25 MB).";
+if (regMediaNote) regMediaNote.textContent = "";
 
 const buildBusinessAdMediaManifest = (requestId, photos, videos) => {
   const files = [
@@ -5013,7 +5013,7 @@ if (regForm) {
       clearPreview(regVideoPreview);
       if (regPhotoPreview) regPhotoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
       if (regVideoPreview) regVideoPreview.innerHTML = `<span class="media-empty">Nothing selected yet.</span>`;
-      if (regMediaNote) regMediaNote.textContent = "Upload business media: up to 5 photos (5 MB each) and 1 promo video (25 MB).";
+      if (regMediaNote) regMediaNote.textContent = "";
       store.set(REG_PLAN_KEY, null);
       markPlanSelected(null);
       renderPlanSummary();

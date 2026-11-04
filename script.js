@@ -4623,9 +4623,9 @@ const openRegFormBtn = document.getElementById("openRegForm");
 const regModalClose = document.getElementById("regModalClose");
 
 const PLAN_INFO = {
-  "15days": { label: "15 Days", price: 2500 },
-  "30days": { label: "30 Days", price: 5000 },
-  "1year": { label: "1 Year", price: 60000 }
+  "15days": { label: "15 Days", price: 2500, priceUsd: 10 },
+  "30days": { label: "30 Days", price: 5000, priceUsd: 20 },
+  "1year": { label: "1 Year", price: 60000, priceUsd: 200 }
 };
 
 const MOBILE_LOOKUP_RE = /^\d{7,16}$/;
@@ -4664,7 +4664,7 @@ const renderPlanSummary = () => {
   const p = PLAN_INFO[key];
   regPlanSummary.innerHTML =
     `<div class="reg-plan-item"><span>Plan</span><strong>${escHtml(p.label)}</strong></div>` +
-    `<div class="reg-plan-item"><span>Amount</span><strong>PKR ${rupees(p.price)}</strong></div>` +
+    `<div class="reg-plan-item"><span>Amount</span><strong>$ ${p.priceUsd} (PKR ${rupees(p.price)})</strong></div>` +
     `<div class="reg-plan-item"><span>Ad runs for</span><strong>${escHtml(p.label)}</strong></div>`;
 };
 
@@ -4684,7 +4684,7 @@ const selectPlan = (key, { silence = false } = {}) => {
   renderPlanSummary();
   const err = document.getElementById("regPlanErr");
   if (err) err.textContent = "";
-  if (!silence) showToast(`${PLAN_INFO[key].label} plan selected - PKR ${rupees(PLAN_INFO[key].price)}`);
+  if (!silence) showToast(`${PLAN_INFO[key].label} plan selected - $ ${PLAN_INFO[key].priceUsd} / PKR ${rupees(PLAN_INFO[key].price)}`);
 };
 
 if (planGrid) {
@@ -5037,7 +5037,7 @@ if (regForm) {
         (entry.about ? `📝 *Ad Details:* ${entry.about.slice(0, 100)}\n` : "") +
         (entry.website ? `🌐 *Website:* ${entry.website}\n` : "") +
         `📞 *Contact:* ${entry.mobile}\n` +
-        `📅 *Plan:* ${plan.label} (PKR ${rupees(entry.amount)})\n` +
+        `📅 *Plan:* ${plan.label} ($ ${plan.priceUsd || (plan.price === 2500 ? 10 : plan.price === 5000 ? 20 : 200)} / PKR ${rupees(entry.amount)})\n` +
         `📸 *Media:* ${entry.photo_count} Photos, ${entry.video_count} Video\n` +
         `━━━━━━━━━━━━━━━━━━━━\n` +
         `Assalam o Alaikum! I have submitted my business ad on the portal with media. Please provide payment details (JazzCash / EasyPaisa / Bank Transfer) so I can pay and have my ad activated.\nThank you!` +

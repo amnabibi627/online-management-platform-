@@ -4824,16 +4824,13 @@ const validateRegForm = () => {
   const get = (id) => document.getElementById(id);
   let ok = true;
 
-  // Sync WhatsApp from mobile if same-checkbox is checked
-  const sameWa = document.getElementById("regSameWaCheck");
-  if (sameWa && sameWa.checked) {
-    const mCode = document.getElementById("regCountryCode")?.value || "+92";
-    const mNum = get("regMobile")?.value || "";
-    const waEl = get("regWhatsapp");
-    const waCodeEl = document.getElementById("regWhatsappCountryCode");
-    if (waEl) waEl.value = mNum;
-    if (waCodeEl) waCodeEl.value = mCode;
-  }
+  // Always sync WhatsApp from mobile
+  const mCode = document.getElementById("regCountryCode")?.value || "+92";
+  const mNum = get("regMobile")?.value || "";
+  const waEl = get("regWhatsapp");
+  const waCodeEl = document.getElementById("regWhatsappCountryCode");
+  if (waEl) waEl.value = mNum;
+  if (waCodeEl) waCodeEl.value = mCode;
 
   const bizName = get("regBizName").value.trim();
   ok = setRegError(get("regBizName"), get("regBizNameErr"), bizName.length < 3 ? "Please write your business name (min 3 letters)." : "") && ok;
@@ -4841,13 +4838,8 @@ const validateRegForm = () => {
   const ownerName = get("regOwnerName").value.trim();
   ok = setRegError(get("regOwnerName"), get("regOwnerNameErr"), ownerName.length < 3 ? "Please write the owner name (min 3 letters)." : "") && ok;
 
-  const mCode = document.getElementById("regCountryCode")?.value || "+92";
-  const mobile = combinePhoneWithCode(mCode, get("regMobile")?.value || "");
+  const mobile = combinePhoneWithCode(mCode, mNum);
   ok = setRegError(get("regMobile"), get("regMobileErr"), MOBILE_LOOKUP_RE.test(mobile) ? "" : "Please enter a valid mobile number.") && ok;
-
-  const waCode = document.getElementById("regWhatsappCountryCode")?.value || "+92";
-  const wa = combinePhoneWithCode(waCode, get("regWhatsapp")?.value || "");
-  ok = setRegError(get("regWhatsapp"), get("regWhatsappErr"), MOBILE_LOOKUP_RE.test(wa) ? "" : "Please enter a valid WhatsApp number.") && ok;
 
   const regEmailEl = document.getElementById("regEmail");
   if (regEmailEl) {
@@ -4865,8 +4857,11 @@ const validateRegForm = () => {
   const address = get("regAddress").value.trim();
   ok = setRegError(get("regAddress"), get("regAddressErr"), address.length < 5 ? "Please write the full address." : "") && ok;
 
-  const about = get("regAbout").value.trim();
-  ok = setRegError(get("regAbout"), get("regAboutErr"), about.length < 10 ? "Please write a short description (min 10 letters)." : "") && ok;
+  const aboutEl = get("regAbout");
+  if (aboutEl && aboutEl.type !== "hidden") {
+    const about = aboutEl.value.trim();
+    ok = setRegError(aboutEl, get("regAboutErr"), about.length < 10 ? "Please write a short description (min 10 letters)." : "") && ok;
+  }
 
   const timing = get("regTiming").value.trim();
   ok = setRegError(get("regTiming"), get("regTimingErr"), timing.length < 3 ? "Please write your opening hours." : "") && ok;
@@ -5039,36 +5034,17 @@ if (regForm) {
     }
   });
 
-  // Setup WhatsApp sync checkbox
-  const regSameWaCheck = document.getElementById("regSameWaCheck");
-  const regWhatsappWrap = document.getElementById("regWhatsappWrap");
-  if (regSameWaCheck && regWhatsappWrap) {
-    regSameWaCheck.addEventListener("change", () => {
-      regWhatsappWrap.style.display = regSameWaCheck.checked ? "none" : "block";
-      if (regSameWaCheck.checked) {
-        const mCode = document.getElementById("regCountryCode")?.value || "+92";
-        const mNum = document.getElementById("regMobile")?.value || "";
-        const waEl = document.getElementById("regWhatsapp");
-        const waCodeEl = document.getElementById("regWhatsappCountryCode");
-        if (waEl) waEl.value = mNum;
-        if (waCodeEl) waCodeEl.value = mCode;
-      }
-    });
-
-    document.getElementById("regMobile")?.addEventListener("input", (e) => {
-      if (regSameWaCheck.checked) {
-        const waEl = document.getElementById("regWhatsapp");
-        if (waEl) waEl.value = e.target.value;
-      }
-    });
-
-    document.getElementById("regCountryCode")?.addEventListener("change", (e) => {
-      if (regSameWaCheck.checked) {
-        const waCodeEl = document.getElementById("regWhatsappCountryCode");
-        if (waCodeEl) waCodeEl.value = e.target.value;
-      }
-    });
-  }
+  // Auto-sync WhatsApp with Mobile number
+  const regMobileInput = document.getElementById("regMobile");
+  const regCountrySelect = document.getElementById("regCountryCode");
+  const syncWaInputs = () => {
+    const waEl = document.getElementById("regWhatsapp");
+    const waCodeEl = document.getElementById("regWhatsappCountryCode");
+    if (waEl && regMobileInput) waEl.value = regMobileInput.value;
+    if (waCodeEl && regCountrySelect) waCodeEl.value = regCountrySelect.value;
+  };
+  regMobileInput?.addEventListener("input", syncWaInputs);
+  regCountrySelect?.addEventListener("change", syncWaInputs);
 
   regForm.addEventListener("input", (e) => {
     const t = e.target;
@@ -5845,8 +5821,18 @@ if (subPurchaseForm) {
     setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid mobile phone number.");
     setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
     setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
-    setErr("subPayerMobileErr", (payerMobile.length >= 4) ? "" : "Enter sender phone, email or account identifier.");
-    setErr("subTxIdErr", txId.length >= 4 ? "" : "Enter transaction reference ID or receipt # (min 4 characters).");
+    const subTerms = document.getElementById("subTerms");
+    if (subTerms && !subTerms.checked) {
+      setErr("subTermsErr", "Please confirm details before continuing.");
+    }
+    const payerMobileEl = document.getElementById("subPayerMobile");
+    if (payerMobileEl && payerMobileEl.type !== "hidden") {
+      setErr("subPayerMobileErr", (payerMobile.length >= 4) ? "" : "Enter sender phone, email or account identifier.");
+    }
+    const txIdEl = document.getElementById("subTxId");
+    if (txIdEl && txIdEl.type !== "hidden") {
+      setErr("subTxIdErr", txId.length >= 4 ? "" : "Enter transaction reference ID or receipt # (min 4 characters).");
+    }
 
     if (!valid) {
       showToast("Please fill all required fields correctly.", true);
@@ -5868,8 +5854,8 @@ if (subPurchaseForm) {
       account_email: email,
       account_mobile: mobile,
       city,
-      payment_reference: txId,
-      payer_mobile: payerMobile,
+      payment_reference: txId || "Pending WhatsApp Arrangement",
+      payer_mobile: payerMobile || mobile,
       status: "pending",
       created_at: new Date().toISOString()
     };
@@ -5919,13 +5905,6 @@ if (subPurchaseForm) {
     selectSubPlan("3-month");
 
     const categoryName = subCategorySelect?.selectedOptions[0]?.text || category;
-    const activePayMethod = document.querySelector(".sub-pay-tab.is-active")?.dataset.payMethod || "card";
-    const payMethodNames = {
-      card: "Credit/Debit Card & Online Checkout",
-      bank: "Bank Wire / SWIFT (IBAN)",
-      wallet: "Mobile Wallet (JazzCash / Raast)"
-    };
-    const payMethodLabel = payMethodNames[activePayMethod] || activePayMethod;
 
     const waText = encodeURIComponent(
       `💎 *CATEGORY PORTAL SUBSCRIPTION REQUEST* 💎\n` +
@@ -5937,11 +5916,8 @@ if (subPurchaseForm) {
       `📧 *Email:* ${email}\n` +
       `📞 *Account Mobile:* ${mobile}\n` +
       `📍 *City:* ${city}\n` +
-      `💳 *Payment Method:* ${payMethodLabel}\n` +
-      `📱 *Sender Account / Phone:* ${payerMobile}\n` +
-      `🧾 *Transaction ID / Receipt #:* ${txId}\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
-      `Assalam o Alaikum! I have submitted my portal subscription request with payment details. Please verify my payment and activate my category access.\nThank you!`
+      `Assalam o Alaikum! I have submitted my category portal subscription request. Please share your payment details (JazzCash / EasyPaisa / Bank Transfer / Remittance) so I can make the payment and get my access activated.\nThank you!`
     );
     window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
 

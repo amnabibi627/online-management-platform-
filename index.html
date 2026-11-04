@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261103SubPortalPro" />
+  <link rel="stylesheet" href="styles.css?v=20261104CleanRegInputs" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1321,7 +1321,7 @@
           <div class="reg-grid">
             <div class="field">
               <label for="regBizName">Business / Company Name *</label>
-              <input type="text" id="regBizName" name="regBizName" placeholder="e.g. Al-Madina Traders / Apex Tech" maxlength="60" />
+              <input type="text" id="regBizName" name="regBizName" placeholder="Al-Madina Traders / Apex Tech" maxlength="60" />
               <span class="field-error" id="regBizNameErr"></span>
             </div>
 
@@ -1375,60 +1375,16 @@
                   <option value="+234">🇳🇬 NG (+234)</option>
                   <option value="+254">🇰🇪 KE (+254)</option>
                 </select>
-                <input type="tel" id="regMobile" name="regMobile" placeholder="e.g. 3012345678" maxlength="15" />
+                <input type="tel" id="regMobile" name="regMobile" placeholder="3012345678" maxlength="15" />
               </div>
               <span class="field-error" id="regMobileErr"></span>
-
-              <label class="reg-same-wa" style="margin-top: 6px; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); cursor: pointer;">
-                <input type="checkbox" id="regSameWaCheck" checked style="accent-color: var(--pink);" />
-                <span>WhatsApp number is same as mobile number</span>
-              </label>
             </div>
           </div>
 
-          <!-- Separate WhatsApp (hidden by default unless user unchecks above) -->
-          <div class="field" id="regWhatsappWrap" style="display: none; margin-bottom: 0.85rem;">
-            <label for="regWhatsapp">Separate WhatsApp Number *</label>
-            <div class="phone-input-group">
-              <select id="regWhatsappCountryCode" class="phone-country-select" aria-label="Country Code">
-                <option value="+92" selected>🇵🇰 PK (+92)</option>
-                <option value="+1">🇺🇸 US (+1)</option>
-                <option value="+44">🇬🇧 UK (+44)</option>
-                <option value="+971">🇦🇪 UAE (+971)</option>
-                <option value="+966">🇸🇦 SA (+966)</option>
-                <option value="+91">🇮🇳 IN (+91)</option>
-                <option value="+1">🇨🇦 CA (+1)</option>
-                <option value="+61">🇦🇺 AU (+61)</option>
-                <option value="+49">🇩🇪 DE (+49)</option>
-                <option value="+33">🇫🇷 FR (+33)</option>
-                <option value="+86">🇨🇳 CN (+86)</option>
-                <option value="+90">🇹🇷 TR (+90)</option>
-                <option value="+60">🇲🇾 MY (+60)</option>
-                <option value="+65">🇸🇬 SG (+65)</option>
-                <option value="+974">🇶🇦 QA (+974)</option>
-                <option value="+968">🇴🇲 OM (+968)</option>
-                <option value="+965">🇰🇼 KW (+965)</option>
-                <option value="+973">🇧🇭 BH (+973)</option>
-                <option value="+880">🇧🇩 BD (+880)</option>
-                <option value="+93">🇦🇫 AF (+93)</option>
-                <option value="+20">🇪🇬 EG (+20)</option>
-                <option value="+27">🇿🇦 ZA (+27)</option>
-                <option value="+34">🇪🇸 ES (+34)</option>
-                <option value="+39">🇮🇹 IT (+39)</option>
-                <option value="+81">🇯🇵 JP (+81)</option>
-                <option value="+82">🇰🇷 KR (+82)</option>
-                <option value="+7">🇷🇺 RU (+7)</option>
-                <option value="+55">🇧🇷 BR (+55)</option>
-                <option value="+52">🇲🇽 MX (+52)</option>
-                <option value="+62">🇮🇩 ID (+62)</option>
-                <option value="+63">🇵🇭 PH (+63)</option>
-                <option value="+234">🇳🇬 NG (+234)</option>
-                <option value="+254">🇰🇪 KE (+254)</option>
-              </select>
-              <input type="tel" id="regWhatsapp" name="regWhatsapp" placeholder="WhatsApp Number" maxlength="15" />
-            </div>
-            <span class="field-error" id="regWhatsappErr"></span>
-          </div>
+          <!-- Synced WhatsApp inputs for database & communication -->
+          <input type="hidden" id="regWhatsapp" name="regWhatsapp" />
+          <input type="hidden" id="regWhatsappCountryCode" value="+92" />
+          <span class="field-error" id="regWhatsappErr" style="display: none;"></span>
 
           <div class="reg-grid">
             <div class="field">
@@ -1452,7 +1408,7 @@
 
             <div class="field">
               <label for="regCity">City &amp; Country *</label>
-              <input type="text" id="regCity" name="regCity" placeholder="e.g. Lahore, Pakistan or London, UK" maxlength="50" />
+              <input type="text" id="regCity" name="regCity" placeholder="Lahore, Pakistan or London, UK" maxlength="50" />
               <span class="field-error" id="regCityErr"></span>
             </div>
           </div>
@@ -1466,7 +1422,7 @@
           <div class="reg-grid">
             <div class="field">
               <label for="regTiming">Opening Hours *</label>
-              <input type="text" id="regTiming" name="regTiming" placeholder="e.g. 9:00 AM to 10:00 PM or 24/7" maxlength="60" />
+              <input type="text" id="regTiming" name="regTiming" placeholder="9:00 AM to 10:00 PM or 24/7" maxlength="60" />
               <span class="field-error" id="regTimingErr"></span>
             </div>
 
@@ -1477,11 +1433,9 @@
             </div>
           </div>
 
-          <div class="field">
-            <label for="regAbout">About Your Business *</label>
-            <textarea id="regAbout" name="regAbout" rows="2" placeholder="Write a brief overview of your business, products, or services (min 10 characters)." maxlength="300"></textarea>
-            <span class="field-error" id="regAboutErr"></span>
-          </div>
+          <!-- Hidden fallback for regAbout so existing database models stay intact -->
+          <input type="hidden" id="regAbout" name="regAbout" value="" />
+          <span class="field-error" id="regAboutErr" style="display:none"></span>
 
           <!-- Hidden fallbacks for Facebook, Instagram, TikTok -->
           <input type="hidden" id="regFacebook" name="regFacebook" value="" />
@@ -1491,100 +1445,17 @@
           <input type="hidden" id="regTiktok" name="regTiktok" value="" />
           <span class="field-error" id="regTiktokErr" style="display:none"></span>
 
-          <!-- Step 3: Photos & Media -->
-          <div class="reg-section-header">
-            <span class="reg-step-number">3</span>
-            <div>
-              <h4 class="reg-step-title">Photos &amp; Branding <span class="reg-optional">Optional</span></h4>
-              <p class="reg-step-desc">Upload your business logo or storefront photos to attract clients</p>
-            </div>
-          </div>
-
-          <div class="reg-media-compact">
-            <div class="media-box-compact">
-              <div class="media-box-info">
-                <span class="media-box-icon">📸</span>
-                <div>
-                  <strong>Business Photos / Logo</strong>
-                  <p>Up to 5 photos (JPG, PNG, WebP — max 5 MB each)</p>
-                </div>
-              </div>
-              <input type="file" id="regPhotos" name="regPhotos" accept="image/jpeg,image/png,image/webp" multiple />
-              <div class="media-preview" id="regPhotoPreview"></div>
-            </div>
-
-            <div class="media-box-compact">
-              <div class="media-box-info">
-                <span class="media-box-icon">🎥</span>
-                <div>
-                  <strong>Promotional Video</strong>
-                  <p>1 short video clip (MP4, WebM — max 25 MB)</p>
-                </div>
-              </div>
-              <input type="file" id="regVideos" name="regVideos" accept="video/mp4,video/webm" multiple />
-              <div class="media-preview" id="regVideoPreview"></div>
-            </div>
-          </div>
-          <p class="reg-media-note" id="regMediaNote">Uploaded media is saved securely and published live once your ad is verified and activated by the owner.</p>
-
-          <!-- Step 4: Payment & Direct Owner Activation Flow -->
-          <div class="reg-section-header">
-            <span class="reg-step-number">4</span>
-            <div>
-              <h4 class="reg-step-title">Payment &amp; Owner Activation</h4>
-              <p class="reg-step-desc">Simple 3-step process to pay and activate your listing instantly</p>
-            </div>
-          </div>
-
-          <div class="reg-plan-summary" id="regPlanSummary">
-            <span class="reg-plan-none">No plan selected yet. Pick one in Step 1.</span>
-          </div>
-
-          <div class="pay-flow-card">
-            <div class="pay-flow-head">
-              <span class="pay-flow-badge">HOW IT WORKS</span>
-              <span class="pay-flow-title">Direct Owner Payment &amp; Instant Activation</span>
-            </div>
-            <div class="pay-flow-steps">
-              <div class="pay-flow-step">
-                <div class="pay-step-num">1</div>
-                <div class="pay-step-text">
-                  <strong>Submit Form</strong>
-                  <span>Fill details and submit to generate your Ad Reference ID.</span>
-                </div>
-              </div>
-              <div class="pay-flow-step">
-                <div class="pay-step-num">2</div>
-                <div class="pay-step-text">
-                  <strong>Connect on WhatsApp</strong>
-                  <span>Contact owner on WhatsApp (+92 304 295 4627) to get payment details.</span>
-                </div>
-              </div>
-              <div class="pay-flow-step">
-                <div class="pay-step-num">3</div>
-                <div class="pay-step-text">
-                  <strong>Owner Verifies &amp; Activates</strong>
-                  <span>Owner confirms payment receipt and immediately activates your listing LIVE!</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="pay-owner-box">
-              <div class="pay-owner-details">
-                <span class="pay-owner-tag">OFFICIAL PAYMENT CONTACT</span>
-                <span class="pay-owner-num">WhatsApp: +92 304 295 4627</span>
-                <span class="pay-owner-methods">JazzCash • EasyPaisa • Bank Transfer / IBAN • International Remittance (Wise, Western Union)</span>
-              </div>
-              <a class="btn-owner-whatsapp" href="https://wa.me/923042954627" target="_blank" rel="noopener">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                <span>Chat with Owner</span>
-              </a>
-            </div>
-          </div>
+          <!-- Hidden fallbacks for media, plan summary & notes so existing JavaScript functions work smoothly -->
+          <input type="file" id="regPhotos" name="regPhotos" style="display:none" multiple />
+          <div id="regPhotoPreview" style="display:none"></div>
+          <input type="file" id="regVideos" name="regVideos" style="display:none" multiple />
+          <div id="regVideoPreview" style="display:none"></div>
+          <p id="regMediaNote" style="display:none"></p>
+          <div id="regPlanSummary" style="display:none"></div>
 
           <label class="reg-terms">
             <input type="checkbox" id="regTerms" name="regTerms" />
-            <span>I confirm the details are correct and agree to contact the owner on WhatsApp to arrange payment. Listing details and media become live after manual payment verification by the owner.</span>
+            <span>I confirm the details are correct and will contact the owner on WhatsApp to arrange payment.</span>
           </label>
           <span class="field-error" id="regTermsErr"></span>
 
@@ -1603,200 +1474,152 @@
         <button class="reg-modal-close" type="button" id="subModalClose" aria-label="Close">&times;</button>
 
         <div class="reg-modal-head">
-          <span class="sub-modal-eyebrow">💎 Category Access Portal</span>
           <h3 class="reg-form-title-modal" id="subModalTitle">Subscription Plans</h3>
-          <p class="reg-modal-sub">Choose a duration, select your business category, and complete your payment. Once approved by the owner, your portal access becomes active.</p>
+          <p class="reg-modal-sub">Choose a duration, select your business category, and connect directly with the owner on WhatsApp to activate your access.</p>
         </div>
 
         <form class="reg-form sub-purchase-form" id="subPurchaseForm" novalidate>
           <!-- 1. Choose Plan -->
-          <h3 class="reg-form-title">1. Choose Your Plan</h3>
-          <div class="sub-plan-grid" id="subPlanGrid">
-            <button type="button" class="sub-plan-card" data-sub-plan="1-month" data-sub-price="2000" data-sub-label="1 Month">
-              <span class="sub-plan-badge">Standard</span>
-              <span class="sub-plan-name">1 Month</span>
-              <span class="sub-plan-price"><strong>$9 USD</strong> / 2,000 PKR</span>
-              <span class="sub-plan-desc">30 days category access</span>
+          <div class="reg-section-header">
+            <span class="reg-step-number">1</span>
+            <div>
+              <h4 class="reg-step-title">Choose Your Plan</h4>
+              <p class="reg-step-desc">Select access duration for your category portal</p>
+            </div>
+          </div>
+
+          <div class="plan-mini-grid" id="subPlanGrid">
+            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-month" data-sub-price="2000" data-sub-label="1 Month">
+              <span class="plan-mini-name">1 Month</span>
+              <span class="plan-mini-price"><strong>$9 USD</strong> / 2,000 PKR</span>
+              <span class="plan-mini-note">Standard • 30 Days</span>
             </button>
-            <button type="button" class="sub-plan-card featured selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
-              <span class="sub-plan-badge badge-popular">Popular</span>
-              <span class="sub-plan-name">3 Months</span>
-              <span class="sub-plan-price"><strong>$24 USD</strong> / 6,000 PKR</span>
-              <span class="sub-plan-desc">90 days category access</span>
+            <button type="button" class="plan-mini sub-plan-card featured selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
+              <span class="plan-mini-ribbon">Popular</span>
+              <span class="plan-mini-name">3 Months</span>
+              <span class="plan-mini-price"><strong>$24 USD</strong> / 6,000 PKR</span>
+              <span class="plan-mini-note">Regular • 90 Days</span>
             </button>
-            <button type="button" class="sub-plan-card" data-sub-plan="1-year" data-sub-price="20000" data-sub-label="Yearly">
-              <span class="sub-plan-badge badge-pro">Pro Value</span>
-              <span class="sub-plan-name">Yearly</span>
-              <span class="sub-plan-price"><strong>$69 USD</strong> / 20,000 PKR</span>
-              <span class="sub-plan-desc">365 days full access</span>
+            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-year" data-sub-price="20000" data-sub-label="Yearly">
+              <span class="plan-mini-ribbon best-deal">Best Value</span>
+              <span class="plan-mini-name">1 Year</span>
+              <span class="plan-mini-price"><strong>$69 USD</strong> / 20,000 PKR</span>
+              <span class="plan-mini-note">365 Days Access</span>
             </button>
           </div>
           <input type="hidden" id="subSelectedPlan" name="subSelectedPlan" value="3-month" />
 
-          <!-- 2. Select Category -->
-          <h3 class="reg-form-title">2. Select Business Category</h3>
-          <div class="field">
-            <label for="subCategorySelect">Category to Unlock <em>*</em></label>
-            <select id="subCategorySelect" name="subCategorySelect" required>
-              <option value="">Choose a category</option>
-              <option value="clinic">Clinic Management</option>
-              <option value="academy">Academy Management</option>
-              <option value="restaurant">Restaurant Management</option>
-              <option value="generalstore">General Store Management</option>
-              <option value="beautysalon">Beauty Salon Management</option>
-              <option value="petrolpump">Petrol Pump Management</option>
-              <option value="medicalstore">Medical Store Management</option>
-              <option value="laboratory">Laboratory Management</option>
-            </select>
-            <span class="field-error" id="subCategorySelectErr"></span>
+          <!-- 2. Category & Account Details -->
+          <div class="reg-section-header">
+            <span class="reg-step-number">2</span>
+            <div>
+              <h4 class="reg-step-title">Category &amp; Account Details</h4>
+              <p class="reg-step-desc">Enter your business category and primary account details</p>
+            </div>
           </div>
 
-          <!-- 3. Account Details -->
-          <h3 class="reg-form-title">3. Your Account Details</h3>
           <div class="reg-grid">
             <div class="field">
-              <label for="subFullName">Full Name <em>*</em></label>
+              <label for="subCategorySelect">Category to Unlock *</label>
+              <select id="subCategorySelect" name="subCategorySelect" required>
+                <option value="">Choose a category</option>
+                <option value="clinic">Clinic Management</option>
+                <option value="academy">Academy Management</option>
+                <option value="restaurant">Restaurant Management</option>
+                <option value="generalstore">General Store Management</option>
+                <option value="beautysalon">Beauty Salon Management</option>
+                <option value="petrolpump">Petrol Pump Management</option>
+                <option value="medicalstore">Medical Store Management</option>
+                <option value="laboratory">Laboratory Management</option>
+              </select>
+              <span class="field-error" id="subCategorySelectErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="subFullName">Full Name *</label>
               <input type="text" id="subFullName" name="subFullName" placeholder="Full Name" maxlength="60" required />
               <span class="field-error" id="subFullNameErr"></span>
             </div>
-            <div class="field">
-              <label for="subEmail">Email Address <em>*</em></label>
-              <input type="email" id="subEmail" name="subEmail" placeholder="Email Address" maxlength="80" autocomplete="email" required />
-              <span class="field-error" id="subEmailErr"></span>
-            </div>
           </div>
+
           <div class="reg-grid">
             <div class="field">
-              <label for="subAccountMobile">Account Mobile Number <em>*</em></label>
+              <label for="subEmail">Email Address *</label>
+              <input type="email" id="subEmail" name="subEmail" placeholder="name@business.com" maxlength="80" autocomplete="email" required />
+              <span class="field-error" id="subEmailErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="subAccountMobile">Mobile Number *</label>
               <div class="phone-input-group">
-                  <select id="subCountryCode" class="phone-country-select" aria-label="Country Code">
-                    <option value="+92" selected>ðŸ‡µðŸ‡° PK (+92)</option>
-                    <option value="+1">ðŸ‡ºðŸ‡¸ US (+1)</option>
-                    <option value="+44">ðŸ‡¬ðŸ‡§ UK (+44)</option>
-                    <option value="+971">ðŸ‡¦ðŸ‡ª UAE (+971)</option>
-                    <option value="+966">ðŸ‡¸ðŸ‡¦ SA (+966)</option>
-                    <option value="+91">ðŸ‡®ðŸ‡³ IN (+91)</option>
-                    <option value="+1">ðŸ‡¨ðŸ‡¦ CA (+1)</option>
-                    <option value="+61">ðŸ‡¦ðŸ‡º AU (+61)</option>
-                    <option value="+49">ðŸ‡©ðŸ‡ª DE (+49)</option>
-                    <option value="+33">ðŸ‡«ðŸ‡· FR (+33)</option>
-                    <option value="+86">ðŸ‡¨ðŸ‡³ CN (+86)</option>
-                    <option value="+90">ðŸ‡¹ðŸ‡· TR (+90)</option>
-                    <option value="+60">ðŸ‡²ðŸ‡¾ MY (+60)</option>
-                    <option value="+65">ðŸ‡¸ðŸ‡¬ SG (+65)</option>
-                    <option value="+974">ðŸ‡¶ðŸ‡¦ QA (+974)</option>
-                    <option value="+968">ðŸ‡´ðŸ‡² OM (+968)</option>
-                    <option value="+965">ðŸ‡°ðŸ‡¼ KW (+965)</option>
-                    <option value="+973">ðŸ‡§ðŸ‡­ BH (+973)</option>
-                    <option value="+880">ðŸ‡§ðŸ‡© BD (+880)</option>
-                    <option value="+93">ðŸ‡¦ðŸ‡« AF (+93)</option>
-                    <option value="+20">ðŸ‡ªðŸ‡¬ EG (+20)</option>
-                    <option value="+27">ðŸ‡¿ðŸ‡¦ ZA (+27)</option>
-                    <option value="+34">ðŸ‡ªðŸ‡¸ ES (+34)</option>
-                    <option value="+39">ðŸ‡®ðŸ‡¹ IT (+39)</option>
-                    <option value="+81">ðŸ‡¯ðŸ‡µ JP (+81)</option>
-                    <option value="+82">ðŸ‡°ðŸ‡· KR (+82)</option>
-                    <option value="+7">ðŸ‡·ðŸ‡º RU (+7)</option>
-                    <option value="+55">ðŸ‡§ðŸ‡· BR (+55)</option>
-                    <option value="+52">ðŸ‡²ðŸ‡½ MX (+52)</option>
-                    <option value="+62">ðŸ‡®ðŸ‡© ID (+62)</option>
-                    <option value="+63">ðŸ‡µðŸ‡­ PH (+63)</option>
-                    <option value="+234">ðŸ‡³ðŸ‡¬ NG (+234)</option>
-                    <option value="+254">ðŸ‡°ðŸ‡ª KE (+254)</option>
-                  </select>
-                <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="Mobile Number" maxlength="20" inputmode="numeric" required />
+                <select id="subCountryCode" class="phone-country-select" aria-label="Country Code">
+                  <option value="+92" selected>PK (+92)</option>
+                  <option value="+1">US (+1)</option>
+                  <option value="+44">UK (+44)</option>
+                  <option value="+971">UAE (+971)</option>
+                  <option value="+966">SA (+966)</option>
+                  <option value="+91">IN (+91)</option>
+                  <option value="+1">CA (+1)</option>
+                  <option value="+61">AU (+61)</option>
+                  <option value="+49">DE (+49)</option>
+                  <option value="+33">FR (+33)</option>
+                  <option value="+86">CN (+86)</option>
+                  <option value="+90">TR (+90)</option>
+                  <option value="+60">MY (+60)</option>
+                  <option value="+65">SG (+65)</option>
+                  <option value="+974">QA (+974)</option>
+                  <option value="+968">OM (+968)</option>
+                  <option value="+965">KW (+965)</option>
+                  <option value="+973">BH (+973)</option>
+                  <option value="+880">BD (+880)</option>
+                  <option value="+93">AF (+93)</option>
+                  <option value="+20">EG (+20)</option>
+                  <option value="+27">ZA (+27)</option>
+                  <option value="+34">ES (+34)</option>
+                  <option value="+39">IT (+39)</option>
+                  <option value="+81">JP (+81)</option>
+                  <option value="+82">KR (+82)</option>
+                  <option value="+7">RU (+7)</option>
+                  <option value="+55">BR (+55)</option>
+                  <option value="+52">MX (+52)</option>
+                  <option value="+62">ID (+62)</option>
+                  <option value="+63">PH (+63)</option>
+                  <option value="+234">NG (+234)</option>
+                  <option value="+254">KE (+254)</option>
+                </select>
+                <input type="tel" id="subAccountMobile" name="subAccountMobile" placeholder="3012345678" maxlength="20" inputmode="numeric" required />
               </div>
               <span class="field-error" id="subAccountMobileErr"></span>
             </div>
-            <div class="field">
-              <label for="subCityName">City <em>*</em></label>
-              <input type="text" id="subCityName" name="subCityName" placeholder="City" maxlength="40" required />
-              <span class="field-error" id="subCityNameErr"></span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="subPassword">Create Password <em>*</em></label>
-            <input type="text" id="subPassword" name="subPassword" placeholder="Min 8 characters" maxlength="64" required />
-            <span class="field-error" id="subPasswordErr"></span>
           </div>
 
-          <!-- 4. Payment Method -->
-          <h3 class="reg-form-title">4. Payment Method</h3>
-          <div class="sub-payment-method-selector">
-            <button type="button" class="sub-pay-tab is-active" data-pay-method="card">
-              <span class="sub-pay-icon">&#128179;</span>
-              <span class="sub-pay-label">Card / PayPal</span>
-              <span class="sub-pay-sub">Visa, MC, PayPal</span>
-            </button>
-            <button type="button" class="sub-pay-tab" data-pay-method="bank">
-              <span class="sub-pay-icon">&#127974;</span>
-              <span class="sub-pay-label">Bank Wire / SWIFT</span>
-              <span class="sub-pay-sub">International IBAN</span>
-            </button>
-            <button type="button" class="sub-pay-tab" data-pay-method="wallet">
-              <span class="sub-pay-icon">&#128241;</span>
-              <span class="sub-pay-label">Mobile Wallet</span>
-              <span class="sub-pay-sub">JazzCash / Raast</span>
-            </button>
-          </div>
-
-          <div class="sub-jazzcash-box" id="subPaymentDetailsBox">
-            <div class="sub-jazzcash-head">
-              <span class="sub-jazzcash-icon" id="subPayIcon">&#128179;</span>
-              <div>
-                <strong id="subPayTitle">Credit / Debit Card &amp; Online Checkout</strong>
-                <p id="subPayDesc">Pay securely worldwide using Visa, MasterCard, Amex, Apple Pay, Google Pay or PayPal.</p>
-              </div>
-            </div>
-            <div class="sub-jazzcash-details">
-              <div class="sub-jc-col">
-                <span class="sub-jc-label">Payment Channel / Account</span>
-                <strong class="sub-jc-value" id="subPayAccount">Global Online Card Terminal</strong>
-              </div>
-              <div class="sub-jc-col">
-                <span class="sub-jc-label">Account Beneficiary</span>
-                <strong class="sub-jc-value">Amna Bibi / OpenMarket SaaS</strong>
-              </div>
-              <div class="sub-jc-col">
-                <span class="sub-jc-label">Amount Due</span>
-                <strong class="sub-jc-value sub-jc-amount" id="subAmountDue"> USD / PKR 6,000</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5. Payment Verification Fields -->
           <div class="reg-grid">
             <div class="field">
-              <label for="subPayerMobile">Sender Contact / Mobile / Account ID <em>*</em></label>
-              <input type="text" id="subPayerMobile" name="subPayerMobile" placeholder="Sender phone or email" maxlength="60" required />
-              <span class="field-error" id="subPayerMobileErr"></span>
+              <label for="subCityName">City &amp; Country *</label>
+              <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
+              <span class="field-error" id="subCityNameErr"></span>
             </div>
+
             <div class="field">
-              <label for="subTxId">Transaction Reference / Receipt ID <em>*</em></label>
-              <input type="text" id="subTxId" name="subTxId" placeholder="Card Ref, Wire TID or Receipt #" maxlength="60" required />
-              <span class="field-error" id="subTxIdErr"></span>
+              <label for="subPassword">Create Password *</label>
+              <input type="password" id="subPassword" name="subPassword" placeholder="Min 8 characters" maxlength="64" required />
+              <span class="field-error" id="subPasswordErr"></span>
             </div>
           </div>
 
-          <div class="sub-approval-notice">
-            <span class="sub-notice-icon">&#9203;</span>
-            <div>
-              <strong>Instant Global Verification:</strong>
-              <p>Your payment confirmation is processed securely. Once validated, your cloud enterprise subscription activates automatically worldwide.</p>
-            </div>
-          </div>
+          <!-- Hidden fallbacks for payment verification fields so JS / DB stay 100% compatible -->
+          <input type="hidden" id="subPayerMobile" name="subPayerMobile" value="WhatsApp Direct" />
+          <input type="hidden" id="subTxId" name="subTxId" value="Pending WhatsApp Verification" />
+          <div id="subPaymentDetailsBox" style="display:none"></div>
+          <strong id="subAmountDue" style="display:none"></strong>
 
-          <div class="sub-direct-owner-help">
-            <div class="sub-owner-badge">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-              <span>Instant Verification Support:</span>
-            </div>
-            <a href="https://wa.me/923042954627" target="_blank" rel="noopener" class="sub-help-wa-btn">
-              Chat with Owner (+92 304 295 4627)
-            </a>
-          </div>
+          <label class="reg-terms">
+            <input type="checkbox" id="subTerms" name="subTerms" checked />
+            <span>I confirm the details are correct and will contact the owner on WhatsApp to arrange payment and activate access.</span>
+          </label>
+          <span class="field-error" id="subTermsErr"></span>
 
-          <div class="reg-actions sub-reg-actions">
+          <div class="reg-actions sub-reg-actions" style="margin-top: 1.2rem;">
             <button type="submit" class="btn btn-primary btn-lg sub-submit-btn-premium" id="subSubmitBtn">
               <span class="sub-btn-text">Submit Request &amp; Connect on WhatsApp ($24 USD / PKR 6,000)</span>
               <svg class="sub-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -2071,7 +1894,6 @@
                     autocomplete="new-password"
                     required
                   >
-                  <button type="button" class="input-icon-btn" id="toggleSignupPass" aria-label="Toggle password visibility">👁️</button>
                 </div>
               </div>
 
@@ -2086,12 +1908,7 @@
             <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
 
             <div class="signup-modal-footer">
-              <p class="legal-copy">
-                By continuing, you agree to our <a href="#terms" id="openTermsLink">Terms of Service</a>
-                and <a href="#privacy" id="openPrivacyLink">Privacy Policy</a>.
-              </p>
-
-              <p class="modal-switch-text">
+              <p class="modal-switch-text" style="border-top: none; padding-top: 0;">
                 Already have an account? <a href="#" id="toggleToPasswordLogin">Log in with password</a>
               </p>
             </div>
@@ -2130,7 +1947,6 @@
                     autocomplete="current-password"
                     required
                   >
-                  <button type="button" class="input-icon-btn" id="toggleLoginPass" aria-label="Toggle password visibility">👁️</button>
                 </div>
               </div>
 
@@ -2596,7 +2412,7 @@
             </div>
             <div class="field">
               <label for="ceoSetupMobile">Mobile Number</label>
-              <input type="tel" id="ceoSetupMobile" placeholder="e.g. +1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
+              <input type="tel" id="ceoSetupMobile" placeholder="+1 555 0199 or 03001234567" inputmode="numeric" maxlength="20" autocomplete="tel" />
               <span class="field-error" id="ceoErrSetupMobile"></span>
             </div>
             <div class="field">
@@ -2719,7 +2535,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261103SubPortalPro"></script>
+  <script src="script.js?v=20261104CleanRegInputs"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

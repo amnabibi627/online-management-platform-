@@ -7425,3 +7425,27 @@ body {
     padding: 0.85rem 1rem !important;
   }
 }
+
+
+/* Streamlined mini cards for subscription modal (Run Ads style) */
+.plan-mini.sub-plan-card {
+  text-align: left !important;
+  align-items: flex-start !important;
+  border-radius: 14px !important;
+  padding: 1rem 0.9rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.2rem !important;
+}
+
+.plan-mini.sub-plan-card:hover {
+  border-color: rgba(255, 143, 4, 0.6) !important;
+  transform: translateY(-2px) !important;
+}
+
+.plan-mini.sub-plan-card.selected {
+  border-color: var(--pink) !important;
+  border-width: 2px !important;
+  background: #f7f9fc !important;
+  box-shadow: 0 0 0 3px rgba(255, 143, 4, 0.2) !important;
+}

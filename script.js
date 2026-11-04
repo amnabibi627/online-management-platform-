@@ -5705,21 +5705,23 @@ const subSubmitBtn = document.getElementById("subSubmitBtn");
 const subPlanCards = document.querySelectorAll(".sub-plan-card");
 
 const SUB_PRICES = {
-  "1-month": { label: "1 Month", price: 2000, priceUsd: 9, months: 1 },
-  "3-month": { label: "3 Months", price: 6000, priceUsd: 24, months: 3 },
-  "1-year": { label: "Yearly", price: 20000, priceUsd: 69, months: 12 }
+  "1-month": { label: "1 Month", price: 2800, priceUsd: 10, months: 1 },
+  "3-month": { label: "3 Month", price: 8400, priceUsd: 30, months: 3 },
+  "6-month": { label: "6 Month", price: 16800, priceUsd: 60, months: 6 },
+  "12-month": { label: "12 Month", price: 33600, priceUsd: 120, months: 12 }
 };
 
 const selectSubPlan = (planId) => {
   const p = SUB_PRICES[planId] || SUB_PRICES["3-month"];
   if (subSelectedPlanInput) subSelectedPlanInput.value = planId;
-  subPlanCards.forEach((c) => {
+  const cards = document.querySelectorAll(".sub-plan-card");
+  cards.forEach((c) => {
     c.classList.toggle("selected", c.dataset.subPlan === planId);
   });
-  if (subAmountDue) subAmountDue.textContent = `$${p.priceUsd} USD / PKR ${p.price.toLocaleString()}`;
+  if (subAmountDue) subAmountDue.textContent = `$ ${p.priceUsd}`;
   if (subSubmitBtn) {
     subSubmitBtn.innerHTML = `
-      <span class="sub-btn-text">Submit Request &amp; Connect on WhatsApp ($${p.priceUsd} USD / PKR ${p.price.toLocaleString()})</span>
+      <span class="sub-btn-text">Submit Form &amp; Contact on WhatsApp ($ ${p.priceUsd})</span>
       <svg class="sub-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"></line>
         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -5824,30 +5826,13 @@ if (subPurchaseForm) {
       if (msg) valid = false;
     };
 
-    setErr("subCategorySelectErr", category ? "" : "Please select a business category.");
-    const subBizNameEl = document.getElementById("subBizName");
-    if (subBizNameEl && subBizNameEl.type !== "hidden") {
-      setErr("subBizNameErr", bizName.length >= 2 ? "" : "Enter your business / company name.");
-    }
-    setErr("subFullNameErr", name.length >= 3 ? "" : "Enter owner / contact person name.");
-    setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address.");
-    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Enter a valid mobile phone number.");
-    setErr("subCityNameErr", city.length >= 2 ? "" : "Enter your city / country.");
-    const subPasswordEl = document.getElementById("subPassword");
-    if (subPasswordEl && subPasswordEl.type !== "hidden") {
-      setErr("subPasswordErr", password.length >= 8 ? "" : "Create a password of at least 8 characters.");
-    }
-    const subTerms = document.getElementById("subTerms");
-    if (subTerms && !subTerms.checked) {
-      setErr("subTermsErr", "Please confirm details before continuing.");
-    }
-    const payerMobileEl = document.getElementById("subPayerMobile");
-    if (payerMobileEl && payerMobileEl.type !== "hidden") {
-      setErr("subPayerMobileErr", (payerMobile.length >= 4) ? "" : "Enter sender phone, email or account identifier.");
-    }
-    const txIdEl = document.getElementById("subTxId");
-    if (txIdEl && txIdEl.type !== "hidden") {
-      setErr("subTxIdErr", txId.length >= 4 ? "" : "Enter transaction reference ID or receipt # (min 4 characters).");
+    setErr("subFullNameErr", name.length >= 2 ? "" : "Please enter your name.");
+    setErr("subAccountMobileErr", MOBILE_RE.test(mobile) ? "" : "Please enter a valid phone number.");
+    setErr("subCityNameErr", city.length >= 2 ? "" : "Please enter your country.");
+    setErr("subCategorySelectErr", category ? "" : "Please select a category.");
+    const emailEl = document.getElementById("subEmail");
+    if (emailEl && emailEl.type !== "hidden") {
+      setErr("subEmailErr", EMAIL_RE.test(email) ? "" : "Enter a valid email address.");
     }
 
     if (!valid) {
@@ -5924,17 +5909,15 @@ if (subPurchaseForm) {
     const categoryName = subCategorySelect?.selectedOptions[0]?.text || category;
 
     const waText = encodeURIComponent(
-      `💎 *CATEGORY PORTAL SUBSCRIPTION REQUEST* 💎\n` +
+      `💎 *SUBSCRIPTION PLAN REQUEST* 💎\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
-      `🆔 *Ref ID:* ${reqData.id}\n` +
-      `📂 *Category to Unlock:* ${categoryName}\n` +
-      `📅 *Plan Selected:* ${plan.label} ($${plan.priceUsd || 24} USD / PKR ${plan.price.toLocaleString()})\n` +
+      `📅 *Plan:* ${plan.label} ($ ${plan.priceUsd})\n` +
       `👤 *Name:* ${name}\n` +
-      `📧 *Email:* ${email}\n` +
-      `📞 *Account Mobile:* ${mobile}\n` +
-      `📍 *City:* ${city}\n` +
+      `📞 *Number:* ${mobile}\n` +
+      `🌍 *Country:* ${city}\n` +
+      `📂 *Category:* ${categoryName}\n` +
       `━━━━━━━━━━━━━━━━━━━━\n` +
-      `Assalam o Alaikum! I have submitted my category portal subscription request. Please share your payment details (JazzCash / EasyPaisa / Bank Transfer / Remittance) so I can make the payment and get my access activated.\nThank you!`
+      `Assalam o Alaikum! I have submitted my subscription form. Please share your payment details so I can make the payment and activate my category portal access.\nThank you!`
     );
     window.open(`https://wa.me/923042954627?text=${waText}`, "_blank", "noopener");
 

@@ -7453,3 +7453,15 @@ body {
   background: #f7f9fc !important;
   box-shadow: 0 0 0 3px rgba(255, 143, 4, 0.18) !important;
 }
+
+.sub-plans-4grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 1.1rem;
+}
+@media (max-width: 600px) {
+  .sub-plans-4grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

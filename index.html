@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104NoBizName" />
+  <link rel="stylesheet" href="styles.css?v=20261104Sub4Plans" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1433,64 +1433,40 @@
       <div class="reg-modal-box subscription-modal-box" role="dialog" aria-modal="true" aria-labelledby="subModalTitle">
         <button class="reg-modal-close" type="button" id="subModalClose" aria-label="Close">&times;</button>
 
-        <div class="reg-modal-head">
-          <h3 class="reg-form-title-modal" id="subModalTitle">Subscription Plans</h3>
-          <p class="reg-modal-sub">Choose a duration, select your business category, and connect directly with the owner on WhatsApp to activate your access.</p>
+        <div class="reg-modal-head" style="text-align: center;">
+          <h3 class="reg-form-title-modal" id="subModalTitle" style="text-align: center; margin-bottom: 0;">Subscription Plans</h3>
         </div>
 
         <form class="reg-form sub-purchase-form" id="subPurchaseForm" novalidate>
-          <div class="plan-mini-grid" id="subPlanGrid" style="margin-bottom: 0.85rem;">
-            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-month" data-sub-price="2000" data-sub-label="1 Month">
+          <div class="sub-plans-4grid" id="subPlanGrid">
+            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-month" data-sub-price="10" data-sub-label="1 Month">
               <span class="plan-mini-name">1 Month</span>
-              <span class="plan-mini-price"><strong>2,000 PKR</strong> ($9 USD)</span>
+              <span class="plan-mini-price"><strong>$ 10</strong></span>
             </button>
-            <button type="button" class="plan-mini sub-plan-card selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
-              <span class="plan-mini-name">3 Months</span>
-              <span class="plan-mini-price"><strong>6,000 PKR</strong> ($24 USD)</span>
+            <button type="button" class="plan-mini sub-plan-card selected" data-sub-plan="3-month" data-sub-price="30" data-sub-label="3 Month">
+              <span class="plan-mini-name">3 Month</span>
+              <span class="plan-mini-price"><strong>$ 30</strong></span>
             </button>
-            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-year" data-sub-price="20000" data-sub-label="Yearly">
-              <span class="plan-mini-name">1 Year</span>
-              <span class="plan-mini-price"><strong>20,000 PKR</strong> ($69 USD)</span>
+            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="6-month" data-sub-price="60" data-sub-label="6 Month">
+              <span class="plan-mini-name">6 Month</span>
+              <span class="plan-mini-price"><strong>$ 60</strong></span>
+            </button>
+            <button type="button" class="plan-mini sub-plan-card" data-sub-plan="12-month" data-sub-price="120" data-sub-label="12 Month">
+              <span class="plan-mini-name">12 Month</span>
+              <span class="plan-mini-price"><strong>$ 120</strong></span>
             </button>
           </div>
           <input type="hidden" id="subSelectedPlan" name="subSelectedPlan" value="3-month" />
 
           <div class="reg-grid">
             <div class="field">
-              <label for="subCategorySelect">Category to Unlock *</label>
-              <select id="subCategorySelect" name="subCategorySelect" required>
-                <option value="">Select a category</option>
-                <option value="clinic">Clinic &amp; Healthcare</option>
-                <option value="academy">Academy &amp; Education</option>
-                <option value="restaurant">Restaurant &amp; Food</option>
-                <option value="generalstore">General &amp; Retail Store</option>
-                <option value="beautysalon">Beauty Salon &amp; Spa</option>
-                <option value="petrolpump">Petrol Pump &amp; Energy</option>
-                <option value="medicalstore">Pharmacy &amp; Medical Store</option>
-                <option value="laboratory">Laboratory &amp; Diagnostics</option>
-                <option value="realestate">Real Estate &amp; Property</option>
-                <option value="software">Software &amp; Digital Services</option>
-                <option value="other">Other Business</option>
-              </select>
-              <span class="field-error" id="subCategorySelectErr"></span>
-            </div>
-
-            <div class="field">
-              <label for="subFullName">Full Name *</label>
-              <input type="text" id="subFullName" name="subFullName" placeholder="Full Name" maxlength="50" required />
+              <label for="subFullName">Name *</label>
+              <input type="text" id="subFullName" name="subFullName" placeholder="Your Name" maxlength="50" required />
               <span class="field-error" id="subFullNameErr"></span>
             </div>
-          </div>
-
-          <div class="reg-grid">
-            <div class="field">
-              <label for="subEmail">Email Address *</label>
-              <input type="email" id="subEmail" name="subEmail" placeholder="contact@business.com" maxlength="80" autocomplete="email" required />
-              <span class="field-error" id="subEmailErr"></span>
-            </div>
 
             <div class="field">
-              <label for="subAccountMobile">Mobile Number *</label>
+              <label for="subAccountMobile">Number *</label>
               <div class="phone-input-group">
                 <select id="subCountryCode" class="phone-country-select" aria-label="Country Code">
                   <option value="+92" selected>🇵🇰 PK (+92)</option>
@@ -1533,33 +1509,45 @@
             </div>
           </div>
 
-          <div class="field" style="margin-bottom: 0.85rem;">
-            <label for="subCityName">City &amp; Country *</label>
-            <input type="text" id="subCityName" name="subCityName" placeholder="Lahore, Pakistan or London, UK" maxlength="50" required />
-            <span class="field-error" id="subCityNameErr"></span>
+          <div class="reg-grid">
+            <div class="field">
+              <label for="subCityName">Country *</label>
+              <input type="text" id="subCityName" name="subCityName" placeholder="Your Country" maxlength="50" required />
+              <span class="field-error" id="subCityNameErr"></span>
+            </div>
+
+            <div class="field">
+              <label for="subCategorySelect">Select Category *</label>
+              <select id="subCategorySelect" name="subCategorySelect" required>
+                <option value="">Select Category</option>
+                <option value="clinic">Clinic &amp; Healthcare</option>
+                <option value="academy">Academy &amp; Education</option>
+                <option value="restaurant">Restaurant &amp; Food</option>
+                <option value="generalstore">General &amp; Retail Store</option>
+                <option value="beautysalon">Beauty Salon &amp; Spa</option>
+                <option value="petrolpump">Petrol Pump &amp; Energy</option>
+                <option value="medicalstore">Pharmacy &amp; Medical Store</option>
+                <option value="laboratory">Laboratory &amp; Diagnostics</option>
+                <option value="realestate">Real Estate &amp; Property</option>
+                <option value="software">Software &amp; Digital Services</option>
+                <option value="other">Other Business</option>
+              </select>
+              <span class="field-error" id="subCategorySelectErr"></span>
+            </div>
           </div>
 
-          <!-- Hidden fallback for subBizName & subPassword -->
+          <!-- Hidden fallbacks for backward compatibility -->
+          <input type="hidden" id="subEmail" name="subEmail" value="" />
           <input type="hidden" id="subBizName" name="subBizName" value="" />
-          <span class="field-error" id="subBizNameErr" style="display:none"></span>
           <input type="hidden" id="subPassword" name="subPassword" value="" />
-          <span class="field-error" id="subPasswordErr" style="display:none"></span>
-
-          <!-- Hidden fallbacks for payment verification fields so JS / DB stay 100% compatible -->
           <input type="hidden" id="subPayerMobile" name="subPayerMobile" value="WhatsApp Direct" />
           <input type="hidden" id="subTxId" name="subTxId" value="Pending WhatsApp Verification" />
           <div id="subPaymentDetailsBox" style="display:none"></div>
           <strong id="subAmountDue" style="display:none"></strong>
 
-          <label class="reg-terms">
-            <input type="checkbox" id="subTerms" name="subTerms" checked />
-            <span>I confirm the details are correct and will contact the owner on WhatsApp to arrange payment and activate access.</span>
-          </label>
-          <span class="field-error" id="subTermsErr"></span>
-
           <div class="reg-actions sub-reg-actions" style="margin-top: 1.2rem;">
             <button type="submit" class="btn btn-primary btn-lg sub-submit-btn-premium" id="subSubmitBtn">
-              <span class="sub-btn-text">Submit Request &amp; Connect on WhatsApp ($24 USD / PKR 6,000)</span>
+              <span class="sub-btn-text">Submit Form &amp; Contact on WhatsApp ($ 30)</span>
               <svg class="sub-btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -2473,7 +2461,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104NoBizName"></script>
+  <script src="script.js?v=20261104Sub4Plans"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

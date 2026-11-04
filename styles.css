@@ -7373,31 +7373,32 @@ body {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 0.65rem !important;
-  background: linear-gradient(135deg, #ff8f04 0%, #ff5500 100%) !important;
+  gap: 0.7rem !important;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
   color: #ffffff !important;
   border: 0 !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
   padding: 0.95rem 1.4rem !important;
   font-family: inherit !important;
-  font-size: 0.95rem !important;
-  font-weight: 800 !important;
+  font-size: 0.98rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px !important;
   cursor: pointer !important;
-  box-shadow: 0 8px 24px rgba(255, 143, 4, 0.35) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.32) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative !important;
   overflow: hidden !important;
 }
 
 .sub-submit-btn-premium:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 12px 28px rgba(255, 143, 4, 0.45) !important;
-  background: linear-gradient(135deg, #ffa024 0%, #ff6214 100%) !important;
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.45) !important;
+  background: linear-gradient(135deg, #2be16e 0%, #0f7a6e 100%) !important;
 }
 
 .sub-submit-btn-premium:active {
   transform: translateY(1px) scale(0.99) !important;
-  box-shadow: 0 4px 14px rgba(255, 143, 4, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28) !important;
 }
 
 .sub-submit-btn-premium:disabled {
@@ -7412,7 +7413,7 @@ body {
 }
 
 .sub-submit-btn-premium:hover .sub-btn-icon {
-  transform: translateX(3px) translateY(-2px);
+  transform: scale(1.12);
 }
 
 @media (max-width: 640px) {

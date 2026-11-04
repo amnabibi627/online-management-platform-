@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104CleanRegInputs" />
+  <link rel="stylesheet" href="styles.css?v=20261104SuperCleanPlan" />
   <style id="signup-modal-styles">
     /* =========================================================
        ACTIVE GLOBAL SIGNUP MODAL CARD (Guaranteed Fresh Styles)
@@ -1279,44 +1279,21 @@
         </div>
 
         <form class="reg-form" id="regForm" novalidate>
-          <!-- Step 1: Promotion Plan -->
-          <div class="reg-section-header">
-            <span class="reg-step-number">1</span>
-            <div>
-              <h4 class="reg-step-title">Choose Promotion Plan</h4>
-              <p class="reg-step-desc">Select how long your business listing stays featured &amp; active worldwide</p>
-            </div>
-          </div>
-
-          <div class="plan-mini-grid" id="planGrid">
+          <div class="plan-mini-grid" id="planGrid" style="margin-bottom: 0.85rem;">
             <button type="button" class="plan-mini" data-plan="15days" data-price="2500" data-label="15 Days">
               <span class="plan-mini-name">15 Days</span>
-              <span class="plan-mini-price"><strong>2,500</strong> PKR</span>
-              <span class="plan-mini-note">Short run • ~$9 USD</span>
+              <span class="plan-mini-price"><strong>2,500 PKR</strong></span>
             </button>
-            <button type="button" class="plan-mini featured" data-plan="30days" data-price="5000" data-label="30 Days">
-              <span class="plan-mini-ribbon">Popular</span>
+            <button type="button" class="plan-mini selected" data-plan="30days" data-price="5000" data-label="30 Days">
               <span class="plan-mini-name">30 Days</span>
-              <span class="plan-mini-price"><strong>5,000</strong> PKR</span>
-              <span class="plan-mini-note">Best for regular ads • ~$18 USD</span>
+              <span class="plan-mini-price"><strong>5,000 PKR</strong></span>
             </button>
             <button type="button" class="plan-mini" data-plan="1year" data-price="60000" data-label="1 Year">
-              <span class="plan-mini-ribbon best-deal">Best Value</span>
               <span class="plan-mini-name">1 Year</span>
-              <span class="plan-mini-price"><strong>60,000</strong> PKR</span>
-              <span class="plan-mini-note">365 Days • ~$215 USD</span>
+              <span class="plan-mini-price"><strong>60,000 PKR</strong></span>
             </button>
           </div>
           <span class="field-error" id="regPlanErr"></span>
-
-          <!-- Step 2: Business & Contact Details -->
-          <div class="reg-section-header">
-            <span class="reg-step-number">2</span>
-            <div>
-              <h4 class="reg-step-title">Business &amp; Contact Details</h4>
-              <p class="reg-step-desc">Enter your business information and primary phone number</p>
-            </div>
-          </div>
 
           <div class="reg-grid">
             <div class="field">
@@ -1479,44 +1456,21 @@
         </div>
 
         <form class="reg-form sub-purchase-form" id="subPurchaseForm" novalidate>
-          <!-- 1. Choose Plan -->
-          <div class="reg-section-header">
-            <span class="reg-step-number">1</span>
-            <div>
-              <h4 class="reg-step-title">Choose Your Plan</h4>
-              <p class="reg-step-desc">Select access duration for your category portal</p>
-            </div>
-          </div>
-
-          <div class="plan-mini-grid" id="subPlanGrid">
+          <div class="plan-mini-grid" id="subPlanGrid" style="margin-bottom: 0.85rem;">
             <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-month" data-sub-price="2000" data-sub-label="1 Month">
               <span class="plan-mini-name">1 Month</span>
-              <span class="plan-mini-price"><strong>$9 USD</strong> / 2,000 PKR</span>
-              <span class="plan-mini-note">Standard • 30 Days</span>
+              <span class="plan-mini-price"><strong>2,000 PKR</strong> ($9 USD)</span>
             </button>
-            <button type="button" class="plan-mini sub-plan-card featured selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
-              <span class="plan-mini-ribbon">Popular</span>
+            <button type="button" class="plan-mini sub-plan-card selected" data-sub-plan="3-month" data-sub-price="6000" data-sub-label="3 Months">
               <span class="plan-mini-name">3 Months</span>
-              <span class="plan-mini-price"><strong>$24 USD</strong> / 6,000 PKR</span>
-              <span class="plan-mini-note">Regular • 90 Days</span>
+              <span class="plan-mini-price"><strong>6,000 PKR</strong> ($24 USD)</span>
             </button>
             <button type="button" class="plan-mini sub-plan-card" data-sub-plan="1-year" data-sub-price="20000" data-sub-label="Yearly">
-              <span class="plan-mini-ribbon best-deal">Best Value</span>
               <span class="plan-mini-name">1 Year</span>
-              <span class="plan-mini-price"><strong>$69 USD</strong> / 20,000 PKR</span>
-              <span class="plan-mini-note">365 Days Access</span>
+              <span class="plan-mini-price"><strong>20,000 PKR</strong> ($69 USD)</span>
             </button>
           </div>
           <input type="hidden" id="subSelectedPlan" name="subSelectedPlan" value="3-month" />
-
-          <!-- 2. Category & Account Details -->
-          <div class="reg-section-header">
-            <span class="reg-step-number">2</span>
-            <div>
-              <h4 class="reg-step-title">Category &amp; Account Details</h4>
-              <p class="reg-step-desc">Enter your business category and primary account details</p>
-            </div>
-          </div>
 
           <div class="reg-grid">
             <div class="field">
@@ -2531,7 +2485,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="feature-registry.js?v=20261023K"></script>
-  <script src="script.js?v=20261104NoSubPass"></script>
+  <script src="script.js?v=20261104SuperCleanPlan"></script>
   <script src="liveads.js?v=20261101WorldReady"></script>
   <script src="ui.js?v=20261023H"></script>
 

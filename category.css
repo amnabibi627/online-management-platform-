@@ -2000,7 +2000,8 @@ body.saas-sidebar-locked {
 .saas-workspace-content .category-workspace-table-wrap {
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  overflow: hidden;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 .saas-workspace-content .category-workspace-table thead th {
@@ -2023,10 +2024,11 @@ body.saas-sidebar-locked {
   background: #f8fafc;
 }
 .saas-workspace-content .category-row-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.45rem;
+  text-align: right !important;
+  white-space: nowrap !important;
+  min-width: 190px !important;
+  width: 190px !important;
+  vertical-align: middle !important;
 }
 
 /* ============================================================

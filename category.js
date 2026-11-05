@@ -1801,6 +1801,7 @@ const categoryRenderList = () => {
     categoryFeature = categoryFeatureDef(CURRENT.features[0].id);
   }
   if (!categoryFeature) return;
+  categoryEditId = null;
   const content = document.getElementById("categoryWorkspaceContent");
   renderSaasNav();
   renderSaasAnalytics();
@@ -1965,7 +1966,7 @@ const categoryRenderList = () => {
                   <span class="cat-sort-indicator">${categorySortCol === '__date' ? (categorySortDir === 'asc' ? ' ▲' : ' ▼') : ' <span class="cat-sort-idle">↕</span>'}</span>
                 </span>
               </th>
-              <th style="text-align: right;">Actions</th>
+              <th style="text-align: right; min-width: 190px; width: 190px;">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -2055,6 +2056,7 @@ const categoryRenderForm = (itemId = null) => {
       <div class="category-record-fields">${fieldsHtml}</div>
       <p class="category-auth-error" role="alert"></p>
       <div class="category-form-actions">
+        ${itemId ? `<button type="button" class="btn btn-outline" data-tool-trash="${categoryEscape(itemId)}" style="margin-right:auto; color:#dc2626; border-color:#fecaca; background:#fff5f5; font-weight:700;">🗑️ Delete Record</button>` : ''}
         <button type="button" class="btn btn-outline" data-tool-back>Cancel</button>
         <button type="submit" class="btn btn-primary" ${categoryBusy ? "disabled" : ""}>${categoryBusy ? "Saving…" : (itemId ? "Save Changes" : "Create Record")}</button>
       </div>
@@ -2478,7 +2480,10 @@ const initCategoryTools = async () => {
     }
     const trash = event.target.closest("[data-tool-trash]");
     if (trash && categoryFeature) {
-      categoryMoveToTrash(categoryFeature.id, trash.dataset.toolTrash);
+      const idToTrash = trash.dataset.toolTrash;
+      if (confirm("Are you sure you want to delete this record? It can be restored anytime from the Recycle Bin.")) {
+        categoryMoveToTrash(categoryFeature.id, idToTrash);
+      }
       return;
     }
     const restore = event.target.closest("[data-tool-restore]");

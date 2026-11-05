@@ -491,6 +491,12 @@ body[data-category] .header-actions { gap: 0.6rem; }
   background: #fff; box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
 }
 
+.category-auth-panel:not(.is-profile-view) {
+  width: min(460px, 94vw) !important;
+  padding: 32px 28px 24px !important;
+  border-radius: 20px !important;
+}
+
 .category-workspace-close {
   position: absolute; top: 1.2rem; right: 1.3rem; width: 42px; height: 42px;
   border: 1px solid #e2e8f0; border-radius: 50%; color: #475569; background: #f8fafc;

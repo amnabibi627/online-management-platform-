@@ -739,100 +739,150 @@ const showCategoryTrialModal = (viewMode = "overview") => {
   }
 
   if (panel) panel.classList.remove("is-profile-view");
+  const isLogin = viewMode === "login";
   content.innerHTML = `
-    <div style="text-align:center; margin-bottom:1.25rem;">
-      <div style="font-size:2.2rem; margin-bottom:0.25rem;">🚀</div>
-      <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Sign Up Free</h2>
-      <p style="margin:0; font-size:0.86rem; color:#64748b;">
-        Instant full access to all 8 categories &amp; tools worldwide. Zero upfront payment or credit card required.
-      </p>
-    </div>
+    <div class="signup-modal-content" id="signupCardView">
+      <!-- Step 1: Account Creation View -->
+      <div id="signupStepMain" style="${isLogin ? 'display:none;' : 'display:block;'}">
+        <div class="card-heading">
+          <h2 id="signup-title" class="signup-title">Create your account</h2>
+          <p class="signup-sub">Enter your Gmail or Mobile number to start your 5-day free access.</p>
+        </div>
 
-    <form id="categoryTrialForm" class="category-auth-form" style="display:grid; gap:0.75rem;">
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Full Name *</label>
-        <input name="name" type="text" placeholder="Full Name" required minlength="3" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Email Address *</label>
-        <input name="email" type="email" placeholder="Email Address" required maxlength="80" autocomplete="email" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Country / Region *</label>
-        <select name="country" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem; background:#fff;">
-          <option value="Pakistan" selected>Pakistan</option>
-          <option value="United States">United States</option>
-          <option value="United Kingdom">United Kingdom</option>
-          <option value="United Arab Emirates">United Arab Emirates</option>
-          <option value="Saudi Arabia">Saudi Arabia</option>
-          <option value="Canada">Canada</option>
-          <option value="Australia">Australia</option>
-          <option value="India">India</option>
-          <option value="Germany">Germany</option>
-          <option value="France">France</option>
-          <option value="Singapore">Singapore</option>
-          <option value="Malaysia">Malaysia</option>
-          <option value="International">Other / International</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Mobile Number *</label>
-        <div class="phone-input-group">
-          <select name="countryCode" class="phone-country-select" aria-label="Country Code">
-            <option value="+92" selected>PK (+92)</option>
-            <option value="+1">US (+1)</option>
-            <option value="+44">UK (+44)</option>
-            <option value="+971">UAE (+971)</option>
-            <option value="+966">SA (+966)</option>
-            <option value="+91">IN (+91)</option>
-            <option value="+1">CA (+1)</option>
-            <option value="+61">AU (+61)</option>
-            <option value="+49">DE (+49)</option>
-            <option value="+33">FR (+33)</option>
-            <option value="+86">CN (+86)</option>
-            <option value="+90">TR (+90)</option>
-            <option value="+60">MY (+60)</option>
-            <option value="+65">SG (+65)</option>
-            <option value="+974">QA (+974)</option>
-            <option value="+968">OM (+968)</option>
-            <option value="+965">KW (+965)</option>
-            <option value="+973">BH (+973)</option>
-            <option value="+880">BD (+880)</option>
-            <option value="+93">AF (+93)</option>
-            <option value="+20">EG (+20)</option>
-            <option value="+27">ZA (+27)</option>
-            <option value="+34">ES (+34)</option>
-            <option value="+39">IT (+39)</option>
-          </select>
-          <input name="mobile" type="tel" placeholder="Mobile Number" required maxlength="20" style="padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
+        <form id="signupAccountForm" class="signup-phone-form" novalidate>
+          <!-- Continue with Google button -->
+          <button type="button" class="google-button" id="categoryGoogleAuthBtn">
+            <svg class="google-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <div class="divider">or continue with details</div>
+
+          <!-- Full Name Box -->
+          <div class="form-field-group">
+            <label class="field-label" for="signupName">Full Name</label>
+            <div class="custom-input-box">
+              <input type="text" id="signupName" name="signupName" autocomplete="name" placeholder="Full Name" required minlength="3">
+            </div>
+          </div>
+
+          <!-- Gmail / Email Box -->
+          <div class="form-field-group">
+            <label class="field-label" for="signupEmail">Gmail / Email Address</label>
+            <div class="custom-input-box">
+              <input type="email" id="signupEmail" name="signupEmail" autocomplete="email" placeholder="name@gmail.com">
+            </div>
+          </div>
+
+          <!-- Mobile Number Box with Clean Country Code Picker -->
+          <div class="form-field-group">
+            <label class="field-label" for="phoneNumber">Mobile Number</label>
+            <div class="phone-input-wrap">
+              <div class="country-picker-btn" id="countryPickerBtn">
+                <div class="country-display">
+                  <span class="flag-emoji" id="countryFlagDisplay">🇵🇰</span>
+                  <span class="dial-code" id="countryCodeDisplay">+92</span>
+                  <svg class="chevron-icon" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                    <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <select id="countryCode" name="countryCode" aria-label="Select Country Code">
+                  <option value="+92" data-flag="🇵🇰" data-code="+92" selected>🇵🇰 Pakistan (+92)</option>
+                  <option value="+1" data-flag="🇺🇸" data-code="+1">🇺🇸 United States (+1)</option>
+                  <option value="+44" data-flag="🇬🇧" data-code="+44">🇬🇧 United Kingdom (+44)</option>
+                  <option value="+971" data-flag="🇦🇪" data-code="+971">🇦🇪 UAE (+971)</option>
+                  <option value="+966" data-flag="🇸🇦" data-code="+966">🇸🇦 Saudi Arabia (+966)</option>
+                  <option value="+1" data-flag="🇨🇦" data-code="+1">🇨🇦 Canada (+1)</option>
+                  <option value="+61" data-flag="🇦🇺" data-code="+61">🇦🇺 Australia (+61)</option>
+                  <option value="+91" data-flag="🇮🇳" data-code="+91">🇮🇳 India (+91)</option>
+                  <option value="+49" data-flag="🇩🇪" data-code="+49">🇩🇪 Germany (+49)</option>
+                  <option value="+33" data-flag="🇫🇷" data-code="+33">🇫🇷 France (+33)</option>
+                  <option value="+90" data-flag="🇹🇷" data-code="+90">🇹🇷 Turkey (+90)</option>
+                  <option value="+86" data-flag="🇨🇳" data-code="+86">🇨🇳 China (+86)</option>
+                  <option value="+81" data-flag="🇯🇵" data-code="+81">🇯🇵 Japan (+81)</option>
+                  <option value="+60" data-flag="🇲🇾" data-code="+60">🇲🇾 Malaysia (+60)</option>
+                  <option value="+65" data-flag="🇸🇬" data-code="+65">🇸🇬 Singapore (+65)</option>
+                </select>
+              </div>
+              <span class="phone-v-divider" aria-hidden="true"></span>
+              <input type="tel" id="phoneNumber" name="phoneNumber" inputmode="tel" autocomplete="tel" placeholder="300 1234567" required>
+            </div>
+          </div>
+
+          <!-- Create Password Box -->
+          <div class="form-field-group">
+            <label class="field-label" for="signupPassword">Create Password</label>
+            <div class="custom-input-box">
+              <input type="password" id="signupPassword" name="signupPassword" autocomplete="new-password" required minlength="8" placeholder="Minimum 8 characters">
+              <button type="button" class="input-icon-btn" id="toggleSignupPass" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="phone-button" id="signupSubmitBtn" type="submit">
+            <span>Sign Up Free</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4.167 10h11.666M10 4.167 15.833 10 10 15.833" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+
+        <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
+
+        <div class="signup-modal-footer">
+          <p class="modal-switch-text" style="border-top: none; padding-top: 0;">
+            Already have an account? <a href="#" id="toggleToPasswordLogin">Log in with password</a>
+          </p>
         </div>
       </div>
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">City / Location *</label>
-        <input name="city" type="text" placeholder="City" required maxlength="50" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Business / Enterprise Name (Optional)</label>
-        <input name="businessName" type="text" placeholder="Business Name" maxlength="80" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
-      </div>
-      <div>
-        <label style="font-size:0.82rem; font-weight:700; color:#334155; display:block; margin-bottom:0.3rem;">Create Password *</label>
-        <input name="password" type="password" placeholder="Min 8 characters" required minlength="8" maxlength="64" style="width:100%; padding:0.65rem 0.8rem; border:1px solid #cbd5e1; border-radius:10px; font-size:0.9rem;">
-      </div>
-      <label style="display:flex; align-items:center; gap:0.55rem; font-size:0.78rem; color:#64748b; margin:0.35rem 0 0.2rem; cursor:pointer; text-align:left;">
-        <input name="terms" type="checkbox" required checked style="width:16px; height:16px; flex:0 0 auto; accent-color:#ff8f04;">
-        <span>By creating an account you agree to the Terms of Use and Privacy Policy.</span>
-      </label>
-      <p class="category-auth-error" role="alert" style="color:#ef4444; font-size:0.8rem; margin:0.2rem 0 0; min-height:1rem;"></p>
-      <button class="btn btn-primary" type="submit" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff; cursor:pointer;">
-        Create Account &amp; Start Free
-      </button>
-    </form>
 
-    <div style="margin-top:1rem; text-align:center;">
-      <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ff8f04; font-size:0.84rem; font-weight:600; cursor:pointer;">
-        Already have an account? Sign in here
-      </button>
+      <!-- Step 2: Login View -->
+      <div id="signupStepLogin" style="${isLogin ? 'display:block;' : 'display:none;'}">
+        <div class="card-heading">
+          <h2 class="signup-title">Welcome Back</h2>
+          <p class="signup-sub">Enter your registered Gmail or mobile number &amp; password.</p>
+        </div>
+
+        <form id="loginAccountForm" class="signup-phone-form" novalidate>
+          <div class="form-field-group">
+            <label class="field-label" for="loginIdentifier">Gmail or Mobile Number</label>
+            <div class="custom-input-box">
+              <input type="text" id="loginIdentifier" name="loginIdentifier" autocomplete="username" required placeholder="name@gmail.com or 03001234567">
+            </div>
+          </div>
+
+          <div class="form-field-group">
+            <label class="field-label" for="loginPassword">Password</label>
+            <div class="custom-input-box">
+              <input type="password" id="loginPassword" name="loginPassword" autocomplete="current-password" required placeholder="Enter password">
+              <button type="button" class="input-icon-btn" id="toggleLoginPass" aria-label="Toggle password visibility">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="phone-button" id="loginSubmitBtn" type="submit">
+            <span>Sign In to Account</span>
+            <svg class="btn-arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4.167 10h11.666M10 4.167 15.833 10 10 15.833" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+
+        <p class="auth-message" id="loginAuthMessage" role="status" aria-live="polite"></p>
+
+        <div class="signup-modal-footer">
+          <p class="modal-switch-text" style="border-top: none; padding-top: 0;">
+            Don't have an account yet? <a href="#" id="toggleToCreateAccount">Create an account free</a>
+          </p>
+        </div>
+      </div>
     </div>
   `;
   modal.classList.add("open");
@@ -841,41 +891,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
 };
 
 const showCategoryTrialRequiredModal = () => {
-  categoryEnsureToolsUi();
-  const modal = document.getElementById("categoryAuthModal");
-  const content = document.getElementById("categoryAuthContent");
-  if (!modal || !content) return;
-
-  content.innerHTML = `
-    <div style="text-align:center; padding: 0.5rem 0;">
-      <div style="font-size:2.5rem; margin-bottom: 0.4rem;">✨</div>
-      <h2 id="categoryAuthTitle" style="margin:0 0 0.4rem; font-size:1.45rem; font-weight:800; color:#0f172a;">Start 5-Day Free Trial</h2>
-      <p style="margin:0 0 1.25rem; font-size:0.88rem; color:#64748b; line-height:1.5;">
-        To add and save records in <strong>${categoryEscape(CURRENT.short)}</strong>, start your 5-day unlimited free trial. It takes less than 30 seconds!
-      </p>
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:1rem; text-align:left; margin-bottom:1.25rem;">
-        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.45rem; font-size:0.85rem; color:#0f172a; font-weight:600;">
-          <span style="color:#10b981;">✓</span> 5 days completely free trial
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.45rem; font-size:0.85rem; color:#0f172a; font-weight:600;">
-          <span style="color:#10b981;">✓</span> Add unlimited records in all 8 categories
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:#0f172a; font-weight:600;">
-          <span style="color:#10b981;">✓</span> No credit card or advance payment
-        </div>
-      </div>
-      <button type="button" class="btn btn-primary" style="width:100%; padding:0.75rem; font-weight:700; border-radius:10px; background:#ff8f04; border-color:#ff8f04; color:#fff;" data-action-open-trial-form>
-        🚀 Start 5-Day Free Trial
-      </button>
-      <div style="margin-top:0.85rem;">
-        <button type="button" data-action-signin-toggle style="background:none; border:none; color:#ff8f04; font-size:0.82rem; font-weight:600; cursor:pointer;">
-          Already have an account? Sign in
-        </button>
-      </div>
-    </div>
-  `;
-  modal.classList.add("open");
-  modal.setAttribute("aria-hidden", "false");
+  showCategoryTrialModal("signup");
 };
 
 const showCategorySubscriptionPaywall = () => {
@@ -2112,6 +2128,17 @@ const initCategoryTools = async () => {
       });
       return;
     }
+    if (e.target && e.target.id === "countryCode") {
+      const sel = e.target;
+      const opt = sel.options[sel.selectedIndex];
+      const flag = opt?.dataset?.flag || "🇵🇰";
+      const code = opt?.dataset?.code || sel.value || "+92";
+      const flagEl = document.getElementById("countryFlagDisplay");
+      const codeEl = document.getElementById("countryCodeDisplay");
+      if (flagEl) flagEl.textContent = flag;
+      if (codeEl) codeEl.textContent = code;
+      return;
+    }
     if (e.target && e.target.id === "saasDateFilterInput") {
       categoryDateFilter = e.target.value || "";
       categoryRenderList();
@@ -2289,8 +2316,50 @@ const initCategoryTools = async () => {
       showCategoryTrialModal();
       return;
     }
+    if (event.target.closest("#toggleToPasswordLogin")) {
+      event.preventDefault();
+      const sMain = document.getElementById("signupStepMain");
+      const sLog = document.getElementById("signupStepLogin");
+      if (sMain && sLog) {
+        sMain.style.display = "none";
+        sLog.style.display = "block";
+        document.getElementById("loginIdentifier")?.focus();
+      }
+      return;
+    }
+    if (event.target.closest("#toggleToCreateAccount")) {
+      event.preventDefault();
+      const sMain = document.getElementById("signupStepMain");
+      const sLog = document.getElementById("signupStepLogin");
+      if (sMain && sLog) {
+        sMain.style.display = "block";
+        sLog.style.display = "none";
+        document.getElementById("signupEmail")?.focus();
+      }
+      return;
+    }
+    const passToggle = event.target.closest("#toggleSignupPass, #toggleLoginPass");
+    if (passToggle) {
+      const isSignup = passToggle.id === "toggleSignupPass";
+      const inp = document.getElementById(isSignup ? "signupPassword" : "loginPassword");
+      if (inp) {
+        inp.type = inp.type === "password" ? "text" : "password";
+      }
+      return;
+    }
+    if (event.target.closest("#categoryGoogleAuthBtn")) {
+      if (CATEGORY_SUPABASE) {
+        CATEGORY_SUPABASE.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: window.location.href }
+        }).catch((e) => console.warn("Google auth err:", e));
+      } else {
+        showWorkspaceToast("Google Sign-In is active. Connect cloud auth for live sync.");
+      }
+      return;
+    }
     if (event.target.closest("[data-action-open-trial-form]")) {
-      showCategoryTrialModal();
+      showCategoryTrialModal("signup");
       return;
     }
     if (event.target.closest("[data-action-view-paywall], #categoryHeroPlans")) {
@@ -2637,52 +2706,61 @@ const initCategoryTools = async () => {
       return;
     }
 
-    const trialForm = event.target.closest("#categoryTrialForm");
+    const trialForm = event.target.closest("#signupAccountForm, #categoryTrialForm");
     if (trialForm) {
       event.preventDefault();
       const formData = new FormData(trialForm);
-      const name = String(formData.get("name") || "").trim();
-      const country = String(formData.get("country") || "International").trim();
-            const code = String(formData.get("countryCode") || "+92").trim();
-      const mobile = combinePhoneWithCode(code, String(formData.get("mobile") || ""));
-      const email = String(formData.get("email") || "").trim().toLowerCase();
-      const city = String(formData.get("city") || "").trim();
-      const businessName = String(formData.get("businessName") || "").trim();
-      const password = String(formData.get("password") || "");
-      const termsBox = trialForm.querySelector('input[name="terms"]');
-      const message = trialForm.querySelector(".category-auth-error");
+      const name = String(formData.get("signupName") || formData.get("name") || "").trim() || "Business Owner";
+      const email = String(formData.get("signupEmail") || formData.get("email") || "").trim().toLowerCase();
+      const code = String(formData.get("countryCode") || "+92").trim();
+      const rawMobile = String(formData.get("phoneNumber") || formData.get("mobile") || "").trim();
+      const mobile = rawMobile ? combinePhoneWithCode(code, rawMobile) : "";
+      const password = String(formData.get("signupPassword") || formData.get("password") || "");
+      const authMsg = trialForm.querySelector(".auth-message, .category-auth-error") || document.getElementById("authMessage");
       const submit = trialForm.querySelector('button[type="submit"]');
 
-      if (name.length < 3) {
-        if (message) message.textContent = "Please enter your full name (minimum 3 characters).";
-        return;
-      }
-      if (!/^\d{7,16}$/.test(mobile)) {
-        if (message) message.textContent = "Please enter a valid phone number with 7 to 16 digits.";
+      if (!email && !rawMobile) {
+        if (authMsg) { authMsg.textContent = "Please enter either Gmail or Mobile number."; authMsg.classList.add("is-visible"); }
         return;
       }
       if (password.length < 8) {
-        if (message) message.textContent = "Password must be at least 8 characters.";
+        if (authMsg) { authMsg.textContent = "Password must be at least 8 characters."; authMsg.classList.add("is-visible"); }
+        return;
+      }
+      if (rawMobile && !/^\d{7,16}$/.test(rawMobile.replace(/\D/g, ""))) {
+        if (authMsg) { authMsg.textContent = "Please enter a valid phone number with 7 to 16 digits."; authMsg.classList.add("is-visible"); }
         return;
       }
 
       submit.disabled = true;
       submit.textContent = "Creating account…";
 
-      if (termsBox && !termsBox.checked) {
-        if (message) message.textContent = "Please agree to the Terms of Use and Privacy Policy.";
-        submit.disabled = false;
-        submit.textContent = "Create Account & Start Free";
-        return;
-      }
-      categorySetTrial({ name, country, mobile, email, city, businessName });
+      const cleanUser = {
+        name,
+        email,
+        mobile: mobile || rawMobile,
+        country: code === "+92" ? "Pakistan" : "International",
+        city: "Online",
+        businessName: CURRENT?.name || "Online Business"
+      };
+
+      categorySetTrial(cleanUser);
+
+      // Save locally to registered users for cross-page persistence
+      try {
+        const rawUsers = localStorage.getItem("oms_registered_users");
+        const users = rawUsers ? JSON.parse(rawUsers) : [];
+        users.push({ ...cleanUser, password, registeredAt: Date.now() });
+        localStorage.setItem("oms_registered_users", JSON.stringify(users));
+      } catch (_) {}
 
       if (CATEGORY_SUPABASE) {
         try {
+          const authEmail = email || categoryEmail(mobile || rawMobile || ("user" + Date.now()));
           const res = await CATEGORY_SUPABASE.auth.signUp({
-            email: categoryEmail(mobile),
+            email: authEmail,
             password,
-            options: { data: { name, country, mobile, city, email, businessName } }
+            options: { data: cleanUser }
           });
           if (res.data?.user) {
             categoryUser = res.data.user;
@@ -2700,42 +2778,89 @@ const initCategoryTools = async () => {
       return;
     }
 
-    const loginForm = event.target.closest("#categoryLoginForm");
-    if (loginForm && CATEGORY_SUPABASE) {
+    const loginForm = event.target.closest("#loginAccountForm, #categoryLoginForm");
+    if (loginForm) {
       event.preventDefault();
       const formData = new FormData(loginForm);
-            const code = String(formData.get("countryCode") || "+92").trim();
-      const mobile = combinePhoneWithCode(code, String(formData.get("mobile") || ""));
-      const password = String(formData.get("password") || "");
-      const message = loginForm.querySelector(".category-auth-error");
+      const identifier = String(formData.get("loginIdentifier") || formData.get("mobile") || "").trim();
+      const password = String(formData.get("loginPassword") || formData.get("password") || "");
+      const authMsg = loginForm.querySelector(".auth-message, .category-auth-error") || document.getElementById("loginAuthMessage");
       const submit = loginForm.querySelector('button[type="submit"]');
-      if (!/^\d{7,15}$/.test(mobile)) {
-        message.textContent = "Enter a valid account mobile number.";
+
+      if (!identifier || !password) {
+        if (authMsg) { authMsg.textContent = "Enter your Gmail / Mobile number and password."; authMsg.classList.add("is-visible"); }
         return;
       }
+
       submit.disabled = true;
       submit.textContent = "Signing in…";
+
+      // 1. Check local registered users list
+      let matchedUser = null;
       try {
-        const { data, error } = await CATEGORY_SUPABASE.auth.signInWithPassword({
-          email: categoryEmail(mobile),
-          password
+        const rawUsers = localStorage.getItem("oms_registered_users");
+        const users = rawUsers ? JSON.parse(rawUsers) : [];
+        const cleanId = identifier.toLowerCase().replace(/\D/g, "");
+        matchedUser = users.find((u) => {
+          const uEmail = (u.email || "").toLowerCase();
+          const uMob = (u.mobile || "").replace(/\D/g, "");
+          return (uEmail && uEmail === identifier.toLowerCase()) || (uMob && cleanId && uMob.includes(cleanId));
         });
-        if (error) throw error;
-        categoryUser = data.user;
-        categorySessionReady = true;
-        await categoryRefreshSubscription();
-        if (!categoryGetTrial()) {
-          categorySetTrial({ mobile, name: categoryUser.user_metadata?.name || "Business User" });
-        }
+      } catch (_) {}
+
+      if (matchedUser && matchedUser.password === password) {
+        categorySetTrial({
+          name: matchedUser.name || "Business User",
+          email: matchedUser.email || "",
+          mobile: matchedUser.mobile || identifier,
+          city: matchedUser.city || "Online",
+          country: matchedUser.country || "Pakistan"
+        });
         categoryUpdateHeaderBtn();
         closeCategoryAuth();
-        showWorkspaceToast(`Welcome back, ${categoryUser.user_metadata?.name || 'User'}!`);
+        showWorkspaceToast(`Welcome back, ${matchedUser.name || 'User'}!`);
         if (categoryFeature) categoryRenderList();
-      } catch (error) {
-        message.textContent = error.message || "Sign in failed. Please check your details.";
-        submit.disabled = false;
-        submit.textContent = "Sign in";
+        return;
       }
+
+      // 2. Check Supabase
+      if (CATEGORY_SUPABASE) {
+        try {
+          const isEmail = identifier.includes("@");
+          const authEmail = isEmail ? identifier : categoryEmail(identifier.replace(/\D/g, ""));
+          const { data, error } = await CATEGORY_SUPABASE.auth.signInWithPassword({
+            email: authEmail,
+            password
+          });
+          if (error) throw error;
+          categoryUser = data.user;
+          categorySessionReady = true;
+          await categoryRefreshSubscription();
+          if (!categoryGetTrial()) {
+            categorySetTrial({ mobile: identifier, name: categoryUser.user_metadata?.name || "Business User" });
+          }
+          categoryUpdateHeaderBtn();
+          closeCategoryAuth();
+          showWorkspaceToast(`Welcome back, ${categoryUser.user_metadata?.name || 'User'}!`);
+          if (categoryFeature) categoryRenderList();
+          return;
+        } catch (error) {
+          if (authMsg) {
+            authMsg.textContent = error.message || "Invalid credentials. Please check your password.";
+            authMsg.classList.add("is-visible");
+          }
+          submit.disabled = false;
+          submit.textContent = "Sign In to Account";
+          return;
+        }
+      }
+
+      if (authMsg) {
+        authMsg.textContent = "Account not found or password incorrect. Please sign up free.";
+        authMsg.classList.add("is-visible");
+      }
+      submit.disabled = false;
+      submit.textContent = "Sign In to Account";
       return;
     }
     const form = event.target.closest("#categoryAuthForm");

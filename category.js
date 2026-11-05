@@ -476,8 +476,30 @@ const categoryHasActiveSubscription = () =>
   categorySubscription.status === "active" &&
   new Date(categorySubscription.expires_at).getTime() > Date.now();
 
+const categoryIsSignedIn = () => {
+  const trial = categoryGetTrial();
+  const trialAcc = localStorage.getItem("oms_trial_account");
+  const localUser = localStorage.getItem("bms_user_trial");
+  return !!(categoryUser || (trial && trial.uid) || trialAcc || localUser);
+};
+
+const categoryCanAddData = () => {
+  // 1. Paid active subscription -> always allowed
+  if (categoryHasActiveSubscription()) return true;
+
+  // 2. User must be signed up
+  if (!categoryIsSignedIn()) return false;
+
+  // 3. Check 5-day free trial status
+  const trial = categoryGetTrial();
+  if (trial && trial.isActive) return true;
+
+  // 4. Trial expired and no active subscription -> blocked from adding data
+  return false;
+};
+
 const categoryHasAccess = () => {
-  return true; // Full instant access in dedicated SaaS dashboard portal
+  return categoryCanAddData();
 };
 
 let currentProfileViewMode = "overview";
@@ -522,11 +544,12 @@ const categoryUpdateHeaderBtn = () => {
   const trial = categoryGetTrial();
   const user = categoryUser;
 
-  if (user || (trial && trial.isActive) || hasSub) {
+  if (user || trial || hasSub) {
     const rawName = user?.user_metadata?.name || trial?.name || "Business Owner";
     const initial = (rawName.charAt(0) || "U").toUpperCase();
     const uid = trial?.uid || (user ? `UID-${user.id.slice(0, 5).toUpperCase()}` : "UID-84920");
     const avatar = trial?.avatar || "";
+    const isExpired = trial && !trial.isActive && !hasSub;
 
     btn.className = "header-user-profile-btn";
     btn.innerHTML = `
@@ -535,11 +558,11 @@ const categoryUpdateHeaderBtn = () => {
       </span>
       <div class="user-meta-text">
         <span class="user-id-title">${categoryEscape(rawName)}</span>
-        <span class="user-id-code">${categoryEscape(uid)}</span>
+        <span class="user-id-code">${categoryEscape(uid)}${isExpired ? ' · Expired' : ''}</span>
       </div>
       <span class="user-dropdown-arrow">&#9662;</span>
     `;
-    btn.title = `Signed in: ${rawName} (${uid}) - Click to manage account`;
+    btn.title = isExpired ? `Signed in: ${rawName} (${uid}) - 5-Day Free Trial Ended` : `Signed in: ${rawName} (${uid}) - Click to manage account`;
   } else {
     btn.className = "btn btn-primary header-signup-btn";
     btn.innerHTML = `<span>Sign Up Free</span>`;
@@ -614,9 +637,9 @@ const showCategoryTrialModal = (viewMode = "overview") => {
                 <code class="pro-uid-val">${categoryEscape(uid)}</code>
                 <svg class="pro-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               </div>
-              <span class="pro-status-chip is-active">
-                <span class="pro-status-dot"></span>
-                Active Account
+              <span class="pro-status-chip ${trial && !trial.isActive && !hasSub ? 'is-expired' : 'is-active'}" style="${trial && !trial.isActive && !hasSub ? 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;' : ''}">
+                <span class="pro-status-dot" style="${trial && !trial.isActive && !hasSub ? 'background:#dc2626;' : ''}"></span>
+                ${trial && !trial.isActive && !hasSub ? '5-Day Trial Ended' : (hasSub ? 'Pro Subscription' : `Active Trial (${trial?.daysLeft || 0}d left)`)}
               </span>
             </div>
 
@@ -666,7 +689,7 @@ const showCategoryTrialModal = (viewMode = "overview") => {
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">Account Status</span>
-              <strong class="pro-detail-val" style="color:#047857;">Verified Active</strong>
+              <strong class="pro-detail-val" style="color:${trial && !trial.isActive && !hasSub ? '#dc2626' : '#047857'};">${trial && !trial.isActive && !hasSub ? '5-Day Free Trial Ended' : (hasSub ? 'Pro Subscription Active' : `Active Trial (${trial?.daysLeft || 0}d left)`)}</strong>
             </div>
             <div class="pro-detail-row">
               <span class="pro-detail-label">Registered Date</span>
@@ -675,6 +698,11 @@ const showCategoryTrialModal = (viewMode = "overview") => {
           </div>
 
           <div class="pro-actions-footer">
+            ${trial && !trial.isActive && !hasSub ? `
+              <button type="button" class="btn btn-primary" data-action-view-paywall style="background:#ff8f04; border-color:#ff8f04; color:#fff; font-weight:700;">
+                💳 Purchase Subscription Plan
+              </button>
+            ` : ''}
             <button type="button" class="btn btn-primary pro-edit-cta-btn" data-pro-tab="edit">
               ✏️ Edit Profile
             </button>
@@ -905,7 +933,7 @@ const showCategorySubscriptionPaywall = () => {
       <div style="font-size:2.3rem; margin-bottom:0.3rem;">🔒</div>
       <h2 id="categoryAuthTitle" style="margin:0 0 0.35rem; font-size:1.4rem; font-weight:800; color:#0f172a;">5-Day Free Trial Ended</h2>
       <p style="margin:0; font-size:0.86rem; color:#64748b; line-height:1.5;">
-        Your 5-day free trial has expired. To continue adding records to <strong>${categoryEscape(CURRENT.short)}</strong>, choose an affordable subscription below.
+        Aapka 5-din ka free trial khatam ho chuka hai. Categories mein data add karne ke liye subscription plan purchase karein. (Aap website par feedback aur reviews bila rukawat de sakte hain).
       </p>
     </div>
 
@@ -1746,9 +1774,9 @@ const updateSaasPortalHeader = () => {
       userSub.textContent = "\u26A0\uFE0F Trial Ended";
       userSub.style.color = "#ef4444";
     } else {
-      userTitle.textContent = "Guest Workspace";
-      userSub.textContent = "\u{1F7E2} 5-Day Free Trial";
-      userSub.style.color = "#10b981";
+      userTitle.textContent = "Sign Up Required";
+      userSub.textContent = "\u{1F512} Sign Up (5-Day Trial)";
+      userSub.style.color = "#f59e0b";
     }
   }
 };
@@ -1932,6 +1960,34 @@ const categoryRenderList = () => {
       </div>
     ` : ""}
 
+    ${!categoryIsSignedIn() ? `
+      <div class="cat-ws-trial-banner is-guest" style="background:#fff7ed; border:1.5px solid #ff8f04; border-radius:12px; padding:0.85rem 1.15rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.3rem;">&#128274;</span>
+          <div>
+            <strong style="display:block; color:#0f172a; font-size:0.92rem;">Website use karne ke liye Sign Up lazmi hai</strong>
+            <span style="font-size:0.8rem; color:#64748b;">Sign up karte hi aapko 5 din ka Free Trial milega jis mein aap category use kar sakenge.</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" data-action-open-trial-signup style="background:#ff8f04; border-color:#ff8f04; color:#fff; font-weight:700; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem;">
+          Sign Up Free (5 Days Trial) &rarr;
+        </button>
+      </div>
+    ` : (categoryIsSignedIn() && !categoryCanAddData() ? `
+      <div class="cat-ws-trial-banner is-expired" style="background:#fef2f2; border:1.5px solid #ef4444; border-radius:12px; padding:0.85rem 1.15rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.6rem;">
+          <span style="font-size:1.3rem;">&#9888;&#65039;</span>
+          <div>
+            <strong style="display:block; color:#991b1b; font-size:0.92rem;">Aapka 5-Din ka Free Trial Khatam ho chuka hai</strong>
+            <span style="font-size:0.8rem; color:#64748b;">Categories mein data add karne ke liye Subscription Plan lein. (Aap website par reviews aur comments bina subscription ke de sakte hain).</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary" data-action-view-paywall style="background:#ef4444; border-color:#ef4444; color:#fff; font-weight:700; padding:0.5rem 1rem; border-radius:8px; font-size:0.85rem;">
+          Purchase Subscription Plan &rarr;
+        </button>
+      </div>
+    ` : '')}
+
     <div class="cat-ws-toolbar">
       <div class="cat-ws-search-wrap">
         <span class="cat-ws-search-icon" aria-hidden="true">🔍</span>
@@ -2017,6 +2073,20 @@ const categoryRenderForm = (itemId = null) => {
     categoryFeature = categoryFeatureDef(CURRENT.features[0].id);
   }
   if (!categoryFeature) return;
+
+  // Sign up and 5-Day Free Trial / Subscription requirement check
+  if (!categoryCanAddData()) {
+    if (!categoryIsSignedIn()) {
+      showWorkspaceToast("Website use karne ke liye pehle Sign Up karein. Aapko 5 din ka Free Trial milega!");
+      showCategoryTrialModal("signup");
+      return;
+    }
+    // Trial expired & no active subscription
+    showWorkspaceToast("Aapka 5-Din ka Free Trial khatam ho chuka hai. Categories mein data add karne ke liye Subscription Plan purchase karein.");
+    showCategorySubscriptionPaywall();
+    return;
+  }
+
   categoryTab = "active";
   categoryEditId = itemId;
   const item = itemId ? categoryItems().find((entry) => entry.id === itemId) : null;
@@ -2360,7 +2430,7 @@ const initCategoryTools = async () => {
       }
       return;
     }
-    if (event.target.closest("[data-action-open-trial-form]")) {
+    if (event.target.closest("[data-action-open-trial-form], [data-action-open-trial-signup]")) {
       showCategoryTrialModal("signup");
       return;
     }
@@ -2935,6 +3005,18 @@ const initCategoryTools = async () => {
     const form = event.target.closest("#categoryRecordForm");
     if (!form || !categoryFeature) return;
     event.preventDefault();
+
+    if (!categoryCanAddData()) {
+      if (!categoryIsSignedIn()) {
+        showWorkspaceToast("Website use karne ke liye pehle Sign Up karein (5-Day Free Trial).");
+        showCategoryTrialModal("signup");
+      } else {
+        showWorkspaceToast("Aapka 5-Din ka Free Trial khatam ho chuka hai. Data add karne ke liye Subscription Plan lein.");
+        showCategorySubscriptionPaywall();
+      }
+      return;
+    }
+
     if (!form.reportValidity()) return;
     const fields = Object.fromEntries(new FormData(form).entries());
     const current = categoryItems();

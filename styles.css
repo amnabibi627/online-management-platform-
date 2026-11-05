@@ -7528,3 +7528,20 @@ body {
   border: 1px solid rgba(226, 232, 240, 0.9) !important;
   z-index: 2 !important;
 }
+
+
+/* Polish Trust Strip Card */
+.trust-inner {
+  border: 1.5px solid rgba(255, 143, 4, 0.35) !important;
+  box-shadow: 0 20px 45px -20px rgba(15, 23, 42, 0.15), 0 4px 15px rgba(255, 143, 4, 0.06) !important;
+}
+.trust-item {
+  transition: background 0.2s ease;
+}
+.trust-item:hover {
+  background: rgba(255, 143, 4, 0.04) !important;
+}
+.trust-icon {
+  background: rgba(255, 143, 4, 0.08) !important;
+  border: 1.5px solid rgba(255, 143, 4, 0.35) !important;
+}

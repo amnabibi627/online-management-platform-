@@ -1150,14 +1150,22 @@ body[data-category] .header-actions { gap: 0.6rem; }
 }
 
 .cat-hero-devices-img.cat-hero-photo {
-  max-width: 560px;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-  border-radius: 20px;
-  border: 1.5px solid rgba(226, 232, 240, 0.95);
+  max-width: 560px !important;
+  width: 100% !important;
+  height: 350px !important;
+  display: block !important;
+  object-fit: cover !important;
+  border-radius: 20px !important;
+  border: 1.5px solid rgba(226, 232, 240, 0.95) !important;
   box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.18), 0 4px 16px -4px rgba(255, 143, 4, 0.12) !important;
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 600px) {
+  .cat-hero-devices-img.cat-hero-photo {
+    height: 220px !important;
+    max-width: 100% !important;
+  }
 }
 
 .cat-hero-devices-img.cat-hero-photo:hover {

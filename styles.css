@@ -7581,9 +7581,9 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Adjust .to-top so it floats above the WhatsApp button without overlap */
+/* Completely remove / hide .to-top button */
 .to-top {
-  bottom: 5.2rem !important;
+  display: none !important;
 }
 
 @media (max-width: 600px) {

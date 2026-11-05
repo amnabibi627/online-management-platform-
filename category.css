@@ -1149,6 +1149,22 @@ body[data-category] .header-actions { gap: 0.6rem; }
   transition: none;
 }
 
+.cat-hero-devices-img.cat-hero-photo {
+  max-width: 560px;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 1.5px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.18), 0 4px 16px -4px rgba(255, 143, 4, 0.12) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cat-hero-devices-img.cat-hero-photo:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 28px 55px -12px rgba(15, 23, 42, 0.25), 0 8px 24px -4px rgba(255, 143, 4, 0.2) !important;
+}
+
 /* Category pages pure white background and no shadow behind boxes
    (Inside of feature/related cards keeps its warm orange shade) */
 html, body, .cat-hero, .category-detail {

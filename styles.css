@@ -7485,3 +7485,46 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* =========================================================
+   HOME PAGE CATEGORY CARD PHOTO THUMBNAILS
+   ========================================================= */
+.industry-thumb-wrap {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  border-radius: 14px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1.5px solid rgba(255, 143, 4, 0.45) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+  background: #ffffff !important;
+  flex-shrink: 0 !important;
+}
+
+.industry-thumb-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  transition: transform 0.25s ease !important;
+}
+
+.industry-card:hover .industry-thumb-img {
+  transform: scale(1.08) !important;
+}
+
+.industry-thumb-badge {
+  position: absolute !important;
+  bottom: 2px !important;
+  right: 2px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 6px !important;
+  padding: 2px 4px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  z-index: 2 !important;
+}

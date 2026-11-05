@@ -7608,3 +7608,40 @@ body {
     right: 1rem !important;
   }
 }
+
+/* Ensure Super Admin, Business Admin, and Ads panels always display on top of CEO modal */
+#adminModal,
+#ownerAdminModal,
+#bizAdsModal,
+#catAdminModal {
+  z-index: 3000 !important;
+}
+
+#adminModal .admin-panel,
+#ownerAdminModal .admin-panel,
+#bizAdsModal .admin-panel,
+#catAdminModal .admin-panel {
+  max-width: 1060px !important;
+  width: min(1060px, 96vw) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 25px 65px -15px rgba(15, 23, 42, 0.45) !important;
+  position: relative !important;
+}
+
+.admin-return-ceo-btn {
+  margin-left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  background: #f8fafc !important;
+}
+
+.admin-return-ceo-btn:hover {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}

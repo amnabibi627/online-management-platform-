@@ -3016,10 +3016,12 @@ const fillCategoryRelated = () => {
   const others = Object.values(CATEGORIES).filter((c) => c.key !== CURRENT.key);
   grid.innerHTML = others.map((c) =>
     `<a class="cat-related-card" href="${c.key}.html">` +
-    `<span class="cat-related-icon">${c.icon}</span>` +
+    `<div class="cat-related-thumb-wrap">` +
+    `<img src="images/${c.key}.jpg?v=20261105LuxuryV4" alt="${categoryEscape(c.short)}" class="cat-related-thumb-img" width="56" height="56" loading="lazy" />` +
+    `</div>` +
     `<span class="cat-related-text">` +
-    `<strong>${c.short}</strong>` +
-    `<small>${c.sub}</small>` +
+    `<strong>${categoryEscape(c.short)}</strong>` +
+    `<small>${categoryEscape(c.sub)}</small>` +
     `</span>` +
     `<span class="cat-related-arrow" aria-hidden="true">&rarr;</span>` +
     `</a>`

@@ -28,11 +28,13 @@ const CATEGORIES = {
   clinic: {
     key: "clinic",
     short: "Clinic",
+    title: "Clinic Management Software & OPD Patient Records Billing System | OMS",
     icon: "🩺",
-    sub: "Patients, appointments & billing",
-    h1: 'Clinic <span class="accent">Management</span>',
-    desc: "A complete cloud portal built to manage your clinic operations with ease. Register patients, issue OPD queue tokens, and schedule doctor visits. Easily add, edit, delete, and restore patient records whenever needed. Create digital prescriptions and generate instant billing invoices. Print thermal receipts or download clean patient records in PDF format. Manage your clinic smoothly from mobile or PC with live sync.",
-    meta: "A complete cloud portal built to manage your clinic operations with ease. Register patients, issue OPD queue tokens, and schedule doctor visits. Easily add, edit, delete, and restore patient records whenever needed. Create digital prescriptions and generate instant billing invoices. Print thermal receipts or download clean patient records in PDF format. Manage your clinic smoothly from mobile or PC with live sync.",
+    sub: "OPD queue tokens, patient medical records & digital prescription billing",
+    h1: 'Clinic Management <span class="accent">Software</span>',
+    keywords: "clinic management software, opd management system, doctor prescription software, patient records software, clinic billing software, hospital clinic management pakistan, medical clinic erp, opd token system",
+    desc: "The leading cloud clinic management software and OPD patient portal. Effortlessly manage digital prescriptions, patient medical histories, doctor appointment calendars, OPD queue tokens, and counter billing. Print thermal receipts or download clinical records in PDF. Works seamlessly on mobile and PC with real-time cloud sync and 100% data privacy.",
+    meta: "All-in-one clinic management software. Manage OPD queue tokens, patient medical histories, digital prescriptions, appointment scheduling, and thermal billing.",
     features: [
       { id: "patient-records", name: "Patient Records", icon: "📁", desc: "Save medical history, allergies and past visits of every patient in one place." },
       { id: "smart-appointments", name: "Smart Appointments", icon: "📅", desc: "Online booking, doctor calendar view and automatic visit reminders." },
@@ -51,11 +53,13 @@ const CATEGORIES = {
   academy: {
     key: "academy",
     short: "Academy",
+    title: "Academy & School Management Software | Student Fee & Exam ERP | OMS",
     icon: "🎓",
-    sub: "Students, fees & exams",
-    h1: 'Academy <span class="accent">Management</span>',
-    desc: "A smart educational portal to run your academy, coaching, or school. Enroll students, set class timetables, and mark daily attendance easily. You have full freedom to add, edit, delete, and restore student files. Generate automatic monthly fee vouchers with dues tracking and reminders. Print instant fee receipts or download complete student reports in PDF. Keep teachers and parents connected from any mobile phone or computer.",
-    meta: "A smart educational portal to run your academy, coaching, or school. Enroll students, set class timetables, and mark daily attendance easily. You have full freedom to add, edit, delete, and restore student files. Generate automatic monthly fee vouchers with dues tracking and reminders. Print instant fee receipts or download complete student reports in PDF. Keep teachers and parents connected from any mobile phone or computer.",
+    sub: "Student admissions, automatic fee vouchers & attendance ERP",
+    h1: 'Academy & School <span class="accent">ERP Software</span>',
+    keywords: "academy management software, school management system, coaching center software, student fee management system, school erp pakistan, tuition center software, student attendance software, exam report card software",
+    desc: "Comprehensive school and academy management software designed for coaching centers, colleges, and training institutes. Automate student admissions, monthly fee voucher generation, fee defaulters tracking, daily attendance, class timetables, and exam report cards. Print professional fee receipts or export student ledgers in PDF with real-time multi-device sync.",
+    meta: "Complete school & academy management software. Manage student admissions, automatic fee vouchers, attendance alerts, exam report cards, and faculty schedules.",
     features: [
       { id: "student-profiles", name: "Student Profiles", icon: "👨‍🎓", desc: "Admission details, contacts and complete learning history of every student." },
       { id: "course-management", name: "Course Management", icon: "📚", desc: "Create courses and batches with syllabus, duration and level." },
@@ -74,11 +78,13 @@ const CATEGORIES = {
   restaurant: {
     key: "restaurant",
     short: "Restaurant",
+    title: "Restaurant Management Software & Cafe POS Billing System | OMS",
     icon: "🍽️",
-    sub: "POS, kitchen & tables",
-    h1: 'Restaurant <span class="accent">Management</span>',
-    desc: "A fast POS portal designed to streamline your restaurant orders and dining. Manage table bookings, dine-in guests, takeaway, and live kitchen tickets. Effortlessly add, edit, delete, and restore menu dishes and orders anytime. Track ingredient stock and get low-inventory alerts automatically. Print instant customer bills or export daily sales and profit reports to PDF. Control your entire restaurant smoothly from any mobile phone or PC.",
-    meta: "A fast POS portal designed to streamline your restaurant orders and dining. Manage table bookings, dine-in guests, takeaway, and live kitchen tickets. Effortlessly add, edit, delete, and restore menu dishes and orders anytime. Track ingredient stock and get low-inventory alerts automatically. Print instant customer bills or export daily sales and profit reports to PDF. Control your entire restaurant smoothly from any mobile phone or PC.",
+    sub: "Fast table orders, KOT kitchen screen & cafe billing",
+    h1: 'Restaurant & Cafe <span class="accent">POS Software</span>',
+    keywords: "restaurant management software, restaurant pos software, cafe billing software, kitchen order ticket kot software, food pos system, restaurant billing software pakistan, table booking pos, takeaway billing",
+    desc: "High-speed restaurant management software and cloud POS system for cafes, fast-food outlets, and fine dining. Manage live table reservations, kitchen order tickets (KOT), takeaway, home delivery, split bills, and ingredient inventory stock. Print instant thermal invoices, track food waste, and download daily profit and sales reports in PDF.",
+    meta: "High-speed restaurant POS software. Manage dine-in tables, kitchen order tickets (KOT), takeaway delivery, recipe inventory, and thermal billing.",
     features: [
       { id: "dynamic-pos", name: "Dynamic POS", icon: "🧾", desc: "Fast billing with split bills, discounts and quick item search." },
       { id: "live-kitchen-orders", name: "Live Kitchen Orders", icon: "👨‍🍳", desc: "Orders appear instantly on the kitchen screen with status updates." },
@@ -97,11 +103,13 @@ const CATEGORIES = {
   generalstore: {
     key: "generalstore",
     short: "General Store",
+    title: "General Store POS & Supermarket Inventory Billing Software | OMS",
     icon: "🏪",
-    sub: "Billing, stock & khata",
-    h1: 'General Store <span class="accent">Management</span>',
-    desc: "A complete retail portal to manage your store, inventory, and sales. Scan product barcodes for fast counter billing and repeat checkout. Easily add, edit, delete, and restore store items and price records. Monitor live stock levels with automatic low-stock and expiry warnings. Maintain customer khata credit accounts with instant payment logs. Print counter receipts or download supplier bills and reports in PDF.",
-    meta: "A complete retail portal to manage your store, inventory, and sales. Scan product barcodes for fast counter billing and repeat checkout. Easily add, edit, delete, and restore store items and price records. Monitor live stock levels with automatic low-stock and expiry warnings. Maintain customer khata credit accounts with instant payment logs. Print counter receipts or download supplier bills and reports in PDF.",
+    sub: "Barcode billing, live inventory & customer khata",
+    h1: 'General Store & Supermarket <span class="accent">POS Software</span>',
+    keywords: "general store billing software, supermarket pos software, retail pos system, grocery store software, barcode billing software, customer khata credit software, retail shop software pakistan, mart pos billing",
+    desc: "The best retail POS and general store management software for marts, grocery stores, and wholesale shops. Features ultra-fast barcode scanning, live inventory tracking, automatic low-stock and expiry alerts, supplier purchase orders, and digital customer khata credit ledgers. Print itemized cash receipts or download store profit and loss statements in PDF.",
+    meta: "Retail POS and supermarket billing software. Features high-speed barcode checkout, inventory stock management, customer khata credit, and expiry alerts.",
     features: [
       { id: "dynamic-pos", name: "Dynamic POS", icon: "🧾", desc: "Fast counter billing with quick item search and repeat bills." },
       { id: "barcode-scanning", name: "Barcode Scanning", icon: "📱", desc: "Scan products for instant checkout and stock updates." },
@@ -120,11 +128,13 @@ const CATEGORIES = {
   beautysalon: {
     key: "beautysalon",
     short: "Beauty Salon",
+    title: "Beauty Salon & Spa Management Software | Appointment Booking POS | OMS",
     icon: "💇",
-    sub: "Bookings, stylists & clients",
-    h1: 'Beauty Salon <span class="accent">Management</span>',
-    desc: "An elegant portal built to organize salon bookings and beauty services. Book client appointments online and manage stylists and chair queues smoothly. Freely add, edit, delete, and restore client records and bookings anytime. Keep detailed records of customer service history and favorite styles. Process quick payments at the counter with instant service receipts. Download monthly revenue and stylist commission reports in PDF on any device.",
-    meta: "An elegant portal built to organize salon bookings and beauty services. Book client appointments online and manage stylists and chair queues smoothly. Freely add, edit, delete, and restore client records and bookings anytime. Keep detailed records of customer service history and favorite styles. Process quick payments at the counter with instant service receipts. Download monthly revenue and stylist commission reports in PDF on any device.",
+    sub: "Client appointment booking, stylists & parlor POS",
+    h1: 'Beauty Salon & Spa <span class="accent">Software</span>',
+    keywords: "beauty salon management software, salon booking software, beauty parlor billing software, spa management software, salon pos system, beauty salon software pakistan, stylist commission software, hair salon software",
+    desc: "Modern beauty salon and spa management software designed for hair salons, aesthetic clinics, and beauty parlors. Streamline online appointment booking, chair assignments, stylist commission tracking, client service logs, and counter POS billing. Manage service packages, gift memberships, and retail cosmetic inventory with live sales reports on any device.",
+    meta: "Beauty salon & spa management software. Automate client appointments, stylist commissions, parlor POS billing, service packages, and cosmetic inventory.",
     features: [
       { id: "online-bookings", name: "Online Bookings", icon: "📅", desc: "Clients book their slots online: no calls, no double booking." },
       { id: "stylist-bookings", name: "Stylist Bookings", icon: "🧑‍🎨", desc: "Assign bookings to stylists based on availability and skill." },
@@ -143,11 +153,13 @@ const CATEGORIES = {
   petrolpump: {
     key: "petrolpump",
     short: "Petrol Pump",
+    title: "Petrol Pump Management Software & Fuel Station Ledger System | OMS",
     icon: "⛽",
-    sub: "Dispensers, shifts & sales",
-    h1: 'Petrol Pump <span class="accent">Management</span>',
-    desc: "A dedicated fuel station portal to manage dispensers, shifts, and sales. Record opening and closing meter readings for each nozzle accurately. Seamlessly add, edit, delete, and restore shift logs and transaction data. Monitor underground fuel tank levels with daily dip reading records. Track fleet vehicle credit accounts and pending balance payments. Print shift handover slips or export monthly profit and loss reports to PDF.",
-    meta: "A dedicated fuel station portal to manage dispensers, shifts, and sales. Record opening and closing meter readings for each nozzle accurately. Seamlessly add, edit, delete, and restore shift logs and transaction data. Monitor underground fuel tank levels with daily dip reading records. Track fleet vehicle credit accounts and pending balance payments. Print shift handover slips or export monthly profit and loss reports to PDF.",
+    sub: "Nozzle meter readings, fuel dip tanks & fleet khata",
+    h1: 'Petrol Pump & Fuel Station <span class="accent">Software</span>',
+    keywords: "petrol pump management software, fuel station software, gas station pos software, petrol pump accounting software, petrol pump software pakistan, nozzle reading software, tank dip reading software, fleet fuel credit khata",
+    desc: "Specialized fuel station management software and accounting ledger for petrol pumps, CNG stations, and lube shops. Accurately record opening and closing nozzle meter readings, shift-wise attendant cash reconciliation, underground dip tank inventory, and fuel evaporation losses. Manage commercial fleet vehicle credit khata and export audited profit reports in PDF.",
+    meta: "Petrol pump management software for fuel stations. Track nozzle meter readings, shift cash handover, underground tank dip stock, and fleet credit khata.",
     features: [
       { id: "dispenser-tracking", name: "Dispenser Tracking", icon: "⛽", desc: "Live status and readings of every dispenser and nozzle." },
       { id: "shift-management", name: "Shift Management", icon: "🕒", desc: "Shift-wise cash, fuel readings and smooth staff handover." },
@@ -166,11 +178,13 @@ const CATEGORIES = {
   medicalstore: {
     key: "medicalstore",
     short: "Medical Store",
+    title: "Pharmacy & Medical Store Billing Software with Batch Expiry POS | OMS",
     icon: "💊",
-    sub: "Prescriptions, stock & billing",
-    h1: 'Medical Store <span class="accent">Management</span>',
-    desc: "A modern pharmacy portal built for medicine inventory and fast billing. Search medicines quickly by name or formula and scan barcodes at checkout. Easily add, edit, delete, and restore medicine stock and batch files. Track batch numbers with automatic expiry alerts to prevent losses. Manage customer khata credit balances and supplier purchase bills. Print itemized pharmacy receipts or download complete sales reports in PDF.",
-    meta: "A modern pharmacy portal built for medicine inventory and fast billing. Search medicines quickly by name or formula and scan barcodes at checkout. Easily add, edit, delete, and restore medicine stock and batch files. Track batch numbers with automatic expiry alerts to prevent losses. Manage customer khata credit balances and supplier purchase bills. Print itemized pharmacy receipts or download complete sales reports in PDF.",
+    sub: "Medicine barcode POS, batch expiry & drug stock",
+    h1: 'Pharmacy & Medical Store <span class="accent">Billing Software</span>',
+    keywords: "pharmacy management software, medical store billing software, pharmacy pos software, medicine billing software pakistan, pharmacy software with batch expiry, pharmacy inventory software, medical shop software",
+    desc: "Advanced pharmacy management software and medical store billing POS. Quick medicine search by brand or salt formula, instant barcode counter billing, batch number tracking, and automated expiry date warnings to eliminate inventory loss. Manage customer credit khata, supplier invoices, medicine returns, and daily drug sales reports with 100% tax compliance.",
+    meta: "Pharmacy billing and medical store management software. Features salt-wise search, barcode billing, batch expiry alerts, supplier bills, and customer khata.",
     features: [
       { id: "digital-prescriptions", name: "Digital Prescriptions", icon: "📝", desc: "Receive and save doctor prescriptions against every patient." },
       { id: "medicine-catalog", name: "Medicine Catalog", icon: "💊", desc: "Medicines with brand, form, packing, price and maker company." },
@@ -189,11 +203,13 @@ const CATEGORIES = {
   laboratory: {
     key: "laboratory",
     short: "Laboratory",
+    title: "Diagnostic Laboratory Management Software & LIMS Medical Reports | OMS",
     icon: "🔬",
-    sub: "Tests, samples & reports",
-    h1: 'Laboratory <span class="accent">Management</span>',
-    desc: "A complete diagnostic portal to operate your medical lab paperless. Register patient tests from a full catalog and print barcode sample labels. You can easily add, edit, delete, and restore test records anytime. Track sample progress live from collection to pathologist verification. Deliver accurate digital test reports directly via WhatsApp or print. Download professional PDF lab reports and track daily revenue on any screen.",
-    meta: "A complete diagnostic portal to operate your medical lab paperless. Register patient tests from a full catalog and print barcode sample labels. You can easily add, edit, delete, and restore test records anytime. Track sample progress live from collection to pathologist verification. Deliver accurate digital test reports directly via WhatsApp or print. Download professional PDF lab reports and track daily revenue on any screen.",
+    sub: "Test catalog, sample barcodes & digital PDF reports",
+    h1: 'Diagnostic Laboratory <span class="accent">LIMS Software</span>',
+    keywords: "laboratory management software, diagnostic lab software, pathology lab reporting software, lims software pakistan, medical lab test software, pathology software whatsapp reports, clinical laboratory software",
+    desc: "State-of-the-art laboratory information management system (LIMS) for diagnostic centers, pathology labs, and medical clinics. Manage custom test catalogs, sample barcoding, phlebotomy workflows, and pathologist verified test reporting. Deliver patient reports directly via WhatsApp, SMS, or print clean branded PDF lab reports with comprehensive doctor referral tracking.",
+    meta: "Diagnostic laboratory reporting software (LIMS). Manage patient test booking, barcode sample labels, pathologist verification, WhatsApp report delivery, and billing.",
     features: [
       { id: "test-catalog", name: "Test Catalog", icon: "📋", desc: "All tests with prices, departments and normal ranges." },
       { id: "sample-collection", name: "Sample Collection", icon: "🧪", desc: "Unique sample ID for every patient with barcode labels." },
@@ -213,7 +229,7 @@ const CATEGORIES = {
 
 const CATEGORY_KEY = document.body.dataset.category;
 const CURRENT = CATEGORIES[CATEGORY_KEY] || CATEGORIES.clinic;
-const CURRENT_TITLE = `${CURRENT.short} Management | ${CATEGORY_SITE_NAME}`;
+const CURRENT_TITLE = CURRENT.title || `${CURRENT.short} Management Software | ${CATEGORY_SITE_NAME}`;
 
 const escHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 
@@ -225,10 +241,11 @@ const setMetaContent = (selector, attr, value) => {
 const fillCategoryMeta = () => {
   document.title = CURRENT_TITLE;
   setMetaContent('meta[name="description"]', "content", CURRENT.meta);
-  setMetaContent('link[rel="canonical"]', "href", `${CATEGORY_SITE_URL}/${CURRENT.key}`);
+  setMetaContent('meta[name="keywords"]', "content", CURRENT.keywords);
+  setMetaContent('link[rel="canonical"]', "href", `${CATEGORY_SITE_URL}/${CURRENT.key}.html`);
   setMetaContent('meta[property="og:title"]', "content", CURRENT_TITLE);
   setMetaContent('meta[property="og:description"]', "content", CURRENT.meta);
-  setMetaContent('meta[property="og:url"]', "content", `${CATEGORY_SITE_URL}/${CURRENT.key}`);
+  setMetaContent('meta[property="og:url"]', "content", `${CATEGORY_SITE_URL}/${CURRENT.key}.html`);
   setMetaContent('meta[name="twitter:title"]', "content", CURRENT_TITLE);
   setMetaContent('meta[name="twitter:description"]', "content", CURRENT.meta);
 };

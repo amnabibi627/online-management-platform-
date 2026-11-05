@@ -1419,7 +1419,7 @@ h1, h2, h3, h4, .brand {
 /* ---------- Industries: Sleek Horizontal Card Style ---------- */
 .industry-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.15rem;
 }
 
@@ -1440,7 +1440,7 @@ h1, h2, h3, h4, .brand {
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  min-height: auto !important;
+  min-height: 104px !important;
 }
 
 .industry-card:focus,
@@ -1481,18 +1481,26 @@ h1, h2, h3, h4, .brand {
 }
 
 .industry-card h3 {
-  font-size: 1.16rem !important;
+  font-size: 1.12rem !important;
   font-weight: 800 !important;
   letter-spacing: -0.015em;
   color: #0f172a !important;
   margin: 0 !important;
   padding: 0 !important;
   line-height: 1.25 !important;
-  white-space: nowrap !important;
+  white-space: normal !important;
 }
 
-.industry-card p {
-  display: none !important;
+.industry-card p,
+.industry-card-desc {
+  display: block !important;
+  font-size: 0.83rem !important;
+  color: #475569 !important;
+  margin: 3px 0 6px 0 !important;
+  line-height: 1.35 !important;
+  font-weight: 500 !important;
+  text-align: left !important;
+  text-justify: auto !important;
 }
 
 .industry-card-cta {
@@ -1543,7 +1551,7 @@ body.detail-open { overflow: hidden; }
 .detail-hero p { color: var(--muted); max-width: 62ch; margin: 0 auto; font-size: 1.05rem; }
 
 .detail-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.3rem; padding-bottom: 4rem;
 }
 
@@ -1563,7 +1571,7 @@ body.detail-open { overflow: hidden; }
 /* ---------- Portals ---------- */
 .portals { background: #ffffff; }
 
-.portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.6rem; }
+.portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.6rem; }
 
 @media (min-width: 1200px) {
   .portal-grid {
@@ -7491,9 +7499,7 @@ body {
    HOME PAGE CATEGORY CARD PHOTO THUMBNAILS
    ========================================================= */
 .industry-thumb-wrap {
-  width: 64px !important;
-  height: 64px !important;
-  min-width: 64px !important;
+  width: 68px !important; height: 68px !important; min-width: 68px !important;
   border-radius: 14px !important;
   position: relative !important;
   overflow: hidden !important;

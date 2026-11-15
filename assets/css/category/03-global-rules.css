@@ -1,0 +1,76 @@
+/* ============================================================
+   Category page - 03-global-rules.css
+   Text selection and paragraph justification rules.
+   Split from the original category.css during the 2026-11 refactor.
+   Loaded in numeric order by the page HTML. Keep that order.
+   ============================================================ */
+
+/* ============================================================
+   SECURITY & ANTI-COPY PROTECTION
+   ============================================================ */
+html, body {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"],
+.allow-select,
+.owner-phone,
+.owner-email,
+.receipt-box,
+.receipt-body {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+img, picture, svg {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+}
+
+
+/* ============================================================
+   GLOBAL PARAGRAPH & DESCRIPTION TEXT JUSTIFICATION
+   Aligns all lines equally on both left and right edges neatly
+   ============================================================ */
+p,
+.cat-hero-desc,
+.cat-feature p,
+.cat-related-card p,
+.cat-plan p,
+.cat-cta-card p,
+.cat-modal-body p {
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
+
+
+/* Section heading subtitle lines are centered right beneath the headings */
+.section-head,
+.section-head h2,
+.section-head .section-title,
+.section-head p,
+.section-head .section-subtitle,
+.section-subtitle,
+.cat-features .section-subtitle,
+.cat-plans .section-subtitle,
+.detail-hero,
+.detail-hero h2,
+.detail-hero p {
+  text-align: center !important;
+  text-justify: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}

@@ -1,0 +1,648 @@
+/* ============================================================
+   Home page - 11-late-overrides.css
+   Business registration refresh, category thumbnails and WhatsApp button.
+   Split from the original styles.css during the 2026-11 refactor.
+   Loaded in numeric order by the page HTML. Keep that order.
+   ============================================================ */
+
+/* =========================================================
+   STREAMLINED GLOBAL BUSINESS REGISTRATION & PAYMENT STYLES
+   ========================================================= */
+.reg-modal-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--pink-dark);
+  background: rgba(255, 143, 4, 0.1);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  margin-bottom: 0.45rem;
+}
+
+.reg-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.reg-section-header:first-of-type {
+  margin-top: 0.3rem;
+}
+
+.reg-step-number {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(255, 143, 4, 0.3);
+}
+
+.reg-step-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.reg-step-desc {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.plan-mini-ribbon.best-deal {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.reg-media-compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .reg-media-compact {
+    grid-template-columns: 1fr;
+  }
+}
+
+.media-box-compact {
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+.media-box-compact:hover {
+  border-color: var(--pink);
+  background: #ffffff;
+}
+
+.media-box-info {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.media-box-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.media-box-info strong {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.media-box-info p {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.media-box-compact input[type="file"] {
+  font-size: 0.76rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--muted);
+  width: 100%;
+}
+
+.media-box-compact input[type="file"]::file-selector-button {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  margin-right: 0.5rem;
+  background: linear-gradient(135deg, var(--pink), var(--pink-dark));
+  color: #ffffff;
+}
+
+/* --- 3-Step Payment & Activation Card --- */
+.pay-flow-card {
+  margin-top: 1rem;
+  margin-bottom: 0.8rem;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 143, 4, 0.35);
+  background: linear-gradient(180deg, #ffffff 0%, #fffcf7 100%);
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.pay-flow-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.95rem;
+}
+
+.pay-flow-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--pink);
+  color: #ffffff;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.pay-flow-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pay-flow-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  .pay-flow-steps {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+}
+
+.pay-flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 11px;
+  padding: 0.75rem 0.7rem;
+}
+
+.pay-step-num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  border: 1px solid #bfdbfe;
+}
+
+.pay-flow-step:nth-child(2) .pay-step-num {
+  background: #f0fdf4;
+  color: #16a34a;
+  border-color: #bbf7d0;
+}
+
+.pay-flow-step:nth-child(3) .pay-step-num {
+  background: #fff7ed;
+  color: #ea580c;
+  border-color: #fed7aa;
+}
+
+.pay-step-text strong {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.pay-step-text span {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.35;
+  margin-top: 0.15rem;
+}
+
+/* --- Owner Direct WhatsApp Box --- */
+.pay-owner-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  padding: 0.95rem 1.1rem;
+}
+
+.pay-owner-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 210px;
+}
+
+.pay-owner-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #166534;
+}
+
+.pay-owner-num {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #15803d;
+  letter-spacing: 0.02em;
+}
+
+.pay-owner-methods {
+  font-size: 0.72rem;
+  color: #374151;
+  line-height: 1.35;
+}
+
+.btn-owner-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #25D366;
+  color: #ffffff !important;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.65rem 1.15rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.btn-owner-whatsapp:hover {
+  background: #20ba59;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+  color: #ffffff !important;
+}
+
+.btn-owner-whatsapp svg {
+  flex-shrink: 0;
+}
+
+
+/* --- Subscription Modal Submit Button & Direct WhatsApp Support --- */
+.sub-direct-owner-help {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.sub-owner-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.sub-help-wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #15803d;
+  background: #ffffff;
+  border: 1px solid #86efac;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.18s;
+}
+
+.sub-help-wa-btn:hover {
+  background: #25D366;
+  color: #ffffff;
+  border-color: #25D366;
+}
+
+.sub-reg-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.sub-reg-actions #subCancelBtn,
+.sub-reg-actions #regReset {
+  flex: 0 0 auto !important;
+  min-width: auto !important;
+  padding: 0.85rem 1.3rem !important;
+  white-space: nowrap !important;
+}
+
+.sub-submit-btn-premium {
+  flex: 1 1 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+  background: #25D366 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 0.92rem 1.15rem !important;
+  font-family: inherit !important;
+  font-size: clamp(0.85rem, 1.8vw, 0.98rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.15px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.sub-btn-text {
+  white-space: nowrap !important;
+  display: inline-block !important;
+}
+
+.sub-submit-btn-premium:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.5) !important;
+  background: #20bd5a !important;
+}
+
+.sub-submit-btn-premium:active {
+  transform: translateY(1px) scale(0.99) !important;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28) !important;
+}
+
+.sub-submit-btn-premium:disabled {
+  opacity: 0.75 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.sub-btn-icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.sub-submit-btn-premium:hover .sub-btn-icon {
+  transform: scale(1.12);
+}
+
+@media (max-width: 640px) {
+  .sub-reg-actions {
+    flex-direction: column;
+  }
+  .sub-submit-btn-premium {
+    width: 100% !important;
+    font-size: clamp(0.78rem, 3.6vw, 0.92rem) !important;
+    padding: 0.85rem 0.6rem !important;
+    white-space: nowrap !important;
+  }
+  .sub-reg-actions #subCancelBtn,
+  .sub-reg-actions #regReset {
+    width: 100% !important;
+  }
+}
+
+
+/* Streamlined mini cards for subscription modal & ads (Clean, compact, no clutter) */
+.plan-mini,
+.plan-mini.sub-plan-card {
+  text-align: center !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 0.8rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.25rem !important;
+}
+
+.plan-mini:hover,
+.plan-mini.sub-plan-card:hover {
+  border-color: rgba(255, 143, 4, 0.6) !important;
+  transform: translateY(-1px) !important;
+}
+
+.plan-mini.selected,
+.plan-mini.sub-plan-card.selected {
+  border-color: var(--pink) !important;
+  border-width: 2px !important;
+  background: #f7f9fc !important;
+  box-shadow: 0 0 0 3px rgba(255, 143, 4, 0.18) !important;
+}
+
+.sub-plans-4grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 1.1rem;
+}
+@media (max-width: 600px) {
+  .sub-plans-4grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* =========================================================
+   HOME PAGE CATEGORY CARD PHOTO THUMBNAILS
+   ========================================================= */
+.industry-thumb-wrap {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  border-radius: 14px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1.5px solid rgba(255, 143, 4, 0.45) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+  background: #ffffff !important;
+  flex-shrink: 0 !important;
+}
+
+.industry-thumb-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  transition: transform 0.25s ease !important;
+}
+
+.industry-card:hover .industry-thumb-img {
+  transform: scale(1.08) !important;
+}
+
+.industry-thumb-badge {
+  position: absolute !important;
+  bottom: 3px !important;
+  right: 3px !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 6px !important;
+  padding: 0 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  z-index: 2 !important;
+}
+
+
+
+
+
+/* =========================================================
+   FLOATING WHATSAPP QUICK-CHAT BUTTON
+   ========================================================= */
+.floating-wa-btn {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.15rem 0.65rem 0.85rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #ffffff !important;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.88rem;
+  box-shadow: 0 10px 25px -4px rgba(37, 211, 102, 0.45), 0 4px 10px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.floating-wa-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 16px 32px -4px rgba(37, 211, 102, 0.55), 0 6px 14px rgba(0, 0, 0, 0.16);
+  color: #ffffff !important;
+}
+
+.floating-wa-icon {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+
+.floating-wa-label {
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* Completely remove / hide .to-top button */
+.to-top {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .floating-wa-btn {
+    right: 1rem;
+    bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    justify-content: center;
+  }
+  .floating-wa-label {
+    display: none;
+  }
+  .floating-wa-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .to-top {
+    bottom: 4.8rem !important;
+    right: 1rem !important;
+  }
+}
+
+/* Ensure Super Admin, Business Admin, and Ads panels always display on top of CEO modal */
+#adminModal,
+#ownerAdminModal,
+#bizAdsModal,
+#catAdminModal {
+  z-index: 3000 !important;
+}
+
+#adminModal .admin-panel,
+#ownerAdminModal .admin-panel,
+#bizAdsModal .admin-panel,
+#catAdminModal .admin-panel {
+  max-width: 1060px !important;
+  width: min(1060px, 96vw) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 25px 65px -15px rgba(15, 23, 42, 0.45) !important;
+  position: relative !important;
+}
+
+.admin-return-ceo-btn {
+  margin-left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  background: #f8fafc !important;
+}
+
+.admin-return-ceo-btn:hover {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}

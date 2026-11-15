@@ -58,20 +58,84 @@ still rely on browser storage.
 - **Category workspace cloud storage**: Supabase Auth and per-account cloud
   data for subscribed category workspaces
 
-## Files
+## Project structure
 
-| File | Purpose |
-|------|---------|
-| `index.html` | Page structure, category sections, modals |
-| `script.js`  | Homepage auth, CRUD, sync, reviews and admin logic |
-| `category.js` / `category.css` | Category page subscriptions, workspaces and styling |
-| `feature-registry.js` | Category tools, form fields and Supabase client |
-| `liveads.js` | Renders the public "Running Business Ads" cards |
-| `styles.css` | Styling |
-| `_headers` | Cloudflare Pages security headers (CSP, HSTS, frame options) |
-| `CNAME` | Custom domain `onlinemanagement.site` |
-| `supabase/setup.sql` | Admin, subscriptions, business ads, cashbook, sync tables and row level security |
-| `SETUP.md` | Step by step deployment and security setup guide |
+The site is plain HTML/CSS/JavaScript with **no build step**. Pages live at the
+repository root so every public URL stays short and stable; everything else is
+grouped under `assets/`.
+
+```text
+.
+├── index.html                 Home page (accounts, ads, reviews, admin)
+├── clinic.html                ┐
+├── academy.html               │ 8 category pages. Each is a small HTML shell;
+├── restaurant.html            │ content and workspaces are rendered by
+├── generalstore.html          │ assets/js/category/*.js.
+├── beautysalon.html           │
+├── petrolpump.html            │
+├── laboratory.html            │
+├── medicalstore.html          ┘
+├── signup.html                Standalone sign-up page
+├── 404.html                   Not-found page
+├── CNAME                      Custom domain (onlinemanagement.site)
+├── _headers                   Cloudflare Pages security + cache headers
+├── robots.txt / sitemap.xml   Search-engine files
+├── favicon.svg
+│
+├── assets/
+│   ├── css/
+│   │   ├── styles.css          Home page entry: imports home/*.css in order
+│   │   ├── category.css        Category entry: imports category/*.css in order
+│   │   ├── home/               Home page styles, split by feature (01..11)
+│   │   ├── category/           Category styles, split by feature (01..09)
+│   │   ├── pages/              Page-only styles (home sign-up modal)
+│   │   └── signup.css          Standalone sign-up page styles
+│   ├── js/
+│   │   ├── home/               Home page scripts, split by feature (01..19)
+│   │   ├── category/           Category scripts, split by feature (01..14)
+│   │   ├── feature-registry.js Category catalog, form fields, Supabase client
+│   │   ├── security.js         Console warning + browser-side guards
+│   │   ├── liveads.js          Public "Running Business Ads" cards
+│   │   ├── ui.js               Small shared UI helpers
+│   │   └── signup.js           Standalone sign-up page logic
+│   └── img/                    Photos and device mockup image
+│
+├── supabase/setup.sql          Database schema, functions and RLS policies
+├── docs/
+│   ├── ARCHITECTURE.md         How the pieces fit together
+│   ├── FILE-MAP.md             Every file and what it is for
+│   ├── CONTRIBUTING.md         Rules for safe edits + checklists
+│   └── templates/              Category page template (copy to repo root)
+├── README.md
+└── SETUP.md
+```
+
+### Load order matters
+
+There is no bundler. `index.html` and the category pages include the split
+scripts directly, **in numeric order** (`01-…js`, `02-…js`, …). These are classic
+scripts, so top-level `const`/`let` declarations are shared between the files.
+Never reorder or remove a script tag unless you also move the code it depends on.
+
+The CSS entry files (`assets/css/styles.css` and `assets/css/category.css`) use
+`@import` in cascade order. Edit the partials, not the entry files.
+
+### Where to start
+
+| I want to change… | Edit… |
+|---|---|
+| Home page markup | `index.html` |
+| Home page behaviour | `assets/js/home/<feature>.js` |
+| Home page styling | `assets/css/home/<section>.css` |
+| A category page's markup | `clinic.html`, `academy.html`, … |
+| Category page behaviour | `assets/js/category/<feature>.js` |
+| Category page styling | `assets/css/category/<section>.css` |
+| A tool/feature field | `assets/js/feature-registry.js` |
+| Database schema, RLS, RPCs | `supabase/setup.sql` |
+| Deployment / security | `SETUP.md` |
+
+See [`docs/FILE-MAP.md`](docs/FILE-MAP.md) for a one-line description of every
+file and [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) before making changes.
 
 ## Running
 

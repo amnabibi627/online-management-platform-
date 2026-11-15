@@ -1,0 +1,647 @@
+/* ============================================================
+   Home page - 08-subscription-and-account.css
+   Subscription modal, global theme rules and profile pill.
+   Split from the original styles.css during the 2026-11 refactor.
+   Loaded in numeric order by the page HTML. Keep that order.
+   ============================================================ */
+
+/* ============================================================
+   SUBSCRIPTION PLANS PURCHASE MODAL
+   ============================================================ */
+.subscription-modal-box {
+  width: min(720px, 100%);
+  border: 1px solid rgba(255, 143, 4, 0.35);
+  box-shadow: none;
+}
+.sub-modal-eyebrow {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ff8f04;
+  margin-bottom: 0.35rem;
+}
+.sub-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+.sub-plan-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.1rem 0.9rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  outline: none;
+}
+.sub-plan-card:hover {
+  border-color: rgba(255, 143, 4, 0.6);
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+.sub-plan-card.selected {
+  border-color: #ff8f04;
+  background: #ffffff;
+  box-shadow: none;
+}
+.sub-plan-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sub-plan-badge.badge-popular {
+  background: #ff8f04;
+  color: #ffffff;
+}
+.sub-plan-badge.badge-pro {
+  background: #0f172a;
+  color: #ffffff;
+}
+.sub-plan-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.2rem;
+}
+.sub-plan-price {
+  font-size: 1.22rem;
+  font-weight: 800;
+  color: #ff8f04;
+  margin-bottom: 0.3rem;
+}
+.sub-plan-price strong {
+  font-weight: 800;
+}
+.sub-plan-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+.sub-jazzcash-box {
+  border: 1px dashed rgba(255, 143, 4, 0.45);
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 1.1rem 1.25rem;
+  box-shadow: none;
+  margin-bottom: 1.25rem;
+}
+.sub-jazzcash-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 143, 4, 0.15);
+}
+.sub-jazzcash-icon {
+  font-size: 1.8rem;
+}
+.sub-jazzcash-head strong {
+  display: block;
+  font-size: 0.98rem;
+  color: #0f172a;
+}
+.sub-jazzcash-head p {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+}
+.sub-jazzcash-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+}
+.sub-jc-col {
+  display: flex;
+  flex-direction: column;
+}
+.sub-jc-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.2rem;
+}
+.sub-jc-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.sub-jc-amount {
+  color: #ff8f04;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.sub-approval-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+}
+.sub-notice-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.sub-approval-notice strong {
+  display: block;
+  font-size: 0.86rem;
+  color: #92400e;
+  margin-bottom: 0.15rem;
+}
+.sub-approval-notice p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #b45309;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .sub-plan-grid { grid-template-columns: 1fr; }
+  .sub-jazzcash-details { grid-template-columns: 1fr; }
+}
+
+/* View Portfolio button interactive states */
+#portfolioToggle {
+  background: #ffffff;
+  color: var(--ink);
+  border: 1.5px solid #ff8f04;
+  transition: all 0.2s ease;
+}
+#portfolioToggle:hover,
+#portfolioToggle:active,
+#portfolioToggle:focus-visible,
+#portfolioToggle[aria-expanded="true"] {
+  background: #ff8f04 !important;
+  border-color: #ff8f04 !important;
+  color: #ffffff !important;
+  box-shadow: none;
+}
+
+/* ============================================================
+   GLOBAL PURE WHITE BACKGROUND & NO SHADOW BEHIND BOXES
+   (Inside of boxes keeps its warm orange shade rgba(255, 143, 4, 0.06))
+   ============================================================ */
+html,
+body,
+.hero,
+.section,
+.industries,
+.biz-ads,
+.biz-reg,
+.live-ads,
+.portals,
+.owner-details,
+.reviews-section,
+.category-detail,
+.site-header {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+/* Warm subtle orange shade INSIDE the boxes, crisp orange border */
+.industry-card,
+.owner-profile,
+.reviews-summary,
+.review-form,
+.review-item,
+.ads-combo-live,
+.fiverr-card {
+  background: rgba(255, 143, 4, 0.06) !important;
+  border: 1px solid rgba(255, 143, 4, 0.4) !important;
+  box-shadow: none !important;
+}
+
+.industry-card:hover,
+.fiverr-card:hover {
+  background: rgba(255, 143, 4, 0.09) !important;
+  border-color: #ff8f04 !important;
+  box-shadow: none !important;
+}
+
+.sub-plan-card.selected {
+  background: rgba(255, 143, 4, 0.06) !important;
+  border-color: #ff8f04 !important;
+  box-shadow: none !important;
+}
+
+/* All shadows behind boxes/buttons/cards removed completely */
+.industry-card,
+.owner-profile,
+.reviews-summary,
+.review-form,
+.review-item,
+.ads-combo-live,
+.fiverr-card,
+.live-ads-empty,
+.subscription-modal-box,
+.sub-plan-card,
+.sub-jazzcash-box,
+.portal-card,
+.plan-card,
+.detail-card,
+.owner-modal-box,
+.reg-modal-box,
+.feature-panel,
+.hero-dashboard-card,
+.cat-hero-card,
+.cat-feature,
+.cat-related-card,
+.cat-plan,
+.btn,
+.btn-primary,
+.btn-outline,
+.hero-btn-secondary-action,
+input,
+textarea,
+select {
+  box-shadow: none !important;
+}
+
+.industry-card:hover,
+.fiverr-card:hover,
+.portal-card:hover,
+.detail-card:hover,
+.cat-hero-card:hover,
+.cat-feature:hover,
+.cat-related-card:hover,
+.cat-plan:hover,
+.sub-plan-card:hover,
+.sub-plan-card.selected,
+.btn:hover,
+.btn:active,
+.btn:focus,
+.hero-btn-secondary-action:hover,
+#portfolioToggle:hover,
+#toggleReviewsBtn:hover {
+  box-shadow: none !important;
+}
+
+.hero-glow,
+.reg-cta-glow,
+.cat-hero-card::before,
+.hero-dashboard-card::before {
+  display: none !important;
+}
+
+
+/* ============================================================
+   SECURITY & ANTI-COPY PROTECTION
+   ============================================================ */
+html, body {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"],
+.allow-select,
+.owner-phone,
+.owner-email,
+.receipt-box,
+.receipt-body {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+img, picture, svg {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
+}
+
+
+/* ============================================================
+   GLOBAL PARAGRAPH & DESCRIPTION TEXT JUSTIFICATION
+   Aligns all lines equally on both left and right edges neatly
+   ============================================================ */
+p,
+.hero-text,
+.owner-profile-bio,
+.industry-card p,
+.portal-card p,
+.plan-card p,
+.detail-card p,
+.cat-hero-desc,
+.cat-feature p,
+.cat-related-card p,
+.cat-plan p,
+.cat-cta-card p,
+.cat-modal-body p,
+.fiverr-card p,
+.review-item-text,
+.review-item p,
+.review-comment,
+.promo-banner p,
+.about-text,
+.trust-item p,
+.feature-desc,
+.plan-desc {
+  text-align: justify !important;
+  text-justify: inter-word !important;
+}
+
+/* Section heading subtitle lines are centered right beneath the headings */
+.section-head,
+.section-head h2,
+.section-head .section-title,
+.section-head p,
+.section-head .section-subtitle,
+.section-subtitle,
+.cat-features .section-subtitle,
+.cat-plans .section-subtitle,
+.detail-hero,
+.detail-hero h2,
+.detail-hero p {
+  text-align: center !important;
+  text-justify: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.toast p,
+.btn p,
+.footer-bottom p,
+.copyright {
+  text-align: center !important;
+}
+
+
+/* ============================================================
+   DATA SAFETY, AUTOMATIC DAILY BACKUPS & PRIVACY CHARTER MODALS
+   ============================================================ */
+.category-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+.category-modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+.category-modal-card {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.4);
+  border: 1px solid #e2e8f0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.category-modal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.6rem;
+  border-bottom: 1px solid #edf2f7;
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.category-modal-card-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.category-modal-close-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+.category-modal-close-btn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+.category-modal-card-body {
+  padding: 1.4rem 1.6rem;
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+.safety-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+.safety-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  flex-shrink: 0;
+}
+.safety-section-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.25rem 0 0.5rem;
+}
+.safety-snapshots-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+.safety-snapshot-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: all 0.15s ease;
+}
+.safety-snapshot-item:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+.safety-snapshot-info {
+  display: flex;
+  flex-direction: column;
+}
+.safety-snapshot-date {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+.safety-snapshot-meta {
+  font-size: 0.76rem;
+  color: #64748b;
+  margin-top: 0.1rem;
+}
+.safety-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #edf2f7;
+}
+.privacy-pillar-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.05rem 1.15rem;
+  margin-bottom: 0.9rem;
+}
+.privacy-pillar-box h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.96rem;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.privacy-pillar-box p {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #475569;
+  line-height: 1.6;
+}
+.privacy-dpo-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.85rem;
+  color: #1e40af;
+  margin-top: 1.1rem;
+}
+
+/* ============================================================
+   PROFESSIONAL USER PROFILE HEADER PILL (REPLACES 5-DAY TRIAL TEXT)
+   ============================================================ */
+.header-user-profile-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 999px !important;
+  padding: 0.28rem 0.85rem 0.28rem 0.35rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+  text-decoration: none !important;
+  user-select: none !important;
+}
+.header-user-profile-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+}
+.user-avatar-badge {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #ff8f04 0%, #ea580c 100%) !important;
+  color: #ffffff !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 2px 6px rgba(255, 143, 4, 0.25) !important;
+}
+.user-meta-text {
+  display: flex !important;
+  flex-direction: column !important;
+  text-align: left !important;
+  line-height: 1.15 !important;
+}
+.user-id-title {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+.user-id-code {
+  font-size: 0.68rem !important;
+  font-weight: 800 !important;
+  color: #64748b !important;
+  letter-spacing: 0.04em !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+.user-online-dot {
+  display: none !important;
+}
+.user-dropdown-arrow {
+  font-size: 0.7rem !important;
+  color: #94a3b8 !important;
+  margin-left: 0.15rem !important;
+  transition: transform 0.2s ease !important;
+}
+.header-user-profile-btn:hover .user-dropdown-arrow {
+  color: #475569 !important;
+}

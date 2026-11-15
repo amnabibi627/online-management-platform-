@@ -1,0 +1,1109 @@
+/* ============================================================
+   Home page - 07-device-showcase.css
+   Accessibility layer, device mockups and hero device image.
+   Split from the original styles.css during the 2026-11 refactor.
+   Loaded in numeric order by the page HTML. Keep that order.
+   ============================================================ */
+
+/* ============================================================
+   PROFESSIONAL LAYER
+   Trust strip, progress bar, back-to-top
+   ============================================================ */
+
+/* ---- Accessibility: skip link ---- */
+.skip-link {
+  position: absolute; left: 50%; top: -90px; transform: translateX(-50%);
+  z-index: 400; background: #ffffff; color: var(--ink);
+  padding: 0.75rem 1.3rem; border-radius: 0 0 14px 14px;
+  font-weight: 700; font-size: 0.85rem; text-decoration: none;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22);
+  transition: top 0.18s ease;
+}
+.skip-link:focus { top: 0; }
+
+/* ---- Reading progress bar ---- */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  background: #ff8f04;
+  z-index: 400; pointer-events: none;
+}
+
+/* ---- Focus rings ---- */
+:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.site-header :focus-visible { outline-color: #000000; }
+
+::selection { background: rgba(0, 0, 0, 0.18); color: var(--ink); }
+
+/* ---- Trust strip (overlaps the hero bottom edge) ---- */
+.trust-strip { position: relative; z-index: 3; margin-top: -48px; }
+.trust-inner {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 28px 56px -32px rgba(15, 23, 42, 0.55);
+  overflow: hidden;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 1.35rem 1.4rem;
+  border-left: 1px solid var(--border);
+}
+.trust-item:first-child { border-left: 0; }
+.trust-icon {
+  width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 1.2rem;
+  background: #ffffff;
+  border: 1px solid #dbe8fb;
+}
+.trust-text { min-width: 0; }
+.trust-text strong {
+  display: block; font-size: 0.97rem; font-weight: 800;
+  letter-spacing: -0.015em; color: var(--ink); line-height: 1.25;
+}
+.trust-text span { display: block; font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+
+/* ---- Business ads band keeps a crisp white edge between the light sections ---- */
+.biz-ads {
+  background: #ffffff;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---- Back to top ---- */
+.to-top {
+  position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 90;
+  width: 46px; height: 46px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--navy); color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 18px 34px -18px rgba(15, 23, 42, 0.85);
+  cursor: pointer;
+  -webkit-tap-highlight-color: rgba(255, 143, 4, 0.2); font-size: 1rem;
+  opacity: 0; visibility: hidden; transform: translateY(12px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s, background 0.2s;
+}
+.to-top.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.to-top:hover { background: var(--pink); }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  background: #0f172a;
+  color: #e2e8f0;
+  margin-top: 4rem;
+  padding: 3rem 0 1.5rem;
+}
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+.footer-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+}
+.footer-tagline {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.footer-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.8rem;
+}
+.footer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.footer-list a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+.footer-list a:hover {
+  color: #ff8f04;
+}
+.footer-bottom {
+  border-top: 1px solid rgba(148, 163, 184, 0.3);
+  padding-top: 1.2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* ---- Subtle reveal on scroll (only when JS is running) ---- */
+html.js .reveal { opacity: 0; transform: translateY(18px); }
+html.js .reveal.in {
+  opacity: 1; transform: none;
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  html.js .reveal { opacity: 1; transform: none; }
+  .industry-card, .to-top { transition: none; }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .trust-strip { margin-top: -34px; }
+  .trust-inner { grid-template-columns: 1fr 1fr; }
+  .trust-item:nth-child(3) { border-left: 0; }
+  .trust-item:nth-child(n + 3) { border-top: 1px solid var(--border); }
+}
+
+@media (max-width: 560px) {
+  .trust-inner { grid-template-columns: 1fr; }
+  .trust-item { border-left: 0; }
+  .trust-item:nth-child(n + 2) { border-top: 1px solid var(--border); }
+  .trust-strip { margin-top: -26px; }
+  .to-top { right: 0.85rem; bottom: 0.85rem; width: 42px; height: 42px; }
+}
+
+
+
+
+/* ============================================================
+   Laptop + Smartphone Multi-Device Live Sync Mockup
+   ============================================================ */
+.device-showcase-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 530px;
+  margin: 0 auto;
+  padding: 1.2rem 0 1rem;
+}
+
+/* Floating Live Sync Pill */
+.device-sync-badge {
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1.5px solid #22c55e;
+  box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.28);
+  font-size: 0.74rem;
+  color: #15803d;
+  animation: syncBadgeFloat 3s ease-in-out infinite alternate;
+}
+
+@keyframes syncBadgeFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+.device-sync-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
+  animation: heroPulse 1.8s infinite ease-in-out;
+}
+
+/* ----- 1. ULTRABOOK LAPTOP (Matching User's Image) ----- */
+.device-laptop {
+  position: relative;
+  width: 88%;
+  margin-right: auto;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.laptop-lid {
+  border-radius: 9px 9px 2px 2px;
+  background: #000000;
+  padding: 4px 4px 0 4px;
+  border: 1px solid #1e293b;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.45);
+  position: relative;
+}
+
+.laptop-cam {
+  width: 4.5px;
+  height: 4.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #38bdf8 15%, #0284c7 35%, #050b14 90%);
+  margin: 1px auto 3px;
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.95);
+  position: relative;
+}
+
+.laptop-screen {
+  border-radius: 3px;
+  background: #ffffff;
+  overflow: hidden;
+  border: 1px solid #000000;
+  position: relative;
+}
+
+/* Glass Screen Glare Sheen */
+.laptop-screen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 42%, rgba(255, 255, 255, 0) 65%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Laptop Bottom Bezel Chin with Brand Name */
+.laptop-display-chin {
+  height: 14px;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #111827;
+}
+
+.laptop-chin-logo {
+  color: #e2e8f0;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  opacity: 0.9;
+}
+
+/* Laptop Unibody Silver Aluminum Base */
+.laptop-base {
+  height: 11px;
+  width: calc(100% + 22px);
+  margin: 0 -11px;
+  background: linear-gradient(180deg, #f1f5f9 0%, #cbd5e1 35%, #94a3b8 80%, #64748b 100%);
+  border-radius: 0 0 12px 12px;
+  position: relative;
+  border-top: 1.5px solid #ffffff;
+  box-shadow:
+    0 22px 48px -8px rgba(15, 23, 42, 0.38),
+    0 8px 18px -4px rgba(15, 23, 42, 0.22),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.laptop-notch {
+  width: 58px;
+  height: 3.5px;
+  background: #64748b;
+  margin: 0 auto;
+  border-radius: 0 0 4px 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Laptop Software App Screen */
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.45rem 0.75rem;
+}
+
+.app-dots {
+  display: flex;
+  gap: 4.5px;
+}
+.app-dots span {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+}
+.app-dots span:nth-child(1) { background: #ef4444; }
+.app-dots span:nth-child(2) { background: #f59e0b; }
+.app-dots span:nth-child(3) { background: #10b981; }
+
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.app-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+}
+
+.app-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.app-body {
+  padding: 0.65rem 0.8rem;
+  background: #ffffff;
+}
+
+.pos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.55rem;
+  background: #fffbf5;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  margin-bottom: 0.55rem;
+}
+
+.pos-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #ff8f04;
+  background: #ffedd5;
+  padding: 0.15rem 0.4rem;
+  border-radius: 5px;
+  margin-right: 0.35rem;
+}
+
+.pos-date {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.pos-cat-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #ff8f04;
+  background: #ffffff;
+  border: 1px solid #fdba74;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+}
+
+/* POS Cart Table */
+.pos-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.55rem;
+}
+
+.pos-row {
+  display: grid;
+  grid-template-columns: 2.2fr 0.8fr 1fr 1fr;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.74rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+}
+.pos-row:last-child {
+  border-bottom: none;
+}
+.pos-row.pos-head {
+  background: #f8fafc;
+  font-weight: 700;
+  color: #64748b;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pos-item-name {
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pos-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.pos-total-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-right: 0.35rem;
+}
+
+.pos-total-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.pos-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pos-btn {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.pos-btn-paid {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+.pos-btn-print {
+  background: #ff8f04;
+  color: #ffffff;
+  border: 1px solid #ff8f04;
+  box-shadow: 0 2px 6px rgba(255, 143, 4, 0.3);
+}
+
+/* ----- 2. CURVED SCREEN SMARTPHONE (Matching User's Image Standing on Right) ----- */
+.device-phone {
+  position: absolute;
+  right: -10px;
+  bottom: 0px;
+  width: 156px;
+  border-radius: 26px;
+  background: #000000;
+  padding: 3px;
+  box-shadow:
+    0 0 0 1px #94a3b8,
+    0 0 0 2px #334155,
+    0 24px 50px -8px rgba(0, 0, 0, 0.55),
+    -10px 14px 28px -4px rgba(0, 0, 0, 0.35);
+  z-index: 10;
+  animation: phoneFloat 3.8s ease-in-out infinite alternate;
+}
+
+@keyframes phoneFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-6px); }
+}
+
+/* Smartphone Curved OLED Display */
+.phone-screen {
+  position: relative;
+  border-radius: 23px;
+  background: #ffffff;
+  padding: 0.32rem 0.45rem 0.55rem;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  box-shadow:
+    inset 2px 0 3px rgba(255, 255, 255, 0.6),
+    inset -2px 0 3px rgba(255, 255, 255, 0.6);
+}
+
+/* Centered Pinhole Punch-Hole Camera (Honor 70 Style) */
+.phone-punchhole {
+  width: 6.5px;
+  height: 6.5px;
+  border-radius: 50%;
+  background: #000000;
+  margin: 1px auto 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2), inset 0 0 1px rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 8;
+}
+
+.punchhole-dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #38bdf8 30%, #0369a1 80%);
+}
+
+/* Glass Screen Glare Overlay */
+.phone-screen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 45%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
+  z-index: 12;
+}
+
+.phone-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 0.45rem;
+  padding: 0 0.15rem;
+}
+
+.phone-sync-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  padding: 0.22rem 0.4rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #047857;
+  margin-bottom: 0.45rem;
+}
+
+.phone-sync-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+.phone-stat-card {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.phone-stat-label {
+  font-size: 0.62rem;
+  color: #7c2d12;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.phone-stat-num {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ff8f04;
+  line-height: 1.15;
+}
+
+.phone-stat-sub {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #047857;
+  margin-top: 0.15rem;
+}
+
+.phone-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.45rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  margin-bottom: 0.45rem;
+}
+
+.phone-recent-icon {
+  font-size: 0.85rem;
+}
+
+.phone-recent-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.phone-recent-title {
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.phone-recent-sub {
+  font-size: 0.56rem;
+  color: #64748b;
+}
+
+.phone-check {
+  font-size: 0.7rem;
+  color: #10b981;
+  font-weight: 800;
+}
+
+.phone-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ff8f04;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(255, 143, 4, 0.35);
+}
+
+/* Responsive adjustment for Mobile screens */
+@media (max-width: 600px) {
+  .device-showcase-wrap {
+    max-width: 360px;
+    padding: 0.8rem 0 0.5rem;
+  }
+  .device-sync-badge {
+    top: -10px;
+    left: 8px;
+    font-size: 0.68rem;
+    padding: 0.28rem 0.65rem;
+  }
+  .device-laptop {
+    width: 86%;
+  }
+  .device-phone {
+    width: 130px;
+    right: -4px;
+    bottom: 0px;
+    padding: 2.5px;
+    border-radius: 22px;
+  }
+  .phone-screen {
+    border-radius: 19px;
+    padding: 0.28rem 0.38rem 0.45rem;
+  }
+  .phone-punchhole {
+    width: 5px;
+    height: 5px;
+    margin: 1px auto 3px;
+  }
+  .phone-stat-num {
+    font-size: 0.92rem;
+  }
+  .pos-row {
+    font-size: 0.68rem;
+    padding: 0.25rem 0.35rem;
+  }
+  .pos-item-name {
+    max-width: 90px;
+  }
+  .pos-total-val {
+    font-size: 0.92rem;
+  }
+  .pos-btn {
+    font-size: 0.62rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .device-showcase-wrap {
+    max-width: 310px;
+  }
+  .device-phone {
+    width: 120px;
+    right: -2px;
+  }
+  .device-laptop {
+    width: 88%;
+  }
+}
+
+
+/* ============================================================
+   Website Preview Inside Laptop & Smartphone Devices
+   ============================================================ */
+/* Laptop Browser Bar */
+.browser-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  background: #f1f5f9;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.35rem 0.7rem;
+}
+
+.browser-dots {
+  display: flex;
+  gap: 4px;
+}
+.browser-dots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.browser-dots span:nth-child(1) { background: #ef4444; }
+.browser-dots span:nth-child(2) { background: #f59e0b; }
+.browser-dots span:nth-child(3) { background: #10b981; }
+
+.browser-address-bar {
+  flex: 1;
+  max-width: 250px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.64rem;
+  color: #475569;
+  font-family: monospace;
+}
+.browser-lock { font-size: 0.6rem; }
+.browser-url { font-size: 0.62rem; font-weight: 600; color: #334155; }
+.browser-refresh { font-size: 0.66rem; color: #94a3b8; }
+
+.browser-actions {
+  display: flex;
+  align-items: center;
+}
+.browser-tab-live {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+}
+
+/* Laptop Inner Webpage Content */
+.laptop-site-viewport {
+  background: #ffffff;
+  padding: 0.55rem 0.75rem 0.8rem;
+  overflow: hidden;
+}
+
+.mock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.5rem;
+}
+
+.mock-brand {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+}
+.mock-brand .mock-accent {
+  color: #ff8f04;
+  font-weight: 900;
+}
+
+.mock-nav {
+  display: flex;
+  gap: 0.35rem;
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: #475569;
+}
+.mock-nav-item.is-active {
+  color: #ff8f04;
+  font-weight: 700;
+}
+
+.mock-signup-btn {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.mock-hero {
+  text-align: center;
+  padding: 0.15rem 0;
+}
+
+.mock-hero-badge {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #ff8f04;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  margin-bottom: 0.3rem;
+}
+
+.mock-hero-heading {
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+.mock-hero-heading .mock-lead {
+  display: block;
+  color: #0f172a;
+}
+.mock-hero-heading .mock-accent-text {
+  display: block;
+  color: #ff8f04;
+}
+
+.mock-hero-sub {
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1.25;
+  margin: 0 auto 0.45rem;
+  max-width: 280px;
+}
+
+.mock-cta-row {
+  margin-bottom: 0.6rem;
+}
+.mock-primary-btn {
+  display: inline-block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(255, 143, 4, 0.35);
+}
+
+.mock-categories-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
+}
+
+.mock-cat-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.3rem 0.15rem;
+  text-align: center;
+}
+.mock-cat-icon {
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 0.1rem;
+}
+.mock-cat-name {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #334155;
+  display: block;
+}
+
+/* Smartphone Inner Webpage Content */
+.phone-site-viewport {
+  padding: 0.45rem 0.5rem;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.phone-browser-bar {
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 0.14rem 0.4rem;
+  font-size: 0.54rem;
+  color: #475569;
+  text-align: center;
+  font-family: monospace;
+  border: 1px solid #e2e8f0;
+}
+.phone-lock { font-size: 0.5rem; }
+.phone-url { font-weight: 600; }
+
+.phone-site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.phone-brand {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+.phone-brand-hi {
+  color: #ff8f04;
+}
+.phone-hamburger {
+  font-size: 0.7rem;
+  color: #334155;
+  line-height: 1;
+}
+
+.phone-site-hero {
+  text-align: center;
+  padding: 0.15rem 0;
+}
+
+.phone-hero-pill {
+  display: inline-block;
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 0.08rem 0.35rem;
+  margin-bottom: 0.2rem;
+}
+
+.phone-hero-h1 {
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+.phone-accent-text {
+  display: block;
+  color: #ff8f04;
+}
+
+.phone-hero-btn {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.18rem 0.55rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(255, 143, 4, 0.3);
+}
+
+.phone-cat-chips {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.25rem;
+}
+
+.phone-chip {
+  font-size: 0.54rem;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  padding: 0.2rem 0.25rem;
+  text-align: center;
+}
+
+.phone-live-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.54rem;
+  font-weight: 700;
+  color: #047857;
+  margin-top: 0.15rem;
+}
+.phone-live-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: heroPulse 1.8s infinite;
+}
+
+
+.phone-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.phone-mini-signup {
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #ff8f04;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  line-height: 1;
+}
+.phone-hero-sub {
+  font-size: 0.52rem;
+  color: #64748b;
+  line-height: 1.25;
+  margin: 0 0 0.3rem;
+}
+.mock-categories-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr) !important;
+  gap: 0.25rem !important;
+}
+
+/* ============================================================
+   Hero Devices Image (Exact Laptop + Smartphone Picture)
+   ============================================================ */
+.hero-image-wrap {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: #ffffff;
+  box-shadow: none !important;
+}
+
+.hero-devices-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  background: #ffffff;
+  filter: none !important;
+  box-shadow: none !important;
+  transition: none;
+}

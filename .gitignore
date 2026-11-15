@@ -1,0 +1,12 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Local tooling
+.vscode/
+.idea/
+
+# Local test servers / scratch files
+/node_modules/

@@ -9,32 +9,50 @@
   Cross-Origin-Resource-Policy: same-origin
   X-XSS-Protection: 0
 
+# HTML pages: always revalidate so a deploy is visible immediately.
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
 
 /404.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/styles.css
+/signup.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/script.js
+/clinic.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/feature-registry.js
+/academy.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/category.js
+/restaurant.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/category.css
+/generalstore.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/liveads.js
+/beautysalon.html
   Cache-Control: public, max-age=0, must-revalidate
 
-/ui.js
+/petrolpump.html
   Cache-Control: public, max-age=0, must-revalidate
+
+/medicalstore.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/laboratory.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Styles and scripts: always revalidate (the ?v= query string also busts caches).
+/assets/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/js/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Images are versioned with ?v= in the markup, so a one-day cache is safe.
+/assets/img/*
+  Cache-Control: public, max-age=86400
 
 /favicon.svg
   Cache-Control: public, max-age=86400

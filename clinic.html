@@ -7,7 +7,6 @@
   <meta name="description" content="Online Management Site gives clinics patient records, smart appointments, OPD tokens, digital prescriptions, billing and reports in one simple portal." />
   <meta name="theme-color" content="#ffffff" />
   <meta http-equiv="X-Content-Type-Options" content="nosniff" />
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
   <link rel="canonical" href="https://onlinemanagement.site/clinic" />
@@ -25,9 +24,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261104InterconnectedPages" />
-  <link rel="stylesheet" href="category.css?v=20261105RelatedThumbs" />
-  <script src="security.js?v=20261031EnableCopy"></script>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20261115Organized" />
+  <link rel="stylesheet" href="assets/css/category.css?v=20261115Organized" />
+  <script src="assets/js/security.js?v=20261115Organized"></script>
 </head>
 <body data-category="clinic">
 
@@ -74,7 +73,7 @@
         </div>
 
                 <div class="cat-hero-image-wrap">
-          <img src="images/clinic.jpg?v=20261105LuxuryV4" alt="Clinic Management Portal" class="cat-hero-devices-img cat-hero-photo" width="725" height="423" loading="eager" style="display: block !important; width: 100% !important; max-width: 560px !important; height: 350px !important; object-fit: cover !important; border-radius: 20px !important;" />
+          <img src="assets/img/clinic.jpg?v=20261105LuxuryV4" alt="Clinic Management Portal" class="cat-hero-devices-img cat-hero-photo" width="725" height="423" loading="eager" style="display: block !important; width: 100% !important; max-width: 560px !important; height: 350px !important; object-fit: cover !important; border-radius: 20px !important;" />
         </div>
       </div>
     </section>
@@ -243,9 +242,23 @@
   </a>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="feature-registry.js?v=20261023K"></script>
-  <script src="category.js?v=20261105RelatedThumbs"></script>
-  <script src="ui.js?v=20261023J"></script>
+  <script src="assets/js/feature-registry.js?v=20261115Organized"></script>
+  <!-- Category page scripts - loaded in numeric order; do not reorder. -->
+  <script src="assets/js/category/01-config.js?v=20261115Organized"></script>
+  <script src="assets/js/category/02-category-catalog.js?v=20261115Organized"></script>
+  <script src="assets/js/category/03-page-state.js?v=20261115Organized"></script>
+  <script src="assets/js/category/04-access-and-trial.js?v=20261115Organized"></script>
+  <script src="assets/js/category/05-trial-modal.js?v=20261115Organized"></script>
+  <script src="assets/js/category/06-auth-and-paywall.js?v=20261115Organized"></script>
+  <script src="assets/js/category/07-workspace-data.js?v=20261115Organized"></script>
+  <script src="assets/js/category/08-export-and-backup.js?v=20261115Organized"></script>
+  <script src="assets/js/category/09-safety-modals.js?v=20261115Organized"></script>
+  <script src="assets/js/category/10-saas-shell.js?v=20261115Organized"></script>
+  <script src="assets/js/category/11-render-list-and-form.js?v=20261115Organized"></script>
+  <script src="assets/js/category/12-open-feature.js?v=20261115Organized"></script>
+  <script src="assets/js/category/13-feature-actions.js?v=20261115Organized"></script>
+  <script src="assets/js/category/14-page-init.js?v=20261115Organized"></script>
+  <script src="assets/js/ui.js?v=20261115Organized"></script>
 
 </body>
 </html>

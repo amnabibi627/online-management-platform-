@@ -220,19 +220,57 @@ name `www`, target `onlinemanagement.site`, proxy **Proxied**.
 
 ## 3. After every code change
 
-`script.js`, `styles.css` and `liveads.js` are served with
-`max-age=0, must-revalidate`, so the browser always checks the server first.
-Even so, bump the version query string in `index.html` so every visitor gets the
-new file instantly, with no chance of a stale cached copy:
+All CSS and JavaScript now live under `assets/`. `_headers` serves HTML,
+`/assets/css/*` and `/assets/js/*` with `max-age=0, must-revalidate`, so the
+browser revalidates on every visit. Images under `/assets/img/*` are cached for
+one day.
+
+The HTML files still carry a shared version query string on every local asset
+(`?v=20261115Organized`). Bump it in **all** HTML files after a production change
+so browsers and the Cloudflare edge fetch the new files immediately:
 
 ```html
-<link rel="stylesheet" href="styles.css?v=20260422e" />
-<script src="script.js?v=20260422e"></script>
+<link rel="stylesheet" href="assets/css/styles.css?v=20261116Fix" />
+<link rel="stylesheet" href="assets/css/category.css?v=20261116Fix" />
+<script src="assets/js/home/01-core-utilities.js?v=20261116Fix"></script>
 ```
 
-Then commit and push. Cloudflare Pages deploys automatically (usually 1 to 3
-minutes). If the live site still shows the old version, do a hard refresh
-(`Ctrl + Shift + R`) once.
+The same string is used by `index.html`, the eight category pages, `signup.html`
+and `docs/templates/category-page-template.html`.
+
+### 3.1 Bump every HTML file at once (PowerShell)
+
+Run from the repository root and replace the version value with today's tag:
+
+```powershell
+$new = "20261116Fix"
+$files = @(Get-ChildItem -Filter *.html) + @(Get-Item docs\templates\category-page-template.html)
+$files | ForEach-Object {
+  $text = Get-Content $_.FullName -Raw
+  $updated = $text -replace '(assets/(?:css|js|img)/[^"''?\s]+)\?v=[^"''&]+', "`$1?v=$new"
+  if ($updated -ne $text) {
+    Set-Content -Path $_.FullName -Value $updated -NoNewline -Encoding UTF8
+  }
+}
+```
+
+The regex only touches local `assets/css`, `assets/js` and `assets/img` URLs.
+External CDN and Google Fonts URLs are left alone. Review the diff with
+`git diff --stat` before committing. The template is included so the next new
+category page starts with the current version.
+
+### 3.2 Safe edit order
+
+1. Edit the relevant partial in `assets/css/**` or `assets/js/**`.
+2. Reload locally and check the console (see `docs/CONTRIBUTING.md`).
+3. Bump `?v=` in every HTML file.
+4. `git add -A`, commit, push.
+5. Cloudflare Pages deploys automatically (usually 1 to 3 minutes).
+6. If the live site still shows old code, hard refresh (`Ctrl + Shift + R`).
+
+**Do not** reorder `<script>` tags or CSS `@import` lines while bumping
+versions. The split files share one global scope and a cascade; order is part of
+the behaviour. See `docs/ARCHITECTURE.md`.
 
 ---
 

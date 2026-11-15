@@ -1,0 +1,16 @@
+/* ============================================================
+   CATEGORY PAGE STYLES - ENTRY POINT
+   This file is the entry point. It only imports the partials
+   below, in cascade order. Edit the partials, not this list,
+   unless you are adding a new stylesheet section.
+   ============================================================ */
+
+@import url("./category/01-category-shell.css");
+@import url("./category/02-workspace.css");
+@import url("./category/03-global-rules.css");
+@import url("./category/04-saas-portal.css");
+@import url("./category/05-safety-and-buttons.css");
+@import url("./category/06-table-and-kpi.css");
+@import url("./category/07-analytics-and-profile.css");
+@import url("./category/08-enterprise-extensions.css");
+@import url("./category/09-legal-phone-whatsapp.css");
